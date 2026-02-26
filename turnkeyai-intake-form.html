@@ -364,7 +364,7 @@
                 <div class="form-group" style="margin-top:16px;padding:16px;background:#fff3cd;border:1px solid #ffc107;border-radius:10px;">
                     <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin:0;">
                         <input type="checkbox" id="skipPhotosCheckbox" name="skipPhotos" value="yes" onchange="updatePhotoRequirement()" style="width:18px;height:18px;margin-top:2px;">
-                        <span style="font-size:13px;"><strong>Skip photos for now</strong> — I can email photos later to airesources89@gmail.com</span>
+                        <span style="font-size:13px;"><strong>Skip photos for now</strong> — I can email photos later to <a href="airesources89@gmail.com</span>
                     </label>
                 </div>
                 <div id="photoValidationMsg" style="display:none;color:#dc2626;font-size:13px;font-weight:600;margin-top:10px;padding:10px;background:#fef2f2;border-radius:8px;">⚠️ Please upload at least an owner photo and one work photo, or check the box above to skip.</div>
@@ -418,7 +418,7 @@
                     <li>We build your AI-powered website (typically within 24 hours)</li>
                     <li>You'll receive a preview link by email to review and approve</li>
                     <li>Once approved, your site goes live with AI chat, booking, and lead capture</li>
-                    <li>Send your logo and photos to <strong>airesources89@gmail.com</strong></li>
+                    <li>Send your logo and photos to <strong><a href="airesources89@gmail.com</strong></li>
                 </ul>
             </div>
             <p style="margin-top:24px;font-size:14px;color:var(--gray-500);">Questions? Call us at (603) 922-2004</p>
@@ -611,12 +611,4 @@
                     document.getElementById('photoValidationMsg').style.display = 'none';
                 };
                 img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function updatePhotoRequirement() { document.getElementById('photoValidationMsg').style.display = 'none'; }
-
-        function validatePhotos() {
-            if (document.getElementById('skipPhotosCheckbox').checked) return true;
-            var hasOwner = document.getElementById('ownerPhoto
+     
