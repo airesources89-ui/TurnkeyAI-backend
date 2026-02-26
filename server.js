@@ -17,7 +17,12 @@ const PORT = process.env.PORT || 3000;
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-// ── SERVE INTAKE FORM INLINE ──────────────────────────────────────────────
+// ── HEALTH CHECK ──────────────────────────────────────────────────────────
+app.get('/', (req, res) => {
+  res.json({ status: 'TurnkeyAI Backend Running', time: new Date().toISOString() });
+});
+
+// ── SERVE INTAKE FORM ────────────────────────────────────────────────────
 const INTAKE_FORM_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -630,15 +635,37 @@ const INTAKE_FORM_HTML = `<!DOCTYPE html>
                     document.getElementById('photoValidationMsg').style.display = 'none';
                 };
                 img.src = e.target.result;
-     `;
+                 };
+            reader.readAsDataURL(file);
+        }
+
+        function validatePhotos() {
+            var skipPhotos = document.getElementById('skipPhotosCheckbox') && document.getElementById('skipPhotosCheckbox').checked;
+            if (skipPhotos) return true;
+            var ownerPhoto = document.getElementById('ownerPhotoData').value;
+            var workPhoto1 = document.getElementById('workPhoto1Data').value;
+            if (!ownerPhoto || !workPhoto1) {
+                document.getElementById('photoValidationMsg').style.display = 'block';
+                return false;
+            }
+            return true;
+        }
+
+        function updatePhotoRequirement() {
+            document.getElementById('photoValidationMsg').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+`;
 
 app.get('/intake.html', (req, res) => {
-  res.setHeader('Content-Type', 'text/html');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(INTAKE_FORM_HTML);
 });
 
 app.get('/intake', (req, res) => {
-  res.setHeader('Content-Type', 'text/html');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(INTAKE_FORM_HTML);
 });
 
