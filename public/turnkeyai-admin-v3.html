@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TurnkeyAI Admin | airesources89</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;}
+.header{background:linear-gradient(135deg,#1e40af,#0066FF);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;}
+.header h1{font-size:22px;font-weight:700;color:#fff;}
+.header h1 span{color:#00D68F;}
+.header-links a{color:rgba(255,255,255,.7);text-decoration:none;margin-left:16px;font-size:13px;}
+.header-links a:hover{color:#fff;}
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:24px 24px 0;max-width:1200px;margin:0 auto;}
+.stat{background:#1e293b;border-radius:12px;padding:20px;text-align:center;border:1px solid #334155;}
+.stat-num{font-size:36px;font-weight:700;color:#00D68F;}
+.stat-label{font-size:13px;color:#94a3b8;margin-top:4px;}
+.main{max-width:1200px;margin:0 auto;padding:20px 24px 60px;}
+.tabs{display:flex;gap:0;margin-bottom:24px;border-bottom:2px solid #1e293b;}
+.tab{padding:12px 22px;border:none;background:none;color:#94a3b8;font-size:14px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;}
+.tab.active{color:#60a5fa;border-bottom-color:#60a5fa;}
+.tab:hover{color:#e2e8f0;}
+.panel{display:none;}
+.panel.active{display:block;}
+.card{background:#1e293b;border-radius:12px;padding:20px;margin-bottom:14px;border:1px solid #334155;}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.biz-name{font-size:17px;font-weight:700;color:#f1f5f9;}
+.biz-meta{font-size:13px;color:#94a3b8;margin-top:2px;}
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.badge-pending{background:#fef3c7;color:#92400e;}
+.badge-review{background:#dbeafe;color:#1e40af;}
+.badge-active{background:#d1fae5;color:#065f46;}
+.badge-partner{background:#ede9fe;color:#5b21b6;}
+.badge-trial{background:#fce7f3;color:#9d174d;}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid #334155;}
+.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;}
+.btn-approve{background:#10B981;color:#fff;}
+.btn-approve:hover{background:#059669;}
+.btn-changes{background:#f59e0b;color:#fff;}
+.btn-decline{background:#ef4444;color:#fff;}
+.btn-resend{background:#6366f1;color:#fff;}
+.btn-secondary{background:#334155;color:#e2e8f0;}
+.btn-secondary:hover{background:#475569;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:13px;margin-top:8px;}
+.detail-grid span{color:#94a3b8;}
+.detail-grid b{color:#cbd5e1;}
+.empty{text-align:center;color:#475569;padding:60px;font-size:15px;}
+.toast{position:fixed;bottom:24px;right:24px;background:#10B981;color:#fff;padding:14px 22px;border-radius:10px;font-weight:600;z-index:999;display:none;font-size:14px;box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:#1e293b;border-radius:16px;padding:28px;max-width:520px;width:90%;border:1px solid #334155;}
+.modal h3{font-size:18px;font-weight:700;margin-bottom:16px;color:#f1f5f9;}
+.modal label{display:block;font-size:13px;color:#94a3b8;margin-bottom:6px;margin-top:14px;}
+.modal input,.modal textarea,.modal select{width:100%;padding:10px 14px;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#e2e8f0;font-size:14px;font-family:inherit;}
+.modal textarea{min-height:100px;resize:vertical;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+.tier-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;background:#1e40af;color:#fff;margin-left:8px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>TurnkeyAI<span>Admin</span></h1>
+  <div class="header-links">
+    <a href="/intake.html" target="_blank">Client Intake Form</a>
+    <a href="/">Server Status</a>
+  </div>
+</div>
+
+<div class="stats-bar" id="statsBar">
+  <div class="stat"><div class="stat-num" id="statPending">0</div><div class="stat-label">Pending Build</div></div>
+  <div class="stat"><div class="stat-num" id="statReview">0</div><div class="stat-label">Awaiting Review</div></div>
+  <div class="stat"><div class="stat-num" id="statActive">0</div><div class="stat-label">Active Clients</div></div>
+  <div class="stat"><div class="stat-num" id="statPartners">0</div><div class="stat-label">Territory Partners</div></div>
+</div>
+
+<div class="main">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('clients')">📋 Client Submissions</button>
+    <button class="tab" onclick="switchTab('partners')">🤝 Territory Partners</button>
+  </div>
+
+  <!-- CLIENTS PANEL -->
+  <div class="panel active" id="panel-clients">
+    <div id="clientsList"><div class="empty">Loading submissions...</div></div>
+  </div>
+
+  <!-- PARTNERS PANEL -->
+  <div class="panel" id="panel-partners">
+    <div id="partnersList"><div class="empty">Loading partner applications...</div></div>
+  </div>
+</div>
+
+<!-- CHANGE REQUEST MODAL -->
+<div class="modal-bg" id="changeModal">
+  <div class="modal">
+    <h3>Request Changes</h3>
+    <label>What needs to be changed?</label>
+    <select id="changeType">
+      <option value="business_info">Business Info (name, address, phone)</option>
+      <option value="services">Services or Pricing</option>
+      <option value="photos">Photos / Logo</option>
+      <option value="content">Website Content / Text</option>
+      <option value="other">Other</option>
+    </select>
+    <label>Current (wrong) info:</label>
+    <input type="text" id="changeCurrentInfo" placeholder="What it shows now">
+    <label>Should be:</label>
+    <input type="text" id="changeCorrectedInfo" placeholder="What it should say">
+    <label>Additional notes:</label>
+    <textarea id="changeNotes" placeholder="Any other details..."></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('changeModal')">Cancel</button>
+      <button class="btn btn-changes" onclick="submitChangeRequest()">Send Change Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- PARTNER MODIFY MODAL -->
+<div class="modal-bg" id="partnerModifyModal">
+  <div class="modal">
+    <h3>Approve with Modifications</h3>
+    <label>Approved ZIP Codes (comma separated):</label>
+    <input type="text" id="approvedZips" placeholder="e.g. 39520, 39521, 39522">
+    <label>Notes for partner:</label>
+    <textarea id="modifyNotes" placeholder="Explain any territory restrictions..."></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('partnerModifyModal')">Cancel</button>
+      <button class="btn btn-approve" onclick="submitPartnerModify()">Send Approval</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://turnkeyai-backend-production.up.railway.app';
+
+// ── LOCAL STORAGE DATA STORE ──────────────────────────────────────────────────
+// Since Railway doesn't have persistent DB, we store submission data in localStorage
+// when form is submitted, and read it here in the admin panel.
+// In production this would be a real database.
+
+function getSubmissions() {
+  try { return JSON.parse(localStorage.getItem('tai_submissions') || '[]'); } catch(e) { return []; }
+}
+function saveSubmissions(arr) { localStorage.setItem('tai_submissions', JSON.stringify(arr)); }
+function getPartners() {
+  try { return JSON.parse(localStorage.getItem('tai_partners') || '[]'); } catch(e) { return []; }
+}
+function savePartners(arr) { localStorage.setItem('tai_partners', JSON.stringify(arr)); }
+
+// ── DEMO DATA (pre-loaded if empty) ──────────────────────────────────────────
+function loadDemoData() {
+  if (getSubmissions().length === 0) {
+    saveSubmissions([
+      { id:'demo_001', businessName:"Alice's Restaurant", ownerName:'Alice Monroe', email:'alice@example.com', phone:'(228) 555-1234', city:'Bay St. Louis', state:'MS', industry:'restaurant', status:'pending', submittedAt:'2026-02-25T14:23:00Z', operator_ref:'' },
+      { id:'demo_002', businessName:"Jazzy's House Cleaning", ownerName:'Jazzy Williams', email:'jazzy@example.com', phone:'(228) 216-8578', city:'Bay St. Louis', state:'MS', industry:'cleaning', status:'review', previewSite:'preview-jazzy-s-house-cleaning', submittedAt:'2026-02-24T10:00:00Z', operator_ref:'' },
+      { id:'demo_003', businessName:'Gulf Plumbing Co.', ownerName:'Mike Tran', email:'mike@gulfplumbing.com', phone:'(228) 555-9999', city:'Gulfport', state:'MS', industry:'plumbing', status:'active', submittedAt:'2026-02-20T08:00:00Z', operator_ref:'OP-1001' }
+    ]);
+  }
+  if (getPartners().length === 0) {
+    savePartners([
+      { id:'partner_001', name:'Sarah Mitchell', email:'sarah@example.com', phone:'(601) 555-4321', territory:'Gulf Coast MS', zipCodes:'39520,39521,39522', tier:'node', status:'pending', appliedAt:'2026-02-26T09:00:00Z' }
+    ]);
+  }
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderClients() {
+  const subs = getSubmissions();
+  const el = document.getElementById('clientsList');
+  document.getElementById('statPending').textContent = subs.filter(s=>s.status==='pending').length;
+  document.getElementById('statReview').textContent = subs.filter(s=>s.status==='review').length;
+  document.getElementById('statActive').textContent = subs.filter(s=>s.status==='active').length;
+  if (!subs.length) { el.innerHTML='<div class="empty">No submissions yet. They will appear here when clients complete the intake form.</div>'; return; }
+  el.innerHTML = subs.map(s => {
+    const badge = s.status==='pending' ? '<span class="badge badge-pending">Pending Build</span>'
+      : s.status==='review' ? '<span class="badge badge-review">Awaiting Review</span>'
+      : s.status==='active' ? '<span class="badge badge-active">Active</span>'
+      : s.status==='trial' ? '<span class="badge badge-trial">Trial</span>'
+      : '<span class="badge badge-pending">'+s.status+'</span>';
+    const dt = s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+    const partnerNote = s.operator_ref ? '<span style="color:#a78bfa;font-size:12px;">🤝 Partner: '+s.operator_ref+'</span>' : '';
+    const previewBtn = s.previewSite ? '<a href="https://'+s.previewSite+'.pages.dev" target="_blank" class="btn btn-secondary">👁 Preview Site</a>' : '';
+    const approveBtn = s.status==='review' ? '<button class="btn btn-approve" onclick="clientAction(\''+s.id+'\',\'approve\')">✓ Approve & Go Live</button>' : '';
+    const changesBtn = s.status==='review' ? '<button class="btn btn-changes" onclick="openChangeModal(\''+s.id+'\')">✏ Request Changes</button>' : '';
+    const resendBtn = s.status==='review' ? '<button class="btn btn-resend" onclick="clientAction(\''+s.id+'\',\'resend\')">📧 Resend Review Email</button>' : '';
+    const buildBtn = s.status==='pending' ? '<button class="btn btn-approve" onclick="clientAction(\''+s.id+'\',\'built\')">🚀 Mark as Built</button>' : '';
+    const activateBtn = s.status==='trial' ? '<button class="btn btn-approve" onclick="clientAction(\''+s.id+'\',\'activate\')">⚡ Activate Paid</button>' : '';
+    return '<div class="card"><div class="card-header"><div><div class="biz-name">'+s.businessName+'</div><div class="biz-meta">'+s.ownerName+' &bull; '+s.city+', '+s.state+' &bull; '+s.industry+' &bull; '+dt+'</div></div>'+badge+'</div>'+
+      '<div class="detail-grid"><span>Email:</span><b>'+s.email+'</b><span>Phone:</span><b>'+s.phone+'</b></div>'+
+      (partnerNote ? '<div style="margin-top:8px;">'+partnerNote+'</div>' : '')+
+      '<div class="actions">'+previewBtn+approveBtn+changesBtn+resendBtn+buildBtn+activateBtn+'</div></div>';
+  }).join('');
+}
+
+function renderPartners() {
+  const partners = getPartners();
+  const el = document.getElementById('partnersList');
+  document.getElementById('statPartners').textContent = partners.filter(p=>p.status==='active').length;
+  if (!partners.length) { el.innerHTML='<div class="empty">No partner applications yet.</div>'; return; }
+  el.innerHTML = partners.map(p => {
+    const badge = p.status==='pending' ? '<span class="badge badge-pending">Pending</span>'
+      : p.status==='active' ? '<span class="badge badge-active">Active</span>'
+      : '<span class="badge badge-decline">Declined</span>';
+    const dt = p.appliedAt ? new Date(p.appliedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+    const approveBtn = p.status==='pending' ? '<button class="btn btn-approve" onclick="partnerAction(\''+p.id+'\',\'approve\')">✓ Approve</button>' : '';
+    const modifyBtn = p.status==='pending' ? '<button class="btn btn-changes" onclick="openPartnerModifyModal(\''+p.id+'\')">✏ Approve w/ Mods</button>' : '';
+    const declineBtn = p.status==='pending' ? '<button class="btn btn-decline" onclick="partnerAction(\''+p.id+'\',\'decline\')">✗ Decline</button>' : '';
+    return '<div class="card"><div class="card-header"><div><div class="biz-name">'+p.name+' <span class="tier-badge">'+p.tier.toUpperCase()+'</span></div><div class="biz-meta">'+p.territory+' &bull; Applied '+dt+'</div></div>'+badge+'</div>'+
+      '<div class="detail-grid"><span>Email:</span><b>'+p.email+'</b><span>Phone:</span><b>'+p.phone+'</b><span>ZIPs:</span><b>'+p.zipCodes+'</b></div>'+
+      '<div class="actions">'+approveBtn+modifyBtn+declineBtn+'</div></div>';
+  }).join('');
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+function clientAction(id, action) {
+  const subs = getSubmissions();
+  const s = subs.find(x=>x.id===id);
+  if (!s) return;
+  if (action==='approve') {
+    s.status='active';
+    fetch(API+'/api/client-review-action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'approve',previewSite:s.previewSite||'',finalSite:s.id,email:s.email,businessName:s.businessName,ownerName:s.ownerName})}).catch(()=>{});
+    showToast('✓ '+s.businessName+' approved & marked live');
+  } else if (action==='resend') {
+    fetch(API+'/api/client-review-action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'resend-review',previewSite:s.previewSite||'',finalSite:s.id,email:s.email,businessName:s.businessName,ownerName:s.ownerName})}).catch(()=>{});
+    showToast('📧 Review email resent to '+s.email);
+  } else if (action==='built') {
+    s.status='review'; s.previewSite='preview-'+s.id;
+    showToast('🚀 '+s.businessName+' marked as built');
+  } else if (action==='activate') {
+    s.status='active';
+    showToast('⚡ '+s.businessName+' activated');
+  }
+  saveSubmissions(subs); renderClients();
+}
+
+var _currentChangeId = null;
+function openChangeModal(id) { _currentChangeId=id; document.getElementById('changeModal').classList.add('open'); }
+function submitChangeRequest() {
+  const s = getSubmissions().find(x=>x.id===_currentChangeId);
+  if (!s) return;
+  const payload = { action:'changes', previewSite:s.previewSite||'', finalSite:s.id, email:s.email, businessName:s.businessName, ownerName:s.ownerName,
+    changeType:document.getElementById('changeType').value,
+    currentInfo:document.getElementById('changeCurrentInfo').value,
+    correctedInfo:document.getElementById('changeCorrectedInfo').value,
+    additionalNotes:document.getElementById('changeNotes').value };
+  fetch(API+'/api/client-review-action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{});
+  closeModal('changeModal'); showToast('✏ Change request sent for '+s.businessName);
+}
+
+var _currentPartnerId = null;
+function partnerAction(id, action) {
+  const partners = getPartners();
+  const p = partners.find(x=>x.id===id);
+  if (!p) return;
+  if (action==='approve') { p.status='active'; }
+  else if (action==='decline') { p.status='declined'; }
+  fetch(API+'/api/partner-action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,partner:p})}).catch(()=>{});
+  savePartners(partners); renderPartners();
+  showToast(action==='approve' ? '✓ '+p.name+' approved' : '✗ '+p.name+' declined');
+}
+function openPartnerModifyModal(id) { _currentPartnerId=id; document.getElementById('partnerModifyModal').classList.add('open'); }
+function submitPartnerModify() {
+  const partners = getPartners();
+  const p = partners.find(x=>x.id===_currentPartnerId);
+  if (!p) return;
+  p.status='active'; p.approvedZips=document.getElementById('approvedZips').value;
+  fetch(API+'/api/partner-action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'modify',partner:p})}).catch(()=>{});
+  savePartners(partners); closeModal('partnerModifyModal'); renderPartners();
+  showToast('✓ '+p.name+' approved with modifications');
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function showToast(msg) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.style.display='block';
+  setTimeout(()=>t.style.display='none',3000);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+// Listen for new submissions posted from intake form
+window.addEventListener('storage', function(e) {
+  if (e.key==='tai_submissions' || e.key==='tai_partners') { renderClients(); renderPartners(); }
+});
+
+loadDemoData();
+renderClients();
+renderPartners();
+</script>
+</body>
+</html>
