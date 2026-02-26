@@ -388,7 +388,7 @@ const INTAKE_FORM_HTML = `<!DOCTYPE html>
                 <div class="form-group" style="margin-top:16px;padding:16px;background:#fff3cd;border:1px solid #ffc107;border-radius:10px;">
                     <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin:0;">
                         <input type="checkbox" id="skipPhotosCheckbox" name="skipPhotos" value="yes" onchange="updatePhotoRequirement()" style="width:18px;height:18px;margin-top:2px;">
-                        <span style="font-size:13px;"><strong>Skip photos for now</strong> — I can email photos later to <a href="airesources89@gmail.com</span>
+                        <span style="font-size:13px;"><strong>Skip photos for now</strong> — I can email photos later to airesources89@gmail.com</span>
                     </label>
                 </div>
                 <div id="photoValidationMsg" style="display:none;color:#dc2626;font-size:13px;font-weight:600;margin-top:10px;padding:10px;background:#fef2f2;border-radius:8px;">⚠️ Please upload at least an owner photo and one work photo, or check the box above to skip.</div>
