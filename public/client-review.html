@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Review Your Website | TurnkeyAI Services</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f8;min-height:100vh;color:#1e293b;}
+.topbar{background:linear-gradient(135deg,#0066FF,#0052CC);color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;}
+.topbar-left h1{font-size:20px;font-weight:700;}
+.topbar-left p{font-size:12px;opacity:.8;margin-top:2px;}
+.topbar-right{font-size:12px;text-align:right;opacity:.85;line-height:1.6;}
+.tabs{background:#fff;border-bottom:2px solid #e2e8f0;display:flex;padding:0 24px;}
+.tab{padding:14px 20px;font-size:14px;font-weight:600;cursor:pointer;color:#64748b;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;}
+.tab.active{color:#0066FF;border-bottom-color:#0066FF;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* PREVIEW TAB */
+.preview-layout{display:grid;grid-template-columns:1fr 300px;height:calc(100vh - 120px);}
+.preview-frame-wrap{background:#fff;position:relative;overflow:hidden;}
+.preview-frame-wrap iframe{width:100%;height:100%;border:none;display:block;}
+.preview-sidebar{background:#f8fafc;padding:20px;overflow-y:auto;border-left:1px solid #e2e8f0;}
+.biz-card{background:#fff;border-radius:12px;padding:16px;border:1px solid #e2e8f0;margin-bottom:16px;text-align:center;}
+.biz-card .name{font-size:18px;font-weight:700;color:#1e293b;}
+.biz-card .sub{font-size:12px;color:#94a3b8;margin-top:3px;}
+.checklist{background:#fff;border-radius:12px;border:1px solid #e2e8f0;margin-bottom:16px;overflow:hidden;}
+.check-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #f1f5f9;cursor:pointer;transition:background .1s;}
+.check-row:last-child{border-bottom:none;}
+.check-row:hover{background:#f8fafc;}
+.check-box{width:22px;height:22px;border:2px solid #cbd5e1;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;transition:all .15s;}
+.check-box.on{background:#10B981;border-color:#10B981;}
+.check-text{font-size:14px;color:#374151;}
+.approve-wrap{margin-bottom:10px;}
+.btn-approve{width:100%;padding:14px;background:#10B981;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:all .15s;}
+.btn-approve:hover:not(:disabled){background:#059669;}
+.btn-approve:disabled{opacity:.45;cursor:not-allowed;}
+.approve-hint{font-size:11px;color:#94a3b8;text-align:center;margin-bottom:12px;}
+.btn-open-full{width:100%;padding:11px;background:#0066FF;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px;text-decoration:none;display:block;text-align:center;}
+.what-next{background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:14px;font-size:12px;color:#64748b;line-height:1.7;}
+.what-next strong{color:#374151;display:block;margin-bottom:4px;}
+
+/* EDIT TAB */
+.edit-wrap{max-width:720px;margin:0 auto;padding:28px 24px;}
+.edit-section{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:22px;margin-bottom:20px;}
+.edit-section h3{font-size:16px;font-weight:700;color:#1e293b;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f1f5f9;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;font-family:inherit;transition:border .15s;}
+.form-group input:focus,.form-group textarea:focus{outline:none;border-color:#0066FF;box-shadow:0 0 0 3px rgba(0,102,255,.1);}
+.form-group textarea{min-height:90px;resize:vertical;}
+.hours-grid{display:grid;gap:8px;}
+.hours-row{display:grid;grid-template-columns:30px 100px 1fr;align-items:center;gap:10px;}
+.hours-row label{font-size:13px;color:#374151;text-transform:capitalize;font-weight:500;}
+.hours-row input[type=checkbox]{width:18px;height:18px;accent-color:#0066FF;}
+.pay-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
+.pay-item{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;cursor:pointer;font-size:13px;}
+.pay-item input{width:16px;height:16px;accent-color:#0066FF;}
+.save-bar{position:sticky;bottom:0;background:#fff;border-top:1px solid #e2e8f0;padding:16px 24px;display:flex;gap:12px;justify-content:flex-end;}
+.btn-save{padding:12px 32px;background:#0066FF;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;}
+.btn-save:hover{background:#0052CC;}
+.btn-cancel-edit{padding:12px 20px;background:#f1f5f9;color:#374151;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;}
+.saving-msg{display:none;font-size:14px;color:#0066FF;align-items:center;gap:8px;}
+
+/* CHANGES TAB */
+.changes-wrap{max-width:600px;margin:0 auto;padding:28px 24px;}
+.changes-form{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:24px;}
+.changes-form h2{font-size:20px;font-weight:700;margin-bottom:6px;}
+.changes-form p{font-size:14px;color:#64748b;margin-bottom:20px;}
+.btn-submit-changes{width:100%;padding:14px;background:#f59e0b;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;}
+.btn-submit-changes:hover{background:#d97706;}
+
+/* SUCCESS SCREENS */
+.success-screen{display:none;min-height:calc(100vh - 120px);align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:60px 24px;}
+.success-screen.show{display:flex;}
+.success-icon{width:80px;height:80px;border-radius:50%;font-size:36px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;}
+.s-green{background:#d1fae5;}
+.s-yellow{background:#fef3c7;}
+.s-blue{background:#dbeafe;}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:#fff;border-radius:16px;padding:28px;max-width:400px;width:92%;text-align:center;}
+.modal h3{font-size:20px;font-weight:700;margin-bottom:8px;}
+.modal p{font-size:14px;color:#64748b;margin-bottom:20px;}
+.modal-btns{display:flex;gap:12px;}
+.modal-btns button{flex:1;padding:12px;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer;}
+.btn-confirm{background:#10B981;color:#fff;}
+.btn-cancel{background:#f1f5f9;color:#374151;}
+
+@media(max-width:700px){
+  .preview-layout{grid-template-columns:1fr;}
+  .preview-sidebar{height:auto;}
+  .form-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <h1>Review Your Website — <span id="topBizName"></span></h1>
+    <p>Preview, make edits, or approve to go live.</p>
+  </div>
+  <div class="topbar-right">TurnkeyAI Services<br>(603) 922-2004</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('preview',this)">👁 Preview</div>
+  <div class="tab" onclick="switchTab('edit',this)">✏️ Edit My Info</div>
+  <div class="tab" onclick="switchTab('changes',this)">📝 Request Changes</div>
+</div>
+
+<!-- ── PREVIEW TAB ─────────────────────────────── -->
+<div id="tab-preview" class="tab-panel active">
+  <div class="preview-layout">
+    <div class="preview-frame-wrap">
+      <iframe id="previewFrame" title="Your Website Preview"></iframe>
+    </div>
+    <div class="preview-sidebar">
+      <div class="biz-card">
+        <div class="name" id="bizName">Your Business</div>
+        <div class="sub">Website Preview</div>
+      </div>
+      <a id="fullLink" href="#" target="_blank" class="btn-open-full">🔗 Open Full Screen</a>
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#64748b;margin-bottom:8px;">Review Checklist</div>
+      <div class="checklist" id="checklist">
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Business name is correct</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Phone number is correct</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Services look right</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">About section is accurate</div></div>
+        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Happy with the overall look</div></div>
+      </div>
+      <div class="approve-hint" id="approveHint">Check all items above to enable approval</div>
+      <div class="approve-wrap">
+        <button class="btn-approve" id="approveBtn" onclick="openApproveModal()" disabled>✓ Approve &amp; Go Live</button>
+      </div>
+      <div class="what-next">
+        <strong>What happens when you approve?</strong>
+        Your site goes live instantly — no waiting. You'll receive an email with your live link.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── EDIT TAB ──────────────────────────────────── -->
+<div id="tab-edit" class="tab-panel">
+  <div class="edit-wrap">
+    <div class="edit-section">
+      <h3>📋 Basic Info</h3>
+      <div class="form-row">
+        <div class="form-group"><label>Business Name</label><input type="text" id="e_businessName"></div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" id="e_phone"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>City</label><input type="text" id="e_city"></div>
+        <div class="form-group"><label>State</label><input type="text" id="e_state"></div>
+      </div>
+    </div>
+    <div class="edit-section">
+      <h3>📖 About Your Business</h3>
+      <div class="form-group"><label>Your Story / About Section</label><textarea id="e_aboutUs" rows="4"></textarea></div>
+      <div class="form-group"><label>Tagline / Mission Statement</label><input type="text" id="e_missionStatement" placeholder="e.g. Serving Bay St. Louis with pride since 2010"></div>
+    </div>
+    <div class="edit-section">
+      <h3>🕐 Business Hours</h3>
+      <div class="hours-grid">
+        <div class="hours-row"><input type="checkbox" id="h_monday"><label for="h_monday">Monday</label><input type="text" id="hv_monday" placeholder="8am – 5pm"></div>
+        <div class="hours-row"><input type="checkbox" id="h_tuesday"><label for="h_tuesday">Tuesday</label><input type="text" id="hv_tuesday" placeholder="8am – 5pm"></div>
+        <div class="hours-row"><input type="checkbox" id="h_wednesday"><label for="h_wednesday">Wednesday</label><input type="text" id="hv_wednesday" placeholder="8am – 5pm"></div>
+        <div class="hours-row"><input type="checkbox" id="h_thursday"><label for="h_thursday">Thursday</label><input type="text" id="hv_thursday" placeholder="8am – 5pm"></div>
+        <div class="hours-row"><input type="checkbox" id="h_friday"><label for="h_friday">Friday</label><input type="text" id="hv_friday" placeholder="8am – 5pm"></div>
+        <div class="hours-row"><input type="checkbox" id="h_saturday"><label for="h_saturday">Saturday</label><input type="text" id="hv_saturday" placeholder="9am – 2pm"></div>
+        <div class="hours-row"><input type="checkbox" id="h_sunday"><label for="h_sunday">Sunday</label><input type="text" id="hv_sunday" placeholder="Closed"></div>
+      </div>
+    </div>
+    <div class="edit-section">
+      <h3>💳 Payment Methods You Accept</h3>
+      <div class="pay-grid">
+        <label class="pay-item"><input type="checkbox" id="p_cash"> Cash</label>
+        <label class="pay-item"><input type="checkbox" id="p_card"> Credit / Debit</label>
+        <label class="pay-item"><input type="checkbox" id="p_check"> Check</label>
+        <label class="pay-item"><input type="checkbox" id="p_venmo"> Venmo</label>
+        <label class="pay-item"><input type="checkbox" id="p_cashapp"> CashApp</label>
+        <label class="pay-item"><input type="checkbox" id="p_zelle"> Zelle</label>
+        <label class="pay-item"><input type="checkbox" id="p_paypal"> PayPal</label>
+        <label class="pay-item"><input type="checkbox" id="p_stripe"> Online / Stripe</label>
+        <label class="pay-item"><input type="checkbox" id="p_financing"> Financing</label>
+      </div>
+    </div>
+  </div>
+  <div class="save-bar">
+    <div class="saving-msg" id="savingMsg">⏳ Saving & rebuilding your site…</div>
+    <button class="btn-cancel-edit" onclick="switchTab('preview',document.querySelector('.tab'))">Cancel</button>
+    <button class="btn-save" onclick="saveEdits()">💾 Save & Regenerate Preview</button>
+  </div>
+</div>
+
+<!-- ── CHANGES TAB ─────────────────────────────── -->
+<div id="tab-changes" class="tab-panel">
+  <div class="changes-wrap">
+    <div class="changes-form">
+      <h2>Request Changes</h2>
+      <p>Use this for anything that requires our team — layout changes, new photos, custom content, or anything beyond basic info edits. For hours, phone, or text changes, use the <strong>Edit My Info</strong> tab to update instantly.</p>
+      <div class="form-group"><label>What needs to change?</label>
+        <select id="c_type">
+          <option value="layout">Page layout or design</option>
+          <option value="photos">Photos or logo</option>
+          <option value="custom_content">Custom content / additional pages</option>
+          <option value="seo">SEO / keywords / page title</option>
+          <option value="other">Something else</option>
+        </select>
+      </div>
+      <div class="form-group"><label>What it currently shows (that's wrong or missing):</label>
+        <input type="text" id="c_current" placeholder="e.g. No team photo on About section">
+      </div>
+      <div class="form-group"><label>What it should say or show:</label>
+        <input type="text" id="c_corrected" placeholder="e.g. Please add the photo I emailed you">
+      </div>
+      <div class="form-group"><label>Additional notes:</label>
+        <textarea id="c_notes" placeholder="Any other details…"></textarea>
+      </div>
+      <button class="btn-submit-changes" onclick="submitChanges()">📤 Send Change Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS SCREENS -->
+<div class="success-screen" id="s_approved">
+  <div class="success-icon s-green">🚀</div>
+  <h2 style="font-size:28px;font-weight:800;margin-bottom:12px;">You're Live!</h2>
+  <p style="color:#64748b;max-width:400px;font-size:16px;">Your website is now live. Check your email for the link to share with customers.</p>
+  <p style="margin-top:20px;font-size:14px;color:#94a3b8;">Questions? Call (603) 922-2004</p>
+</div>
+
+<div class="success-screen" id="s_saved">
+  <div class="success-icon s-blue">✅</div>
+  <h2 style="font-size:28px;font-weight:800;margin-bottom:12px;">Changes Saved!</h2>
+  <p style="color:#64748b;max-width:400px;font-size:16px;">Your site has been rebuilt with your updates. Check your email — we sent you the new preview link.</p>
+  <button onclick="location.reload()" style="margin-top:24px;padding:12px 28px;background:#0066FF;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">View Updated Preview</button>
+</div>
+
+<div class="success-screen" id="s_changes">
+  <div class="success-icon s-yellow">✏️</div>
+  <h2 style="font-size:28px;font-weight:800;margin-bottom:12px;">Got It!</h2>
+  <p style="color:#64748b;max-width:400px;font-size:16px;">Your change request has been sent. We'll update your site and email you a new preview within 24 hours.</p>
+  <p style="margin-top:16px;font-size:14px;color:#94a3b8;">Questions? Call (603) 922-2004</p>
+</div>
+
+<!-- APPROVE MODAL -->
+<div class="modal-bg" id="approveModal">
+  <div class="modal">
+    <div style="font-size:48px;margin-bottom:12px;">🚀</div>
+    <h3>Ready to Go Live?</h3>
+    <p>Your site will be published instantly. You'll receive an email with your live link.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Not Yet</button>
+      <button class="btn-confirm" onclick="submitApprove()">Yes, Go Live!</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://turnkeyai-backend-production.up.railway.app';
+const p = new URLSearchParams(location.search);
+const site = p.get('site') || '';
+const id = p.get('id') || '';
+const bizName = decodeURIComponent(p.get('biz') || 'Your Business');
+const email = decodeURIComponent(p.get('email') || '');
+const owner = decodeURIComponent(p.get('owner') || '');
+const action = p.get('action') || '';
+
+document.getElementById('topBizName').textContent = bizName;
+document.getElementById('bizName').textContent = bizName;
+
+const previewUrl = site ? API + '/preview/' + site : '';
+if (previewUrl) {
+  document.getElementById('previewFrame').src = previewUrl;
+  document.getElementById('fullLink').href = previewUrl;
+}
+
+// Tabs
+function switchTab(name, el) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (el) { const tabs = document.querySelectorAll('.tab'); let i = ['preview','edit','changes'].indexOf(name); if (tabs[i]) tabs[i].classList.add('active'); }
+}
+
+// Checklist
+function toggleCheck(row) {
+  row.querySelector('.check-box').classList.toggle('on');
+  row.classList.toggle('checked');
+  const total = document.querySelectorAll('.check-row').length;
+  const done = document.querySelectorAll('.check-row.checked').length;
+  const btn = document.getElementById('approveBtn');
+  const hint = document.getElementById('approveHint');
+  btn.disabled = done < total;
+  hint.textContent = done < total ? (done + ' of ' + total + ' checked — check all to enable approval') : 'All items confirmed — ready to approve!';
+  hint.style.color = done === total ? '#10B981' : '#94a3b8';
+}
+
+function openApproveModal() { document.getElementById('approveModal').classList.add('open'); }
+function closeModal() { document.getElementById('approveModal').classList.remove('open'); }
+
+// APPROVE — goes live instantly
+async function submitApprove() {
+  closeModal();
+  document.getElementById('approveBtn').disabled = true;
+  document.getElementById('approveBtn').textContent = 'Going live…';
+  try {
+    await fetch(API + '/api/client-review-action', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'approve', previewSite: site, id, email, businessName: bizName, ownerName: owner })
+    });
+  } catch(e) { console.error(e); }
+  hideAll(); document.getElementById('s_approved').classList.add('show');
+}
+
+// SAVE EDITS — rebuilds preview, emails client new link
+async function saveEdits() {
+  const savingMsg = document.getElementById('savingMsg');
+  savingMsg.style.display = 'flex';
+  const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  const updates = {
+    businessName: document.getElementById('e_businessName').value,
+    phone: document.getElementById('e_phone').value,
+    city: document.getElementById('e_city').value,
+    state: document.getElementById('e_state').value,
+    aboutUs: document.getElementById('e_aboutUs').value,
+    missionStatement: document.getElementById('e_missionStatement').value,
+  };
+  days.forEach(d => {
+    updates['day_'+d] = document.getElementById('h_'+d).checked;
+    updates['hours_'+d] = document.getElementById('hv_'+d).value;
+  });
+  ['cash','card','check','venmo','cashapp','zelle','paypal','stripe','financing'].forEach(m => {
+    updates['pay_'+m] = document.getElementById('p_'+m).checked;
+  });
+  try {
+    const resp = await fetch(API + '/api/client-update', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ id, updates })
+    });
+    const result = await resp.json();
+    savingMsg.style.display = 'none';
+    if (result.success) {
+      hideAll(); document.getElementById('s_saved').classList.add('show');
+    } else { alert('Save failed. Please try again or call (603) 922-2004.'); }
+  } catch(e) { savingMsg.style.display = 'none'; alert('Connection error. Please try again.'); }
+}
+
+// SUBMIT CHANGES — sends to George
+async function submitChanges() {
+  const changeType = document.getElementById('c_type').value;
+  const currentInfo = document.getElementById('c_current').value;
+  const correctedInfo = document.getElementById('c_corrected').value;
+  const notes = document.getElementById('c_notes').value;
+  try {
+    await fetch(API + '/api/client-review-action', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'changes', previewSite: site, id, email, businessName: bizName, ownerName: owner, changeType, currentInfo, correctedInfo, additionalNotes: notes })
+    });
+  } catch(e) { console.error(e); }
+  hideAll(); document.getElementById('s_changes').classList.add('show');
+}
+
+function hideAll() {
+  document.querySelector('.tabs').style.display = 'none';
+  document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+}
+
+// Auto-action from email buttons
+if (action === 'approve') {
+  document.querySelectorAll('.check-row').forEach(r => { r.querySelector('.check-box').classList.add('on'); r.classList.add('checked'); });
+  document.getElementById('approveBtn').disabled = false;
+  document.getElementById('approveHint').textContent = 'All items confirmed — ready to approve!';
+  document.getElementById('approveHint').style.color = '#10B981';
+  setTimeout(openApproveModal, 600);
+} else if (action === 'edit') {
+  switchTab('edit', null);
+  document.querySelectorAll('.tab')[1].classList.add('active');
+  document.querySelectorAll('.tab')[0].classList.remove('active');
+} else if (action === 'changes') {
+  switchTab('changes', null);
+  document.querySelectorAll('.tab')[2].classList.add('active');
+  document.querySelectorAll('.tab')[0].classList.remove('active');
+}
+</script>
+</body>
+</html>
