@@ -4,327 +4,398 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Review Your Website | TurnkeyAI Services</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f8;min-height:100vh;color:#1e293b;}
-.topbar{background:linear-gradient(135deg,#0066FF,#0052CC);color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;}
-.topbar-left h1{font-size:20px;font-weight:700;}
-.topbar-left p{font-size:12px;opacity:.8;margin-top:2px;}
-.topbar-right{font-size:12px;text-align:right;opacity:.85;line-height:1.6;}
-.tabs{background:#fff;border-bottom:2px solid #e2e8f0;display:flex;padding:0 24px;}
-.tab{padding:14px 20px;font-size:14px;font-weight:600;cursor:pointer;color:#64748b;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;}
-.tab.active{color:#0066FF;border-bottom-color:#0066FF;}
-.tab-panel{display:none;}
-.tab-panel.active{display:block;}
+:root{--primary:#1e40af;--accent:#3b82f6;--green:#10b981;--yellow:#f59e0b;--purple:#6366f1;--red:#ef4444;}
+body{font-family:'DM Sans',sans-serif;background:#0f172a;min-height:100vh;color:#f1f5f9;}
 
-/* PREVIEW TAB */
-.preview-layout{display:grid;grid-template-columns:1fr 300px;height:calc(100vh - 120px);}
-.preview-frame-wrap{background:#fff;position:relative;overflow:hidden;}
-.preview-frame-wrap iframe{width:100%;height:100%;border:none;display:block;}
-.preview-sidebar{background:#f8fafc;padding:20px;overflow-y:auto;border-left:1px solid #e2e8f0;}
-.biz-card{background:#fff;border-radius:12px;padding:16px;border:1px solid #e2e8f0;margin-bottom:16px;text-align:center;}
-.biz-card .name{font-size:18px;font-weight:700;color:#1e293b;}
-.biz-card .sub{font-size:12px;color:#94a3b8;margin-top:3px;}
-.checklist{background:#fff;border-radius:12px;border:1px solid #e2e8f0;margin-bottom:16px;overflow:hidden;}
-.check-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #f1f5f9;cursor:pointer;transition:background .1s;}
-.check-row:last-child{border-bottom:none;}
-.check-row:hover{background:#f8fafc;}
-.check-box{width:22px;height:22px;border:2px solid #cbd5e1;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;transition:all .15s;}
-.check-box.on{background:#10B981;border-color:#10B981;}
-.check-text{font-size:14px;color:#374151;}
-.approve-wrap{margin-bottom:10px;}
-.btn-approve{width:100%;padding:14px;background:#10B981;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:all .15s;}
-.btn-approve:hover:not(:disabled){background:#059669;}
-.btn-approve:disabled{opacity:.45;cursor:not-allowed;}
-.approve-hint{font-size:11px;color:#94a3b8;text-align:center;margin-bottom:12px;}
-.btn-open-full{width:100%;padding:11px;background:#0066FF;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px;text-decoration:none;display:block;text-align:center;}
-.what-next{background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:14px;font-size:12px;color:#64748b;line-height:1.7;}
-.what-next strong{color:#374151;display:block;margin-bottom:4px;}
+/* TOP BAR */
+.topbar{background:linear-gradient(135deg,#1e3a8a,#1e40af);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.1);}
+.topbar-brand{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#fff;}
+.topbar-brand span{color:#60a5fa;}
+.topbar-biz{font-size:15px;font-weight:700;color:#93c5fd;}
+.topbar-contact{font-size:12px;color:rgba(255,255,255,.6);text-align:right;line-height:1.6;}
 
-/* EDIT TAB */
-.edit-wrap{max-width:720px;margin:0 auto;padding:28px 24px;}
-.edit-section{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:22px;margin-bottom:20px;}
-.edit-section h3{font-size:16px;font-weight:700;color:#1e293b;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f1f5f9;}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.form-group{margin-bottom:14px;}
-.form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px;}
-.form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;font-family:inherit;transition:border .15s;}
-.form-group input:focus,.form-group textarea:focus{outline:none;border-color:#0066FF;box-shadow:0 0 0 3px rgba(0,102,255,.1);}
-.form-group textarea{min-height:90px;resize:vertical;}
-.hours-grid{display:grid;gap:8px;}
-.hours-row{display:grid;grid-template-columns:30px 100px 1fr;align-items:center;gap:10px;}
-.hours-row label{font-size:13px;color:#374151;text-transform:capitalize;font-weight:500;}
-.hours-row input[type=checkbox]{width:18px;height:18px;accent-color:#0066FF;}
-.pay-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
-.pay-item{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;cursor:pointer;font-size:13px;}
-.pay-item input{width:16px;height:16px;accent-color:#0066FF;}
-.save-bar{position:sticky;bottom:0;background:#fff;border-top:1px solid #e2e8f0;padding:16px 24px;display:flex;gap:12px;justify-content:flex-end;}
-.btn-save{padding:12px 32px;background:#0066FF;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;}
-.btn-save:hover{background:#0052CC;}
-.btn-cancel-edit{padding:12px 20px;background:#f1f5f9;color:#374151;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;}
-.saving-msg{display:none;font-size:14px;color:#0066FF;align-items:center;gap:8px;}
+/* ACTION BAR */
+.action-bar{background:#1e293b;border-bottom:1px solid rgba(255,255,255,.08);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.action-bar-left{font-size:14px;color:#94a3b8;}
+.action-bar-left strong{color:#e2e8f0;}
+.action-btns{display:flex;gap:10px;flex-wrap:wrap;}
+.abtn{padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:7px;font-family:inherit;}
+.abtn-approve{background:var(--green);color:#fff;}
+.abtn-approve:hover:not(:disabled){background:#059669;}
+.abtn-approve:disabled{opacity:.4;cursor:not-allowed;}
+.abtn-edit{background:var(--purple);color:#fff;}
+.abtn-edit:hover{background:#4f46e5;}
+.abtn-changes{background:var(--yellow);color:#fff;}
+.abtn-changes:hover{background:#d97706;}
+.abtn-fullscreen{background:#334155;color:#e2e8f0;}
+.abtn-fullscreen:hover{background:#475569;}
+.checklist-inline{display:flex;gap:8px;flex-wrap:wrap;}
+.ci{display:flex;align-items:center;gap:6px;background:#1e293b;border:1px solid #334155;padding:6px 12px;border-radius:20px;cursor:pointer;font-size:13px;color:#94a3b8;transition:all .15s;}
+.ci.done{background:#064e3b;border-color:#10b981;color:#6ee7b7;}
+.ci-box{width:16px;height:16px;border:2px solid #475569;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;transition:all .15s;flex-shrink:0;}
+.ci.done .ci-box{background:var(--green);border-color:var(--green);}
 
-/* CHANGES TAB */
-.changes-wrap{max-width:600px;margin:0 auto;padding:28px 24px;}
-.changes-form{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:24px;}
-.changes-form h2{font-size:20px;font-weight:700;margin-bottom:6px;}
-.changes-form p{font-size:14px;color:#64748b;margin-bottom:20px;}
-.btn-submit-changes{width:100%;padding:14px;background:#f59e0b;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;}
-.btn-submit-changes:hover{background:#d97706;}
+/* MAIN LAYOUT */
+.main-layout{display:grid;grid-template-columns:1fr 320px;height:calc(100vh - 116px);}
+@media(max-width:900px){.main-layout{grid-template-columns:1fr;}}
+.preview-pane{overflow:hidden;position:relative;background:#fff;}
+.preview-pane iframe{width:100%;height:100%;border:none;display:block;}
+.preview-loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:#64748b;}
+.preview-loading .spin{font-size:40px;display:block;margin-bottom:12px;animation:spin 1.5s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* SIDEBAR */
+.sidebar{background:#1e293b;border-left:1px solid rgba(255,255,255,.08);overflow-y:auto;display:flex;flex-direction:column;}
+.sidebar-section{padding:20px;border-bottom:1px solid rgba(255,255,255,.06);}
+.sidebar-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#475569;margin-bottom:12px;}
+.status-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+.status-review{background:#1e3a8a;color:#93c5fd;}
+.info-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.info-row:last-child{border-bottom:none;}
+.info-key{color:#64748b;font-weight:500;}
+.info-val{color:#e2e8f0;font-weight:600;text-align:right;max-width:160px;word-break:break-word;}
+.sidebar-approve{padding:20px;}
+.big-approve{width:100%;padding:14px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
+.big-approve:hover:not(:disabled){background:#059669;}
+.big-approve:disabled{opacity:.4;cursor:not-allowed;}
+.approve-status{font-size:11px;color:#64748b;text-align:center;margin-top:8px;}
+.sidebar-btn{width:100%;padding:11px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#e2e8f0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;transition:all .15s;text-align:left;display:flex;align-items:center;gap:8px;}
+.sidebar-btn:hover{background:rgba(255,255,255,.06);}
+
+/* PANELS */
+.panel{display:none;height:100%;overflow-y:auto;}
+.panel.active{display:block;}
+.panel-inner{padding:24px;max-width:680px;margin:0 auto;}
+
+/* EDIT PANEL */
+.edit-section{background:#1e293b;border-radius:12px;border:1px solid rgba(255,255,255,.08);padding:20px;margin-bottom:16px;}
+.edit-section h3{font-size:15px;font-weight:700;color:#f1f5f9;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.07);}
+.fg{margin-bottom:12px;}
+.fg label{display:block;font-size:12px;font-weight:600;color:#94a3b8;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+.fg input,.fg textarea,.fg select{width:100%;padding:10px 12px;background:#0f172a;border:1px solid #334155;border-radius:8px;font-size:14px;color:#f1f5f9;font-family:inherit;transition:border .15s;}
+.fg input:focus,.fg textarea:focus{outline:none;border-color:var(--accent);}
+.fg textarea{min-height:90px;resize:vertical;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.hour-row{display:grid;grid-template-columns:24px 90px 1fr;align-items:center;gap:10px;margin-bottom:8px;}
+.hour-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);}
+.hour-row label{font-size:13px;color:#e2e8f0;font-weight:500;text-transform:capitalize;}
+.pay-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;}
+.pay-item{display:flex;align-items:center;gap:8px;background:#0f172a;border:1px solid #334155;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:#e2e8f0;}
+.pay-item input{width:16px;height:16px;accent-color:var(--accent);}
+.save-bar{background:#1e293b;border-top:1px solid rgba(255,255,255,.08);padding:16px 24px;display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;}
+.btn-save{padding:12px 28px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-save:hover{background:#2563eb;}
+.btn-cancel{padding:12px 20px;background:#334155;color:#e2e8f0;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* CHANGES PANEL */
+.changes-card{background:#1e293b;border-radius:12px;border:1px solid rgba(255,255,255,.08);padding:24px;margin-bottom:16px;}
+.changes-card h2{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:#f1f5f9;margin-bottom:8px;}
+.changes-card p{font-size:14px;color:#94a3b8;margin-bottom:20px;line-height:1.7;}
+.tip-box{background:#1e3a8a;border:1px solid #3b82f6;border-radius:8px;padding:14px;margin-bottom:20px;font-size:13px;color:#93c5fd;line-height:1.6;}
+.btn-submit{width:100%;padding:14px;background:var(--yellow);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px;}
+.btn-submit:hover{background:#d97706;}
 
 /* SUCCESS SCREENS */
-.success-screen{display:none;min-height:calc(100vh - 120px);align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:60px 24px;}
-.success-screen.show{display:flex;}
-.success-icon{width:80px;height:80px;border-radius:50%;font-size:36px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;}
-.s-green{background:#d1fae5;}
-.s-yellow{background:#fef3c7;}
-.s-blue{background:#dbeafe;}
+.success-wrap{display:none;min-height:calc(100vh - 60px);background:#0f172a;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:60px 24px;}
+.success-wrap.show{display:flex;}
+.s-icon{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:48px;margin-bottom:28px;}
+.s-green{background:#064e3b;}
+.s-yellow{background:#78350f;}
+.s-blue{background:#1e3a8a;}
+.s-title{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:#f1f5f9;margin-bottom:12px;}
+.s-sub{font-size:17px;color:#94a3b8;max-width:440px;line-height:1.7;}
+.s-url{background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:20px;margin-top:24px;max-width:480px;word-break:break-all;}
+.s-url a{color:var(--accent);font-size:16px;font-weight:700;text-decoration:none;}
+.s-url p{font-size:12px;color:#64748b;margin-top:6px;}
 
 /* MODAL */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:center;justify-content:center;}
 .modal-bg.open{display:flex;}
-.modal{background:#fff;border-radius:16px;padding:28px;max-width:400px;width:92%;text-align:center;}
-.modal h3{font-size:20px;font-weight:700;margin-bottom:8px;}
-.modal p{font-size:14px;color:#64748b;margin-bottom:20px;}
+.modal{background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:32px;max-width:420px;width:92%;text-align:center;}
+.modal-icon{font-size:52px;margin-bottom:16px;}
+.modal-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:#f1f5f9;margin-bottom:8px;}
+.modal-sub{font-size:14px;color:#94a3b8;margin-bottom:24px;line-height:1.7;}
 .modal-btns{display:flex;gap:12px;}
-.modal-btns button{flex:1;padding:12px;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer;}
-.btn-confirm{background:#10B981;color:#fff;}
-.btn-cancel{background:#f1f5f9;color:#374151;}
-
-@media(max-width:700px){
-  .preview-layout{grid-template-columns:1fr;}
-  .preview-sidebar{height:auto;}
-  .form-row{grid-template-columns:1fr;}
-}
+.modal-btns button{flex:1;padding:13px;border-radius:8px;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .15s;}
+.mbtn-confirm{background:var(--green);color:#fff;}
+.mbtn-cancel{background:#334155;color:#e2e8f0;}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="topbar-left">
-    <h1>Review Your Website — <span id="topBizName"></span></h1>
-    <p>Preview, make edits, or approve to go live.</p>
+  <div class="topbar-brand">TurnkeyAI<span>Services</span></div>
+  <div class="topbar-biz" id="topBizName"></div>
+  <div class="topbar-contact">(603) 922-2004 · airesources89@gmail.com</div>
+</div>
+
+<!-- ── ACTION BAR ────────────────────────────────── -->
+<div class="action-bar" id="actionBar">
+  <div class="action-bar-left">
+    Review your site below — <strong>check all 5 items then Approve to go live.</strong>
   </div>
-  <div class="topbar-right">TurnkeyAI Services<br>(603) 922-2004</div>
-</div>
-
-<div class="tabs">
-  <div class="tab active" onclick="switchTab('preview',this)">👁 Preview</div>
-  <div class="tab" onclick="switchTab('edit',this)">✏️ Edit My Info</div>
-  <div class="tab" onclick="switchTab('changes',this)">📝 Request Changes</div>
-</div>
-
-<!-- ── PREVIEW TAB ─────────────────────────────── -->
-<div id="tab-preview" class="tab-panel active">
-  <div class="preview-layout">
-    <div class="preview-frame-wrap">
-      <iframe id="previewFrame" title="Your Website Preview"></iframe>
-    </div>
-    <div class="preview-sidebar">
-      <div class="biz-card">
-        <div class="name" id="bizName">Your Business</div>
-        <div class="sub">Website Preview</div>
-      </div>
-      <a id="fullLink" href="#" target="_blank" class="btn-open-full">🔗 Open Full Screen</a>
-      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#64748b;margin-bottom:8px;">Review Checklist</div>
-      <div class="checklist" id="checklist">
-        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Business name is correct</div></div>
-        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Phone number is correct</div></div>
-        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Services look right</div></div>
-        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">About section is accurate</div></div>
-        <div class="check-row" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Happy with the overall look</div></div>
-      </div>
-      <div class="approve-hint" id="approveHint">Check all items above to enable approval</div>
-      <div class="approve-wrap">
-        <button class="btn-approve" id="approveBtn" onclick="openApproveModal()" disabled>✓ Approve &amp; Go Live</button>
-      </div>
-      <div class="what-next">
-        <strong>What happens when you approve?</strong>
-        Your site goes live instantly — no waiting. You'll receive an email with your live link.
-      </div>
-    </div>
+  <div class="action-btns">
+    <button class="abtn abtn-fullscreen" onclick="openFull()">🔗 Full Screen</button>
+    <button class="abtn abtn-edit" onclick="showPanel('edit')">✏️ Edit My Info</button>
+    <button class="abtn abtn-changes" onclick="showPanel('changes')">📝 Request Changes</button>
+    <button class="abtn abtn-approve" id="topApproveBtn" onclick="openApproveModal()" disabled>✓ Approve &amp; Go Live</button>
   </div>
 </div>
 
-<!-- ── EDIT TAB ──────────────────────────────────── -->
-<div id="tab-edit" class="tab-panel">
-  <div class="edit-wrap">
-    <div class="edit-section">
-      <h3>📋 Basic Info</h3>
-      <div class="form-row">
-        <div class="form-group"><label>Business Name</label><input type="text" id="e_businessName"></div>
-        <div class="form-group"><label>Phone Number</label><input type="tel" id="e_phone"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>City</label><input type="text" id="e_city"></div>
-        <div class="form-group"><label>State</label><input type="text" id="e_state"></div>
-      </div>
-    </div>
-    <div class="edit-section">
-      <h3>📖 About Your Business</h3>
-      <div class="form-group"><label>Your Story / About Section</label><textarea id="e_aboutUs" rows="4"></textarea></div>
-      <div class="form-group"><label>Tagline / Mission Statement</label><input type="text" id="e_missionStatement" placeholder="e.g. Serving Bay St. Louis with pride since 2010"></div>
-    </div>
-    <div class="edit-section">
-      <h3>🕐 Business Hours</h3>
-      <div class="hours-grid">
-        <div class="hours-row"><input type="checkbox" id="h_monday"><label for="h_monday">Monday</label><input type="text" id="hv_monday" placeholder="8am – 5pm"></div>
-        <div class="hours-row"><input type="checkbox" id="h_tuesday"><label for="h_tuesday">Tuesday</label><input type="text" id="hv_tuesday" placeholder="8am – 5pm"></div>
-        <div class="hours-row"><input type="checkbox" id="h_wednesday"><label for="h_wednesday">Wednesday</label><input type="text" id="hv_wednesday" placeholder="8am – 5pm"></div>
-        <div class="hours-row"><input type="checkbox" id="h_thursday"><label for="h_thursday">Thursday</label><input type="text" id="hv_thursday" placeholder="8am – 5pm"></div>
-        <div class="hours-row"><input type="checkbox" id="h_friday"><label for="h_friday">Friday</label><input type="text" id="hv_friday" placeholder="8am – 5pm"></div>
-        <div class="hours-row"><input type="checkbox" id="h_saturday"><label for="h_saturday">Saturday</label><input type="text" id="hv_saturday" placeholder="9am – 2pm"></div>
-        <div class="hours-row"><input type="checkbox" id="h_sunday"><label for="h_sunday">Sunday</label><input type="text" id="hv_sunday" placeholder="Closed"></div>
-      </div>
-    </div>
-    <div class="edit-section">
-      <h3>💳 Payment Methods You Accept</h3>
-      <div class="pay-grid">
-        <label class="pay-item"><input type="checkbox" id="p_cash"> Cash</label>
-        <label class="pay-item"><input type="checkbox" id="p_card"> Credit / Debit</label>
-        <label class="pay-item"><input type="checkbox" id="p_check"> Check</label>
-        <label class="pay-item"><input type="checkbox" id="p_venmo"> Venmo</label>
-        <label class="pay-item"><input type="checkbox" id="p_cashapp"> CashApp</label>
-        <label class="pay-item"><input type="checkbox" id="p_zelle"> Zelle</label>
-        <label class="pay-item"><input type="checkbox" id="p_paypal"> PayPal</label>
-        <label class="pay-item"><input type="checkbox" id="p_stripe"> Online / Stripe</label>
-        <label class="pay-item"><input type="checkbox" id="p_financing"> Financing</label>
-      </div>
-    </div>
-  </div>
-  <div class="save-bar">
-    <div class="saving-msg" id="savingMsg">⏳ Saving & rebuilding your site…</div>
-    <button class="btn-cancel-edit" onclick="switchTab('preview',document.querySelector('.tab'))">Cancel</button>
-    <button class="btn-save" onclick="saveEdits()">💾 Save & Regenerate Preview</button>
+<!-- ── CHECKLIST BAR ─────────────────────────────── -->
+<div style="background:#0f172a;border-bottom:1px solid rgba(255,255,255,.06);padding:10px 24px;overflow-x:auto;" id="checklistBar">
+  <div class="checklist-inline">
+    <div class="ci" onclick="toggleCI(this)"><div class="ci-box">✓</div>Business name is correct</div>
+    <div class="ci" onclick="toggleCI(this)"><div class="ci-box">✓</div>Phone number is correct</div>
+    <div class="ci" onclick="toggleCI(this)"><div class="ci-box">✓</div>Services look right</div>
+    <div class="ci" onclick="toggleCI(this)"><div class="ci-box">✓</div>About section is accurate</div>
+    <div class="ci" onclick="toggleCI(this)"><div class="ci-box">✓</div>Happy with the look</div>
   </div>
 </div>
 
-<!-- ── CHANGES TAB ─────────────────────────────── -->
-<div id="tab-changes" class="tab-panel">
-  <div class="changes-wrap">
-    <div class="changes-form">
-      <h2>Request Changes</h2>
-      <p>Use this for anything that requires our team — layout changes, new photos, custom content, or anything beyond basic info edits. For hours, phone, or text changes, use the <strong>Edit My Info</strong> tab to update instantly.</p>
-      <div class="form-group"><label>What needs to change?</label>
-        <select id="c_type">
-          <option value="layout">Page layout or design</option>
-          <option value="photos">Photos or logo</option>
-          <option value="custom_content">Custom content / additional pages</option>
-          <option value="seo">SEO / keywords / page title</option>
-          <option value="other">Something else</option>
-        </select>
+<!-- ── MAIN ──────────────────────────────────────── -->
+<div class="main-layout" id="mainLayout">
+
+  <!-- PREVIEW / EDIT / CHANGES -->
+  <div style="position:relative;overflow:hidden;background:#fff;" id="leftPane">
+    <div class="panel active" id="panel-preview">
+      <div class="preview-loading" id="loadingMsg"><span class="spin">⏳</span>Loading your website…</div>
+      <iframe id="previewFrame" title="Website Preview" onload="document.getElementById('loadingMsg').style.display='none'" style="width:100%;height:calc(100vh - 150px);border:none;display:block;"></iframe>
+    </div>
+    <div class="panel" id="panel-edit" style="background:#0f172a;height:calc(100vh - 150px);overflow-y:auto;">
+      <div class="panel-inner">
+        <div style="margin-bottom:20px;"><h2 style="font-family:'Playfair Display',serif;font-size:26px;color:#f1f5f9;">✏️ Edit Your Site Info</h2>
+        <p style="font-size:14px;color:#94a3b8;margin-top:4px;">Changes here rebuild your preview automatically. Save when done, then approve.</p></div>
+        <div class="edit-section"><h3>📋 Basic Info</h3>
+          <div class="form-row">
+            <div class="fg"><label>Business Name</label><input type="text" id="e_businessName"></div>
+            <div class="fg"><label>Phone Number</label><input type="tel" id="e_phone"></div>
+          </div>
+          <div class="form-row">
+            <div class="fg"><label>City</label><input type="text" id="e_city"></div>
+            <div class="fg"><label>State</label><input type="text" id="e_state"></div>
+          </div>
+        </div>
+        <div class="edit-section"><h3>📖 About</h3>
+          <div class="fg"><label>Your Story</label><textarea id="e_aboutUs" rows="4"></textarea></div>
+          <div class="fg"><label>Tagline / Mission</label><input type="text" id="e_missionStatement"></div>
+        </div>
+        <div class="edit-section"><h3>🕐 Business Hours</h3>
+          <div id="hoursEditor"></div>
+        </div>
+        <div class="edit-section"><h3>💳 Payment Methods</h3>
+          <div class="pay-grid">
+            <label class="pay-item"><input type="checkbox" id="p_cash"> Cash</label>
+            <label class="pay-item"><input type="checkbox" id="p_card"> Credit/Debit</label>
+            <label class="pay-item"><input type="checkbox" id="p_check"> Check</label>
+            <label class="pay-item"><input type="checkbox" id="p_venmo"> Venmo</label>
+            <label class="pay-item"><input type="checkbox" id="p_cashapp"> CashApp</label>
+            <label class="pay-item"><input type="checkbox" id="p_zelle"> Zelle</label>
+            <label class="pay-item"><input type="checkbox" id="p_paypal"> PayPal</label>
+            <label class="pay-item"><input type="checkbox" id="p_stripe"> Online/Stripe</label>
+            <label class="pay-item"><input type="checkbox" id="p_financing"> Financing</label>
+          </div>
+        </div>
       </div>
-      <div class="form-group"><label>What it currently shows (that's wrong or missing):</label>
-        <input type="text" id="c_current" placeholder="e.g. No team photo on About section">
+      <div class="save-bar">
+        <span id="savingMsg" style="display:none;font-size:14px;color:#60a5fa;align-self:center;">⏳ Saving…</span>
+        <button class="btn-cancel" onclick="showPanel('preview')">Cancel</button>
+        <button class="btn-save" onclick="saveEdits()">💾 Save &amp; Rebuild Preview</button>
       </div>
-      <div class="form-group"><label>What it should say or show:</label>
-        <input type="text" id="c_corrected" placeholder="e.g. Please add the photo I emailed you">
+    </div>
+    <div class="panel" id="panel-changes" style="background:#0f172a;height:calc(100vh - 150px);overflow-y:auto;">
+      <div class="panel-inner">
+        <div class="changes-card">
+          <h2>📝 Request Changes</h2>
+          <p>Use this for things that require our team — layout, photos, custom content. For text, hours, or basic info, use <strong style="color:#f1f5f9;">Edit My Info</strong> instead to update instantly.</p>
+          <div class="tip-box">💡 Tip: Most changes like hours, phone, and descriptions can be made instantly using the <strong>✏️ Edit My Info</strong> button above.</div>
+          <div class="fg"><label>What needs to change?</label>
+            <select id="c_type" style="width:100%;padding:10px 12px;background:#0f172a;border:1px solid #334155;border-radius:8px;font-size:14px;color:#f1f5f9;font-family:inherit;">
+              <option value="layout">Page layout or design</option>
+              <option value="photos">Photos or logo</option>
+              <option value="custom_content">Custom content / pages</option>
+              <option value="seo">SEO / keywords / title</option>
+              <option value="other">Something else</option>
+            </select>
+          </div>
+          <div class="fg"><label>What it currently shows (wrong or missing)</label><input type="text" id="c_current" style="width:100%;padding:10px 12px;background:#0f172a;border:1px solid #334155;border-radius:8px;font-size:14px;color:#f1f5f9;font-family:inherit;" placeholder="e.g. No team photo shown"></div>
+          <div class="fg"><label>What it should say or show</label><input type="text" id="c_corrected" style="width:100%;padding:10px 12px;background:#0f172a;border:1px solid #334155;border-radius:8px;font-size:14px;color:#f1f5f9;font-family:inherit;" placeholder="e.g. Please add the photo I emailed"></div>
+          <div class="fg"><label>Additional notes</label><textarea id="c_notes" style="width:100%;padding:10px 12px;background:#0f172a;border:1px solid #334155;border-radius:8px;font-size:14px;color:#f1f5f9;font-family:inherit;min-height:80px;resize:vertical;"></textarea></div>
+          <button class="btn-submit" onclick="submitChanges()">📤 Send Change Request</button>
+        </div>
       </div>
-      <div class="form-group"><label>Additional notes:</label>
-        <textarea id="c_notes" placeholder="Any other details…"></textarea>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Status</div>
+      <div class="status-pill status-review">🔵 Under Review</div>
+      <div style="margin-top:14px;">
+        <div class="info-row"><span class="info-key">Business</span><span class="info-val" id="sb_biz">—</span></div>
+        <div class="info-row"><span class="info-key">Site URL</span><span class="info-val" style="color:#60a5fa;">On approval</span></div>
+        <div class="info-row"><span class="info-key">Review</span><span class="info-val">Check all 5 items</span></div>
       </div>
-      <button class="btn-submit-changes" onclick="submitChanges()">📤 Send Change Request</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Checklist Progress</div>
+      <div id="sb_progress" style="font-size:28px;font-weight:700;color:#f1f5f9;">0 / 5</div>
+      <div style="height:6px;background:#334155;border-radius:3px;margin-top:8px;overflow:hidden;"><div id="progressBar" style="height:100%;background:var(--green);border-radius:3px;transition:width .3s;width:0%"></div></div>
+      <div id="sb_hint" style="font-size:12px;color:#64748b;margin-top:8px;">Check all items to enable approval</div>
+    </div>
+    <div class="sidebar-approve">
+      <button class="big-approve" id="sideApproveBtn" onclick="openApproveModal()" disabled>✓ Approve &amp; Go Live</button>
+      <div class="approve-status" id="approveStatus">Check all 5 items above to enable</div>
+      <button class="sidebar-btn" onclick="showPanel('edit')">✏️ Edit My Info</button>
+      <button class="sidebar-btn" onclick="showPanel('changes')">📝 Request Changes</button>
+      <button class="sidebar-btn" id="fullBtn" onclick="openFull()">🔗 Open Full Screen Preview</button>
+    </div>
+    <div class="sidebar-section" style="margin-top:auto;">
+      <div class="sidebar-label">Need Help?</div>
+      <p style="font-size:13px;color:#64748b;line-height:1.6;">Call <strong style="color:#e2e8f0;">(603) 922-2004</strong> or email airesources89@gmail.com</p>
     </div>
   </div>
 </div>
 
 <!-- SUCCESS SCREENS -->
-<div class="success-screen" id="s_approved">
-  <div class="success-icon s-green">🚀</div>
-  <h2 style="font-size:28px;font-weight:800;margin-bottom:12px;">You're Live!</h2>
-  <p style="color:#64748b;max-width:400px;font-size:16px;">Your website is now live. Check your email for the link to share with customers.</p>
-  <p style="margin-top:20px;font-size:14px;color:#94a3b8;">Questions? Call (603) 922-2004</p>
+<div class="success-wrap" id="s_approved">
+  <div class="s-icon s-green">🚀</div>
+  <div class="s-title">You're Live!</div>
+  <p class="s-sub">Your website is now live on the internet. Check your email — we sent you your live link and admin login details.</p>
+  <div class="s-url" id="liveUrlBox" style="display:none;">
+    <p style="font-size:12px;color:#64748b;margin-bottom:6px;">YOUR LIVE WEBSITE</p>
+    <a id="liveUrlLink" href="#" target="_blank">Loading…</a>
+    <p>Share this link with your customers!</p>
+  </div>
+  <p style="margin-top:24px;font-size:14px;color:#475569;">Questions? Call (603) 922-2004</p>
 </div>
 
-<div class="success-screen" id="s_saved">
-  <div class="success-icon s-blue">✅</div>
-  <h2 style="font-size:28px;font-weight:800;margin-bottom:12px;">Changes Saved!</h2>
-  <p style="color:#64748b;max-width:400px;font-size:16px;">Your site has been rebuilt with your updates. Check your email — we sent you the new preview link.</p>
-  <button onclick="location.reload()" style="margin-top:24px;padding:12px 28px;background:#0066FF;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">View Updated Preview</button>
+<div class="success-wrap" id="s_saved">
+  <div class="s-icon s-blue">✅</div>
+  <div class="s-title">Preview Updated!</div>
+  <p class="s-sub">Your changes have been saved and your preview has been rebuilt. We also sent you a new preview link by email.</p>
+  <button onclick="showPanel('preview');this.closest('.success-wrap').classList.remove('show')" style="margin-top:24px;padding:14px 32px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">View Updated Preview</button>
 </div>
 
-<div class="success-screen" id="s_changes">
-  <div class="success-icon s-yellow">✏️</div>
-  <h2 style="font-size:28px;font-weight:800;margin-bottom:12px;">Got It!</h2>
-  <p style="color:#64748b;max-width:400px;font-size:16px;">Your change request has been sent. We'll update your site and email you a new preview within 24 hours.</p>
-  <p style="margin-top:16px;font-size:14px;color:#94a3b8;">Questions? Call (603) 922-2004</p>
+<div class="success-wrap" id="s_changes">
+  <div class="s-icon s-yellow">✏️</div>
+  <div class="s-title">Request Sent!</div>
+  <p class="s-sub">Our team received your change request and will update your site within 24 hours. You'll get a new preview link by email.</p>
+  <p style="margin-top:20px;font-size:14px;color:#475569;">Questions? Call (603) 922-2004</p>
 </div>
 
 <!-- APPROVE MODAL -->
 <div class="modal-bg" id="approveModal">
   <div class="modal">
-    <div style="font-size:48px;margin-bottom:12px;">🚀</div>
-    <h3>Ready to Go Live?</h3>
-    <p>Your site will be published instantly. You'll receive an email with your live link.</p>
+    <div class="modal-icon">🚀</div>
+    <div class="modal-title">Ready to Go Live?</div>
+    <p class="modal-sub">Your website will go live <strong>instantly</strong>. You'll receive an email with your live link and admin login to update your site anytime.</p>
     <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal()">Not Yet</button>
-      <button class="btn-confirm" onclick="submitApprove()">Yes, Go Live!</button>
+      <button class="mbtn-cancel" onclick="closeModal()">Not Yet</button>
+      <button class="mbtn-confirm" onclick="submitApprove()">Yes, Go Live! 🚀</button>
     </div>
   </div>
 </div>
 
 <script>
 const API = 'https://turnkeyai-backend-production.up.railway.app';
-const p = new URLSearchParams(location.search);
-const site = p.get('site') || '';
-const id = p.get('id') || '';
-const bizName = decodeURIComponent(p.get('biz') || 'Your Business');
-const email = decodeURIComponent(p.get('email') || '');
-const owner = decodeURIComponent(p.get('owner') || '');
-const action = p.get('action') || '';
+const params = new URLSearchParams(location.search);
+const site = params.get('site') || '';
+const id = params.get('id') || '';
+const bizName = decodeURIComponent(params.get('biz') || 'Your Business');
+const email = decodeURIComponent(params.get('email') || '');
+const owner = decodeURIComponent(params.get('owner') || '');
+const action = params.get('action') || '';
 
+// Init
 document.getElementById('topBizName').textContent = bizName;
-document.getElementById('bizName').textContent = bizName;
-
-const previewUrl = site ? API + '/preview/' + site : '';
-if (previewUrl) {
-  document.getElementById('previewFrame').src = previewUrl;
-  document.getElementById('fullLink').href = previewUrl;
+document.getElementById('sb_biz').textContent = bizName;
+if (site) {
+  const url = API + '/preview/' + site;
+  document.getElementById('previewFrame').src = url;
+  document.getElementById('fullBtn').onclick = () => window.open(url, '_blank');
 }
 
-// Tabs
-function switchTab(name, el) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  if (el) { const tabs = document.querySelectorAll('.tab'); let i = ['preview','edit','changes'].indexOf(name); if (tabs[i]) tabs[i].classList.add('active'); }
+// Build hours editor
+const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+const hoursEl = document.getElementById('hoursEditor');
+days.forEach(d => {
+  const row = document.createElement('div');
+  row.className = 'hour-row';
+  row.innerHTML = `<input type="checkbox" id="h_${d}"><label for="h_${d}">${d.charAt(0).toUpperCase()+d.slice(1)}</label><input type="text" id="hv_${d}" placeholder="8am – 5pm" style="padding:8px 10px;background:#0f172a;border:1px solid #334155;border-radius:6px;font-size:13px;color:#f1f5f9;font-family:inherit;">`;
+  hoursEl.appendChild(row);
+});
+
+// Panels
+function showPanel(name) {
+  ['preview','edit','changes'].forEach(n => {
+    document.getElementById('panel-'+n).classList.remove('active');
+  });
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+function openFull() {
+  if (site) window.open(API + '/preview/' + site, '_blank');
 }
 
 // Checklist
-function toggleCheck(row) {
-  row.querySelector('.check-box').classList.toggle('on');
-  row.classList.toggle('checked');
-  const total = document.querySelectorAll('.check-row').length;
-  const done = document.querySelectorAll('.check-row.checked').length;
-  const btn = document.getElementById('approveBtn');
-  const hint = document.getElementById('approveHint');
-  btn.disabled = done < total;
-  hint.textContent = done < total ? (done + ' of ' + total + ' checked — check all to enable approval') : 'All items confirmed — ready to approve!';
-  hint.style.color = done === total ? '#10B981' : '#94a3b8';
+let checked = 0;
+function toggleCI(el) {
+  el.classList.toggle('done');
+  checked = document.querySelectorAll('.ci.done').length;
+  const total = document.querySelectorAll('.ci').length;
+  document.getElementById('sb_progress').textContent = checked + ' / ' + total;
+  document.getElementById('progressBar').style.width = (checked/total*100) + '%';
+  const ready = checked === total;
+  document.getElementById('topApproveBtn').disabled = !ready;
+  document.getElementById('sideApproveBtn').disabled = !ready;
+  document.getElementById('approveStatus').textContent = ready ? '✅ All checked — ready to approve!' : checked + ' of ' + total + ' items checked';
+  document.getElementById('approveStatus').style.color = ready ? '#6ee7b7' : '#64748b';
+  document.getElementById('sb_hint').textContent = ready ? '✅ Ready to approve!' : 'Check all items to enable approval';
 }
 
 function openApproveModal() { document.getElementById('approveModal').classList.add('open'); }
 function closeModal() { document.getElementById('approveModal').classList.remove('open'); }
 
-// APPROVE — goes live instantly
-async function submitApprove() {
-  closeModal();
-  document.getElementById('approveBtn').disabled = true;
-  document.getElementById('approveBtn').textContent = 'Going live…';
-  try {
-    await fetch(API + '/api/client-review-action', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ action: 'approve', previewSite: site, id, email, businessName: bizName, ownerName: owner })
-    });
-  } catch(e) { console.error(e); }
-  hideAll(); document.getElementById('s_approved').classList.add('show');
+function hideAll() {
+  document.getElementById('mainLayout').style.display = 'none';
+  document.getElementById('actionBar').style.display = 'none';
+  document.getElementById('checklistBar').style.display = 'none';
 }
 
-// SAVE EDITS — rebuilds preview, emails client new link
+// APPROVE
+async function submitApprove() {
+  closeModal();
+  document.getElementById('topApproveBtn').disabled = true;
+  document.getElementById('sideApproveBtn').disabled = true;
+  document.getElementById('topApproveBtn').textContent = '⏳ Going live…';
+  try {
+    const r = await fetch(API + '/api/client-review-action', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'approve', previewSite:site, id, email, businessName:bizName, ownerName:owner })
+    });
+    const result = await r.json();
+    hideAll();
+    document.getElementById('s_approved').classList.add('show');
+    if (result.liveUrl) {
+      document.getElementById('liveUrlBox').style.display = 'block';
+      document.getElementById('liveUrlLink').href = result.liveUrl;
+      document.getElementById('liveUrlLink').textContent = result.liveUrl;
+    }
+  } catch(e) {
+    hideAll();
+    document.getElementById('s_approved').classList.add('show');
+  }
+}
+
+// SAVE EDITS
 async function saveEdits() {
   const savingMsg = document.getElementById('savingMsg');
-  savingMsg.style.display = 'flex';
-  const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  savingMsg.style.display = 'inline';
   const updates = {
     businessName: document.getElementById('e_businessName').value,
     phone: document.getElementById('e_phone').value,
@@ -341,53 +412,59 @@ async function saveEdits() {
     updates['pay_'+m] = document.getElementById('p_'+m).checked;
   });
   try {
-    const resp = await fetch(API + '/api/client-update', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
+    const r = await fetch(API + '/api/client-update', {
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ id, updates })
     });
-    const result = await resp.json();
     savingMsg.style.display = 'none';
+    const result = await r.json();
     if (result.success) {
-      hideAll(); document.getElementById('s_saved').classList.add('show');
-    } else { alert('Save failed. Please try again or call (603) 922-2004.'); }
-  } catch(e) { savingMsg.style.display = 'none'; alert('Connection error. Please try again.'); }
+      document.getElementById('previewFrame').src = result.previewUrl;
+      showPanel('preview');
+      document.getElementById('s_saved').classList.add('show');
+      document.getElementById('mainLayout').style.display = 'none';
+      document.getElementById('actionBar').style.display = 'none';
+      document.getElementById('checklistBar').style.display = 'none';
+    } else { alert('Save failed. Try again or call (603) 922-2004.'); }
+  } catch(e) { savingMsg.style.display = 'none'; alert('Connection error. Try again.'); }
 }
 
-// SUBMIT CHANGES — sends to George
+// SUBMIT CHANGES
 async function submitChanges() {
-  const changeType = document.getElementById('c_type').value;
-  const currentInfo = document.getElementById('c_current').value;
-  const correctedInfo = document.getElementById('c_corrected').value;
-  const notes = document.getElementById('c_notes').value;
   try {
     await fetch(API + '/api/client-review-action', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ action: 'changes', previewSite: site, id, email, businessName: bizName, ownerName: owner, changeType, currentInfo, correctedInfo, additionalNotes: notes })
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action:'changes', previewSite:site, id, email, businessName:bizName, ownerName:owner,
+        changeType: document.getElementById('c_type').value,
+        currentInfo: document.getElementById('c_current').value,
+        correctedInfo: document.getElementById('c_corrected').value,
+        additionalNotes: document.getElementById('c_notes').value
+      })
     });
   } catch(e) { console.error(e); }
-  hideAll(); document.getElementById('s_changes').classList.add('show');
+  hideAll();
+  document.getElementById('s_changes').classList.add('show');
 }
 
-function hideAll() {
-  document.querySelector('.tabs').style.display = 'none';
-  document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
-}
-
-// Auto-action from email buttons
+// Auto-trigger from email buttons
 if (action === 'approve') {
-  document.querySelectorAll('.check-row').forEach(r => { r.querySelector('.check-box').classList.add('on'); r.classList.add('checked'); });
-  document.getElementById('approveBtn').disabled = false;
-  document.getElementById('approveHint').textContent = 'All items confirmed — ready to approve!';
-  document.getElementById('approveHint').style.color = '#10B981';
-  setTimeout(openApproveModal, 600);
+  document.querySelectorAll('.ci').forEach(ci => {
+    ci.classList.add('done');
+    ci.querySelector('.ci-box').textContent = '✓';
+  });
+  checked = 5;
+  document.getElementById('sb_progress').textContent = '5 / 5';
+  document.getElementById('progressBar').style.width = '100%';
+  document.getElementById('topApproveBtn').disabled = false;
+  document.getElementById('sideApproveBtn').disabled = false;
+  document.getElementById('approveStatus').textContent = '✅ All checked — ready to approve!';
+  document.getElementById('approveStatus').style.color = '#6ee7b7';
+  setTimeout(openApproveModal, 800);
 } else if (action === 'edit') {
-  switchTab('edit', null);
-  document.querySelectorAll('.tab')[1].classList.add('active');
-  document.querySelectorAll('.tab')[0].classList.remove('active');
+  showPanel('edit');
 } else if (action === 'changes') {
-  switchTab('changes', null);
-  document.querySelectorAll('.tab')[2].classList.add('active');
-  document.querySelectorAll('.tab')[0].classList.remove('active');
+  showPanel('changes');
 }
 </script>
 </body>
