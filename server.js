@@ -12,7 +12,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const ADMIN_EMAIL = 'airesources89@gmail.com';
 const FROM_EMAIL = 'noreply@turnkeyaiservices.com';
-const SITE_BASE_URL = 'https://turnkeyaiservices.pages.dev';
+const SITE_BASE_URL = 'https://turnkeyai-backend-production.up.railway.app';
 const PORT = process.env.PORT || 3000;
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -388,7 +388,7 @@ const INTAKE_FORM_HTML = `<!DOCTYPE html>
                 <div class="form-group" style="margin-top:16px;padding:16px;background:#fff3cd;border:1px solid #ffc107;border-radius:10px;">
                     <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin:0;">
                         <input type="checkbox" id="skipPhotosCheckbox" name="skipPhotos" value="yes" onchange="updatePhotoRequirement()" style="width:18px;height:18px;margin-top:2px;">
-                        <span style="font-size:13px;"><strong>Skip photos for now</strong> — I can email photos later to airesources89@gmail.com</span>
+                        <span style="font-size:13px;"><strong>Skip photos for now</strong> — I can email photos later to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4829213a2d3b273d3a2b2d3b7071082f25292124662b2725">[email&#160;protected]</a></span>
                     </label>
                 </div>
                 <div id="photoValidationMsg" style="display:none;color:#dc2626;font-size:13px;font-weight:600;margin-top:10px;padding:10px;background:#fef2f2;border-radius:8px;">⚠️ Please upload at least an owner photo and one work photo, or check the box above to skip.</div>
@@ -442,14 +442,14 @@ const INTAKE_FORM_HTML = `<!DOCTYPE html>
                     <li>We build your AI-powered website (typically within 24 hours)</li>
                     <li>You'll receive a preview link by email to review and approve</li>
                     <li>Once approved, your site goes live with AI chat, booking, and lead capture</li>
-                    <li>Send your logo and photos to <strong><a href="airesources89@gmail.com</strong></li>
+                    <li>Send your logo and photos to <strong>airesources89@gmail.com</strong></li>
                 </ul>
             </div>
             <p style="margin-top:24px;font-size:14px;color:var(--gray-500);">Questions? Call us at (603) 922-2004</p>
         </div>
     </div>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // ── OPERATOR DETECTION ──
         (function(){
             var p=new URLSearchParams(window.location.search);
@@ -646,18 +646,7 @@ const INTAKE_FORM_HTML = `<!DOCTYPE html>
             var workPhoto1 = document.getElementById('workPhoto1Data').value;
             if (!ownerPhoto || !workPhoto1) {
                 document.getElementById('photoValidationMsg').style.display = 'block';
-                return false;
-            }
-            return true;
-        }
-
-        function updatePhotoRequirement() {
-            document.getElementById('photoValidationMsg').style.display = 'none';
-        }
-    </script>
-</body>
-</html>
-`;
+            `;
 
 app.get('/intake.html', (req, res) => {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
