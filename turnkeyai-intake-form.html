@@ -619,12 +619,4 @@
 
         function validatePhotos() {
             if (document.getElementById('skipPhotosCheckbox').checked) return true;
-            var hasOwner = document.getElementById('ownerPhotoData').value !== '';
-            var hasWork = document.getElementById('workPhoto1Data').value !== '' || document.getElementById('workPhoto2Data').value !== '';
-            if (hasOwner && hasWork) return true;
-            document.getElementById('photoValidationMsg').style.display = 'block';
-            return false;
-        }
-    </script>
-</body>
-</html>
+            var hasOwner = document.getElementById('ownerPhoto
