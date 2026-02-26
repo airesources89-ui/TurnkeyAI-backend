@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: turnkeyai-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: SENDGRID_API_KEY
+        sync: false
