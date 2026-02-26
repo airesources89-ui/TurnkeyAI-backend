@@ -3,333 +3,443 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>TurnkeyAI Admin Dashboard</title>
+<title>TurnkeyAI Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;}
-.header{background:linear-gradient(135deg,#1e3a8a,#1e40af);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.4);}
-.header h1{font-size:20px;font-weight:700;color:#fff;letter-spacing:-.3px;}
-.header h1 span{color:#34d399;}
-.nav-links{display:flex;gap:12px;align-items:center;}
-.nav-links a{color:rgba(255,255,255,.75);text-decoration:none;font-size:13px;font-weight:500;padding:6px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.2);transition:all .15s;}
-.nav-links a:hover{background:rgba(255,255,255,.1);color:#fff;}
-.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:20px 24px 0;max-width:1100px;margin:0 auto;}
-.stat{background:#1e293b;border-radius:10px;padding:16px;text-align:center;border:1px solid #334155;}
-.stat-num{font-size:32px;font-weight:700;color:#34d399;}
-.stat-label{font-size:12px;color:#94a3b8;margin-top:2px;text-transform:uppercase;letter-spacing:.5px;}
-.main{max-width:1100px;margin:0 auto;padding:18px 24px 60px;}
-.tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid #1e293b;}
-.tab{padding:10px 20px;border:none;background:none;color:#94a3b8;font-size:14px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;}
-.tab.active{color:#60a5fa;border-bottom-color:#60a5fa;}
-.tab:hover:not(.active){color:#e2e8f0;}
-.panel{display:none;}
-.panel.active{display:block;}
-.card{background:#1e293b;border-radius:10px;padding:18px;margin-bottom:12px;border:1px solid #334155;}
-.card-top{display:flex;justify-content:space-between;align-items:flex-start;}
-.biz-name{font-size:16px;font-weight:700;color:#f1f5f9;}
-.biz-meta{font-size:12px;color:#64748b;margin-top:3px;}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;}
-.badge-pending{background:#fef3c7;color:#92400e;}
-.badge-review{background:#dbeafe;color:#1e40af;}
-.badge-active{background:#d1fae5;color:#065f46;}
-.badge-trial{background:#fce7f3;color:#9d174d;}
-.badge-declined{background:#fee2e2;color:#991b1b;}
-.detail-row{font-size:12px;color:#94a3b8;margin-top:6px;}
-.detail-row b{color:#cbd5e1;}
-.partner-tag{display:inline-block;background:#1e1b4b;color:#a5b4fc;font-size:11px;padding:2px 8px;border-radius:10px;margin-top:4px;}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid #334155;}
-.btn{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;}
-.btn:disabled{opacity:.5;cursor:not-allowed;}
-.btn-approve{background:#10B981;color:#fff;}
-.btn-approve:hover:not(:disabled){background:#059669;}
-.btn-changes{background:#f59e0b;color:#fff;}
-.btn-changes:hover:not(:disabled){background:#d97706;}
-.btn-resend{background:#6366f1;color:#fff;}
-.btn-resend:hover:not(:disabled){background:#4f46e5;}
-.btn-decline{background:#ef4444;color:#fff;}
-.btn-decline:hover:not(:disabled){background:#dc2626;}
-.btn-secondary{background:#334155;color:#e2e8f0;}
-.btn-secondary:hover:not(:disabled){background:#475569;}
-.empty{text-align:center;color:#475569;padding:60px;font-size:14px;}
-.loading{text-align:center;color:#64748b;padding:40px;font-size:14px;}
-.toast{position:fixed;bottom:24px;right:24px;padding:14px 20px;border-radius:10px;font-weight:600;z-index:999;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,.3);transition:all .3s;opacity:0;transform:translateY(10px);}
-.toast.show{opacity:1;transform:translateY(0);}
-.toast-success{background:#10B981;color:#fff;}
-.toast-error{background:#ef4444;color:#fff;}
-.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;}
+:root{--bg:#0a0f1e;--surface:#111827;--surface2:#1e293b;--border:rgba(255,255,255,.07);--text:#f1f5f9;--muted:#64748b;--accent:#3b82f6;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--purple:#8b5cf6;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* LOGIN */
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%, #1e3a8a 0%, var(--bg) 60%);}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:48px 40px;width:100%;max-width:400px;text-align:center;}
+.login-logo{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#fff;margin-bottom:4px;}
+.login-logo span{color:#60a5fa;}
+.login-sub{font-size:14px;color:var(--muted);margin-bottom:36px;}
+.login-input{width:100%;padding:14px 16px;background:#0a0f1e;border:1px solid #334155;border-radius:10px;font-size:15px;color:#f1f5f9;font-family:inherit;margin-bottom:12px;transition:border .15s;}
+.login-input:focus{outline:none;border-color:var(--accent);}
+.login-btn{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
+.login-btn:hover{background:#2563eb;}
+.login-error{color:var(--red);font-size:13px;margin-top:8px;display:none;}
+
+/* APP */
+#app{display:none;}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
+.header-brand{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;}
+.header-brand span{color:#60a5fa;}
+.header-right{display:flex;align-items:center;gap:16px;}
+.header-status{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--green);}
+.header-status .dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.logout-btn{padding:8px 16px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.logout-btn:hover{border-color:#ef4444;color:#ef4444;}
+
+/* STATS */
+.stats-bar{padding:20px 28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+.stat-num{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;line-height:1;}
+.stat-label{font-size:12px;color:var(--muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.s-blue{color:#60a5fa;}
+.s-green{color:var(--green);}
+.s-yellow{color:var(--yellow);}
+.s-purple{color:var(--purple);}
+
+/* TABS */
+.tabs{display:flex;gap:0;padding:0 28px;border-bottom:1px solid var(--border);}
+.tab{padding:14px 20px;font-size:14px;font-weight:600;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* TOOLBAR */
+.toolbar{padding:16px 28px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.search-box{flex:1;min-width:200px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);font-family:inherit;}
+.search-box:focus{outline:none;border-color:var(--accent);}
+.filter-select{padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);font-family:inherit;cursor:pointer;}
+.filter-select:focus{outline:none;}
+.refresh-btn{padding:10px 18px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;}
+.refresh-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* TABLE */
+.table-wrap{padding:0 28px 28px;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);border-bottom:1px solid var(--border);background:var(--surface);}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+tbody tr:hover{background:var(--surface);}
+tbody td{padding:14px;font-size:14px;vertical-align:middle;}
+.td-biz{font-weight:700;color:#f1f5f9;}
+.td-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;}
+.sb-review{background:#1e3a8a;color:#93c5fd;}
+.sb-active{background:#064e3b;color:#6ee7b7;}
+.sb-changes{background:#78350f;color:#fcd34d;}
+.sb-trial{background:#3b0764;color:#c4b5fd;}
+.sb-pending{background:#1e293b;color:#94a3b8;}
+.sb-declined{background:#1c1917;color:#78716c;}
+.action-cell{display:flex;gap:6px;flex-wrap:wrap;}
+.act{padding:7px 12px;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.act-preview{background:#1e3a8a;color:#93c5fd;}
+.act-preview:hover{background:#1d4ed8;color:#fff;}
+.act-approve{background:#064e3b;color:#6ee7b7;}
+.act-approve:hover{background:var(--green);color:#fff;}
+.act-resend{background:#374151;color:#d1d5db;}
+.act-resend:hover{background:#4b5563;color:#fff;}
+.act-partner-approve{background:#064e3b;color:#6ee7b7;}
+.act-partner-approve:hover{background:var(--green);color:#fff;}
+.act-partner-decline{background:#7f1d1d;color:#fca5a5;}
+.act-partner-decline:hover{background:var(--red);color:#fff;}
+.act-changes{background:#78350f;color:#fcd34d;}
+.act-changes:hover{background:var(--yellow);color:#fff;}
+.empty-state{text-align:center;padding:60px;color:var(--muted);}
+.empty-state .icon{font-size:48px;margin-bottom:12px;}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;}
 .modal-bg.open{display:flex;}
-.modal{background:#1e293b;border-radius:14px;padding:24px;max-width:500px;width:92%;border:1px solid #334155;}
-.modal h3{font-size:16px;font-weight:700;margin-bottom:14px;color:#f1f5f9;}
-.modal label{display:block;font-size:12px;color:#94a3b8;margin:12px 0 5px;}
-.modal input,.modal textarea,.modal select{width:100%;padding:9px 12px;background:#0f172a;border:1px solid #334155;border-radius:7px;color:#e2e8f0;font-size:13px;font-family:inherit;}
-.modal textarea{min-height:80px;resize:vertical;}
-.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
-.refresh-btn{float:right;font-size:12px;color:#60a5fa;background:none;border:none;cursor:pointer;padding:4px 8px;}
-.refresh-btn:hover{color:#93c5fd;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto;}
+.modal h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:16px;}
+.modal-input{width:100%;padding:11px 14px;background:var(--bg);border:1px solid #334155;border-radius:8px;font-size:14px;color:var(--text);font-family:inherit;margin-bottom:10px;}
+.modal-input:focus{outline:none;border-color:var(--accent);}
+.modal-btns{display:flex;gap:10px;margin-top:16px;}
+.modal-btns button{flex:1;padding:12px;border-radius:8px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;}
+.mbtn-confirm{background:var(--green);color:#fff;}
+.mbtn-cancel{background:#334155;color:var(--text);}
+.info-grid{display:grid;gap:8px;margin-bottom:16px;}
+.info-item{display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid var(--border);}
+.info-item:last-child{border-bottom:none;}
+.info-item .k{color:var(--muted);}
+.info-item .v{color:var(--text);font-weight:600;text-align:right;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface2);color:var(--text);padding:14px 24px;border-radius:12px;font-size:14px;font-weight:600;border:1px solid var(--border);z-index:600;transition:transform .3s;box-shadow:0 8px 32px rgba(0,0,0,.4);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.success{border-color:var(--green);color:var(--green);}
+.toast.error{border-color:var(--red);color:var(--red);}
+
+/* NOTES */
+.notes-badge{display:inline-block;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--muted);}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>TurnkeyAI<span>Admin</span></h1>
-  <div class="nav-links">
-    <a href="/intake.html" target="_blank">+ New Client Intake</a>
-    <a href="/" target="_blank">Server Status</a>
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">TurnkeyAI<span>Admin</span></div>
+    <div class="login-sub">Secure Admin Dashboard</div>
+    <input class="login-input" type="password" id="loginPass" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Log In →</button>
+    <div class="login-error" id="loginError">Incorrect password. Try again.</div>
   </div>
 </div>
 
-<div class="stats-bar" id="statsBar">
-  <div class="stat"><div class="stat-num" id="statPending">—</div><div class="stat-label">Pending Build</div></div>
-  <div class="stat"><div class="stat-num" id="statReview">—</div><div class="stat-label">Awaiting Review</div></div>
-  <div class="stat"><div class="stat-num" id="statActive">—</div><div class="stat-label">Active Clients</div></div>
-  <div class="stat"><div class="stat-num" id="statPartners">—</div><div class="stat-label">Active Partners</div></div>
-</div>
+<!-- APP -->
+<div id="app">
+  <div class="header">
+    <div class="header-brand">TurnkeyAI<span>Admin</span></div>
+    <div class="header-right">
+      <div class="header-status"><div class="dot"></div>Live</div>
+      <div style="font-size:13px;color:var(--muted);" id="lastRefresh"></div>
+      <button class="logout-btn" onclick="doLogout()">Log Out</button>
+    </div>
+  </div>
 
-<div class="main">
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-card"><div class="stat-num s-yellow" id="st_pending">—</div><div class="stat-label">Pending Review</div></div>
+    <div class="stat-card"><div class="stat-num s-green" id="st_active">—</div><div class="stat-label">Live Sites</div></div>
+    <div class="stat-card"><div class="stat-num s-blue" id="st_total">—</div><div class="stat-label">Total Clients</div></div>
+    <div class="stat-card"><div class="stat-num s-purple" id="st_partners">—</div><div class="stat-label">Partners</div></div>
+    <div class="stat-card"><div class="stat-num s-yellow" id="st_changes">—</div><div class="stat-label">Changes Requested</div></div>
+  </div>
+
   <div class="tabs">
-    <button class="tab active" onclick="switchTab(this,'clients')">📋 Client Submissions</button>
-    <button class="tab" onclick="switchTab(this,'partners')">🤝 Territory Partners</button>
+    <div class="tab active" onclick="switchTab('clients',this)">👥 Client Submissions</div>
+    <div class="tab" onclick="switchTab('partners',this)">🤝 Territory Partners</div>
   </div>
 
-  <div class="panel active" id="panel-clients">
-    <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
-    <div id="clientsList"><div class="loading">Loading submissions...</div></div>
-  </div>
-
-  <div class="panel" id="panel-partners">
-    <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
-    <div id="partnersList"><div class="loading">Loading partner applications...</div></div>
-  </div>
-</div>
-
-<!-- CHANGE REQUEST MODAL -->
-<div class="modal-bg" id="changeModal">
-  <div class="modal">
-    <h3>✏️ Request Changes</h3>
-    <label>What needs to change?</label>
-    <select id="changeType">
-      <option value="business_info">Business Info (name, address, phone)</option>
-      <option value="services">Services or Pricing</option>
-      <option value="photos">Photos / Logo</option>
-      <option value="content">Website Content / Text</option>
-      <option value="other">Other</option>
+  <div class="toolbar">
+    <input class="search-box" type="text" placeholder="Search by name, email, city…" id="searchBox" oninput="renderTable()">
+    <select class="filter-select" id="filterStatus" onchange="renderTable()">
+      <option value="">All Statuses</option>
+      <option value="review">Awaiting Review</option>
+      <option value="active">Live</option>
+      <option value="changes_requested">Changes Requested</option>
+      <option value="trial">Trial</option>
     </select>
-    <label>Current (wrong) info:</label>
-    <input type="text" id="changeCurrentInfo" placeholder="What it shows now">
-    <label>Should be:</label>
-    <input type="text" id="changeCorrectedInfo" placeholder="What it should say">
-    <label>Additional notes:</label>
-    <textarea id="changeNotes" placeholder="Any other details..."></textarea>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeModal('changeModal')">Cancel</button>
-      <button class="btn btn-changes" onclick="submitChangeRequest()">Send Change Request</button>
+    <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
+  </div>
+
+  <div class="table-wrap">
+    <!-- CLIENTS -->
+    <div id="clientsTab">
+      <table>
+        <thead><tr>
+          <th>Business</th>
+          <th>Contact</th>
+          <th>Location</th>
+          <th>Status</th>
+          <th>Notes</th>
+          <th>Actions</th>
+        </tr></thead>
+        <tbody id="clientsBody"></tbody>
+      </table>
+    </div>
+    <!-- PARTNERS -->
+    <div id="partnersTab" style="display:none;">
+      <table>
+        <thead><tr>
+          <th>Name</th>
+          <th>Contact</th>
+          <th>Territory</th>
+          <th>Tier</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr></thead>
+        <tbody id="partnersBody"></tbody>
+      </table>
     </div>
   </div>
 </div>
 
-<!-- PARTNER MODIFY MODAL -->
-<div class="modal-bg" id="partnerModifyModal">
+<!-- MODALS -->
+<div class="modal-bg" id="clientModal">
   <div class="modal">
-    <h3>✏️ Approve with Modifications</h3>
-    <label>Approved ZIP Codes (comma separated):</label>
-    <input type="text" id="approvedZips" placeholder="e.g. 39520, 39521, 39522">
-    <label>Notes for partner:</label>
-    <textarea id="modifyNotes" placeholder="Explain any territory restrictions..."></textarea>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeModal('partnerModifyModal')">Cancel</button>
-      <button class="btn btn-approve" onclick="submitPartnerModify()">Send Approval</button>
+    <h3 id="cm_title">Client Details</h3>
+    <div class="info-grid" id="cm_info"></div>
+    <div style="margin-bottom:10px;"><label style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;">Notes</label>
+    <textarea class="modal-input" id="cm_notes" rows="3" placeholder="Add notes…"></textarea></div>
+    <div class="modal-btns">
+      <button class="mbtn-cancel" onclick="closeModals()">Close</button>
+      <button class="mbtn-confirm" onclick="saveNotes()">Save Notes</button>
     </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="partnerModal">
+  <div class="modal">
+    <h3 id="pm_title">Partner Details</h3>
+    <div class="info-grid" id="pm_info"></div>
+    <div style="margin-bottom:10px;"><label style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;">Approved ZIP Codes</label>
+    <input class="modal-input" id="pm_zips" placeholder="e.g. 39520, 39521, 39529"></div>
+    <div class="modal-btns">
+      <button class="mbtn-cancel" onclick="closeModals()">Cancel</button>
+      <button class="mbtn-confirm" onclick="approvePartner('approve')">✓ Approve</button>
+    </div>
+    <button style="width:100%;padding:10px;background:transparent;border:1px solid var(--red);color:var(--red);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-top:10px;font-family:inherit;" onclick="approvePartner('decline')">✗ Decline</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const API = '';  // same origin
+const API = 'https://turnkeyai-backend-production.up.railway.app';
+let adminKey = '';
+let allClients = [];
+let allPartners = [];
+let activeTab = 'clients';
+let selectedClient = null;
+let selectedPartner = null;
 
-var allSubmissions = [];
-var allPartners = [];
-var _currentChangeId = null;
-var _currentPartnerId = null;
+function doLogin() {
+  const pass = document.getElementById('loginPass').value;
+  if (!pass) return;
+  adminKey = pass;
+  // Try to fetch data to validate
+  fetch(API + '/api/submissions', { headers: { 'x-admin-key': adminKey } })
+    .then(r => {
+      if (r.ok) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        loadData();
+        setInterval(loadData, 60000);
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+        adminKey = '';
+      }
+    })
+    .catch(() => {
+      document.getElementById('loginError').style.display = 'block';
+      adminKey = '';
+    });
+}
 
-async function loadAll() {
+function doLogout() {
+  adminKey = '';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginPass').value = '';
+}
+
+async function loadData() {
   try {
-    const [subRes, partRes] = await Promise.all([
-      fetch(API + '/api/submissions'),
-      fetch(API + '/api/partners')
+    const [cr, pr] = await Promise.all([
+      fetch(API + '/api/submissions', { headers: { 'x-admin-key': adminKey } }),
+      fetch(API + '/api/partners', { headers: { 'x-admin-key': adminKey } })
     ]);
-    allSubmissions = await subRes.json();
-    allPartners = await partRes.json();
-    renderClients();
-    renderPartners();
+    allClients = await cr.json();
+    allPartners = await pr.json();
     updateStats();
+    renderTable();
+    document.getElementById('lastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
   } catch(e) {
-    document.getElementById('clientsList').innerHTML = '<div class="empty">⚠️ Could not load data. Is the server running?<br><small>' + e.message + '</small></div>';
+    showToast('Failed to load data. Check connection.', 'error');
   }
 }
 
 function updateStats() {
-  document.getElementById('statPending').textContent = allSubmissions.filter(s=>s.status==='pending').length;
-  document.getElementById('statReview').textContent = allSubmissions.filter(s=>s.status==='review').length;
-  document.getElementById('statActive').textContent = allSubmissions.filter(s=>s.status==='active').length;
-  document.getElementById('statPartners').textContent = allPartners.filter(p=>p.status==='active').length;
+  document.getElementById('st_pending').textContent = allClients.filter(c=>c.status==='review').length;
+  document.getElementById('st_active').textContent = allClients.filter(c=>c.status==='active').length;
+  document.getElementById('st_total').textContent = allClients.length;
+  document.getElementById('st_partners').textContent = allPartners.filter(p=>p.status==='active').length;
+  document.getElementById('st_changes').textContent = allClients.filter(c=>c.status==='changes_requested').length;
 }
 
-function fmtDate(iso) {
-  if (!iso) return '';
-  try { return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); } catch(e) { return iso; }
-}
-
-function renderClients() {
-  const el = document.getElementById('clientsList');
-  if (!allSubmissions.length) {
-    el.innerHTML = '<div class="empty">No submissions yet.<br>They appear here automatically when clients complete the intake form.</div>';
-    return;
-  }
-  el.innerHTML = allSubmissions.map(s => {
-    const badge = {pending:'<span class="badge badge-pending">Pending Build</span>',review:'<span class="badge badge-review">Awaiting Review</span>',active:'<span class="badge badge-active">✓ Active</span>',trial:'<span class="badge badge-trial">Trial</span>'}[s.status] || '<span class="badge badge-pending">'+s.status+'</span>';
-    const partnerTag = s.operator_ref ? '<span class="partner-tag">🤝 Partner: '+s.operator_ref+'</span>' : '';
-    const previewBtn = s.previewSite ? '<a href="https://'+s.previewSite+'.pages.dev" target="_blank" class="btn btn-secondary">👁 Preview Site</a>' : '';
-    const approveBtn = (s.status==='review'||s.status==='trial') ? '<button class="btn btn-approve" onclick="clientApprove(\''+s.id+'\',this)">✓ Approve & Go Live</button>' : '';
-    const changesBtn = s.status==='review' ? '<button class="btn btn-changes" onclick="openChangeModal(\''+s.id+'\')">✏ Request Changes</button>' : '';
-    const resendBtn = s.status==='review' ? '<button class="btn btn-resend" onclick="clientResend(\''+s.id+'\',this)">📧 Resend Review Email</button>' : '';
-    const buildBtn = s.status==='pending' ? '<button class="btn btn-approve" onclick="markBuilt(\''+s.id+'\',this)">🚀 Mark as Built</button>' : '';
-    return '<div class="card" id="card-'+s.id+'"><div class="card-top"><div><div class="biz-name">'+s.businessName+'</div><div class="biz-meta">'+s.ownerName+' &bull; '+(s.city?s.city+', ':'')+s.state+' &bull; '+(s.industry||'')+(s.submittedAt?' &bull; '+fmtDate(s.submittedAt):'')+'</div>'+partnerTag+'</div>'+badge+'</div>'+
-      '<div class="detail-row"><b>Email:</b> '+s.email+' &nbsp;|&nbsp; <b>Phone:</b> '+s.phone+'</div>'+
-      '<div class="actions">'+previewBtn+approveBtn+changesBtn+resendBtn+buildBtn+'</div></div>';
-  }).join('');
-}
-
-function renderPartners() {
-  const el = document.getElementById('partnersList');
-  if (!allPartners.length) {
-    el.innerHTML = '<div class="empty">No partner applications yet.</div>';
-    return;
-  }
-  el.innerHTML = allPartners.map(p => {
-    const badge = {pending:'<span class="badge badge-pending">Pending</span>',active:'<span class="badge badge-active">✓ Active</span>',declined:'<span class="badge badge-declined">Declined</span>'}[p.status] || '<span class="badge badge-pending">'+p.status+'</span>';
-    const tierBadge = '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;background:#1e40af;color:#fff;margin-left:8px;">'+(p.tier||'').toUpperCase()+'</span>';
-    const approveBtn = p.status==='pending' ? '<button class="btn btn-approve" onclick="partnerApprove(\''+p.id+'\',this)">✓ Approve</button>' : '';
-    const modifyBtn = p.status==='pending' ? '<button class="btn btn-changes" onclick="openPartnerModifyModal(\''+p.id+'\')">✏ Approve w/ Mods</button>' : '';
-    const declineBtn = p.status==='pending' ? '<button class="btn btn-decline" onclick="partnerDecline(\''+p.id+'\',this)">✗ Decline</button>' : '';
-    return '<div class="card" id="pcard-'+p.id+'"><div class="card-top"><div><div class="biz-name">'+p.name+tierBadge+'</div><div class="biz-meta">'+p.territory+' &bull; Applied '+fmtDate(p.appliedAt)+'</div></div>'+badge+'</div>'+
-      '<div class="detail-row"><b>Email:</b> '+p.email+' &nbsp;|&nbsp; <b>Phone:</b> '+p.phone+' &nbsp;|&nbsp; <b>ZIPs:</b> '+p.zipCodes+'</div>'+
-      '<div class="actions">'+approveBtn+modifyBtn+declineBtn+'</div></div>';
-  }).join('');
-}
-
-// CLIENT ACTIONS
-async function clientApprove(id, btn) {
-  const s = allSubmissions.find(x=>x.id===id);
-  if (!s) return;
-  btn.disabled = true; btn.textContent = 'Sending...';
-  try {
-    await fetch(API+'/api/client-review-action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'approve',previewSite:s.previewSite||'',finalSite:s.id,email:s.email,businessName:s.businessName,ownerName:s.ownerName})});
-    await fetch(API+'/api/update-submission',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status:'active'})});
-    s.status='active';
-    showToast('✓ '+s.businessName+' approved — email sent to George', 'success');
-    renderClients(); updateStats();
-  } catch(e) { btn.disabled=false; btn.textContent='✓ Approve & Go Live'; showToast('Error: '+e.message,'error'); }
-}
-
-async function clientResend(id, btn) {
-  const s = allSubmissions.find(x=>x.id===id);
-  if (!s) return;
-  btn.disabled = true; btn.textContent = 'Sending...';
-  try {
-    await fetch(API+'/api/client-review-action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'resend-review',previewSite:s.previewSite||'',finalSite:s.id,email:s.email,businessName:s.businessName,ownerName:s.ownerName})});
-    showToast('📧 Review email resent to '+s.email,'success');
-  } catch(e) { showToast('Error: '+e.message,'error'); }
-  btn.disabled=false; btn.textContent='📧 Resend Review Email';
-}
-
-async function markBuilt(id, btn) {
-  const s = allSubmissions.find(x=>x.id===id);
-  if (!s) return;
-  btn.disabled=true; btn.textContent='Updating...';
-  await fetch(API+'/api/update-submission',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status:'review'})});
-  s.status='review';
-  showToast('🚀 '+s.businessName+' marked as built — now in Awaiting Review','success');
-  renderClients(); updateStats();
-}
-
-function openChangeModal(id) { _currentChangeId=id; document.getElementById('changeModal').classList.add('open'); }
-async function submitChangeRequest() {
-  const s = allSubmissions.find(x=>x.id===_currentChangeId);
-  if (!s) return;
-  try {
-    await fetch(API+'/api/client-review-action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      action:'changes',previewSite:s.previewSite||'',finalSite:s.id,email:s.email,businessName:s.businessName,ownerName:s.ownerName,
-      changeType:document.getElementById('changeType').value,
-      currentInfo:document.getElementById('changeCurrentInfo').value,
-      correctedInfo:document.getElementById('changeCorrectedInfo').value,
-      additionalNotes:document.getElementById('changeNotes').value
-    })});
-    closeModal('changeModal');
-    showToast('✏ Change request sent for '+s.businessName,'success');
-  } catch(e) { showToast('Error: '+e.message,'error'); }
-}
-
-// PARTNER ACTIONS
-async function partnerApprove(id, btn) {
-  const p = allPartners.find(x=>x.id===id);
-  if (!p) return;
-  btn.disabled=true; btn.textContent='Sending...';
-  try {
-    await fetch(API+'/api/partner-action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'approve',partner:p})});
-    await fetch(API+'/api/update-partner',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status:'active'})});
-    p.status='active';
-    showToast('✓ '+p.name+' approved — email sent','success');
-    renderPartners(); updateStats();
-  } catch(e) { btn.disabled=false; btn.textContent='✓ Approve'; showToast('Error: '+e.message,'error'); }
-}
-
-async function partnerDecline(id, btn) {
-  const p = allPartners.find(x=>x.id===id);
-  if (!p || !confirm('Decline '+p.name+'?')) return;
-  btn.disabled=true;
-  await fetch(API+'/api/partner-action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'decline',partner:p})});
-  await fetch(API+'/api/update-partner',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status:'declined'})});
-  p.status='declined';
-  showToast('✗ '+p.name+' declined','success');
-  renderPartners(); updateStats();
-}
-
-function openPartnerModifyModal(id) { _currentPartnerId=id; document.getElementById('partnerModifyModal').classList.add('open'); }
-async function submitPartnerModify() {
-  const p = allPartners.find(x=>x.id===_currentPartnerId);
-  if (!p) return;
-  p.approvedZips = document.getElementById('approvedZips').value;
-  await fetch(API+'/api/partner-action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'modify',partner:p})});
-  await fetch(API+'/api/update-partner',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:p.id,status:'active',approvedZips:p.approvedZips})});
-  p.status='active';
-  closeModal('partnerModifyModal');
-  showToast('✓ '+p.name+' approved with modifications','success');
-  renderPartners(); updateStats();
-}
-
-function switchTab(btn, name) {
+function switchTab(name, el) {
+  activeTab = name;
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('panel-'+name).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('clientsTab').style.display = name==='clients'?'block':'none';
+  document.getElementById('partnersTab').style.display = name==='partners'?'block':'none';
+  document.getElementById('filterStatus').style.display = name==='clients'?'block':'none';
+  renderTable();
 }
 
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+function renderTable() {
+  const q = document.getElementById('searchBox').value.toLowerCase();
+  const fs = document.getElementById('filterStatus').value;
+  if (activeTab === 'clients') renderClients(q, fs);
+  else renderPartners(q);
 }
 
-function showToast(msg, type) {
+function renderClients(q, fs) {
+  const tb = document.getElementById('clientsBody');
+  let list = allClients.filter(c => {
+    const match = !q || (c.businessName+c.email+c.city+c.ownerName+c.phone).toLowerCase().includes(q);
+    const statusMatch = !fs || c.status === fs;
+    return match && statusMatch;
+  });
+  if (!list.length) { tb.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">📭</div><div>No clients found</div></div></td></tr>`; return; }
+  const statusMap = { review:'sb-review', active:'sb-active', changes_requested:'sb-changes', trial:'sb-trial', pending:'sb-pending' };
+  const statusLabel = { review:'Awaiting Review', active:'Live', changes_requested:'Changes Requested', trial:'Trial', pending:'Pending' };
+  tb.innerHTML = list.map(c => `<tr>
+    <td><div class="td-biz">${esc(c.businessName)}</div><div class="td-sub">${esc(c.industry||'')}</div></td>
+    <td><div>${esc(c.ownerName)}</div><div class="td-sub">${esc(c.email)}</div><div class="td-sub">${esc(c.phone)}</div></td>
+    <td>${esc(c.city)}${c.state?', '+esc(c.state):''}</td>
+    <td><span class="status-badge ${statusMap[c.status]||'sb-pending'}">${statusLabel[c.status]||c.status}</span></td>
+    <td><span class="notes-badge">${esc(c.notes||'—')}</span></td>
+    <td><div class="action-cell">
+      <button class="act act-preview" onclick="window.open('${API}/preview/${esc(c.previewSite)}','_blank')">👁 Preview</button>
+      ${c.status==='active'?`<button class="act act-preview" onclick="window.open('${API}/site/${esc(c.liveSlug)}','_blank')">🔗 Live Site</button>`:''}
+      ${c.status!=='active'?`<button class="act act-resend" onclick="resendReview('${esc(c.id)}')">📧 Resend</button>`:''}
+      <button class="act act-changes" onclick="openClientModal('${esc(c.id)}')">📝 Notes</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function renderPartners(q) {
+  const tb = document.getElementById('partnersBody');
+  let list = allPartners.filter(p => !q || (p.name+p.email+p.territory).toLowerCase().includes(q));
+  if (!list.length) { tb.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">🤝</div><div>No partners found</div></div></td></tr>`; return; }
+  const statusMap = { active:'sb-active', pending:'sb-pending', declined:'sb-declined' };
+  tb.innerHTML = list.map(p => `<tr>
+    <td><div class="td-biz">${esc(p.name)}</div><div class="td-sub">${new Date(p.appliedAt||'').toLocaleDateString()}</div></td>
+    <td><div>${esc(p.email)}</div><div class="td-sub">${esc(p.phone)}</div></td>
+    <td>${esc(p.territory)}<div class="td-sub">${esc(p.zipCodes)}</div></td>
+    <td style="text-transform:uppercase;font-weight:700;font-size:13px;">${esc(p.tier||'node')}</td>
+    <td><span class="status-badge ${statusMap[p.status]||'sb-pending'}">${p.status}</span></td>
+    <td><div class="action-cell">
+      ${p.status==='pending'?`<button class="act act-partner-approve" onclick="openPartnerModal('${esc(p.id)}')">✓ Review</button>`:''}
+      <button class="act act-resend" onclick="openPartnerModal('${esc(p.id)}')">📋 Details</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function openClientModal(id) {
+  selectedClient = allClients.find(c=>c.id===id);
+  if (!selectedClient) return;
+  document.getElementById('cm_title').textContent = selectedClient.businessName;
+  document.getElementById('cm_notes').value = selectedClient.notes || '';
+  document.getElementById('cm_info').innerHTML = [
+    ['Owner', selectedClient.ownerName],
+    ['Email', selectedClient.email],
+    ['Phone', selectedClient.phone],
+    ['Location', selectedClient.city+(selectedClient.state?', '+selectedClient.state:'')],
+    ['Industry', selectedClient.industry],
+    ['Status', selectedClient.status],
+    ['Submitted', new Date(selectedClient.submittedAt||'').toLocaleString()],
+    ['Partner Ref', selectedClient.operator_ref||'—'],
+    ['Preview URL', selectedClient.previewSite ? `<a href="${API}/preview/${selectedClient.previewSite}" target="_blank" style="color:#60a5fa;">View Preview</a>` : '—'],
+    ['Live URL', selectedClient.liveUrl ? `<a href="${selectedClient.liveUrl}" target="_blank" style="color:#6ee7b7;">View Live</a>` : '—']
+  ].map(([k,v])=>`<div class="info-item"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
+  document.getElementById('clientModal').classList.add('open');
+}
+
+function openPartnerModal(id) {
+  selectedPartner = allPartners.find(p=>p.id===id);
+  if (!selectedPartner) return;
+  document.getElementById('pm_title').textContent = selectedPartner.name;
+  document.getElementById('pm_zips').value = selectedPartner.approvedZips || selectedPartner.zipCodes || '';
+  document.getElementById('pm_info').innerHTML = [
+    ['Email', selectedPartner.email],
+    ['Phone', selectedPartner.phone],
+    ['Territory', selectedPartner.territory],
+    ['Requested ZIPs', selectedPartner.zipCodes||'—'],
+    ['Tier', (selectedPartner.tier||'node').toUpperCase()],
+    ['Status', selectedPartner.status],
+    ['Applied', new Date(selectedPartner.appliedAt||'').toLocaleString()]
+  ].map(([k,v])=>`<div class="info-item"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
+  document.getElementById('partnerModal').classList.add('open');
+}
+
+async function saveNotes() {
+  if (!selectedClient) return;
+  const notes = document.getElementById('cm_notes').value;
+  await fetch(API+'/api/update-submission', {
+    method:'POST', headers:{'Content-Type':'application/json','x-admin-key':adminKey},
+    body: JSON.stringify({ id: selectedClient.id, notes })
+  });
+  selectedClient.notes = notes;
+  closeModals();
+  renderTable();
+  showToast('Notes saved ✓', 'success');
+}
+
+async function resendReview(id) {
+  const c = allClients.find(x=>x.id===id);
+  if (!c) return;
+  await fetch(API+'/api/client-review-action', {
+    method:'POST', headers:{'Content-Type':'application/json','x-admin-key':adminKey},
+    body: JSON.stringify({ action:'resend-review', previewSite:c.previewSite, id:c.id, email:c.email, businessName:c.businessName, ownerName:c.ownerName })
+  });
+  showToast('Review email sent to '+c.email+' ✓', 'success');
+}
+
+async function approvePartner(action) {
+  if (!selectedPartner) return;
+  const zips = document.getElementById('pm_zips').value;
+  await fetch(API+'/api/partner-action', {
+    method:'POST', headers:{'Content-Type':'application/json','x-admin-key':adminKey},
+    body: JSON.stringify({ action, partner:{ ...selectedPartner, approvedZips:zips } })
+  });
+  closeModals();
+  await loadData();
+  showToast('Partner '+action+'d — email sent ✓', 'success');
+}
+
+function closeModals() {
+  document.querySelectorAll('.modal-bg').forEach(m=>m.classList.remove('open'));
+  selectedClient = null;
+  selectedPartner = null;
+}
+
+function showToast(msg, type='') {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.className = 'toast toast-'+(type||'success');
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 3500);
+  t.className = 'toast show'+(type?' '+type:'');
+  setTimeout(()=>t.classList.remove('show'), 3000);
 }
 
-// Auto-refresh every 60 seconds
-setInterval(loadAll, 60000);
-loadAll();
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>
