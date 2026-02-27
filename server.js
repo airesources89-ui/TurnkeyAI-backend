@@ -155,22 +155,23 @@ app.post('/api/client-review-action', async (req, res) => {
         const slug = sub.liveSlug;
         LIVE_SITES[slug] = PREVIEW_SITES[sub.previewSite];
         sub.liveUrl = SITE_BASE_URL + '/site/' + slug;
-        // Generate client admin credentials
-        const adminUser = slug;
-        const adminPass = crypto.randomBytes(4).toString('hex').toUpperCase();
-        SITE_ADMIN_CREDS[slug] = { user: adminUser, pass: adminPass };
-        const adminUrl = SITE_BASE_URL + '/site-admin/' + slug;
-        // Email client their live URL + admin credentials
+        const editUrl = buildReviewUrl(sub);
+        // Email client: live URL + link to edit their info anytime
         if (sub.email) {
-          await sendEmail({ to: sub.email, subject: '🚀 Your Website is Live! — ' + sub.businessName, html: liveEmail(sub, adminUrl, adminUser, adminPass) });
+          await sendEmail({ to: sub.email, subject: '🚀 Your Website is Live! — ' + sub.businessName, html: liveEmail(sub, editUrl) });
         }
-        // Notify George
+        // Notify George: live URL + HIS dashboard credentials
         await notifyAdmin('🚀 SITE WENT LIVE: ' + sub.businessName,
           `<div style="font-family:Arial;max-width:600px;padding:24px;background:#f0fdf4;border-radius:12px;">
           <h2 style="color:#16a34a;">✅ ${sub.businessName} is Live!</h2>
           <p><b>Owner:</b> ${sub.ownerName} | ${sub.email}</p>
           <p><b>Live URL:</b> <a href="${sub.liveUrl}">${sub.liveUrl}</a></p>
-          <p style="color:#666;font-size:13px;">Site went live automatically on client approval. No action needed.</p></div>`);
+          <div style="background:#fff;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-top:16px;">
+            <p style="font-size:14px;font-weight:700;color:#166534;margin-bottom:8px;">Your Admin Dashboard</p>
+            <p style="font-size:13px;"><b>URL:</b> <a href="${SITE_BASE_URL}/turnkeyai-admin-v3.html">${SITE_BASE_URL}/turnkeyai-admin-v3.html</a></p>
+            <p style="font-size:13px;"><b>Password:</b> <span style="font-family:monospace;background:#f0fdf4;padding:2px 8px;border-radius:4px;border:1px solid #bbf7d0;">${MASTER_ADMIN_PASS}</span></p>
+          </div>
+          <p style="color:#666;font-size:13px;margin-top:12px;">Site went live automatically on client approval.</p></div>`);
       }
       return res.json({ success: true, action: 'approve', liveUrl: sub ? sub.liveUrl : '' });
     }
@@ -325,7 +326,7 @@ function reviewEmail(sub, reviewUrl, isUpdate) {
       TurnkeyAI Services | (603) 922-2004 | airesources89@gmail.com</div></div>`;
 }
 
-function liveEmail(sub, adminUrl, adminUser, adminPass) {
+function liveEmail(sub, editUrl) {
   return `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
     <div style="background:linear-gradient(135deg,#10B981,#059669);padding:40px 24px;text-align:center;border-radius:12px 12px 0 0;">
       <div style="font-size:48px;margin-bottom:8px;">🚀</div>
@@ -335,23 +336,19 @@ function liveEmail(sub, adminUrl, adminUser, adminPass) {
       <p style="font-size:16px;">Congratulations, ${sub.ownerName}! Your website is now live and ready for customers to find.</p>
       <div style="background:#f0fdf4;border:2px solid #10B981;border-radius:12px;padding:20px;margin:24px 0;text-align:center;">
         <p style="font-size:13px;color:#166534;font-weight:600;margin-bottom:8px;">YOUR LIVE WEBSITE</p>
-        <a href="${sub.liveUrl}" style="font-size:18px;color:#059669;font-weight:700;word-break:break-all;">${sub.liveUrl}</a>
-        <p style="font-size:12px;color:#4ade80;margin-top:8px;">Share this link with your customers!</p>
+        <a href="${sub.liveUrl}" style="font-size:20px;color:#059669;font-weight:700;word-break:break-all;">${sub.liveUrl}</a>
+        <p style="font-size:12px;color:#6b7280;margin-top:8px;">Share this link with customers — add it to Facebook, Google, your email signature</p>
       </div>
-      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:12px;padding:20px;margin-bottom:24px;">
-        <p style="font-size:14px;font-weight:700;color:#6b21a8;margin-bottom:12px;">🔐 Your Site Admin Access</p>
-        <p style="font-size:13px;color:#374151;margin-bottom:6px;">Log in to update your site content at any time:</p>
-        <p style="font-size:13px;"><b>Admin URL:</b> <a href="${adminUrl}" style="color:#7c3aed;">${adminUrl}</a></p>
-        <p style="font-size:13px;"><b>Username:</b> ${adminUser}</p>
-        <p style="font-size:13px;"><b>Password:</b> <span style="font-family:monospace;background:#ede9fe;padding:2px 8px;border-radius:4px;">${adminPass}</span></p>
-        <p style="font-size:11px;color:#6b7280;margin-top:8px;">Save these credentials — you'll need them to log in.</p>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:20px;margin-bottom:24px;text-align:center;">
+        <p style="font-size:14px;font-weight:700;color:#1e40af;margin-bottom:8px;">✏️ Need to Update Your Info?</p>
+        <p style="font-size:13px;color:#374151;margin-bottom:14px;">Change your hours, phone, about section, or services anytime — no password needed.</p>
+        <a href="${editUrl}&action=edit" style="display:inline-block;padding:12px 28px;background:#3b82f6;color:white;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;">✏️ Edit My Site Info</a>
       </div>
-      <div style="background:#f8fafc;border-radius:10px;padding:16px;font-size:14px;color:#374151;">
+      <div style="background:#f8fafc;border-radius:10px;padding:16px;font-size:14px;color:#374151;line-height:2;">
         <p style="font-weight:700;margin-bottom:8px;">Next steps:</p>
-        <p>• Share your website link on Facebook, Instagram, and Google</p>
-        <p>• Add the link to your email signature</p>
-        <p>• Log in to your admin panel to update content anytime</p>
-        <p>• Contact us anytime at (603) 922-2004</p>
+        <p>• Share your website on Facebook, Instagram, and Google Business</p>
+        <p>• Add the link to your email signature and business cards</p>
+        <p>• Call us anytime at (603) 922-2004 for help</p>
       </div>
     </div>
     <div style="background:#f1f5f9;padding:16px;text-align:center;font-size:12px;color:#6B7280;border-radius:0 0 12px 12px;">
