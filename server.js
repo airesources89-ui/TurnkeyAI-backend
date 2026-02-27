@@ -63,33 +63,97 @@ app.post('/api/chat/:siteName', async (req, res) => {
   const phone = sub.phone;
   const city = sub.city;
   const industry = sub.industry || 'service';
+  const rd = sub.rawData || {};
   const lc = (message||'').toLowerCase();
+
+  // Build service list from actual submission data
+  const serviceList = Object.keys(rd)
+    .filter(k => k.startsWith('svc_') && (rd[k]==='on'||rd[k]===true||rd[k]==='1'||rd[k]==='true'))
+    .map(k => k.replace('svc_','').replace(/_/g,' '))
+    .join(', ');
+
+  // Build hours from actual data
+  const dayNames = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  const openDays = dayNames.filter(d => rd['day_'+d]);
+  const hoursDetail = openDays.map(d => `${d.charAt(0).toUpperCase()+d.slice(1)}: ${rd['hours_'+d]||'call for hours'}`).join(', ');
+
+  // Payment methods
+  const payMethods = ['cash','card','check','venmo','cashapp','zelle','paypal','stripe','financing']
+    .filter(m => rd['pay_'+m]).map(m => m.charAt(0).toUpperCase()+m.slice(1));
+
+  const about = rd.aboutUs || '';
+  const awards = rd.awards || '';
+  const mission = rd.missionStatement || '';
+  const competitive = rd.competitiveAdvantage || '';
+  const faq = rd.faqQuestions || '';
+  const additionalServices = rd.additionalServices || '';
+  const years = rd.yearsInBusiness || '';
+
   let reply = '';
 
   if (lc.match(/price|cost|how much|rate|charge|quote|estimate/)) {
-    reply = `Great question! Pricing for ${biz} varies by job size and scope. We offer free estimates — give us a call at ${phone} and we'll get you a quote right away!`;
-  } else if (lc.match(/hour|open|close|available|when/)) {
-    const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-    const openDays = days.filter(d => sub.rawData && sub.rawData['day_'+d]);
-    if (openDays.length) {
-      reply = `We're open ${openDays.join(', ')}. Call ${phone} to confirm specific hours or book an appointment!`;
+    const pricedServices = Object.keys(rd)
+      .filter(k => k.startsWith('price_') && rd[k])
+      .map(k => `${k.replace('price_','').replace(/_/g,' ')}: ${rd[k]}`).slice(0,3).join(', ');
+    if (pricedServices) {
+      reply = `Here are some of our prices: ${pricedServices}. For a full quote, call ${phone} — we offer free estimates!`;
     } else {
-      reply = `Call us at ${phone} to check availability and schedule — we'd love to help!`;
+      reply = `Pricing at ${biz} depends on the job size and scope. We offer free estimates — call ${phone} and we'll give you an exact quote right away!`;
     }
-  } else if (lc.match(/address|location|where|find you|located/)) {
-    reply = `We're based in ${city||'your area'} and serve the surrounding region. Call ${phone} for directions or to confirm we cover your area!`;
-  } else if (lc.match(/book|schedule|appointment|reserve/)) {
-    reply = `Ready to book? Call ${phone} and we'll get you scheduled right away. We typically have availability within a few days!`;
-  } else if (lc.match(/service|offer|do you|provide|specialize/)) {
-    reply = `${biz} offers a full range of ${industry.replace(/_/g,' ')} services. Call ${phone} to discuss exactly what you need and we'll customize a solution for you!`;
-  } else if (lc.match(/pay|payment|accept|cash|card|credit/)) {
-    const methods = ['cash','card','check','venmo','cashapp','zelle','paypal'].filter(m => sub.rawData && sub.rawData['pay_'+m]);
-    reply = methods.length ? `We accept: ${methods.join(', ')}. Easy and flexible! Any other questions?` : `We accept multiple payment methods. Call ${phone} for details!`;
-  } else if (lc.match(/hello|hi|hey|help|start/)) {
-    reply = `Hi there! Welcome to ${biz}. How can we help you today? You can ask about pricing, hours, services, or just give us a call at ${phone}!`;
+  } else if (lc.match(/hour|open|close|available|when|schedule|day/)) {
+    if (hoursDetail) {
+      reply = `Our hours are: ${hoursDetail}. Give us a call at ${phone} to confirm or book an appointment!`;
+    } else {
+      reply = `Call us at ${phone} to check our current availability — we'd love to schedule you!`;
+    }
+  } else if (lc.match(/address|location|where|find you|located|direction/)) {
+    reply = `We're based in ${city||'your area'} and serve the surrounding region.${rd.targetRadius?' We cover a '+rd.targetRadius+' radius.':''} Call ${phone} to confirm we cover your area!`;
+  } else if (lc.match(/book|schedule|appointment|reserve|come out/)) {
+    reply = `Ready to book? Call ${phone} and we'll get you scheduled fast.${openDays.length?' We are open '+openDays.slice(0,3).join(', ')+(openDays.length>3?' and more':'')+'.'  :''}`;
+  } else if (lc.match(/service|offer|do you|provide|specialize|what can/)) {
+    if (serviceList) {
+      reply = `At ${biz} we offer: ${serviceList}.${additionalServices?' Plus: '+additionalServices.substring(0,80)+'.':''} Call ${phone} to discuss what you need!`;
+    } else {
+      reply = `${biz} provides professional ${industry.replace(/_/g,' ')} services in ${city||'your area'}. Call ${phone} to discuss exactly what you need!`;
+    }
+  } else if (lc.match(/pay|payment|accept|cash|card|credit|venmo|zelle/)) {
+    if (payMethods.length) {
+      reply = `We accept: ${payMethods.join(', ')}. Easy and flexible! Any other questions?`;
+    } else {
+      reply = `We accept multiple payment methods including cash and card. Call ${phone} for details!`;
+    }
+  } else if (lc.match(/qualif|license|insur|certif|experience|trained|professional/)) {
+    let qualReply = `${biz} is a professional ${industry.replace(/_/g,' ')} service`;
+    if (years) qualReply += ` with ${years}+ years of experience`;
+    if (awards) qualReply += `. ${awards}`;
+    if (competitive) qualReply += `. ${competitive.substring(0,100)}`;
+    qualReply += `. Call ${phone} to learn more!`;
+    reply = qualReply;
+  } else if (lc.match(/about|story|who are|background|owner|start/)) {
+    if (about) {
+      reply = about.substring(0,200) + (about.length>200?'...' : '') + ` Give us a call at ${phone}!`;
+    } else {
+      reply = `${biz} is a locally owned ${industry.replace(/_/g,' ')} business proudly serving ${city||'the local community'}. Call ${phone} to learn more about us!`;
+    }
+  } else if (lc.match(/special|best|why|better|different|unique/)) {
+    if (competitive) {
+      reply = competitive.substring(0,200) + (competitive.length>200?'...':'') + ` Call ${phone} to experience the difference!`;
+    } else if (mission) {
+      reply = mission + ` Call us at ${phone}!`;
+    } else {
+      reply = `${biz} stands out with reliable, professional service and a commitment to customer satisfaction. Call ${phone} to see for yourself!`;
+    }
+  } else if (lc.match(/hello|hi|hey|help|start|good morning|good afternoon/)) {
+    reply = `Hi there! 👋 Welcome to ${biz}. ${mission||'We\'re here to help!'} Ask me about our services, hours, or pricing — or just call ${phone} for the fastest answer!`;
   } else {
-    reply = `Thanks for reaching out to ${biz}! For the fastest answer, call us at ${phone} — we're happy to help with any questions!`;
+    // Check FAQ data for any relevant match
+    if (faq && lc.split(' ').some(word => word.length > 4 && faq.toLowerCase().includes(word))) {
+      reply = `Great question! For the most accurate answer, call ${phone} — the team at ${biz} will be happy to help with exactly that.`;
+    } else {
+      reply = `Thanks for reaching out to ${biz}! For the fastest answer, call ${phone}. We're${openDays.length?' open '+openDays.slice(0,2).join(' and '):' available'} to help!`;
+    }
   }
+
   res.json({ reply });
 });
 
@@ -590,11 +654,24 @@ function generateSiteHTML(data, siteName) {
   const city = data.city || '';
   const state = data.state || '';
   const about = data.aboutUs || ('Welcome to ' + biz + '. We are proud to serve ' + (city||'our community') + ' and the surrounding area with professional, reliable service.');
-  const mission = data.missionStatement || ('Your local experts in ' + (data.industry||'service').replace(/_/g,' '));
+  // Build a real mission from the data — don't fall back to "Your local experts in restaurant"
+  const industryLabel = (data.industry||'service').replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
+  const mission = data.missionStatement || data.competitiveAdvantage || ('Serving ' + (city||'our community') + ' with professional ' + industryLabel + ' services. Call for a free estimate.');
   const industry = data.industry || 'cleaning';
   const chatName = data.chatName || 'Chat With Us';
   const awards = data.awards || '';
   const years = data.yearsInBusiness || '';
+  // Logo: use submitted base64 data if present
+  const logoData = data.logoData || '';
+  const logoHTML = logoData
+    ? `<img src="${logoData}" alt="${biz} logo" style="max-height:44px;max-width:160px;object-fit:contain;vertical-align:middle;">`
+    : `<span class="nav-brand-text">${biz}</span>`;
+  // Hero logo display
+  const heroLogoHTML = logoData
+    ? `<img src="${logoData}" alt="${biz} logo" style="max-height:80px;max-width:240px;object-fit:contain;margin-bottom:20px;filter:drop-shadow(0 2px 12px rgba(0,0,0,.3));">`
+    : '';
+  // Dashboard slug for footer link
+  const liveSlug = siteName ? siteName.replace(/^preview-/,'').replace(/-[a-z0-9]{6,}$/,'') : '';
 
   const services = [];
   for (const key of Object.keys(data)) {
@@ -750,9 +827,9 @@ footer a{color:#64748b;text-decoration:none;}
 <body>
 <nav>
   <div class="nav-inner">
-    <a href="#" class="nav-brand">${biz}</a>
+    <a href="#" class="nav-brand">${logoHTML}</a>
     <div class="nav-links">
-      <a href="#services">Services</a>
+      ${services.length?'<a href="#services">Services</a>':''}
       <a href="#about">About</a>
       ${hoursRows?'<a href="#hours">Hours</a>':''}
       <a href="#contact" class="nav-cta">📞 ${phone}</a>
@@ -763,18 +840,19 @@ footer a{color:#64748b;text-decoration:none;}
   <div class="hero-bg"></div>
   <div class="hero-pattern"></div>
   <div class="hero-content">
-    <div class="hero-badge">📍 ${city}${state?', '+state:''} &nbsp;•&nbsp; ${industry.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase())}</div>
+    ${heroLogoHTML}
+    <div class="hero-badge">📍 ${city}${state?', '+state:''} &nbsp;•&nbsp; ${industryLabel}</div>
     <h1>${biz}</h1>
     <p>${mission}</p>
     <div class="hero-actions">
-      <a href="tel:${phone}" class="btn-hero-primary">📞 Call Now</a>
-      <a href="#contact" class="btn-hero-secondary">Get a Free Quote</a>
+      <a href="tel:${phone}" class="btn-hero-primary">📞 Call Now — Free Estimate</a>
+      <a href="#contact" class="btn-hero-secondary">Learn More</a>
     </div>
-    <div class="hero-stats">
+    ${(years||awards)?`<div class="hero-stats">
       ${years?`<div class="stat-item"><div class="stat-num">${years}+</div><div class="stat-label">Years in Business</div></div>`:''}
       <div class="stat-item"><div class="stat-num">5★</div><div class="stat-label">Customer Rating</div></div>
-      <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">Satisfaction Guarantee</div></div>
-    </div>
+      ${awards?`<div class="stat-item"><div class="stat-num">🏆</div><div class="stat-label">${awards.substring(0,30)}</div></div>`:`<div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">Satisfaction Guarantee</div></div>`}
+    </div>`:'<div class="hero-stats"><div class="stat-item"><div class="stat-num">5★</div><div class="stat-label">Customer Rating</div></div><div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">Satisfaction Guarantee</div></div><div class="stat-item"><div class="stat-num">Free</div><div class="stat-label">Estimates</div></div></div>'}
   </div>
 </section>
 <div class="trust-bar">
@@ -810,7 +888,9 @@ footer a{color:#64748b;text-decoration:none;}
 ${services.length?`<section class="services-section" id="services"><div class="container"><div class="section-label">What We Offer</div><div class="section-title">Our Services</div><div class="services-grid">${services.map(s=>`<div class="service-card"><div class="service-icon">⚡</div><div class="service-name">${s.name}</div>${s.price?`<div class="service-price">${s.price}</div>`:'<div style="font-size:13px;color:#9ca3af;margin-top:4px;">Contact for pricing</div>'}</div>`).join('')}</div></div></section>`:''}
 ${hoursRows?`<section class="hours-section" id="hours"><div class="container"><div class="section-label">When We're Open</div><div class="section-title">Business Hours</div><div class="hours-grid"><div class="hours-list">${hoursRows}</div>${payMethods.length?`<div class="pay-box"><div class="pay-title">PAYMENT METHODS ACCEPTED</div><div class="pay-methods">${payMethods.map(m=>`<span class="pay-badge">${m}</span>`).join('')}</div><p style="font-size:14px;color:rgba(255,255,255,.7);margin-top:20px;line-height:1.6;">Need to schedule? Call us at <strong style="color:#fff;">${phone}</strong></p></div>`:`<div class="pay-box"><div class="pay-title">READY TO GET STARTED?</div><div class="big-phone">${phone}</div><a href="tel:${phone}" class="btn-call">📞 Call Now</a></div>`}</div></div></section>`:''}
 <section class="contact-section" id="contact"><div class="container"><div class="contact-grid"><div><div class="contact-title">Ready to Get Started?</div><p class="contact-sub">Contact ${biz} today. We're here to help and ready to give you a free estimate.</p><div class="contact-items"><div class="contact-item"><div class="contact-icon">📞</div><div><div class="contact-label">Phone</div><div class="contact-value"><a href="tel:${phone}">${phone}</a></div></div></div>${emailAddr?`<div class="contact-item"><div class="contact-icon">✉️</div><div><div class="contact-label">Email</div><div class="contact-value"><a href="mailto:${emailAddr}">${emailAddr}</a></div></div></div>`:''} ${city?`<div class="contact-item"><div class="contact-icon">📍</div><div><div class="contact-label">Service Area</div><div class="contact-value">${city}${state?', '+state:''} &amp; Surrounding Areas</div></div></div>`:''}</div></div><div class="contact-cta"><p style="font-size:13px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;font-weight:700;">Call Us Directly</p><div class="big-phone">${phone}</div><p style="font-size:14px;color:rgba(255,255,255,.65);margin-bottom:20px;">Free estimates · Fast response · ${city||'Local'} experts</p><a href="tel:${phone}" class="btn-call">📞 Call ${biz}</a></div></div></div></section>
-<footer><p>&copy; ${new Date().getFullYear()} ${biz}. All rights reserved.<br><span style="font-size:12px;">Powered by <a href="https://turnkeyaiservices.com">TurnkeyAI Services</a></span></p></footer>
+<footer><p>&copy; ${new Date().getFullYear()} ${biz}. All rights reserved.<br><span style="font-size:12px;">Powered by <a href="https://turnkeyaiservices.com">TurnkeyAI Services</a></span></p>
+${liveSlug?`<p style="margin-top:8px;font-size:11px;"><a href="${SITE_BASE_URL}/client-dashboard/${liveSlug}" style="color:#64748b;">Site Owner Dashboard</a></p>`:''}
+</footer>
 <button class="chat-fab" id="chatFab" onclick="toggleChat()" aria-label="Open chat">💬</button>
 <div class="chat-panel" id="chatPanel">
   <div class="chat-header"><div><div class="chat-header-title">💬 ${chatName}</div><div style="font-size:12px;opacity:.75;">${biz} · Usually replies instantly</div></div><button class="chat-close" onclick="toggleChat()">×</button></div>
