@@ -10,21 +10,19 @@
 :root{--primary:#1e40af;--accent:#3b82f6;--green:#10b981;--yellow:#f59e0b;--purple:#6366f1;--red:#ef4444;}
 body{font-family:'DM Sans',sans-serif;background:#0f172a;min-height:100vh;color:#f1f5f9;}
 
-/* TOP BAR */
 .topbar{background:linear-gradient(135deg,#1e3a8a,#1e40af);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.1);}
 .topbar-brand{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#fff;}
 .topbar-brand span{color:#60a5fa;}
 .topbar-biz{font-size:15px;font-weight:700;color:#93c5fd;}
 .topbar-contact{font-size:12px;color:rgba(255,255,255,.6);text-align:right;line-height:1.6;}
 
-/* ACTION BAR */
 .action-bar{background:#1e293b;border-bottom:1px solid rgba(255,255,255,.08);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
 .action-bar-left{font-size:14px;color:#94a3b8;}
 .action-bar-left strong{color:#e2e8f0;}
 .action-btns{display:flex;gap:10px;flex-wrap:wrap;}
 .abtn{padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:7px;font-family:inherit;}
 .abtn-approve{background:var(--green);color:#fff;}
-.abtn-approve:hover:not(:disabled){background:#059669;}
+.abtn-approve:hover:not(:disabled){background:#059669;transform:translateY(-1px);}
 .abtn-approve:disabled{opacity:.4;cursor:not-allowed;}
 .abtn-edit{background:var(--purple);color:#fff;}
 .abtn-edit:hover{background:#4f46e5;}
@@ -32,45 +30,45 @@ body{font-family:'DM Sans',sans-serif;background:#0f172a;min-height:100vh;color:
 .abtn-changes:hover{background:#d97706;}
 .abtn-fullscreen{background:#334155;color:#e2e8f0;}
 .abtn-fullscreen:hover{background:#475569;}
-.checklist-inline{display:flex;gap:8px;flex-wrap:wrap;}
-.ci{display:flex;align-items:center;gap:6px;background:#1e293b;border:1px solid #334155;padding:6px 12px;border-radius:20px;cursor:pointer;font-size:13px;color:#94a3b8;transition:all .15s;}
-.ci.done{background:#064e3b;border-color:#10b981;color:#6ee7b7;}
-.ci-box{width:16px;height:16px;border:2px solid #475569;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;transition:all .15s;flex-shrink:0;}
-.ci.done .ci-box{background:var(--green);border-color:var(--green);}
 
-/* MAIN LAYOUT */
-.main-layout{display:grid;grid-template-columns:1fr 320px;height:calc(100vh - 116px);}
-@media(max-width:900px){.main-layout{grid-template-columns:1fr;}}
+/* CHECKLIST — starts pre-checked, pulsing to draw attention */
+.checklist-bar{background:#0f172a;border-bottom:1px solid rgba(255,255,255,.06);padding:10px 24px;overflow-x:auto;}
+.checklist-inline{display:flex;gap:8px;flex-wrap:wrap;}
+.ci{display:flex;align-items:center;gap:6px;background:#064e3b;border:1.5px solid #10b981;padding:7px 14px;border-radius:20px;cursor:pointer;font-size:13px;color:#6ee7b7;transition:all .2s;user-select:none;}
+.ci:hover{opacity:.85;}
+.ci.unchecked{background:#1e293b;border-color:#475569;color:#94a3b8;}
+.ci-box{width:18px;height:18px;background:var(--green);border:2px solid var(--green);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;transition:all .2s;flex-shrink:0;}
+.ci.unchecked .ci-box{background:transparent;border-color:#475569;color:transparent;}
+.checklist-hint{font-size:12px;color:#f59e0b;margin-left:8px;font-weight:600;align-self:center;}
+
+.main-layout{display:grid;grid-template-columns:1fr 320px;height:calc(100vh - 128px);}
+@media(max-width:900px){.main-layout{grid-template-columns:1fr;height:auto;}}
 .preview-pane{overflow:hidden;position:relative;background:#fff;}
 .preview-pane iframe{width:100%;height:100%;border:none;display:block;}
 .preview-loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:#64748b;}
 .preview-loading .spin{font-size:40px;display:block;margin-bottom:12px;animation:spin 1.5s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* SIDEBAR */
 .sidebar{background:#1e293b;border-left:1px solid rgba(255,255,255,.08);overflow-y:auto;display:flex;flex-direction:column;}
 .sidebar-section{padding:20px;border-bottom:1px solid rgba(255,255,255,.06);}
 .sidebar-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#475569;margin-bottom:12px;}
-.status-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;}
-.status-review{background:#1e3a8a;color:#93c5fd;}
+.status-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#1e3a8a;color:#93c5fd;}
 .info-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);}
 .info-row:last-child{border-bottom:none;}
 .info-key{color:#64748b;font-weight:500;}
 .info-val{color:#e2e8f0;font-weight:600;text-align:right;max-width:160px;word-break:break-word;}
 .sidebar-approve{padding:20px;}
 .big-approve{width:100%;padding:14px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
-.big-approve:hover:not(:disabled){background:#059669;}
+.big-approve:hover:not(:disabled){background:#059669;transform:translateY(-1px);}
 .big-approve:disabled{opacity:.4;cursor:not-allowed;}
 .approve-status{font-size:11px;color:#64748b;text-align:center;margin-top:8px;}
 .sidebar-btn{width:100%;padding:11px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#e2e8f0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;transition:all .15s;text-align:left;display:flex;align-items:center;gap:8px;}
 .sidebar-btn:hover{background:rgba(255,255,255,.06);}
 
-/* PANELS */
 .panel{display:none;height:100%;overflow-y:auto;}
 .panel.active{display:block;}
 .panel-inner{padding:24px;max-width:680px;margin:0 auto;}
 
-/* EDIT PANEL */
 .edit-section{background:#1e293b;border-radius:12px;border:1px solid rgba(255,255,255,.08);padding:20px;margin-bottom:16px;}
 .edit-section h3{font-size:15px;font-weight:700;color:#f1f5f9;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.07);}
 .fg{margin-bottom:12px;}
@@ -90,7 +88,6 @@ body{font-family:'DM Sans',sans-serif;background:#0f172a;min-height:100vh;color:
 .btn-save:hover{background:#2563eb;}
 .btn-cancel{padding:12px 20px;background:#334155;color:#e2e8f0;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;}
 
-/* CHANGES PANEL */
 .changes-card{background:#1e293b;border-radius:12px;border:1px solid rgba(255,255,255,.08);padding:24px;margin-bottom:16px;}
 .changes-card h2{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:#f1f5f9;margin-bottom:8px;}
 .changes-card p{font-size:14px;color:#94a3b8;margin-bottom:20px;line-height:1.7;}
@@ -98,7 +95,6 @@ body{font-family:'DM Sans',sans-serif;background:#0f172a;min-height:100vh;color:
 .btn-submit{width:100%;padding:14px;background:var(--yellow);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px;}
 .btn-submit:hover{background:#d97706;}
 
-/* SUCCESS SCREENS */
 .success-wrap{display:none;min-height:calc(100vh - 60px);background:#0f172a;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:60px 24px;}
 .success-wrap.show{display:flex;}
 .s-icon{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:48px;margin-bottom:28px;}
@@ -111,7 +107,6 @@ body{font-family:'DM Sans',sans-serif;background:#0f172a;min-height:100vh;color:
 .s-url a{color:var(--accent);font-size:16px;font-weight:700;text-decoration:none;}
 .s-url p{font-size:12px;color:#64748b;margin-top:6px;}
 
-/* MODAL */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:center;justify-content:center;}
 .modal-bg.open{display:flex;}
 .modal{background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:32px;max-width:420px;width:92%;text-align:center;}
@@ -122,6 +117,10 @@ body{font-family:'DM Sans',sans-serif;background:#0f172a;min-height:100vh;color:
 .modal-btns button{flex:1;padding:13px;border-radius:8px;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .15s;}
 .mbtn-confirm{background:var(--green);color:#fff;}
 .mbtn-cancel{background:#334155;color:#e2e8f0;}
+
+/* Pulse on approve button to draw attention */
+@keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.5);}50%{box-shadow:0 0 0 8px rgba(16,185,129,0);}}
+.big-approve:not(:disabled){animation:pulse-green 2s infinite;}
 </style>
 </head>
 <body>
@@ -132,40 +131,38 @@ body{font-family:'DM Sans',sans-serif;background:#0f172a;min-height:100vh;color:
   <div class="topbar-contact">(603) 922-2004 · airesources89@gmail.com</div>
 </div>
 
-<!-- ── ACTION BAR ────────────────────────────────── -->
 <div class="action-bar" id="actionBar">
   <div class="action-bar-left">
-    Review your site below — <strong>check all 5 items then Approve to go live.</strong>
+    Review your site below — <strong>uncheck anything that's wrong, then Approve to go live.</strong>
   </div>
   <div class="action-btns">
     <button class="abtn abtn-fullscreen" onclick="openFull()">🔗 Full Screen</button>
     <button class="abtn abtn-edit" onclick="showPanel('edit')">✏️ Edit My Info</button>
     <button class="abtn abtn-changes" onclick="showPanel('changes')">📝 Request Changes</button>
-    <button class="abtn abtn-approve" id="topApproveBtn" onclick="openApproveModal()" disabled>✓ Approve &amp; Go Live</button>
+    <button class="abtn abtn-approve" id="topApproveBtn" onclick="openApproveModal()">✓ Approve &amp; Go Live</button>
   </div>
 </div>
 
-<!-- ── CHECKLIST BAR ─────────────────────────────── -->
-<div style="background:#0f172a;border-bottom:1px solid rgba(255,255,255,.06);padding:10px 24px;overflow-x:auto;" id="checklistBar">
+<!-- CHECKLIST — starts all checked, client unchecks if something is wrong -->
+<div class="checklist-bar" id="checklistBar">
   <div class="checklist-inline">
     <div class="ci" onclick="toggleCI(this)"><div class="ci-box">✓</div>Business name is correct</div>
     <div class="ci" onclick="toggleCI(this)"><div class="ci-box">✓</div>Phone number is correct</div>
     <div class="ci" onclick="toggleCI(this)"><div class="ci-box">✓</div>Services look right</div>
     <div class="ci" onclick="toggleCI(this)"><div class="ci-box">✓</div>About section is accurate</div>
     <div class="ci" onclick="toggleCI(this)"><div class="ci-box">✓</div>Happy with the look</div>
+    <span class="checklist-hint" id="checklistHint">✅ All good? Hit Approve &amp; Go Live →</span>
   </div>
 </div>
 
-<!-- ── MAIN ──────────────────────────────────────── -->
 <div class="main-layout" id="mainLayout">
-
-  <!-- PREVIEW / EDIT / CHANGES -->
   <div style="position:relative;overflow:hidden;background:#fff;" id="leftPane">
     <div class="panel active" id="panel-preview">
       <div class="preview-loading" id="loadingMsg"><span class="spin">⏳</span>Loading your website…</div>
-      <iframe id="previewFrame" title="Website Preview" onload="document.getElementById('loadingMsg').style.display='none'" style="width:100%;height:calc(100vh - 150px);border:none;display:block;"></iframe>
+      <iframe id="previewFrame" title="Website Preview" onload="document.getElementById('loadingMsg').style.display='none'" style="width:100%;height:calc(100vh - 128px);border:none;display:block;"></iframe>
     </div>
-    <div class="panel" id="panel-edit" style="background:#0f172a;height:calc(100vh - 150px);overflow-y:auto;">
+
+    <div class="panel" id="panel-edit" style="background:#0f172a;height:calc(100vh - 128px);overflow-y:auto;">
       <div class="panel-inner">
         <div style="margin-bottom:20px;"><h2 style="font-family:'Playfair Display',serif;font-size:26px;color:#f1f5f9;">✏️ Edit Your Site Info</h2>
         <p style="font-size:14px;color:#94a3b8;margin-top:4px;">Changes here rebuild your preview automatically. Save when done, then approve.</p></div>
@@ -206,11 +203,12 @@ body{font-family:'DM Sans',sans-serif;background:#0f172a;min-height:100vh;color:
         <button class="btn-save" onclick="saveEdits()">💾 Save &amp; Rebuild Preview</button>
       </div>
     </div>
-    <div class="panel" id="panel-changes" style="background:#0f172a;height:calc(100vh - 150px);overflow-y:auto;">
+
+    <div class="panel" id="panel-changes" style="background:#0f172a;height:calc(100vh - 128px);overflow-y:auto;">
       <div class="panel-inner">
         <div class="changes-card">
           <h2>📝 Request Changes</h2>
-          <p>Use this for things that require our team — layout, photos, custom content. For text, hours, or basic info, use <strong style="color:#f1f5f9;">Edit My Info</strong> instead to update instantly.</p>
+          <p>Use this for things that need our team — layout changes, photos, custom content. For text, hours, or basic info use <strong style="color:#f1f5f9;">Edit My Info</strong> instead — it updates instantly.</p>
           <div class="tip-box">💡 Tip: Most changes like hours, phone, and descriptions can be made instantly using the <strong>✏️ Edit My Info</strong> button above.</div>
           <div class="fg"><label>What needs to change?</label>
             <select id="c_type" style="width:100%;padding:10px 12px;background:#0f172a;border:1px solid #334155;border-radius:8px;font-size:14px;color:#f1f5f9;font-family:inherit;">
@@ -225,6 +223,7 @@ body{font-family:'DM Sans',sans-serif;background:#0f172a;min-height:100vh;color:
           <div class="fg"><label>What it should say or show</label><input type="text" id="c_corrected" style="width:100%;padding:10px 12px;background:#0f172a;border:1px solid #334155;border-radius:8px;font-size:14px;color:#f1f5f9;font-family:inherit;" placeholder="e.g. Please add the photo I emailed"></div>
           <div class="fg"><label>Additional notes</label><textarea id="c_notes" style="width:100%;padding:10px 12px;background:#0f172a;border:1px solid #334155;border-radius:8px;font-size:14px;color:#f1f5f9;font-family:inherit;min-height:80px;resize:vertical;"></textarea></div>
           <button class="btn-submit" onclick="submitChanges()">📤 Send Change Request</button>
+          <button class="btn-cancel" style="width:100%;margin-top:8px;padding:12px;" onclick="showPanel('preview')">← Back to Preview</button>
         </div>
       </div>
     </div>
@@ -234,22 +233,22 @@ body{font-family:'DM Sans',sans-serif;background:#0f172a;min-height:100vh;color:
   <div class="sidebar">
     <div class="sidebar-section">
       <div class="sidebar-label">Status</div>
-      <div class="status-pill status-review">🔵 Under Review</div>
+      <div class="status-pill">🔵 Under Review</div>
       <div style="margin-top:14px;">
         <div class="info-row"><span class="info-key">Business</span><span class="info-val" id="sb_biz">—</span></div>
         <div class="info-row"><span class="info-key">Site URL</span><span class="info-val" style="color:#60a5fa;">On approval</span></div>
-        <div class="info-row"><span class="info-key">Review</span><span class="info-val">Check all 5 items</span></div>
+        <div class="info-row"><span class="info-key">Review</span><span class="info-val" id="sb_reviewStatus">All 5 ✅ — ready!</span></div>
       </div>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-label">Checklist Progress</div>
-      <div id="sb_progress" style="font-size:28px;font-weight:700;color:#f1f5f9;">0 / 5</div>
-      <div style="height:6px;background:#334155;border-radius:3px;margin-top:8px;overflow:hidden;"><div id="progressBar" style="height:100%;background:var(--green);border-radius:3px;transition:width .3s;width:0%"></div></div>
-      <div id="sb_hint" style="font-size:12px;color:#64748b;margin-top:8px;">Check all items to enable approval</div>
+      <div id="sb_progress" style="font-size:28px;font-weight:700;color:#6ee7b7;">5 / 5</div>
+      <div style="height:6px;background:#334155;border-radius:3px;margin-top:8px;overflow:hidden;"><div id="progressBar" style="height:100%;background:var(--green);border-radius:3px;transition:width .3s;width:100%"></div></div>
+      <div id="sb_hint" style="font-size:12px;color:#6ee7b7;margin-top:8px;">✅ Everything looks good — approve below!</div>
     </div>
     <div class="sidebar-approve">
-      <button class="big-approve" id="sideApproveBtn" onclick="openApproveModal()" disabled>✓ Approve &amp; Go Live</button>
-      <div class="approve-status" id="approveStatus">Check all 5 items above to enable</div>
+      <button class="big-approve" id="sideApproveBtn" onclick="openApproveModal()">✓ Approve &amp; Go Live</button>
+      <div class="approve-status" id="approveStatus" style="color:#6ee7b7;">✅ Ready — click to go live!</div>
       <button class="sidebar-btn" onclick="showPanel('edit')">✏️ Edit My Info</button>
       <button class="sidebar-btn" onclick="showPanel('changes')">📝 Request Changes</button>
       <button class="sidebar-btn" id="fullBtn" onclick="openFull()">🔗 Open Full Screen Preview</button>
@@ -265,11 +264,11 @@ body{font-family:'DM Sans',sans-serif;background:#0f172a;min-height:100vh;color:
 <div class="success-wrap" id="s_approved">
   <div class="s-icon s-green">🚀</div>
   <div class="s-title">You're Live!</div>
-  <p class="s-sub">Your website is now live on the internet. Check your email — we sent you your live link and admin login details.</p>
+  <p class="s-sub">Your website is now live on the internet. Check your email — we sent you your live link and your client dashboard.</p>
   <div class="s-url" id="liveUrlBox" style="display:none;">
     <p style="font-size:12px;color:#64748b;margin-bottom:6px;">YOUR LIVE WEBSITE</p>
     <a id="liveUrlLink" href="#" target="_blank">Loading…</a>
-    <p>Share this link with your customers!</p>
+    <p style="margin-top:6px;">Share this link with your customers!</p>
   </div>
   <p style="margin-top:24px;font-size:14px;color:#475569;">Questions? Call (603) 922-2004</p>
 </div>
@@ -277,14 +276,15 @@ body{font-family:'DM Sans',sans-serif;background:#0f172a;min-height:100vh;color:
 <div class="success-wrap" id="s_saved">
   <div class="s-icon s-blue">✅</div>
   <div class="s-title">Preview Updated!</div>
-  <p class="s-sub">Your changes have been saved and your preview has been rebuilt. We also sent you a new preview link by email.</p>
-  <button onclick="showPanel('preview');this.closest('.success-wrap').classList.remove('show')" style="margin-top:24px;padding:14px 32px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">View Updated Preview</button>
+  <p class="s-sub">Your changes have been saved and your preview has been rebuilt.</p>
+  <button onclick="location.reload()" style="margin-top:24px;padding:14px 32px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">← Back to Review</button>
 </div>
 
 <div class="success-wrap" id="s_changes">
   <div class="s-icon s-yellow">✏️</div>
   <div class="s-title">Request Sent!</div>
   <p class="s-sub">Our team received your change request and will update your site within 24 hours. You'll get a new preview link by email.</p>
+  <button onclick="showPanel('preview');this.closest('.success-wrap').classList.remove('show');document.getElementById('mainLayout').style.display='';document.getElementById('actionBar').style.display='';document.getElementById('checklistBar').style.display='';" style="margin-top:24px;padding:14px 32px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">← Back to Preview</button>
   <p style="margin-top:20px;font-size:14px;color:#475569;">Questions? Call (603) 922-2004</p>
 </div>
 
@@ -293,7 +293,7 @@ body{font-family:'DM Sans',sans-serif;background:#0f172a;min-height:100vh;color:
   <div class="modal">
     <div class="modal-icon">🚀</div>
     <div class="modal-title">Ready to Go Live?</div>
-    <p class="modal-sub">Your website will go live <strong>instantly</strong>. You'll receive an email with your live link and admin login to update your site anytime.</p>
+    <p class="modal-sub">Your website will go live <strong>instantly</strong>. You'll receive an email with your live link and a dashboard to update your site anytime.</p>
     <div class="modal-btns">
       <button class="mbtn-cancel" onclick="closeModal()">Not Yet</button>
       <button class="mbtn-confirm" onclick="submitApprove()">Yes, Go Live! 🚀</button>
@@ -311,13 +311,13 @@ const email = decodeURIComponent(params.get('email') || '');
 const owner = decodeURIComponent(params.get('owner') || '');
 const action = params.get('action') || '';
 
-// Init
 document.getElementById('topBizName').textContent = bizName;
 document.getElementById('sb_biz').textContent = bizName;
+
 if (site) {
   const url = API + '/preview/' + site;
   document.getElementById('previewFrame').src = url;
-  document.getElementById('fullBtn').onclick = () => window.open(url, '_blank');
+  document.getElementById('fullBtn').onclick = () => openFull();
 }
 
 // Build hours editor
@@ -330,35 +330,48 @@ days.forEach(d => {
   hoursEl.appendChild(row);
 });
 
-// Panels
 function showPanel(name) {
-  ['preview','edit','changes'].forEach(n => {
-    document.getElementById('panel-'+n).classList.remove('active');
-  });
+  ['preview','edit','changes'].forEach(n => document.getElementById('panel-'+n).classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
 }
 
 function openFull() {
-  if (site) window.open(API + '/preview/' + site, '_blank');
+  if (site) {
+    // Open in new tab — they use browser back button to return
+    window.open(API + '/preview/' + site, '_blank');
+  }
 }
 
-// Checklist
-let checked = 0;
+// Checklist — starts all checked, client unchecks if something's wrong
+let uncheckedCount = 0;
 function toggleCI(el) {
-  el.classList.toggle('done');
-  checked = document.querySelectorAll('.ci.done').length;
+  el.classList.toggle('unchecked');
+  uncheckedCount = document.querySelectorAll('.ci.unchecked').length;
   const total = document.querySelectorAll('.ci').length;
+  const checked = total - uncheckedCount;
   document.getElementById('sb_progress').textContent = checked + ' / ' + total;
+  document.getElementById('sb_progress').style.color = uncheckedCount > 0 ? '#f59e0b' : '#6ee7b7';
   document.getElementById('progressBar').style.width = (checked/total*100) + '%';
-  const ready = checked === total;
+  document.getElementById('progressBar').style.background = uncheckedCount > 0 ? '#f59e0b' : 'var(--green)';
+  const ready = uncheckedCount === 0;
   document.getElementById('topApproveBtn').disabled = !ready;
   document.getElementById('sideApproveBtn').disabled = !ready;
-  document.getElementById('approveStatus').textContent = ready ? '✅ All checked — ready to approve!' : checked + ' of ' + total + ' items checked';
-  document.getElementById('approveStatus').style.color = ready ? '#6ee7b7' : '#64748b';
-  document.getElementById('sb_hint').textContent = ready ? '✅ Ready to approve!' : 'Check all items to enable approval';
+  document.getElementById('approveStatus').textContent = ready ? '✅ Ready — click to go live!' : uncheckedCount + ' item(s) need attention';
+  document.getElementById('approveStatus').style.color = ready ? '#6ee7b7' : '#f59e0b';
+  document.getElementById('sb_hint').textContent = ready ? '✅ Everything looks good — approve below!' : 'Fix the unchecked items first';
+  document.getElementById('sb_hint').style.color = ready ? '#6ee7b7' : '#f59e0b';
+  document.getElementById('sb_reviewStatus').textContent = ready ? 'All 5 ✅ — ready!' : checked + '/5 checked';
+  document.getElementById('checklistHint').textContent = ready ? '✅ All good? Hit Approve & Go Live →' : '⚠️ ' + uncheckedCount + ' item(s) unchecked — use Edit or Request Changes';
+  document.getElementById('checklistHint').style.color = ready ? '#f59e0b' : '#ef4444';
 }
 
-function openApproveModal() { document.getElementById('approveModal').classList.add('open'); }
+function openApproveModal() {
+  if (uncheckedCount > 0) {
+    alert('Please resolve the unchecked items first, or use Edit My Info / Request Changes.');
+    return;
+  }
+  document.getElementById('approveModal').classList.add('open');
+}
 function closeModal() { document.getElementById('approveModal').classList.remove('open'); }
 
 function hideAll() {
@@ -367,7 +380,6 @@ function hideAll() {
   document.getElementById('checklistBar').style.display = 'none';
 }
 
-// APPROVE
 async function submitApprove() {
   closeModal();
   document.getElementById('topApproveBtn').disabled = true;
@@ -392,7 +404,6 @@ async function submitApprove() {
   }
 }
 
-// SAVE EDITS
 async function saveEdits() {
   const savingMsg = document.getElementById('savingMsg');
   savingMsg.style.display = 'inline';
@@ -419,17 +430,12 @@ async function saveEdits() {
     savingMsg.style.display = 'none';
     const result = await r.json();
     if (result.success) {
-      document.getElementById('previewFrame').src = result.previewUrl;
-      showPanel('preview');
+      hideAll();
       document.getElementById('s_saved').classList.add('show');
-      document.getElementById('mainLayout').style.display = 'none';
-      document.getElementById('actionBar').style.display = 'none';
-      document.getElementById('checklistBar').style.display = 'none';
     } else { alert('Save failed. Try again or call (603) 922-2004.'); }
   } catch(e) { savingMsg.style.display = 'none'; alert('Connection error. Try again.'); }
 }
 
-// SUBMIT CHANGES
 async function submitChanges() {
   try {
     await fetch(API + '/api/client-review-action', {
@@ -449,17 +455,6 @@ async function submitChanges() {
 
 // Auto-trigger from email buttons
 if (action === 'approve') {
-  document.querySelectorAll('.ci').forEach(ci => {
-    ci.classList.add('done');
-    ci.querySelector('.ci-box').textContent = '✓';
-  });
-  checked = 5;
-  document.getElementById('sb_progress').textContent = '5 / 5';
-  document.getElementById('progressBar').style.width = '100%';
-  document.getElementById('topApproveBtn').disabled = false;
-  document.getElementById('sideApproveBtn').disabled = false;
-  document.getElementById('approveStatus').textContent = '✅ All checked — ready to approve!';
-  document.getElementById('approveStatus').style.color = '#6ee7b7';
   setTimeout(openApproveModal, 800);
 } else if (action === 'edit') {
   showPanel('edit');
