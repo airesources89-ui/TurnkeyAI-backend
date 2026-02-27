@@ -70,9 +70,15 @@ textarea{min-height:120px;resize:vertical;}
 .success-screen.active{display:block;}
 .success-icon{width:100px;height:100px;background:linear-gradient(135deg,var(--accent),#00b377);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 32px;font-size:48px;color:#fff;}
 .success-screen h2{font-family:'Playfair Display',serif;font-size:36px;color:var(--dark);margin-bottom:16px;}
+/* Update mode banner */
+#updateBanner{display:none;background:#2563eb;color:#fff;text-align:center;padding:14px 20px;font-size:15px;font-weight:600;position:sticky;top:0;z-index:200;}
 </style>
 </head>
 <body>
+
+<!-- UPDATE MODE BANNER (shown when editing existing site) -->
+<div id="updateBanner">✏️ You're editing your existing site — make your changes and click "Update My Site" when done.</div>
+
 <header class="header"><div class="header-content">
 <a href="/" class="logo">TurnkeyAI<span>Services</span></a>
 <div style="display:flex;align-items:center;">
@@ -81,13 +87,15 @@ textarea{min-height:120px;resize:vertical;}
 </div></div></header>
 
 <div class="container">
-<div class="welcome"><h1>Let's Build Your Website</h1>
-<p>Select your industry and we'll customize this form for your business. Takes about 10-15 minutes.</p></div>
+<div class="welcome"><h1 id="welcomeHeading">Let's Build Your Website</h1>
+<p id="welcomeSubtext">Select your industry and we'll customize this form for your business. Takes about 10-15 minutes.</p></div>
 
 <form id="intakeForm" name="client-intake">
 <input type="hidden" name="form-name" value="client-intake">
 <input type="hidden" name="operator_id" id="operatorId" value="">
 <input type="hidden" name="operator_name" id="operatorName" value="">
+<input type="hidden" name="submission_id" id="submissionId" value="">
+<input type="hidden" name="update_mode" id="updateMode" value="false">
 
 <!-- STEP 1 -->
 <div class="form-section active" data-section="1">
@@ -396,12 +404,12 @@ textarea{min-height:120px;resize:vertical;}
 <input type="text" name="referralSource" placeholder="e.g., Google, referral from friend, social media"></div>
 <div class="nav-buttons">
 <button type="button" class="btn btn-secondary" onclick="prevSection()">&larr; Back</button>
-<button type="submit" class="btn btn-success">Submit &amp; Build My Website &#10003;</button>
+<button type="submit" class="btn btn-success" id="submitBtn">Submit &amp; Build My Website &#10003;</button>
 </div></div>
 </form>
 
-<!-- SUCCESS -->
-<div class="success-screen" id="successScreen">
+<!-- SUCCESS: NEW SUBMISSION -->
+<div class="success-screen" id="successScreenNew">
 <div class="success-icon">&#10003;</div>
 <h2>You're All Set!</h2>
 <p>We've received your information and will start building your website right away!</p>
@@ -429,9 +437,22 @@ textarea{min-height:120px;resize:vertical;}
 </ul></div>
 <p style="margin-top:24px;font-size:14px;color:var(--gray-500);">Questions? Call us at (603) 922-2004</p>
 </div>
+
+<!-- SUCCESS: UPDATE SUBMISSION -->
+<div class="success-screen" id="successScreenUpdate">
+<div class="success-icon">&#10003;</div>
+<h2>Site Updated!</h2>
+<p id="updateSuccessMsg">Your changes have been saved and your site is being rebuilt. You'll receive a confirmation email shortly.</p>
+<div style="margin-top:28px;">
+<a id="dashboardLink" href="#" style="display:inline-block;background:#2563eb;color:white;padding:16px 36px;border-radius:12px;text-decoration:none;font-weight:700;font-size:16px;">&#8592; Back to My Dashboard</a>
+</div>
+<p style="margin-top:24px;font-size:14px;color:var(--gray-500);">Questions? Call us at (603) 922-2004</p>
+</div>
+
 </div>
 
 <script>
+// ── URL PARAMS / OPERATOR ────────────────────────────────────────────
 (function(){
   var p=new URLSearchParams(window.location.search);
   var opId=p.get('operator')||p.get('op')||'';
@@ -440,7 +461,96 @@ textarea{min-height:120px;resize:vertical;}
 })();
 
 var currentSection=1,totalSections=10;
+var IS_UPDATE_MODE=false;
+var UPDATE_SUBMISSION_ID='';
+var UPDATE_SLUG='';
 
+// ── UPDATE MODE PREFILL ──────────────────────────────────────────────
+(async function(){
+  var p=new URLSearchParams(window.location.search);
+  var isUpdate=p.get('update')==='true';
+  var clientId=p.get('id')||'';
+  var slug=p.get('slug')||'';
+  if(!isUpdate||(! clientId&&!slug))return;
+
+  IS_UPDATE_MODE=true;
+  UPDATE_SUBMISSION_ID=clientId||slug;
+  UPDATE_SLUG=slug||clientId;
+
+  // Show update banner, push body down so sticky header doesn't overlap
+  document.getElementById('updateBanner').style.display='block';
+  document.querySelector('.container').style.paddingTop='8px';
+
+  // Update page headings
+  document.getElementById('welcomeHeading').textContent='Update Your Website';
+  document.getElementById('welcomeSubtext').textContent='Your current info is pre-filled below. Make any changes, then click "Update My Site" at the end.';
+
+  // Change submit button text
+  document.getElementById('submitBtn').textContent='Update My Site \u2713';
+
+  // Mark hidden fields
+  document.getElementById('updateMode').value='true';
+  if(clientId)document.getElementById('submissionId').value=clientId;
+
+  // Fetch existing data from server
+  var lookupKey=clientId||slug;
+  try{
+    var res=await fetch('https://turnkeyai-backend-production.up.railway.app/api/prefill/'+lookupKey);
+    if(!res.ok){console.warn('Prefill: not found');return;}
+    var json=await res.json();
+    if(!json||!json.data)return;
+    var data=json.data;
+    if(json.id)document.getElementById('submissionId').value=json.id;
+
+    // Set all simple inputs/textareas/selects
+    Object.entries(data).forEach(function(kv){
+      var k=kv[0],v=kv[1];
+      if(!v&&v!==0)return;
+      var el=document.querySelector('[name="'+k+'"]');
+      if(!el)return;
+      if(el.type==='checkbox'){
+        el.checked=(v===true||v==='on'||v==='1'||v==='true');
+        var par=el.closest('.checkbox-item');
+        if(par)par.classList.toggle('checked',el.checked);
+      }else if(el.type==='radio'){
+        // handled below
+      }else{
+        el.value=v||'';
+      }
+    });
+
+    // Set industry first (triggers dynamic content generation)
+    if(data.industry){
+      var sel=document.getElementById('industrySelect');
+      sel.value=data.industry;
+      handleIndustryChange();
+      // After dynamic content renders, re-apply checkboxes
+      setTimeout(function(){
+        Object.entries(data).forEach(function(kv){
+          var k=kv[0],v=kv[1];
+          if(!v&&v!==0)return;
+          var els=document.querySelectorAll('[name="'+k+'"]');
+          els.forEach(function(el){
+            if(el.type==='checkbox'){
+              el.checked=(v===true||v==='on'||v==='1'||v==='true');
+              var par=el.closest('.checkbox-item,.service-item');
+              if(par&&par.classList.contains('checkbox-item'))par.classList.toggle('checked',el.checked);
+            }else if(el.type==='radio'){
+              el.checked=(el.value===v);
+              var par=el.closest('.checkbox-item');
+              if(par)par.classList.toggle('checked',el.checked);
+            }else if(!el.value||el.value===''){
+              el.value=v||'';
+            }
+          });
+        });
+        bindCheckboxStyles();
+      },400);
+    }
+  }catch(e){console.warn('Prefill error:',e.message);}
+})();
+
+// ── INDUSTRY / FORM LOGIC ────────────────────────────────────────────
 function handleIndustryChange(){
   var ind=document.getElementById('industrySelect').value;
   var d=window.INDUSTRY_DATA&&window.INDUSTRY_DATA[ind];
@@ -551,27 +661,57 @@ function handlePhotoUpload(input,fieldName){
 
 bindCheckboxStyles();updateProgress();
 
+// ── FORM SUBMIT ──────────────────────────────────────────────────────
 document.getElementById('intakeForm').addEventListener('submit',async function(e){
   e.preventDefault();
-  var btn=this.querySelector('button[type="submit"]');
-  if(btn){btn.disabled=true;btn.textContent='Submitting...';}
+  var btn=document.getElementById('submitBtn');
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+
   var fd=new FormData(this);
   var data=Object.fromEntries(fd.entries());
   data.submittedAt=new Date().toISOString();
-  data.id='client_'+Date.now();
-  try{
-    await fetch('https://turnkeyai-backend-production.up.railway.app/api/submission-created',{
-      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-  }catch(err){console.error('Submit failed:',err);}
-  // Save to localStorage so admin panel picks it up
-  try{
-    var subs=JSON.parse(localStorage.getItem('tai_submissions')||'[]');
-    data.status = data.operator_ref ? 'trial' : 'pending';
-    subs.unshift(data);
-    localStorage.setItem('tai_submissions',JSON.stringify(subs));
-  }catch(e){}
-  document.getElementById('intakeForm').style.display='none';
-  document.getElementById('successScreen').classList.add('active');
+
+  var BASE='https://turnkeyai-backend-production.up.railway.app';
+
+  if(IS_UPDATE_MODE){
+    // ── UPDATE EXISTING SITE ──
+    var subId=document.getElementById('submissionId').value;
+    try{
+      var r=await fetch(BASE+'/api/client-update',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({id:subId,updates:data})
+      });
+      var result=await r.json();
+      document.getElementById('intakeForm').style.display='none';
+      var successDiv=document.getElementById('successScreenUpdate');
+      successDiv.style.display='block';
+      if(result.liveUpdated){
+        document.getElementById('updateSuccessMsg').textContent='Your changes are live! Your site has been updated automatically.';
+      }
+      var dashSlug=UPDATE_SLUG||subId;
+      document.getElementById('dashboardLink').href=BASE+'/client-dashboard/'+dashSlug;
+    }catch(err){
+      if(btn){btn.disabled=false;btn.textContent='Update My Site \u2713';}
+      alert('Update failed. Please try again or call (603) 922-2004.');
+    }
+  } else {
+    // ── NEW SUBMISSION ──
+    data.id='client_'+Date.now();
+    try{
+      await fetch(BASE+'/api/submission-created',{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    }catch(err){console.error('Submit failed:',err);}
+    try{
+      var subs=JSON.parse(localStorage.getItem('tai_submissions')||'[]');
+      data.status=data.operator_ref?'trial':'pending';
+      subs.unshift(data);
+      localStorage.setItem('tai_submissions',JSON.stringify(subs));
+    }catch(e){}
+    document.getElementById('intakeForm').style.display='none';
+    document.getElementById('successScreenNew').style.display='block';
+  }
+
   window.scrollTo({top:0,behavior:'smooth'});
 });
 </script>
