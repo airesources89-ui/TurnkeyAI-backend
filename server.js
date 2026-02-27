@@ -22,7 +22,7 @@ const SUBMISSIONS = {};
 const PARTNERS = {};
 const PREVIEW_SITES = {};
 const LIVE_SITES = {};
-const SITE_ADMIN_CREDS = {}; // siteName -> { user, pass }
+const SITE_ADMIN_CREDS = {};
 
 app.get('/', (req, res) => res.json({ 
   status: 'TurnkeyAI Running', 
@@ -31,14 +31,14 @@ app.get('/', (req, res) => res.json({
   time: new Date().toISOString() 
 }));
 
-// ── AUTH MIDDLEWARE ────────────────────────────────────────────────────
+// ── AUTH MIDDLEWARE ──────────────────────────────────────────────────
 function adminAuth(req, res, next) {
   const key = req.headers['x-admin-key'] || req.query.key;
   if (key === MASTER_ADMIN_PASS) return next();
   res.status(401).json({ error: 'Unauthorized' });
 }
 
-// ── ADMIN DATA ─────────────────────────────────────────────────────────
+// ── ADMIN DATA ───────────────────────────────────────────────────────
 app.get('/api/submissions', adminAuth, (req, res) => res.json(Object.values(SUBMISSIONS).sort((a,b)=>new Date(b.submittedAt)-new Date(a.submittedAt))));
 app.get('/api/partners', adminAuth, (req, res) => res.json(Object.values(PARTNERS).sort((a,b)=>new Date(b.appliedAt)-new Date(a.appliedAt))));
 app.post('/api/update-submission', adminAuth, (req, res) => {
@@ -52,7 +52,7 @@ app.post('/api/update-partner', adminAuth, (req, res) => {
   res.json({ updated: !!PARTNERS[id] });
 });
 
-// ── AI CHATBOT ─────────────────────────────────────────────────────────
+// ── AI CHATBOT ───────────────────────────────────────────────────────
 app.post('/api/chat/:siteName', async (req, res) => {
   const { message } = req.body;
   const siteName = req.params.siteName;
@@ -63,7 +63,6 @@ app.post('/api/chat/:siteName', async (req, res) => {
   const phone = sub.phone;
   const city = sub.city;
   const industry = sub.industry || 'service';
-
   const lc = (message||'').toLowerCase();
   let reply = '';
 
@@ -91,11 +90,10 @@ app.post('/api/chat/:siteName', async (req, res) => {
   } else {
     reply = `Thanks for reaching out to ${biz}! For the fastest answer, call us at ${phone} — we're happy to help with any questions!`;
   }
-
   res.json({ reply });
 });
 
-// ── SITE SERVING ───────────────────────────────────────────────────────
+// ── SITE SERVING ─────────────────────────────────────────────────────
 app.get('/preview/:siteName', (req, res) => {
   const html = PREVIEW_SITES[req.params.siteName];
   if (!html) return res.status(404).send(notReadyPage());
@@ -120,30 +118,255 @@ function notReadyPage() {
   <p style="margin-top:16px;">Questions? Call <a href="tel:6039222004">(603) 922-2004</a></p></div></body></html>`;
 }
 
-// ── CLIENT SELF-SERVICE UPDATE ─────────────────────────────────────────
+// ── CLIENT DASHBOARD ─────────────────────────────────────────────────
+// Returns prefill data so the intake form can pre-populate
+app.get('/api/prefill/:slug', (req, res) => {
+  const slug = req.params.slug;
+  const sub = Object.values(SUBMISSIONS).find(s => s.liveSlug === slug || s.previewSite === slug);
+  if (!sub) return res.status(404).json({ error: 'Not found' });
+  res.json({ 
+    ok: true, 
+    id: sub.id,
+    businessName: sub.businessName,
+    data: sub.rawData 
+  });
+});
+
+// Serves the client dashboard page
+app.get('/client-dashboard/:slug', (req, res) => {
+  const slug = req.params.slug;
+  const sub = Object.values(SUBMISSIONS).find(s => s.liveSlug === slug || s.previewSite === slug);
+  if (!sub) return res.status(404).send('<h2>Dashboard not found.</h2>');
+  res.setHeader('Content-Type','text/html; charset=utf-8');
+  res.send(buildClientDashboard(sub));
+});
+
+function buildClientDashboard(sub) {
+  const liveUrl = sub.liveUrl || (SITE_BASE_URL + '/preview/' + sub.previewSite);
+  const editUrl = SITE_BASE_URL + '/intake.html?update=true&id=' + sub.id + '&slug=' + sub.liveSlug;
+  const statusLabel = { review:'Under Review', active:'Live', trial:'Trial', changes_requested:'Changes Requested' };
+  const statusColor = { review:'#f59e0b', active:'#10b981', trial:'#6366f1', changes_requested:'#ef4444' };
+  const st = sub.status || 'review';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Site Dashboard — ${sub.businessName}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:#f1f5f9;min-height:100vh;color:#1e293b;}
+.header{background:linear-gradient(135deg,#0f172a,#1e3a5f);color:#fff;padding:28px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.header h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;}
+.header p{font-size:14px;color:rgba(255,255,255,.65);margin-top:4px;}
+.header-logo{font-size:13px;color:rgba(255,255,255,.5);}
+.container{max-width:860px;margin:0 auto;padding:40px 24px;}
+.status-bar{background:#fff;border-radius:16px;padding:24px 28px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.status-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:20px;font-size:14px;font-weight:700;background:${statusColor[st]}22;color:${statusColor[st]};border:1.5px solid ${statusColor[st]}55;}
+.live-link{font-size:14px;color:#2563eb;text-decoration:none;font-weight:600;word-break:break-all;}
+.live-link:hover{text-decoration:underline;}
+.card{background:#fff;border-radius:16px;padding:32px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.card h2{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:6px;}
+.card p{font-size:14px;color:#64748b;line-height:1.6;margin-bottom:20px;}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;text-decoration:none;cursor:pointer;border:none;transition:all .2s;}
+.btn-primary{background:#2563eb;color:#fff;}
+.btn-primary:hover{background:#1d4ed8;transform:translateY(-1px);box-shadow:0 4px 16px rgba(37,99,235,.35);}
+.btn-green{background:#10b981;color:#fff;}
+.btn-green:hover{background:#059669;transform:translateY(-1px);}
+.btn-outline{background:transparent;color:#374151;border:2px solid #e2e8f0;}
+.btn-outline:hover{border-color:#94a3b8;}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.info-item label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;}
+.info-item p{font-size:15px;font-weight:600;color:#1e293b;margin-top:4px;}
+.divider{border:none;border-top:1px solid #f1f5f9;margin:20px 0;}
+.alert{border-radius:10px;padding:16px 20px;font-size:14px;line-height:1.6;margin-bottom:20px;}
+.alert-blue{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;}
+@media(max-width:540px){.info-grid{grid-template-columns:1fr;}.btn-row{flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>${sub.businessName}</h1>
+    <p>Client Dashboard · ${sub.ownerName}</p>
+  </div>
+  <div class="header-logo">Powered by TurnkeyAI</div>
+</div>
+
+<div class="container">
+
+  <div class="status-bar">
+    <div>
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:8px;">Site Status</div>
+      <span class="status-badge">${st === 'active' ? '🟢' : '🟡'} ${statusLabel[st] || st}</span>
+    </div>
+    ${sub.liveUrl ? `<div><div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:8px;">Your Live URL</div>
+      <a href="${sub.liveUrl}" target="_blank" class="live-link">🔗 ${sub.liveUrl}</a></div>` : 
+      `<div><div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:8px;">Preview URL</div>
+      <a href="${SITE_BASE_URL}/preview/${sub.previewSite}" target="_blank" class="live-link">👀 View Preview</a></div>`}
+  </div>
+
+  <!-- MAIN ACTION: EDIT SITE -->
+  <div class="card">
+    <h2>✏️ Update My Website Info</h2>
+    <p>Need to change your phone number, hours, services, or anything else on your site? Click below — your current info is already filled in. Just make your changes and hit submit. Your site rebuilds automatically.</p>
+    <div class="btn-row">
+      <a href="${editUrl}" class="btn btn-primary">✏️ Edit My Site Info</a>
+      ${sub.liveUrl ? `<a href="${sub.liveUrl}" target="_blank" class="btn btn-outline">🔗 View My Live Site</a>` : `<a href="${SITE_BASE_URL}/preview/${sub.previewSite}" target="_blank" class="btn btn-outline">👀 View Preview</a>`}
+    </div>
+  </div>
+
+  <!-- CURRENT INFO SUMMARY -->
+  <div class="card">
+    <h2>📋 Your Current Info</h2>
+    <p style="margin-bottom:16px;">This is what's currently on your website.</p>
+    <div class="info-grid">
+      <div class="info-item"><label>Business Name</label><p>${sub.businessName}</p></div>
+      <div class="info-item"><label>Owner</label><p>${sub.ownerName}</p></div>
+      <div class="info-item"><label>Phone</label><p>${sub.phone}</p></div>
+      <div class="info-item"><label>Email</label><p>${sub.email}</p></div>
+      <div class="info-item"><label>City</label><p>${sub.city}${sub.state ? ', ' + sub.state : ''}</p></div>
+      <div class="info-item"><label>Industry</label><p style="text-transform:capitalize;">${(sub.industry||'').replace(/_/g,' ')}</p></div>
+    </div>
+  </div>
+
+  <!-- NEED SOMETHING BIGGER -->
+  <div class="card">
+    <h2>🛠️ Need Something Beyond a Quick Edit?</h2>
+    <p>If you want a design change, a new page, or anything our edit form doesn't cover, send us a message and we'll handle it.</p>
+    <div id="request-form" style="display:none;margin-top:4px;">
+      <textarea id="request-text" rows="4" style="width:100%;padding:12px 16px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;resize:vertical;outline:none;" placeholder="Describe what you'd like changed or added..."></textarea>
+      <div style="margin-top:12px;display:flex;gap:10px;">
+        <button class="btn btn-green" onclick="sendRequest()">Send Request</button>
+        <button class="btn btn-outline" onclick="document.getElementById('request-form').style.display='none'">Cancel</button>
+      </div>
+      <div id="request-sent" style="display:none;color:#10b981;font-weight:600;margin-top:12px;">✅ Request sent! We'll be in touch within 24 hours.</div>
+    </div>
+    <button class="btn btn-outline" id="request-toggle" onclick="document.getElementById('request-form').style.display='block';this.style.display='none';">📝 Send a Request</button>
+  </div>
+
+  <div class="alert alert-blue">
+    💡 <strong>Tip:</strong> After editing your info, allow up to 5 minutes for your live site to update. Questions? Call us at (603) 922-2004.
+  </div>
+
+</div>
+
+<script>
+async function sendRequest() {
+  const text = document.getElementById('request-text').value.trim();
+  if (!text) return;
+  try {
+    await fetch('${SITE_BASE_URL}/api/client-change-request', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        businessName: '${sub.businessName.replace(/'/g,"\\'")}',
+        email: '${sub.email.replace(/'/g,"\\'")}',
+        id: '${sub.id}',
+        request: text
+      })
+    });
+  } catch(e) {}
+  document.getElementById('request-sent').style.display = 'block';
+  document.getElementById('request-text').disabled = true;
+  document.querySelector('#request-form .btn-green').style.display = 'none';
+}
+</script>
+</body>
+</html>`;
+}
+
+// ── CLIENT CHANGE REQUEST (from dashboard "bigger request" form) ──────
+app.post('/api/client-change-request', async (req, res) => {
+  const { businessName, email, id, request } = req.body;
+  await notifyAdmin('🛠️ Client Change Request: ' + businessName,
+    `<div style="font-family:Arial;max-width:600px;padding:24px;">
+    <h2 style="color:#d97706;">Change Request — ${businessName}</h2>
+    <p><b>Client:</b> ${businessName} (${email})</p>
+    <p><b>Submission ID:</b> ${id}</p>
+    <hr style="margin:16px 0;border:none;border-top:1px solid #e2e8f0;">
+    <p><b>What they want:</b></p>
+    <p style="background:#f8fafc;padding:16px;border-radius:8px;margin-top:8px;">${request}</p>
+    <p style="margin-top:16px;"><a href="${SITE_BASE_URL}/turnkeyai-admin-v3.html" style="display:inline-block;padding:12px 24px;background:#2563eb;color:white;border-radius:8px;text-decoration:none;font-weight:bold;">Open Admin Dashboard</a></p>
+    </div>`);
+  res.json({ ok: true });
+});
+
+// ── CLIENT SELF-SERVICE UPDATE (called when intake form submits with ?update=true) ──
 app.post('/api/client-update', async (req, res) => {
   try {
     const { id, updates } = req.body;
     const sub = SUBMISSIONS[id];
     if (!sub) return res.status(404).json({ error: 'Submission not found' });
+    
+    // Merge updates into existing data
     Object.assign(sub.rawData, updates);
     if (updates.businessName) sub.businessName = updates.businessName;
     if (updates.phone) sub.phone = updates.phone;
-    const newHTML = generateSiteHTML(sub.rawData, sub.previewSite);
+    if (updates.ownerName) sub.ownerName = updates.ownerName;
+    if (updates.city) sub.city = updates.city;
+    if (updates.state) sub.state = updates.state;
+    
+    // Rebuild the site
+    const newHTML = generateSiteHTML(sub.rawData, sub.liveSlug);
     PREVIEW_SITES[sub.previewSite] = newHTML;
-    sub.status = 'review';
-    const reviewUrl = buildReviewUrl(sub);
-    if (sub.email) {
-      await sendEmail({ to: sub.email, subject: 'Your Updated Preview is Ready — ' + sub.businessName, html: reviewEmail(sub, reviewUrl, true) });
+    
+    // If it was already live, update the live site too
+    if (sub.status === 'active' && sub.liveSlug) {
+      LIVE_SITES[sub.liveSlug] = newHTML;
     }
-    await notifyAdmin('Client Updated: ' + sub.businessName,
-      `<p><b>${sub.businessName}</b> made self-service edits.<br>
-      Preview: <a href="${SITE_BASE_URL}/preview/${sub.previewSite}">${SITE_BASE_URL}/preview/${sub.previewSite}</a></p>`);
-    return res.json({ success: true, previewUrl: SITE_BASE_URL + '/preview/' + sub.previewSite });
+    
+    sub.status = sub.status === 'active' ? 'active' : 'review';
+    
+    // Notify George
+    await notifyAdmin('✏️ Client Self-Updated: ' + sub.businessName,
+      `<div style="font-family:Arial;max-width:600px;padding:24px;">
+      <h2 style="color:#2563eb;">Self-Service Update — ${sub.businessName}</h2>
+      <p><b>Owner:</b> ${sub.ownerName} · ${sub.email}</p>
+      <p><b>Status:</b> ${sub.status === 'active' ? '✅ Site updated live automatically' : '🔄 Updated preview — review and approve'}</p>
+      ${sub.status === 'active' ? `<p><b>Live URL:</b> <a href="${sub.liveUrl}">${sub.liveUrl}</a></p>` : `<p><b>Preview:</b> <a href="${SITE_BASE_URL}/preview/${sub.previewSite}">${SITE_BASE_URL}/preview/${sub.previewSite}</a></p>`}
+      <p style="margin-top:16px;"><a href="${SITE_BASE_URL}/turnkeyai-admin-v3.html" style="display:inline-block;padding:12px 24px;background:#2563eb;color:white;border-radius:8px;text-decoration:none;font-weight:bold;">Admin Dashboard</a></p>
+      </div>`);
+    
+    // Confirm to client
+    if (sub.email) {
+      const dashUrl = SITE_BASE_URL + '/client-dashboard/' + sub.liveSlug;
+      await sendEmail({ 
+        to: sub.email, 
+        subject: sub.status === 'active' ? '✅ Your site has been updated — ' + sub.businessName : '👀 Updated preview ready — ' + sub.businessName,
+        html: `<div style="font-family:Arial;max-width:600px;margin:0 auto;">
+          <div style="background:linear-gradient(135deg,#2563eb,#1d4ed8);padding:32px;text-align:center;border-radius:12px 12px 0 0;">
+            <h1 style="color:white;margin:0;">Site Updated!</h1></div>
+          <div style="padding:28px;background:white;border:1px solid #e2e8f0;">
+            <p style="font-size:16px;">Hi ${sub.ownerName}, your changes have been ${sub.status === 'active' ? 'applied to your live site' : 'saved and are under review'}.</p>
+            ${sub.status === 'active' ? `<div style="text-align:center;margin:24px 0;">
+              <a href="${sub.liveUrl}" style="display:inline-block;padding:14px 32px;background:#10b981;color:white;border-radius:10px;text-decoration:none;font-weight:700;">🔗 View Your Live Site</a>
+            </div>` : ''}
+            <div style="text-align:center;margin-top:16px;">
+              <a href="${dashUrl}" style="display:inline-block;padding:14px 32px;background:#2563eb;color:white;border-radius:10px;text-decoration:none;font-weight:700;">📊 Back to My Dashboard</a>
+            </div>
+          </div>
+          <div style="background:#f1f5f9;padding:16px;text-align:center;font-size:12px;color:#6B7280;border-radius:0 0 12px 12px;">
+            TurnkeyAI Services · (603) 922-2004 · airesources89@gmail.com</div>
+        </div>`
+      });
+    }
+    
+    return res.json({ 
+      success: true, 
+      liveUpdated: sub.status === 'active',
+      previewUrl: SITE_BASE_URL + '/preview/' + sub.previewSite,
+      liveUrl: sub.liveUrl || '',
+      dashboardUrl: SITE_BASE_URL + '/client-dashboard/' + sub.liveSlug
+    });
   } catch(e) { return res.status(500).json({ error: e.message }); }
 });
 
-// ── REVIEW ACTION ──────────────────────────────────────────────────────
+// ── REVIEW ACTION ────────────────────────────────────────────────────
 app.post('/api/client-review-action', async (req, res) => {
   try {
     const { action, previewSite, id, email, businessName, ownerName, changeType, currentInfo, correctedInfo, additionalNotes } = req.body;
@@ -155,21 +378,21 @@ app.post('/api/client-review-action', async (req, res) => {
         const slug = sub.liveSlug;
         LIVE_SITES[slug] = PREVIEW_SITES[sub.previewSite];
         sub.liveUrl = SITE_BASE_URL + '/site/' + slug;
-        const editUrl = buildReviewUrl(sub);
+        const dashUrl = SITE_BASE_URL + '/client-dashboard/' + slug;
         if (sub.email) {
-          await sendEmail({ to: sub.email, subject: '🚀 Your Website is Live! — ' + sub.businessName, html: liveEmail(sub, editUrl) });
+          await sendEmail({ to: sub.email, subject: '🚀 Your Website is Live! — ' + sub.businessName, html: liveEmail(sub, dashUrl) });
         }
         await notifyAdmin('🚀 SITE WENT LIVE: ' + sub.businessName,
           `<div style="font-family:Arial;max-width:600px;padding:24px;background:#f0fdf4;border-radius:12px;">
           <h2 style="color:#16a34a;">✅ ${sub.businessName} is Live!</h2>
           <p><b>Owner:</b> ${sub.ownerName} | ${sub.email}</p>
           <p><b>Live URL:</b> <a href="${sub.liveUrl}">${sub.liveUrl}</a></p>
+          <p><b>Dashboard:</b> <a href="${dashUrl}">${dashUrl}</a></p>
           <div style="background:#fff;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-top:16px;">
             <p style="font-size:14px;font-weight:700;color:#166534;margin-bottom:8px;">Your Admin Dashboard</p>
             <p style="font-size:13px;"><b>URL:</b> <a href="${SITE_BASE_URL}/turnkeyai-admin-v3.html">${SITE_BASE_URL}/turnkeyai-admin-v3.html</a></p>
             <p style="font-size:13px;"><b>Password:</b> <span style="font-family:monospace;background:#f0fdf4;padding:2px 8px;border-radius:4px;border:1px solid #bbf7d0;">${MASTER_ADMIN_PASS}</span></p>
-          </div>
-          <p style="color:#666;font-size:13px;margin-top:12px;">Site went live automatically on client approval.</p></div>`);
+          </div></div>`);
       }
       return res.json({ success: true, action: 'approve', liveUrl: sub ? sub.liveUrl : '' });
     }
@@ -199,7 +422,7 @@ app.post('/api/client-review-action', async (req, res) => {
   } catch(e) { return res.status(500).json({ error: e.message }); }
 });
 
-// ── PARTNER ACTION ─────────────────────────────────────────────────────
+// ── PARTNER ACTION ───────────────────────────────────────────────────
 app.post('/api/partner-action', async (req, res) => {
   try {
     const { action, partner } = req.body;
@@ -226,7 +449,7 @@ app.post('/api/partner-action', async (req, res) => {
   } catch(e) { return res.status(500).json({ error: e.message }); }
 });
 
-// ── INTAKE FORM ────────────────────────────────────────────────────────
+// ── INTAKE FORM ──────────────────────────────────────────────────────
 app.post('/api/submission-created', async (req, res) => {
   try {
     let data = {}, formName = '';
@@ -280,7 +503,6 @@ app.post('/api/submission-created', async (req, res) => {
     const reviewUrl = buildReviewUrl(SUBMISSIONS[sid]);
     SUBMISSIONS[sid].reviewUrl = reviewUrl;
 
-    // ── GEORGE'S ADMIN NOTIFICATION EMAIL ──
     await notifyAdmin('NEW SUBMISSION: '+businessName,
       `<div style="font-family:Arial;max-width:600px;">
       <div style="background:linear-gradient(135deg,#f59e0b,#d97706);padding:24px;color:white;border-radius:12px 12px 0 0;"><h2 style="margin:0;">New Client: ${businessName}</h2></div>
@@ -304,7 +526,7 @@ app.post('/api/submission-created', async (req, res) => {
   } catch(e) { console.error(e.message); return res.status(500).json({ error: e.message }); }
 });
 
-// ── HELPERS ────────────────────────────────────────────────────────────
+// ── HELPERS ──────────────────────────────────────────────────────────
 function buildReviewUrl(sub) {
   return `${SITE_BASE_URL}/client-review.html?site=${sub.previewSite}&id=${sub.id}&biz=${encodeURIComponent(sub.businessName)}&email=${encodeURIComponent(sub.email)}&owner=${encodeURIComponent(sub.ownerName)}`;
 }
@@ -330,7 +552,7 @@ function reviewEmail(sub, reviewUrl, isUpdate) {
       TurnkeyAI Services | (603) 922-2004 | airesources89@gmail.com</div></div>`;
 }
 
-function liveEmail(sub, editUrl) {
+function liveEmail(sub, dashUrl) {
   return `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
     <div style="background:linear-gradient(135deg,#10B981,#059669);padding:40px 24px;text-align:center;border-radius:12px 12px 0 0;">
       <div style="font-size:48px;margin-bottom:8px;">🚀</div>
@@ -341,12 +563,12 @@ function liveEmail(sub, editUrl) {
       <div style="background:#f0fdf4;border:2px solid #10B981;border-radius:12px;padding:20px;margin:24px 0;text-align:center;">
         <p style="font-size:13px;color:#166534;font-weight:600;margin-bottom:8px;">YOUR LIVE WEBSITE</p>
         <a href="${sub.liveUrl}" style="font-size:20px;color:#059669;font-weight:700;word-break:break-all;">${sub.liveUrl}</a>
-        <p style="font-size:12px;color:#6b7280;margin-top:8px;">Share this link with customers — add it to Facebook, Google, your email signature</p>
+        <p style="font-size:12px;color:#6b7280;margin-top:8px;">Share this link on Facebook, Google Business, your email signature</p>
       </div>
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:20px;margin-bottom:24px;text-align:center;">
-        <p style="font-size:14px;font-weight:700;color:#1e40af;margin-bottom:8px;">✏️ Need to Update Your Info?</p>
-        <p style="font-size:13px;color:#374151;margin-bottom:14px;">Change your hours, phone, about section, or services anytime — no password needed.</p>
-        <a href="${editUrl}&action=edit" style="display:inline-block;padding:12px 28px;background:#3b82f6;color:white;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;">✏️ Edit My Site Info</a>
+        <p style="font-size:14px;font-weight:700;color:#1e40af;margin-bottom:8px;">📊 Your Client Dashboard</p>
+        <p style="font-size:13px;color:#374151;margin-bottom:14px;">Update your hours, phone, services, or anything else — anytime, no password needed.</p>
+        <a href="${dashUrl}" style="display:inline-block;padding:12px 28px;background:#2563eb;color:white;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;">📊 Go to My Dashboard</a>
       </div>
       <div style="background:#f8fafc;border-radius:10px;padding:16px;font-size:14px;color:#374151;line-height:2;">
         <p style="font-weight:700;margin-bottom:8px;">Next steps:</p>
@@ -359,7 +581,7 @@ function liveEmail(sub, editUrl) {
       TurnkeyAI Services | (603) 922-2004 | airesources89@gmail.com</div></div>`;
 }
 
-// ── SITE GENERATOR ────────────────────────────────────────────────────
+// ── SITE GENERATOR ───────────────────────────────────────────────────
 function generateSiteHTML(data, siteName) {
   const biz = data.businessName || 'Your Business';
   const owner = data.ownerName || '';
@@ -408,7 +630,6 @@ function generateSiteHTML(data, siteName) {
     default: { primary: '#1e293b', accent: '#0066FF', bg: '#f8fafc' }
   };
   const c = industryColors[industry] || industryColors.default;
-
   const chatEndpoint = SITE_BASE_URL + '/api/chat/' + (siteName || 'site');
 
   return `<!DOCTYPE html>
@@ -425,8 +646,6 @@ function generateSiteHTML(data, siteName) {
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{font-family:'DM Sans',sans-serif;color:#1a202c;background:#fff;overflow-x:hidden;}
-
-/* NAV */
 nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,0,0,.08);padding:0 32px;}
 .nav-inner{max-width:1100px;margin:0 auto;height:68px;display:flex;justify-content:space-between;align-items:center;}
 .nav-brand{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--primary);text-decoration:none;}
@@ -436,15 +655,12 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.97);backdrop-
 .nav-cta{background:var(--primary);color:#fff !important;padding:10px 22px;border-radius:8px;font-weight:700 !important;}
 .nav-cta:hover{background:var(--accent) !important;color:#fff !important;}
 @media(max-width:600px){.nav-links{display:none;}}
-
-/* HERO */
 .hero{position:relative;min-height:88vh;display:flex;align-items:center;overflow:hidden;background:var(--primary);}
 .hero-bg{position:absolute;inset:0;background:linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 70%, black) 100%);opacity:.97;}
 .hero-pattern{position:absolute;inset:0;background-image:radial-gradient(circle at 20% 50%, var(--accent) 0, transparent 45%), radial-gradient(circle at 80% 20%, rgba(255,255,255,.08) 0, transparent 40%);pointer-events:none;}
 .hero-content{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:80px 32px;}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.9);font-size:13px;font-weight:600;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.2);margin-bottom:24px;letter-spacing:.5px;}
 .hero h1{font-family:'Playfair Display',serif;font-size:clamp(42px,6vw,80px);font-weight:800;color:#fff;line-height:1.05;margin-bottom:20px;max-width:780px;}
-.hero h1 .accent{color:var(--accent);}
 .hero p{font-size:clamp(16px,2vw,20px);color:rgba(255,255,255,.8);max-width:560px;line-height:1.7;margin-bottom:40px;}
 .hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
 .btn-hero-primary{display:inline-flex;align-items:center;gap:10px;padding:16px 32px;background:#fff;color:var(--primary);border-radius:10px;font-size:16px;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 4px 20px rgba(0,0,0,.2);}
@@ -455,14 +671,10 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.97);backdrop-
 .stat-item{color:#fff;}
 .stat-num{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:#fff;}
 .stat-label{font-size:13px;color:rgba(255,255,255,.65);margin-top:2px;}
-
-/* TRUST BAR */
 .trust-bar{background:var(--bg);border-bottom:1px solid rgba(0,0,0,.06);padding:20px 32px;}
 .trust-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap;}
 .trust-item{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:#374151;}
 .trust-icon{font-size:20px;}
-
-/* ABOUT */
 .section{padding:96px 32px;}
 .container{max-width:1100px;margin:0 auto;}
 .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);margin-bottom:12px;}
@@ -477,8 +689,6 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.97);backdrop-
 .about-features{margin-top:32px;display:grid;gap:14px;}
 .feature-row{display:flex;align-items:flex-start;gap:12px;}
 .feature-check{width:24px;height:24px;background:rgba(255,255,255,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:1px;}
-
-/* SERVICES */
 .services-section{background:var(--bg);padding:96px 32px;}
 .services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px;margin-top:48px;}
 .service-card{background:#fff;border-radius:16px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,.06);transition:all .2s;border:1px solid rgba(0,0,0,.04);}
@@ -486,8 +696,6 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.97);backdrop-
 .service-icon{width:48px;height:48px;background:var(--bg);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;}
 .service-name{font-size:16px;font-weight:700;color:#1a202c;text-transform:capitalize;margin-bottom:6px;}
 .service-price{font-size:15px;font-weight:700;color:var(--accent);}
-
-/* HOURS */
 .hours-section{padding:96px 32px;}
 .hours-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;margin-top:48px;}
 .hours-list{background:var(--bg);border-radius:16px;padding:28px;}
@@ -499,8 +707,6 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.97);backdrop-
 .pay-title{font-size:15px;font-weight:700;margin-bottom:16px;color:rgba(255,255,255,.8);}
 .pay-methods{display:flex;flex-wrap:wrap;gap:8px;}
 .pay-badge{background:rgba(255,255,255,.15);color:#fff;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;}
-
-/* CONTACT */
 .contact-section{background:var(--primary);padding:96px 32px;}
 .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
 .contact-title{font-family:'Playfair Display',serif;font-size:clamp(32px,4vw,52px);font-weight:700;color:#fff;line-height:1.15;margin-bottom:20px;}
@@ -512,15 +718,11 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.97);backdrop-
 .contact-value{font-size:17px;color:#fff;font-weight:600;margin-top:2px;}
 .contact-value a{color:#fff;text-decoration:none;}
 .contact-cta{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:40px;}
-.contact-cta .big-phone{font-family:'Playfair Display',serif;font-size:clamp(24px,3vw,38px);font-weight:700;color:#fff;margin:16px 0;}
+.big-phone{font-family:'Playfair Display',serif;font-size:clamp(24px,3vw,38px);font-weight:700;color:#fff;margin:16px 0;}
 .btn-call{display:inline-flex;align-items:center;gap:10px;padding:18px 40px;background:#fff;color:var(--primary);border-radius:12px;font-size:18px;font-weight:700;text-decoration:none;transition:all .2s;margin-top:8px;}
 .btn-call:hover{transform:translateY(-2px);}
-
-/* FOOTER */
 footer{background:#0f172a;color:#94a3b8;padding:40px 32px;text-align:center;}
 footer a{color:#64748b;text-decoration:none;}
-
-/* CHATBOT */
 .chat-fab{position:fixed;bottom:28px;right:28px;width:60px;height:60px;background:var(--accent);color:#fff;border:none;border-radius:50%;font-size:26px;cursor:pointer;box-shadow:0 4px 24px rgba(0,0,0,.25);z-index:1000;transition:all .2s;display:flex;align-items:center;justify-content:center;}
 .chat-fab:hover{transform:scale(1.08);}
 .chat-panel{display:none;position:fixed;bottom:100px;right:28px;width:340px;background:#fff;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.18);z-index:999;overflow:hidden;flex-direction:column;}
@@ -542,18 +744,10 @@ footer a{color:#64748b;text-decoration:none;}
 .chat-quick{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px;}
 .chat-quick button{background:var(--bg);color:var(--primary);border:1px solid rgba(0,0,0,.1);border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
 .chat-quick button:hover{background:var(--primary);color:#fff;}
-
-/* RESPONSIVE */
-@media(max-width:768px){
-  .about-grid,.hours-grid,.contact-grid,.hero-stats{grid-template-columns:1fr;}
-  .hero-stats{gap:24px;}
-  .section,.services-section,.hours-section,.contact-section{padding:64px 20px;}
-  nav{padding:0 20px;}
-}
+@media(max-width:768px){.about-grid,.hours-grid,.contact-grid,.hero-stats{grid-template-columns:1fr;}.hero-stats{gap:24px;}.section,.services-section,.hours-section,.contact-section{padding:64px 20px;}nav{padding:0 20px;}}
 </style>
 </head>
 <body>
-
 <nav>
   <div class="nav-inner">
     <a href="#" class="nav-brand">${biz}</a>
@@ -565,7 +759,6 @@ footer a{color:#64748b;text-decoration:none;}
     </div>
   </div>
 </nav>
-
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-pattern"></div>
@@ -584,7 +777,6 @@ footer a{color:#64748b;text-decoration:none;}
     </div>
   </div>
 </section>
-
 <div class="trust-bar">
   <div class="trust-inner">
     <div class="trust-item"><span class="trust-icon">✅</span> Licensed &amp; Insured</div>
@@ -594,7 +786,6 @@ footer a{color:#64748b;text-decoration:none;}
     ${payMethods.length?`<div class="trust-item"><span class="trust-icon">💳</span> ${payMethods.slice(0,3).join(' · ')}</div>`:''}
   </div>
 </div>
-
 <section class="section" id="about">
   <div class="container">
     <div class="about-grid">
@@ -616,148 +807,26 @@ footer a{color:#64748b;text-decoration:none;}
     </div>
   </div>
 </section>
-
-${services.length?`
-<section class="services-section" id="services">
-  <div class="container">
-    <div class="section-label">What We Offer</div>
-    <div class="section-title">Our Services</div>
-    <div class="services-grid">
-      ${services.map(s=>`<div class="service-card">
-        <div class="service-icon">⚡</div>
-        <div class="service-name">${s.name}</div>
-        ${s.price?`<div class="service-price">${s.price}</div>`:'<div style="font-size:13px;color:#9ca3af;margin-top:4px;">Contact for pricing</div>'}
-      </div>`).join('')}
-    </div>
-  </div>
-</section>`:''}
-
-${hoursRows?`
-<section class="hours-section" id="hours">
-  <div class="container">
-    <div class="section-label">When We're Open</div>
-    <div class="section-title">Business Hours</div>
-    <div class="hours-grid">
-      <div class="hours-list">${hoursRows}</div>
-      ${payMethods.length?`<div class="pay-box">
-        <div class="pay-title">PAYMENT METHODS ACCEPTED</div>
-        <div class="pay-methods">${payMethods.map(m=>`<span class="pay-badge">${m}</span>`).join('')}</div>
-        <p style="font-size:14px;color:rgba(255,255,255,.7);margin-top:20px;line-height:1.6;">Need to schedule? Call us at <strong style="color:#fff;">${phone}</strong> and we'll find a time that works for you.</p>
-      </div>`:`<div class="pay-box"><div class="pay-title">READY TO GET STARTED?</div>
-        <div class="big-phone" style="font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:#fff;margin:16px 0;">${phone}</div>
-        <a href="tel:${phone}" class="btn-call">📞 Call Now</a></div>`}
-    </div>
-  </div>
-</section>`:''}
-
-<section class="contact-section" id="contact">
-  <div class="container">
-    <div class="contact-grid">
-      <div>
-        <div class="contact-title">Ready to Get Started?</div>
-        <p class="contact-sub">Contact ${biz} today. We're here to help and ready to give you a free estimate.</p>
-        <div class="contact-items">
-          <div class="contact-item">
-            <div class="contact-icon">📞</div>
-            <div><div class="contact-label">Phone</div><div class="contact-value"><a href="tel:${phone}">${phone}</a></div></div>
-          </div>
-          ${emailAddr?`<div class="contact-item"><div class="contact-icon">✉️</div><div><div class="contact-label">Email</div><div class="contact-value"><a href="mailto:${emailAddr}">${emailAddr}</a></div></div></div>`:''}
-          ${city?`<div class="contact-item"><div class="contact-icon">📍</div><div><div class="contact-label">Service Area</div><div class="contact-value">${city}${state?', '+state:''} &amp; Surrounding Areas</div></div></div>`:''}
-        </div>
-      </div>
-      <div class="contact-cta">
-        <p style="font-size:13px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;font-weight:700;">Call Us Directly</p>
-        <div class="big-phone">${phone}</div>
-        <p style="font-size:14px;color:rgba(255,255,255,.65);margin-bottom:20px;">Free estimates · Fast response · ${city||'Local'} experts</p>
-        <a href="tel:${phone}" class="btn-call">📞 Call ${biz}</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <p>&copy; ${new Date().getFullYear()} ${biz}. All rights reserved.
-  <br><span style="font-size:12px;">Powered by <a href="https://turnkeyaiservices.com">TurnkeyAI Services</a></span></p>
-</footer>
-
-<!-- CHATBOT -->
+${services.length?`<section class="services-section" id="services"><div class="container"><div class="section-label">What We Offer</div><div class="section-title">Our Services</div><div class="services-grid">${services.map(s=>`<div class="service-card"><div class="service-icon">⚡</div><div class="service-name">${s.name}</div>${s.price?`<div class="service-price">${s.price}</div>`:'<div style="font-size:13px;color:#9ca3af;margin-top:4px;">Contact for pricing</div>'}</div>`).join('')}</div></div></section>`:''}
+${hoursRows?`<section class="hours-section" id="hours"><div class="container"><div class="section-label">When We're Open</div><div class="section-title">Business Hours</div><div class="hours-grid"><div class="hours-list">${hoursRows}</div>${payMethods.length?`<div class="pay-box"><div class="pay-title">PAYMENT METHODS ACCEPTED</div><div class="pay-methods">${payMethods.map(m=>`<span class="pay-badge">${m}</span>`).join('')}</div><p style="font-size:14px;color:rgba(255,255,255,.7);margin-top:20px;line-height:1.6;">Need to schedule? Call us at <strong style="color:#fff;">${phone}</strong></p></div>`:`<div class="pay-box"><div class="pay-title">READY TO GET STARTED?</div><div class="big-phone">${phone}</div><a href="tel:${phone}" class="btn-call">📞 Call Now</a></div>`}</div></div></section>`:''}
+<section class="contact-section" id="contact"><div class="container"><div class="contact-grid"><div><div class="contact-title">Ready to Get Started?</div><p class="contact-sub">Contact ${biz} today. We're here to help and ready to give you a free estimate.</p><div class="contact-items"><div class="contact-item"><div class="contact-icon">📞</div><div><div class="contact-label">Phone</div><div class="contact-value"><a href="tel:${phone}">${phone}</a></div></div></div>${emailAddr?`<div class="contact-item"><div class="contact-icon">✉️</div><div><div class="contact-label">Email</div><div class="contact-value"><a href="mailto:${emailAddr}">${emailAddr}</a></div></div></div>`:''} ${city?`<div class="contact-item"><div class="contact-icon">📍</div><div><div class="contact-label">Service Area</div><div class="contact-value">${city}${state?', '+state:''} &amp; Surrounding Areas</div></div></div>`:''}</div></div><div class="contact-cta"><p style="font-size:13px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;font-weight:700;">Call Us Directly</p><div class="big-phone">${phone}</div><p style="font-size:14px;color:rgba(255,255,255,.65);margin-bottom:20px;">Free estimates · Fast response · ${city||'Local'} experts</p><a href="tel:${phone}" class="btn-call">📞 Call ${biz}</a></div></div></div></section>
+<footer><p>&copy; ${new Date().getFullYear()} ${biz}. All rights reserved.<br><span style="font-size:12px;">Powered by <a href="https://turnkeyaiservices.com">TurnkeyAI Services</a></span></p></footer>
 <button class="chat-fab" id="chatFab" onclick="toggleChat()" aria-label="Open chat">💬</button>
-
 <div class="chat-panel" id="chatPanel">
-  <div class="chat-header">
-    <div>
-      <div class="chat-header-title">💬 ${chatName}</div>
-      <div style="font-size:12px;opacity:.75;">${biz} · Usually replies instantly</div>
-    </div>
-    <button class="chat-close" onclick="toggleChat()">×</button>
-  </div>
-  <div class="chat-messages" id="chatMessages">
-    <div class="chat-msg bot">Hi there! 👋 Welcome to ${biz}. How can I help you today?</div>
-  </div>
-  <div class="chat-quick" id="chatQuick">
-    <button onclick="sendQuick('What are your hours?')">Hours</button>
-    <button onclick="sendQuick('How much does it cost?')">Pricing</button>
-    <button onclick="sendQuick('How do I schedule?')">Book Now</button>
-    <button onclick="sendQuick('Where are you located?')">Location</button>
-  </div>
-  <div class="chat-input-row">
-    <input class="chat-input" id="chatInput" type="text" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMessage()">
-    <button class="chat-send" onclick="sendMessage()">➤</button>
-  </div>
+  <div class="chat-header"><div><div class="chat-header-title">💬 ${chatName}</div><div style="font-size:12px;opacity:.75;">${biz} · Usually replies instantly</div></div><button class="chat-close" onclick="toggleChat()">×</button></div>
+  <div class="chat-messages" id="chatMessages"><div class="chat-msg bot">Hi there! 👋 Welcome to ${biz}. How can I help you today?</div></div>
+  <div class="chat-quick" id="chatQuick"><button onclick="sendQuick('What are your hours?')">Hours</button><button onclick="sendQuick('How much does it cost?')">Pricing</button><button onclick="sendQuick('How do I schedule?')">Book Now</button><button onclick="sendQuick('Where are you located?')">Location</button></div>
+  <div class="chat-input-row"><input class="chat-input" id="chatInput" type="text" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMessage()"><button class="chat-send" onclick="sendMessage()">➤</button></div>
 </div>
-
 <script>
-const CHAT_API = '${chatEndpoint}';
-let chatOpen = false;
-
-function toggleChat() {
-  chatOpen = !chatOpen;
-  document.getElementById('chatPanel').classList.toggle('open', chatOpen);
-  document.getElementById('chatFab').textContent = chatOpen ? '×' : '💬';
-  if (chatOpen) document.getElementById('chatInput').focus();
-}
-
-function addMsg(text, type) {
-  const d = document.createElement('div');
-  d.className = 'chat-msg ' + type;
-  d.textContent = text;
-  const msgs = document.getElementById('chatMessages');
-  msgs.appendChild(d);
-  msgs.scrollTop = msgs.scrollHeight;
-  return d;
-}
-
-async function sendMessage() {
-  const inp = document.getElementById('chatInput');
-  const msg = inp.value.trim();
-  if (!msg) return;
-  inp.value = '';
-  document.getElementById('chatQuick').style.display = 'none';
-  addMsg(msg, 'user');
-  const typing = addMsg('Typing…', 'bot typing');
-  try {
-    const r = await fetch(CHAT_API, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ message: msg })
-    });
-    const data = await r.json();
-    typing.remove();
-    addMsg(data.reply || 'Thanks for reaching out! Call us for the fastest response.', 'bot');
-  } catch(e) {
-    typing.remove();
-    addMsg('Thanks for reaching out! For fastest help call us at ${phone}.', 'bot');
-  }
-}
-
-function sendQuick(msg) {
-  document.getElementById('chatInput').value = msg;
-  sendMessage();
-}
+const CHAT_API='${chatEndpoint}';
+let chatOpen=false;
+function toggleChat(){chatOpen=!chatOpen;document.getElementById('chatPanel').classList.toggle('open',chatOpen);document.getElementById('chatFab').textContent=chatOpen?'×':'💬';if(chatOpen)document.getElementById('chatInput').focus();}
+function addMsg(text,type){const d=document.createElement('div');d.className='chat-msg '+type;d.textContent=text;const msgs=document.getElementById('chatMessages');msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;}
+async function sendMessage(){const inp=document.getElementById('chatInput');const msg=inp.value.trim();if(!msg)return;inp.value='';document.getElementById('chatQuick').style.display='none';addMsg(msg,'user');const typing=addMsg('Typing…','bot typing');try{const r=await fetch(CHAT_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});const data=await r.json();typing.remove();addMsg(data.reply||'Thanks for reaching out! Call us for the fastest response.','bot');}catch(e){typing.remove();addMsg('Thanks for reaching out! For fastest help call us at ${phone}.','bot');}}
+function sendQuick(msg){document.getElementById('chatInput').value=msg;sendMessage();}
 </script>
-
-</body>
-</html>`;
+</body></html>`;
 }
 
 async function sendEmail({ to, subject, html, replyTo = null }) {
