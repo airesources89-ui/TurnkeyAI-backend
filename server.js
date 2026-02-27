@@ -156,11 +156,9 @@ app.post('/api/client-review-action', async (req, res) => {
         LIVE_SITES[slug] = PREVIEW_SITES[sub.previewSite];
         sub.liveUrl = SITE_BASE_URL + '/site/' + slug;
         const editUrl = buildReviewUrl(sub);
-        // Email client: live URL + link to edit their info anytime
         if (sub.email) {
           await sendEmail({ to: sub.email, subject: '🚀 Your Website is Live! — ' + sub.businessName, html: liveEmail(sub, editUrl) });
         }
-        // Notify George: live URL + HIS dashboard credentials
         await notifyAdmin('🚀 SITE WENT LIVE: ' + sub.businessName,
           `<div style="font-family:Arial;max-width:600px;padding:24px;background:#f0fdf4;border-radius:12px;">
           <h2 style="color:#16a34a;">✅ ${sub.businessName} is Live!</h2>
@@ -282,6 +280,7 @@ app.post('/api/submission-created', async (req, res) => {
     const reviewUrl = buildReviewUrl(SUBMISSIONS[sid]);
     SUBMISSIONS[sid].reviewUrl = reviewUrl;
 
+    // ── GEORGE'S ADMIN NOTIFICATION EMAIL ──
     await notifyAdmin('NEW SUBMISSION: '+businessName,
       `<div style="font-family:Arial;max-width:600px;">
       <div style="background:linear-gradient(135deg,#f59e0b,#d97706);padding:24px;color:white;border-radius:12px 12px 0 0;"><h2 style="margin:0;">New Client: ${businessName}</h2></div>
@@ -289,8 +288,13 @@ app.post('/api/submission-created', async (req, res) => {
       <p><b>Owner:</b> ${ownerName}</p><p><b>Email:</b> ${email}</p><p><b>Phone:</b> ${phone}</p>
       <p><b>Location:</b> ${city}${state?', '+state:''}</p><p><b>Industry:</b> ${industry}</p>
       ${operatorRef?`<p><b>Partner Ref:</b> ${operatorRef}</p>`:''}
-      <p><a href="${SITE_BASE_URL}/preview/${previewName}" style="display:inline-block;padding:12px 24px;background:#0066FF;color:white;border-radius:8px;text-decoration:none;font-weight:bold;margin-right:8px;">Preview</a>
+      <p><a href="${SITE_BASE_URL}/preview/${previewName}" style="display:inline-block;padding:12px 24px;background:#0066FF;color:white;border-radius:8px;text-decoration:none;font-weight:bold;margin-right:8px;">Preview Site</a>
       <a href="${SITE_BASE_URL}/turnkeyai-admin-v3.html" style="display:inline-block;padding:12px 24px;background:#2563eb;color:white;border-radius:8px;text-decoration:none;font-weight:bold;">Admin Dashboard</a></p>
+      <div style="background:#eff6ff;border:2px solid #2563eb;border-radius:8px;padding:16px;margin-top:16px;">
+        <p style="font-size:14px;font-weight:700;color:#1e3a5f;margin:0 0 8px;">🔐 Your Admin Access</p>
+        <p style="font-size:13px;margin:0 0 4px;"><b>URL:</b> <a href="${SITE_BASE_URL}/turnkeyai-admin-v3.html">${SITE_BASE_URL}/turnkeyai-admin-v3.html</a></p>
+        <p style="font-size:13px;margin:0;"><b>Password:</b> <span style="font-family:monospace;background:#dbeafe;padding:2px 8px;border-radius:4px;">${MASTER_ADMIN_PASS}</span></p>
+      </div>
       </div></div>`);
 
     if (email) {
@@ -312,7 +316,7 @@ function reviewEmail(sub, reviewUrl, isUpdate) {
     <div style="padding:32px;background:white;border:1px solid #e2e8f0;">
       <p style="font-size:16px;">Hi ${sub.ownerName}, your AI-powered website for <strong>${sub.businessName}</strong> is ready to review.</p>
       <div style="text-align:center;margin:28px 0;">
-        <a href="${SITE_BASE_URL}/preview/${sub.previewSite}" style="display:inline-block;padding:16px 40px;background:#0066FF;color:white;border-radius:10px;text-decoration:none;font-weight:700;font-size:18px;">Preview Your Website</a>
+        <a href="${reviewUrl}" style="display:inline-block;padding:16px 40px;background:#0066FF;color:white;border-radius:10px;text-decoration:none;font-weight:700;font-size:18px;">👀 Preview &amp; Review Your Website</a>
       </div>
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
         <a href="${reviewUrl}&action=approve" style="display:inline-block;padding:14px 28px;background:#10B981;color:white;border-radius:10px;text-decoration:none;font-weight:700;">✓ Approve &amp; Go Live</a>
