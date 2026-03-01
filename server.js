@@ -12,9 +12,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const ADMIN_EMAIL = 'airesources89@gmail.com';
 const FROM_EMAIL = 'noreply@turnkeyaiservices.com';
-// Primary domain — update DNS CNAME to point to Railway
 const SITE_BASE_URL = process.env.SITE_BASE_URL || 'https://testingturnkey.online';
-const RAILWAY_URL = 'https://turnkeyai-backend-production.up.railway.app'; // fallback
+const RAILWAY_URL = 'https://turnkeyai-backend-production.up.railway.app';
 const PORT = process.env.PORT || 3000;
 const MASTER_ADMIN_PASS = process.env.ADMIN_PASSWORD || 'TurnkeyAI2024!';
 
@@ -26,12 +25,7 @@ const PREVIEW_SITES = {};
 const LIVE_SITES = {};
 const SITE_ADMIN_CREDS = {};
 
-app.get('/', (req, res) => res.json({ 
-  status: 'TurnkeyAI Running', 
-  clients: Object.keys(SUBMISSIONS).length, 
-  live: Object.keys(LIVE_SITES).length,
-  time: new Date().toISOString() 
-}));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 // ── AUTH MIDDLEWARE ──────────────────────────────────────────────────
 function adminAuth(req, res, next) {
@@ -68,18 +62,15 @@ app.post('/api/chat/:siteName', async (req, res) => {
   const rd = sub.rawData || {};
   const lc = (message||'').toLowerCase();
 
-  // Build service list from actual submission data
   const serviceList = Object.keys(rd)
     .filter(k => k.startsWith('svc_') && (rd[k]==='on'||rd[k]===true||rd[k]==='1'||rd[k]==='true'))
     .map(k => k.replace('svc_','').replace(/_/g,' '))
     .join(', ');
 
-  // Build hours from actual data
   const dayNames = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
   const openDays = dayNames.filter(d => rd['day_'+d]);
   const hoursDetail = openDays.map(d => `${d.charAt(0).toUpperCase()+d.slice(1)}: ${rd['hours_'+d]||'call for hours'}`).join(', ');
 
-  // Payment methods
   const payMethods = ['cash','card','check','venmo','cashapp','zelle','paypal','stripe','financing']
     .filter(m => rd['pay_'+m]).map(m => m.charAt(0).toUpperCase()+m.slice(1));
 
@@ -148,7 +139,6 @@ app.post('/api/chat/:siteName', async (req, res) => {
   } else if (lc.match(/hello|hi|hey|help|start|good morning|good afternoon/)) {
     reply = `Hi there! 👋 Welcome to ${biz}. ${mission||'We\'re here to help!'} Ask me about our services, hours, or pricing — or just call ${phone} for the fastest answer!`;
   } else {
-    // Check FAQ data for any relevant match
     if (faq && lc.split(' ').some(word => word.length > 4 && faq.toLowerCase().includes(word))) {
       reply = `Great question! For the most accurate answer, call ${phone} — the team at ${biz} will be happy to help with exactly that.`;
     } else {
@@ -184,21 +174,13 @@ function notReadyPage() {
   <p style="margin-top:16px;">Questions? Call <a href="tel:6039222004">(603) 922-2004</a></p></div></body></html>`;
 }
 
-// ── CLIENT DASHBOARD ─────────────────────────────────────────────────
-// Returns prefill data so the intake form can pre-populate
 app.get('/api/prefill/:slug', (req, res) => {
   const slug = req.params.slug;
   const sub = Object.values(SUBMISSIONS).find(s => s.liveSlug === slug || s.previewSite === slug);
   if (!sub) return res.status(404).json({ error: 'Not found' });
-  res.json({ 
-    ok: true, 
-    id: sub.id,
-    businessName: sub.businessName,
-    data: sub.rawData 
-  });
+  res.json({ ok: true, id: sub.id, businessName: sub.businessName, data: sub.rawData });
 });
 
-// Serves the client dashboard page
 app.get('/client-dashboard/:slug', (req, res) => {
   const slug = req.params.slug;
   const sub = Object.values(SUBMISSIONS).find(s => s.liveSlug === slug || s.previewSite === slug);
@@ -247,36 +229,24 @@ body{font-family:'DM Sans',sans-serif;background:#f1f5f9;min-height:100vh;color:
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 .info-item label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;}
 .info-item p{font-size:15px;font-weight:600;color:#1e293b;margin-top:4px;}
-.divider{border:none;border-top:1px solid #f1f5f9;margin:20px 0;}
 .alert{border-radius:10px;padding:16px 20px;font-size:14px;line-height:1.6;margin-bottom:20px;}
 .alert-blue{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;}
 @media(max-width:540px){.info-grid{grid-template-columns:1fr;}.btn-row{flex-direction:column;}}
 </style>
 </head>
 <body>
-
 <div class="header">
-  <div>
-    <h1>${sub.businessName}</h1>
-    <p>Client Dashboard · ${sub.ownerName}</p>
-  </div>
+  <div><h1>${sub.businessName}</h1><p>Client Dashboard · ${sub.ownerName}</p></div>
   <div class="header-logo">Powered by TurnkeyAI</div>
 </div>
-
 <div class="container">
-
   <div class="status-bar">
     <div>
       <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:8px;">Site Status</div>
       <span class="status-badge">${st === 'active' ? '🟢' : '🟡'} ${statusLabel[st] || st}</span>
     </div>
-    ${sub.liveUrl ? `<div><div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:8px;">Your Live URL</div>
-      <a href="${sub.liveUrl}" target="_blank" class="live-link">🔗 ${sub.liveUrl}</a></div>` : 
-      `<div><div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:8px;">Preview URL</div>
-      <a href="${SITE_BASE_URL}/preview/${sub.previewSite}" target="_blank" class="live-link">👀 View Preview</a></div>`}
+    ${sub.liveUrl ? `<div><div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:8px;">Your Live URL</div><a href="${sub.liveUrl}" target="_blank" class="live-link">🔗 ${sub.liveUrl}</a></div>` : `<div><div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:8px;">Preview URL</div><a href="${SITE_BASE_URL}/preview/${sub.previewSite}" target="_blank" class="live-link">👀 View Preview</a></div>`}
   </div>
-
-  <!-- MAIN ACTION: EDIT SITE -->
   <div class="card">
     <h2>✏️ Update My Website Info</h2>
     <p>Need to change your phone number, hours, services, or anything else on your site? Click below — your current info is already filled in. Just make your changes and hit submit. Your site rebuilds automatically.</p>
@@ -285,8 +255,6 @@ body{font-family:'DM Sans',sans-serif;background:#f1f5f9;min-height:100vh;color:
       ${sub.liveUrl ? `<a href="${sub.liveUrl}" target="_blank" class="btn btn-outline">🔗 View My Live Site</a>` : `<a href="${SITE_BASE_URL}/preview/${sub.previewSite}" target="_blank" class="btn btn-outline">👀 View Preview</a>`}
     </div>
   </div>
-
-  <!-- CURRENT INFO SUMMARY -->
   <div class="card">
     <h2>📋 Your Current Info</h2>
     <p style="margin-bottom:16px;">This is what's currently on your website.</p>
@@ -299,8 +267,6 @@ body{font-family:'DM Sans',sans-serif;background:#f1f5f9;min-height:100vh;color:
       <div class="info-item"><label>Industry</label><p style="text-transform:capitalize;">${(sub.industry||'').replace(/_/g,' ')}</p></div>
     </div>
   </div>
-
-  <!-- NEED SOMETHING BIGGER -->
   <div class="card">
     <h2>🛠️ Need Something Beyond a Quick Edit?</h2>
     <p>If you want a design change, a new page, or anything our edit form doesn't cover, send us a message and we'll handle it.</p>
@@ -314,27 +280,16 @@ body{font-family:'DM Sans',sans-serif;background:#f1f5f9;min-height:100vh;color:
     </div>
     <button class="btn btn-outline" id="request-toggle" onclick="document.getElementById('request-form').style.display='block';this.style.display='none';">📝 Send a Request</button>
   </div>
-
-  <div class="alert alert-blue">
-    💡 <strong>Tip:</strong> After editing your info, allow up to 5 minutes for your live site to update. Questions? Call us at (603) 922-2004.
-  </div>
-
+  <div class="alert alert-blue">💡 <strong>Tip:</strong> After editing your info, allow up to 5 minutes for your live site to update. Questions? Call us at (603) 922-2004.</div>
 </div>
-
 <script>
 async function sendRequest() {
   const text = document.getElementById('request-text').value.trim();
   if (!text) return;
   try {
     await fetch('${SITE_BASE_URL}/api/client-change-request', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        businessName: '${sub.businessName.replace(/'/g,"\\'")}',
-        email: '${sub.email.replace(/'/g,"\\'")}',
-        id: '${sub.id}',
-        request: text
-      })
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ businessName: '${sub.businessName.replace(/'/g,"\\'")}', email: '${sub.email.replace(/'/g,"\\'")}', id: '${sub.id}', request: text })
     });
   } catch(e) {}
   document.getElementById('request-sent').style.display = 'block';
@@ -342,18 +297,15 @@ async function sendRequest() {
   document.querySelector('#request-form .btn-green').style.display = 'none';
 }
 </script>
-</body>
-</html>`;
+</body></html>`;
 }
 
-// ── CLIENT CHANGE REQUEST (from dashboard "bigger request" form) ──────
 app.post('/api/client-change-request', async (req, res) => {
   const { businessName, email, id, request } = req.body;
   await notifyAdmin('🛠️ Client Change Request: ' + businessName,
     `<div style="font-family:Arial;max-width:600px;padding:24px;">
     <h2 style="color:#d97706;">Change Request — ${businessName}</h2>
-    <p><b>Client:</b> ${businessName} (${email})</p>
-    <p><b>Submission ID:</b> ${id}</p>
+    <p><b>Client:</b> ${businessName} (${email})</p><p><b>Submission ID:</b> ${id}</p>
     <hr style="margin:16px 0;border:none;border-top:1px solid #e2e8f0;">
     <p><b>What they want:</b></p>
     <p style="background:#f8fafc;padding:16px;border-radius:8px;margin-top:8px;">${request}</p>
@@ -362,82 +314,50 @@ app.post('/api/client-change-request', async (req, res) => {
   res.json({ ok: true });
 });
 
-// ── CLIENT SELF-SERVICE UPDATE (called when intake form submits with ?update=true) ──
 app.post('/api/client-update', async (req, res) => {
   try {
     const { id, updates } = req.body;
     const sub = SUBMISSIONS[id];
     if (!sub) return res.status(404).json({ error: 'Submission not found' });
-    
-    // Merge updates into existing data
     Object.assign(sub.rawData, updates);
     if (updates.businessName) sub.businessName = updates.businessName;
     if (updates.phone) sub.phone = updates.phone;
     if (updates.ownerName) sub.ownerName = updates.ownerName;
     if (updates.city) sub.city = updates.city;
     if (updates.state) sub.state = updates.state;
-    
-    // Rebuild the site
     const newHTML = generateSiteHTML(sub.rawData, sub.liveSlug);
     PREVIEW_SITES[sub.previewSite] = newHTML;
-    
-    // If it was already live, update the live site too
-    if (sub.status === 'active' && sub.liveSlug) {
-      LIVE_SITES[sub.liveSlug] = newHTML;
-    }
-    
+    if (sub.status === 'active' && sub.liveSlug) { LIVE_SITES[sub.liveSlug] = newHTML; }
     sub.status = sub.status === 'active' ? 'active' : 'review';
-    
-    // Notify George
     await notifyAdmin('✏️ Client Self-Updated: ' + sub.businessName,
       `<div style="font-family:Arial;max-width:600px;padding:24px;">
       <h2 style="color:#2563eb;">Self-Service Update — ${sub.businessName}</h2>
       <p><b>Owner:</b> ${sub.ownerName} · ${sub.email}</p>
       <p><b>Status:</b> ${sub.status === 'active' ? '✅ Site updated live automatically' : '🔄 Updated preview — review and approve'}</p>
-      ${sub.status === 'active' ? `<p><b>Live URL:</b> <a href="${sub.liveUrl}">${sub.liveUrl}</a></p>` : `<p><b>Preview:</b> <a href="${SITE_BASE_URL}/preview/${sub.previewSite}">${SITE_BASE_URL}/preview/${sub.previewSite}</a></p>`}
       <p style="margin-top:16px;"><a href="${SITE_BASE_URL}/turnkeyai-admin-v3.html" style="display:inline-block;padding:12px 24px;background:#2563eb;color:white;border-radius:8px;text-decoration:none;font-weight:bold;">Admin Dashboard</a></p>
       </div>`);
-    
-    // Confirm to client
     if (sub.email) {
       const dashUrl = SITE_BASE_URL + '/client-dashboard/' + sub.liveSlug;
-      await sendEmail({ 
-        to: sub.email, 
+      await sendEmail({ to: sub.email,
         subject: sub.status === 'active' ? '✅ Your site has been updated — ' + sub.businessName : '👀 Updated preview ready — ' + sub.businessName,
         html: `<div style="font-family:Arial;max-width:600px;margin:0 auto;">
-          <div style="background:linear-gradient(135deg,#2563eb,#1d4ed8);padding:32px;text-align:center;border-radius:12px 12px 0 0;">
-            <h1 style="color:white;margin:0;">Site Updated!</h1></div>
+          <div style="background:linear-gradient(135deg,#2563eb,#1d4ed8);padding:32px;text-align:center;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;">Site Updated!</h1></div>
           <div style="padding:28px;background:white;border:1px solid #e2e8f0;">
             <p style="font-size:16px;">Hi ${sub.ownerName}, your changes have been ${sub.status === 'active' ? 'applied to your live site' : 'saved and are under review'}.</p>
-            ${sub.status === 'active' ? `<div style="text-align:center;margin:24px 0;">
-              <a href="${sub.liveUrl}" style="display:inline-block;padding:14px 32px;background:#10b981;color:white;border-radius:10px;text-decoration:none;font-weight:700;">🔗 View Your Live Site</a>
-            </div>` : ''}
-            <div style="text-align:center;margin-top:16px;">
-              <a href="${dashUrl}" style="display:inline-block;padding:14px 32px;background:#2563eb;color:white;border-radius:10px;text-decoration:none;font-weight:700;">📊 Back to My Dashboard</a>
-            </div>
+            <div style="text-align:center;margin-top:16px;"><a href="${dashUrl}" style="display:inline-block;padding:14px 32px;background:#2563eb;color:white;border-radius:10px;text-decoration:none;font-weight:700;">📊 Back to My Dashboard</a></div>
           </div>
-          <div style="background:#f1f5f9;padding:16px;text-align:center;font-size:12px;color:#6B7280;border-radius:0 0 12px 12px;">
-            TurnkeyAI Services · (603) 922-2004 · airesources89@gmail.com</div>
+          <div style="background:#f1f5f9;padding:16px;text-align:center;font-size:12px;color:#6B7280;border-radius:0 0 12px 12px;">TurnkeyAI Services · (603) 922-2004 · airesources89@gmail.com</div>
         </div>`
       });
     }
-    
-    return res.json({ 
-      success: true, 
-      liveUpdated: sub.status === 'active',
-      previewUrl: SITE_BASE_URL + '/preview/' + sub.previewSite,
-      liveUrl: sub.liveUrl || '',
-      dashboardUrl: SITE_BASE_URL + '/client-dashboard/' + sub.liveSlug
-    });
+    return res.json({ success: true, liveUpdated: sub.status === 'active', previewUrl: SITE_BASE_URL + '/preview/' + sub.previewSite, liveUrl: sub.liveUrl || '', dashboardUrl: SITE_BASE_URL + '/client-dashboard/' + sub.liveSlug });
   } catch(e) { return res.status(500).json({ error: e.message }); }
 });
 
-// ── REVIEW ACTION ────────────────────────────────────────────────────
 app.post('/api/client-review-action', async (req, res) => {
   try {
     const { action, previewSite, id, email, businessName, ownerName, changeType, currentInfo, correctedInfo, additionalNotes } = req.body;
     const sub = id ? SUBMISSIONS[id] : Object.values(SUBMISSIONS).find(s => s.previewSite === previewSite);
-
     if (action === 'approve') {
       if (sub) {
         sub.status = 'active';
@@ -445,24 +365,16 @@ app.post('/api/client-review-action', async (req, res) => {
         LIVE_SITES[slug] = PREVIEW_SITES[sub.previewSite];
         sub.liveUrl = SITE_BASE_URL + '/site/' + slug;
         const dashUrl = SITE_BASE_URL + '/client-dashboard/' + slug;
-        if (sub.email) {
-          await sendEmail({ to: sub.email, subject: '🚀 Your Website is Live! — ' + sub.businessName, html: liveEmail(sub, dashUrl) });
-        }
+        if (sub.email) { await sendEmail({ to: sub.email, subject: '🚀 Your Website is Live! — ' + sub.businessName, html: liveEmail(sub, dashUrl) }); }
         await notifyAdmin('🚀 SITE WENT LIVE: ' + sub.businessName,
           `<div style="font-family:Arial;max-width:600px;padding:24px;background:#f0fdf4;border-radius:12px;">
           <h2 style="color:#16a34a;">✅ ${sub.businessName} is Live!</h2>
           <p><b>Owner:</b> ${sub.ownerName} | ${sub.email}</p>
           <p><b>Live URL:</b> <a href="${sub.liveUrl}">${sub.liveUrl}</a></p>
-          <p><b>Dashboard:</b> <a href="${dashUrl}">${dashUrl}</a></p>
-          <div style="background:#fff;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-top:16px;">
-            <p style="font-size:14px;font-weight:700;color:#166534;margin-bottom:8px;">Your Admin Dashboard</p>
-            <p style="font-size:13px;"><b>URL:</b> <a href="${SITE_BASE_URL}/turnkeyai-admin-v3.html">${SITE_BASE_URL}/turnkeyai-admin-v3.html</a></p>
-            <p style="font-size:13px;"><b>Password:</b> <span style="font-family:monospace;background:#f0fdf4;padding:2px 8px;border-radius:4px;border:1px solid #bbf7d0;">${MASTER_ADMIN_PASS}</span></p>
-          </div></div>`);
+          <p><b>Dashboard:</b> <a href="${dashUrl}">${dashUrl}</a></p></div>`);
       }
       return res.json({ success: true, action: 'approve', liveUrl: sub ? sub.liveUrl : '' });
     }
-
     if (action === 'changes') {
       if (sub) sub.status = 'changes_requested';
       await notifyAdmin('✏️ Change Request: ' + businessName,
@@ -476,7 +388,6 @@ app.post('/api/client-review-action', async (req, res) => {
         <p><a href="${SITE_BASE_URL}/turnkeyai-admin-v3.html" style="display:inline-block;padding:12px 24px;background:#2563eb;color:white;border-radius:8px;text-decoration:none;font-weight:bold;">Admin Dashboard</a></p></div>`);
       return res.json({ success: true, action: 'changes_received' });
     }
-
     if (action === 'resend-review') {
       if (sub && sub.email) {
         const rUrl = buildReviewUrl(sub);
@@ -488,7 +399,6 @@ app.post('/api/client-review-action', async (req, res) => {
   } catch(e) { return res.status(500).json({ error: e.message }); }
 });
 
-// ── PARTNER ACTION ───────────────────────────────────────────────────
 app.post('/api/partner-action', async (req, res) => {
   try {
     const { action, partner } = req.body;
@@ -515,7 +425,6 @@ app.post('/api/partner-action', async (req, res) => {
   } catch(e) { return res.status(500).json({ error: e.message }); }
 });
 
-// ── INTAKE FORM ──────────────────────────────────────────────────────
 app.post('/api/submission-created', async (req, res) => {
   try {
     let data = {}, formName = '';
@@ -559,9 +468,7 @@ app.post('/api/submission-created', async (req, res) => {
       id:sid, businessName, ownerName, email, phone, city, state, industry,
       operator_ref: operatorRef,
       status: operatorRef ? 'trial' : 'review',
-      previewSite: previewName,
-      liveSlug: slug,
-      liveUrl: '',
+      previewSite: previewName, liveSlug: slug, liveUrl: '',
       submittedAt: data.submittedAt || new Date().toISOString(),
       rawData: fullData
     };
@@ -578,11 +485,6 @@ app.post('/api/submission-created', async (req, res) => {
       ${operatorRef?`<p><b>Partner Ref:</b> ${operatorRef}</p>`:''}
       <p><a href="${SITE_BASE_URL}/preview/${previewName}" style="display:inline-block;padding:12px 24px;background:#0066FF;color:white;border-radius:8px;text-decoration:none;font-weight:bold;margin-right:8px;">Preview Site</a>
       <a href="${SITE_BASE_URL}/turnkeyai-admin-v3.html" style="display:inline-block;padding:12px 24px;background:#2563eb;color:white;border-radius:8px;text-decoration:none;font-weight:bold;">Admin Dashboard</a></p>
-      <div style="background:#eff6ff;border:2px solid #2563eb;border-radius:8px;padding:16px;margin-top:16px;">
-        <p style="font-size:14px;font-weight:700;color:#1e3a5f;margin:0 0 8px;">🔐 Your Admin Access</p>
-        <p style="font-size:13px;margin:0 0 4px;"><b>URL:</b> <a href="${SITE_BASE_URL}/turnkeyai-admin-v3.html">${SITE_BASE_URL}/turnkeyai-admin-v3.html</a></p>
-        <p style="font-size:13px;margin:0;"><b>Password:</b> <span style="font-family:monospace;background:#dbeafe;padding:2px 8px;border-radius:4px;">${MASTER_ADMIN_PASS}</span></p>
-      </div>
       </div></div>`);
 
     if (email) {
@@ -592,7 +494,6 @@ app.post('/api/submission-created', async (req, res) => {
   } catch(e) { console.error(e.message); return res.status(500).json({ error: e.message }); }
 });
 
-// ── HELPERS ──────────────────────────────────────────────────────────
 function buildReviewUrl(sub) {
   return `${SITE_BASE_URL}/client-review.html?site=${sub.previewSite}&id=${sub.id}&biz=${encodeURIComponent(sub.businessName)}&email=${encodeURIComponent(sub.email)}&owner=${encodeURIComponent(sub.ownerName)}`;
 }
@@ -629,24 +530,15 @@ function liveEmail(sub, dashUrl) {
       <div style="background:#f0fdf4;border:2px solid #10B981;border-radius:12px;padding:20px;margin:24px 0;text-align:center;">
         <p style="font-size:13px;color:#166534;font-weight:600;margin-bottom:8px;">YOUR LIVE WEBSITE</p>
         <a href="${sub.liveUrl}" style="font-size:20px;color:#059669;font-weight:700;word-break:break-all;">${sub.liveUrl}</a>
-        <p style="font-size:12px;color:#6b7280;margin-top:8px;">Share this link on Facebook, Google Business, your email signature</p>
       </div>
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:20px;margin-bottom:24px;text-align:center;">
         <p style="font-size:14px;font-weight:700;color:#1e40af;margin-bottom:8px;">📊 Your Client Dashboard</p>
-        <p style="font-size:13px;color:#374151;margin-bottom:14px;">Update your hours, phone, services, or anything else — anytime, no password needed.</p>
         <a href="${dashUrl}" style="display:inline-block;padding:12px 28px;background:#2563eb;color:white;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;">📊 Go to My Dashboard</a>
-      </div>
-      <div style="background:#f8fafc;border-radius:10px;padding:16px;font-size:14px;color:#374151;line-height:2;">
-        <p style="font-weight:700;margin-bottom:8px;">Next steps:</p>
-        <p>• Share your website on Facebook, Instagram, and Google Business</p>
-        <p>• Add the link to your email signature and business cards</p>
-        <p>• Call us anytime at (603) 922-2004 for help</p>
       </div>
     </div>
     <div style="background:#f1f5f9;padding:16px;text-align:center;font-size:12px;color:#6B7280;border-radius:0 0 12px 12px;">
       TurnkeyAI Services | (603) 922-2004 | airesources89@gmail.com</div></div>`;
 }
-
 
 // ── SITE GENERATOR ───────────────────────────────────────────────────
 const SERVICE_ICONS = {
@@ -668,30 +560,23 @@ const SERVICE_ICONS = {
 };
 function getServiceIcon(key) { const k=key.replace('svc_',''); return SERVICE_ICONS[k]||SERVICE_ICONS.default; }
 
-// Reservation email route
 app.post('/api/reservation', async (req, res) => {
   const { businessName, phone, email, name, guestPhone, date, time, party, notes } = req.body;
   await notifyAdmin(`📅 New Reservation Request — ${businessName}`,
     `<div style="font-family:Arial;max-width:600px;margin:0 auto;padding:24px;">
     <h2 style="color:#1e40af;">New Reservation Request</h2>
-    <p><b>Business:</b> ${businessName}</p>
-    <p><b>Guest Name:</b> ${name}</p>
-    <p><b>Guest Phone:</b> ${guestPhone}</p>
-    <p><b>Date:</b> ${date}</p>
-    <p><b>Time:</b> ${time}</p>
-    <p><b>Party Size:</b> ${party}</p>
+    <p><b>Business:</b> ${businessName}</p><p><b>Guest Name:</b> ${name}</p>
+    <p><b>Guest Phone:</b> ${guestPhone}</p><p><b>Date:</b> ${date}</p>
+    <p><b>Time:</b> ${time}</p><p><b>Party Size:</b> ${party}</p>
     <p><b>Notes:</b> ${notes||'None'}</p>
-    <p style="margin-top:16px;color:#64748b;">Contact the guest at ${guestPhone} to confirm.</p>
-    </div>`
-  );
+    <p style="margin-top:16px;color:#64748b;">Contact the guest at ${guestPhone} to confirm.</p></div>`);
   if (email) {
     await sendEmail({ to: email, subject: `New Reservation Request — ${businessName}`, html:
       `<div style="font-family:Arial;max-width:600px;margin:0 auto;padding:24px;">
       <h2>New Reservation Request for ${businessName}</h2>
       <p><b>${name}</b> has requested a reservation for <b>${party} people</b> on <b>${date} at ${time}</b>.</p>
       ${notes?`<p><b>Special requests:</b> ${notes}</p>`:''}
-      <p>Contact them at <b>${guestPhone}</b> to confirm.</p>
-      </div>`
+      <p>Contact them at <b>${guestPhone}</b> to confirm.</p></div>`
     });
   }
   res.json({ success: true });
@@ -712,16 +597,10 @@ function generateSiteHTML(data, siteName) {
   const years = data.yearsInBusiness || '';
   const gaId = data.googleAnalyticsId || '';
   const logoData = data.logoData || '';
-  const navLogoHTML = logoData
-    ? `<img src="${logoData}" alt="${biz}" class="nav-logo">`
-    : `<span class="nav-brand-text">${biz}</span>`;
-
-  // Clean slug for dashboard link
+  const navLogoHTML = logoData ? `<img src="${logoData}" alt="${biz}" class="nav-logo">` : `<span class="nav-brand-text">${biz}</span>`;
   const rawSlug = siteName || '';
   const liveSlug = rawSlug.replace(/^preview-/,'').replace(/-[a-zA-Z0-9]{6,10}$/,'');
   const dashUrl = liveSlug ? SITE_BASE_URL + '/client-dashboard/' + liveSlug : '';
-
-  // Services with icons
   const services = [];
   for (const key of Object.keys(data)) {
     if (key.startsWith('svc_') && (data[key]==='on'||data[key]===true||data[key]==='1'||data[key]==='true')) {
@@ -729,40 +608,34 @@ function generateSiteHTML(data, siteName) {
       services.push({ key, name: label, icon: getServiceIcon(key), price: data['price_'+key.replace('svc_','')] || '' });
     }
   }
-
   const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
   const openDays = days.filter(d => data['day_'+d]);
   const hoursRows = openDays.map(d =>
     `<div class="hour-row"><span class="day">${d.charAt(0).toUpperCase()+d.slice(1)}</span><span class="time">${data['hours_'+d]||'Call for hours'}</span></div>`
   ).join('');
-
   const payMethods = ['cash','card','check','venmo','cashapp','zelle','paypal','stripe','financing']
     .filter(m => data['pay_'+m]).map(m => m.charAt(0).toUpperCase()+m.slice(1));
-
   const hasReservations = data['reservations']==='yes' || data['reservations']==='recommended'
     || data['feat_reservations_online']==='yes' || data['bookingMethod']==='online' || data['bookingMethod']==='any';
-
   const featureMap = { feat_patio:'🌿 Outdoor Patio', feat_waterfront:'🌊 Waterfront View', feat_livemusic:'🎵 Live Music', feat_tvs:'📺 Sports Bar / TVs', feat_familyfriendly:'👨‍👩‍👧 Family Friendly', feat_dogfriendly:'🐕 Dog-Friendly Patio', feat_wifi:'📶 Free WiFi', feat_accessible:'♿ ADA Accessible', feat_parking:'🅿️ Free Parking' };
   const features = Object.entries(featureMap).filter(([k])=>data[k]||data[k]==='yes').map(([,v])=>v);
-
   const dietMap = { diet_vegetarian:'🥦 Vegetarian', diet_vegan:'🌱 Vegan', diet_glutenfree:'🌾 Gluten-Free', diet_dairyfree:'🥛 Dairy-Free', diet_keto:'💚 Keto/Low-Carb', diet_halal:'☪️ Halal', diet_kosher:'✡️ Kosher' };
   const diets = Object.entries(dietMap).filter(([k])=>data[k]).map(([,v])=>v);
-
   const industryThemes = {
-    cleaning:      { primary:'#1e40af', dark:'#1e3a8a', accent:'#60a5fa', bg:'#eff6ff' },
-    restaurant:    { primary:'#9f1239', dark:'#881337', accent:'#fda4af', bg:'#fff1f2' },
-    plumbing:      { primary:'#1e3a5f', dark:'#172554', accent:'#93c5fd', bg:'#eff6ff' },
-    electrical:    { primary:'#78350f', dark:'#451a03', accent:'#fcd34d', bg:'#fffbeb' },
-    hvac:          { primary:'#134e4a', dark:'#042f2e', accent:'#5eead4', bg:'#f0fdfa' },
-    landscaping:   { primary:'#14532d', dark:'#052e16', accent:'#86efac', bg:'#f0fdf4' },
-    auto_detailing:{ primary:'#3b0764', dark:'#2e1065', accent:'#c084fc', bg:'#faf5ff' },
-    auto_repair:   { primary:'#18181b', dark:'#09090b', accent:'#fbbf24', bg:'#fafafa' },
-    fitness:       { primary:'#7f1d1d', dark:'#450a0a', accent:'#fca5a5', bg:'#fef2f2' },
-    salon:         { primary:'#701a75', dark:'#4a044e', accent:'#f0abfc', bg:'#fdf4ff' },
-    pet_services:  { primary:'#4c1d95', dark:'#2e1065', accent:'#a78bfa', bg:'#f5f3ff' },
-    roofing:       { primary:'#422006', dark:'#1c0a00', accent:'#fb923c', bg:'#fff7ed' },
-    agriculture:   { primary:'#14532d', dark:'#052e16', accent:'#86efac', bg:'#f0fdf4' },
-    default:       { primary:'#1e293b', dark:'#0f172a', accent:'#64748b', bg:'#f8fafc' }
+    cleaning:{primary:'#1e40af',dark:'#1e3a8a',accent:'#60a5fa',bg:'#eff6ff'},
+    restaurant:{primary:'#9f1239',dark:'#881337',accent:'#fda4af',bg:'#fff1f2'},
+    plumbing:{primary:'#1e3a5f',dark:'#172554',accent:'#93c5fd',bg:'#eff6ff'},
+    electrical:{primary:'#78350f',dark:'#451a03',accent:'#fcd34d',bg:'#fffbeb'},
+    hvac:{primary:'#134e4a',dark:'#042f2e',accent:'#5eead4',bg:'#f0fdfa'},
+    landscaping:{primary:'#14532d',dark:'#052e16',accent:'#86efac',bg:'#f0fdf4'},
+    auto_detailing:{primary:'#3b0764',dark:'#2e1065',accent:'#c084fc',bg:'#faf5ff'},
+    auto_repair:{primary:'#18181b',dark:'#09090b',accent:'#fbbf24',bg:'#fafafa'},
+    fitness:{primary:'#7f1d1d',dark:'#450a0a',accent:'#fca5a5',bg:'#fef2f2'},
+    salon:{primary:'#701a75',dark:'#4a044e',accent:'#f0abfc',bg:'#fdf4ff'},
+    pet_services:{primary:'#4c1d95',dark:'#2e1065',accent:'#a78bfa',bg:'#f5f3ff'},
+    roofing:{primary:'#422006',dark:'#1c0a00',accent:'#fb923c',bg:'#fff7ed'},
+    agriculture:{primary:'#14532d',dark:'#052e16',accent:'#86efac',bg:'#f0fdf4'},
+    default:{primary:'#1e293b',dark:'#0f172a',accent:'#64748b',bg:'#f8fafc'}
   };
   const c = industryThemes[industry] || industryThemes.default;
   const chatEndpoint = SITE_BASE_URL + '/api/chat/' + (siteName || 'site');
@@ -770,7 +643,6 @@ function generateSiteHTML(data, siteName) {
   const avgCheck = data.avgCheck || '';
   const cuisineType = data.cuisineType || '';
   const signatureDishes = data.signatureDishes || '';
-  const dresscode = data.dresscode || '';
   const canonicalUrl = liveSlug ? SITE_BASE_URL + '/site/' + liveSlug : '';
   const todayISO = new Date().toISOString().split('T')[0];
 
@@ -995,9 +867,7 @@ ${hasReservations?`<section class="reservations-section" id="reservations">
         <div class="res-field"><label>Party Size *</label><select id="res_party" required><option value="">Select size</option><option>1-2</option><option>3-4</option><option>5-6</option><option>7-8</option><option>9+ (large party)</option></select></div>
         <div class="res-field"><label>Special Requests</label><input type="text" id="res_notes" placeholder="Allergies, occasion, seating preference…"></div>
       </div>
-      <div style="text-align:center;margin-top:24px;">
-        <button type="submit" class="btn-reserve" id="res_submit">📅 Request Reservation</button>
-      </div>
+      <div style="text-align:center;margin-top:24px;"><button type="submit" class="btn-reserve" id="res_submit">📅 Request Reservation</button></div>
       <div id="res_success" style="display:none;text-align:center;padding:24px;background:#f0fdf4;border-radius:12px;margin-top:20px;color:#166534;font-weight:600;font-size:15px;">✅ Reservation request sent! We'll confirm within 2 hours. Check your phone!</div>
     </form>
   </div>
