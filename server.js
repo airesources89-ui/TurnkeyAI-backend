@@ -17,7 +17,7 @@ async function sendEmail(to, subject, htmlContent) {
       headers: { 'Authorization': 'Bearer ' + sgKey, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         personalizations: [{ to: [{ email: to }] }],
-        from: { email: 'airesources89@gmail.com', name: 'TurnkeyAI Services' },
+        from: { email: 'noreply@turnkeyaiservices.com', name: 'TurnkeyAI Services' },
         subject: subject,
         content: [{ type: 'text/html', value: htmlContent }]
       })
@@ -37,7 +37,7 @@ app.post('/api/intake', async (req, res) => {
     const phone        = d.phone || '';
     const businessType = d.businessType || d.industry || '';
 
-    await sendEmail('airesources89@gmail.com',
+    await sendEmail('turnkeyaiservices@gmail.com',
       '🚀 New Business Intake: ' + businessName,
       `<div style="font-family:Arial,sans-serif;max-width:600px;">
         <div style="background:linear-gradient(135deg,#2563eb,#1d4ed8);padding:24px;color:#fff;border-radius:12px 12px 0 0;">
@@ -86,7 +86,7 @@ app.post('/api/territory-partner', async (req, res) => {
     const name  = ((d.firstName || '') + ' ' + (d.lastName || '')).trim() || d.contactName || 'Unknown';
     const email = d.email || '';
 
-    await sendEmail('airesources89@gmail.com',
+    await sendEmail('turnkeyaiservices@gmail.com',
       '🤝 New Territory Partner Application: ' + name,
       `<div style="font-family:Arial,sans-serif;max-width:600px;">
         <div style="background:linear-gradient(135deg,#f59e0b,#d97706);padding:24px;color:#fff;border-radius:12px 12px 0 0;">
@@ -138,7 +138,7 @@ app.post('/api/family-intake', async (req, res) => {
     const phone       = d.phone || '';
     const plan        = d.plan  || '$29/month';
 
-    await sendEmail('airesources89@gmail.com',
+    await sendEmail('turnkeyaiservices@gmail.com',
       '🌳 New Personal Site Request: ' + familyName,
       `<div style="font-family:Arial,sans-serif;max-width:600px;">
         <div style="background:linear-gradient(135deg,#6b2fa0,#4a1a7a);padding:24px;color:#fff;border-radius:12px 12px 0 0;">
@@ -191,7 +191,7 @@ app.post('/api/crafter-intake', async (req, res) => {
     const email     = d.email     || '';
     const craftType = d.craftType || d.craftTypeOther || '';
 
-    await sendEmail('airesources89@gmail.com',
+    await sendEmail('turnkeyaiservices@gmail.com',
       '🧶 New Crafter Store Request: ' + shopName,
       `<div style="font-family:Arial,sans-serif;max-width:600px;">
         <div style="background:linear-gradient(135deg,#b84c2a,#8b3520);padding:24px;color:#fff;border-radius:12px 12px 0 0;">
