@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Family & Friends Website — Let's Build Your Site</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Lato:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #c0b0d0;
+  --gold-light: #ddd0ee;
+  --dark: #1a0a2e;
+  --warm: #2d1a4a;
+  --cream: #f8f5fc;
+  --text: #1e0a3c;
+  --muted: #7a6a8a;
+  --border: #ddd0ee;
+  --green: #4a3a6a;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Lato', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* HERO HEADER */
+.hero {
+  background: linear-gradient(160deg, #0d0018 0%, #1a0a2e 50%, #2d1060 100%);
+  padding: 60px 40px 80px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(180,140,220,.22) 0%, transparent 70%);
+}
+.hero-ornament {
+  font-size: 48px;
+  margin-bottom: 16px;
+  display: block;
+  position: relative;
+  filter: drop-shadow(0 0 20px rgba(180,140,220,.5));
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  position: relative;
+  margin-bottom: 16px;
+}
+.hero h1 span { color: var(--gold-light); font-style: italic; }
+.hero-sub {
+  font-size: 18px;
+  color: rgba(255,255,255,.65);
+  max-width: 560px;
+  margin: 0 auto 32px;
+  line-height: 1.7;
+  font-weight: 300;
+  position: relative;
+}
+.hero-types {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+}
+.type-badge {
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(180,140,220,.4);
+  border-radius: 30px;
+  padding: 7px 16px;
+  font-size: 13px;
+  color: #ddd0ee;
+  font-weight: 600;
+}
+
+/* PROGRESS */
+.progress-bar {
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  padding: 20px 40px;
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #bbb;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  padding: 0 20px;
+  position: relative;
+}
+.step::after {
+  content: '—';
+  position: absolute;
+  right: -4px;
+  color: #ddd;
+  font-weight: 300;
+}
+.step:last-child::after { display: none; }
+.step.active { color: #8b4fc0; }
+.step.done { color: #6b2fa0; }
+.step-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: #eee;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800;
+  flex-shrink: 0;
+}
+.step.active .step-num { background: #6b2fa0; color: #fff; }
+.step.done .step-num { background: #4a1a7a; color: #fff; }
+
+/* FORM BODY */
+.form-body {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* SECTION CARDS */
+.section-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  margin-bottom: 28px;
+  box-shadow: 0 2px 16px rgba(0,0,0,.04);
+  display: none;
+}
+.section-card.active { display: block; animation: fadeUp .3s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #8b4fc0;
+  margin-bottom: 8px;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 6px;
+}
+.section-desc {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+/* FIELDS */
+.field-group { margin-bottom: 22px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px; }
+.field-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--text);
+  margin-bottom: 8px;
+  display: block;
+}
+.field-hint { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 6px; }
+input[type=text], input[type=email], input[type=tel], input[type=date], input[type=number], select, textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: 'Lato', sans-serif;
+  font-size: 15px;
+  color: var(--text);
+  background: var(--cream);
+  transition: border .15s, box-shadow .15s;
+  outline: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #6b2fa0;
+  box-shadow: 0 0 0 3px rgba(107,47,160,.12);
+  background: #fff;
+}
+textarea { resize: vertical; min-height: 100px; }
+select { cursor: pointer; }
+
+/* SITE TYPE SELECTOR */
+.site-types {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.site-type-btn {
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  background: var(--cream);
+}
+.site-type-btn:hover { border-color: #6b2fa0; background: #fff; transform: translateY(-2px); }
+.site-type-btn.selected { border-color: #6b2fa0; background: #fffbf0; box-shadow: 0 0 0 3px rgba(107,47,160,.15); }
+.site-type-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+.site-type-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.site-type-desc { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+
+/* CHECKBOXES */
+.check-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .15s;
+  background: var(--cream);
+}
+.check-item:hover { border-color: #6b2fa0; background: #fff; }
+.check-item input[type=checkbox] { width: 16px; height: 16px; accent-color: #8b4fc0; flex-shrink: 0; }
+.check-item label { font-size: 14px; font-weight: 600; cursor: pointer; }
+
+/* TONE SELECTOR */
+.tone-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.tone-btn {
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .15s;
+  background: var(--cream);
+}
+.tone-btn:hover { border-color: #6b2fa0; }
+.tone-btn.selected { border-color: #6b2fa0; background: #fffbf0; }
+.tone-emoji { font-size: 24px; display: block; margin-bottom: 6px; }
+.tone-name { font-size: 12px; font-weight: 700; color: var(--text); }
+
+/* COLOR SWATCHES */
+.color-grid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.color-swatch {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all .15s;
+  position: relative;
+}
+.color-swatch:hover { transform: scale(1.1); }
+.color-swatch.selected { border-color: var(--dark); box-shadow: 0 0 0 2px var(--gold); }
+
+/* DIVIDER */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 28px 0;
+}
+
+/* BUTTONS */
+.btn-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 36px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.btn-next {
+  background: linear-gradient(135deg, #6b2fa0, #4a1a7a);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 15px 36px;
+  font-family: 'Lato', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(107,47,160,.4); }
+.btn-back {
+  background: transparent;
+  color: var(--muted);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 13px 28px;
+  font-family: 'Lato', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-back:hover { border-color: var(--muted); color: var(--text); }
+.btn-submit {
+  background: linear-gradient(135deg, #6b2fa0, #3d1060);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 15px 40px;
+  font-family: 'Lato', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(107,47,160,.45); }
+
+/* SUCCESS */
+.success-screen {
+  display: none;
+  text-align: center;
+  padding: 80px 40px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 2px 16px rgba(0,0,0,.04);
+}
+.success-screen.show { display: block; animation: fadeUp .4s ease; }
+.success-icon { font-size: 72px; margin-bottom: 24px; display: block; }
+.success-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 12px;
+}
+.success-sub { font-size: 17px; color: var(--muted); line-height: 1.7; max-width: 480px; margin: 0 auto 32px; }
+.success-next {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 32px;
+  display: inline-block;
+  text-align: left;
+  margin-top: 8px;
+}
+.success-next p { font-size: 14px; color: var(--muted); margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; }
+.success-next ul { list-style: none; }
+.success-next li { font-size: 15px; color: var(--text); padding: 4px 0; }
+.success-next li::before { content: '✓ '; color: var(--green); font-weight: 700; }
+
+/* FOOTER */
+.form-footer {
+  text-align: center;
+  padding: 32px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.form-footer a { color: #8b4fc0; text-decoration: none; }
+
+@media(max-width: 600px) {
+  .field-row { grid-template-columns: 1fr; }
+  .section-card { padding: 24px 20px; }
+  .hero { padding: 40px 20px 60px; }
+  .progress-bar { padding: 14px 10px; gap: 0; }
+  .step { padding: 0 8px; font-size: 10px; }
+  .step-label { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="hero-ornament">🏡</span>
+  <h1>Your Family's <span>Story</span><br>Deserves a Home</h1>
+  <p class="hero-sub">We'll build a beautiful, private website for your family or group — filled with memories, photos, and everything that matters most.</p>
+  <div class="hero-types">
+    <span class="type-badge">👨‍👩‍👧 Family Sites</span>
+    <span class="type-badge">🎊 Reunions</span>
+    <span class="type-badge">💒 Weddings</span>
+    <span class="type-badge">🕯️ Memorials</span>
+    <span class="type-badge">🎂 Milestone Celebrations</span>
+    <span class="type-badge">⚔️ Military Units</span>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-bar">
+  <div class="step active" id="step-ind-1">
+    <div class="step-num">1</div>
+    <span class="step-label">Site Type</span>
+  </div>
+  <div class="step" id="step-ind-2">
+    <div class="step-num">2</div>
+    <span class="step-label">Your Story</span>
+  </div>
+  <div class="step" id="step-ind-3">
+    <div class="step-num">3</div>
+    <span class="step-label">Features</span>
+  </div>
+  <div class="step" id="step-ind-4">
+    <div class="step-num">4</div>
+    <span class="step-label">Look & Feel</span>
+  </div>
+  <div class="step" id="step-ind-5">
+    <div class="step-num">5</div>
+    <span class="step-label">Contact</span>
+  </div>
+</div>
+
+<!-- FORM -->
+<div class="form-body">
+
+  <!-- STEP 1: SITE TYPE -->
+  <div class="section-card active" id="step-1">
+    <div class="section-eyebrow">Step 1 of 5</div>
+    <div class="section-title">What kind of site is this?</div>
+    <div class="section-desc">Choose the option that best describes your site. This helps us pick the right layout and features for you.</div>
+
+    <div class="site-types">
+      <div class="site-type-btn" onclick="selectType(this, 'family')">
+        <span class="site-type-icon">👨‍👩‍👧</span>
+        <div class="site-type-name">Family Site</div>
+        <div class="site-type-desc">Ongoing family hub — news, photos, history</div>
+      </div>
+      <div class="site-type-btn" onclick="selectType(this, 'reunion')">
+        <span class="site-type-icon">🎊</span>
+        <div class="site-type-name">Reunion</div>
+        <div class="site-type-desc">Event info, RSVP, countdown, directions</div>
+      </div>
+      <div class="site-type-btn" onclick="selectType(this, 'wedding')">
+        <span class="site-type-icon">💒</span>
+        <div class="site-type-name">Wedding</div>
+        <div class="site-type-desc">Our story, RSVP, venue, registry links</div>
+      </div>
+      <div class="site-type-btn" onclick="selectType(this, 'memorial')">
+        <span class="site-type-icon">🕯️</span>
+        <div class="site-type-name">Memorial</div>
+        <div class="site-type-desc">Life tribute, photo gallery, memories wall</div>
+      </div>
+      <div class="site-type-btn" onclick="selectType(this, 'milestone')">
+        <span class="site-type-icon">🎂</span>
+        <div class="site-type-name">Milestone</div>
+        <div class="site-type-desc">Birthday, anniversary, graduation, retirement</div>
+      </div>
+      <div class="site-type-btn" onclick="selectType(this, 'military')">
+        <span class="site-type-icon">⚔️</span>
+        <div class="site-type-name">Military / Unit</div>
+        <div class="site-type-desc">Unit history, roster, reunions, tributes</div>
+      </div>
+      <div class="site-type-btn" onclick="selectType(this, 'group')">
+        <span class="site-type-icon">🤝</span>
+        <div class="site-type-name">Friend Group</div>
+        <div class="site-type-desc">Shared memories, trip planning, updates</div>
+      </div>
+      <div class="site-type-btn" onclick="selectType(this, 'other')">
+        <span class="site-type-icon">✨</span>
+        <div class="site-type-name">Something Else</div>
+        <div class="site-type-desc">Tell us and we'll make it work</div>
+      </div>
+    </div>
+
+    <div class="field-group" id="other-type-field" style="display:none;">
+      <label class="field-label">Describe your site <span class="field-hint">(optional)</span></label>
+      <input type="text" name="siteTypeOther" placeholder="e.g. A tribute site for our church choir's 50th anniversary">
+    </div>
+
+    <div class="btn-row">
+      <div></div>
+      <button class="btn-next" onclick="nextStep(1)">Next — Tell Your Story →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: YOUR STORY -->
+  <div class="section-card" id="step-2">
+    <div class="section-eyebrow">Step 2 of 5</div>
+    <div class="section-title">Tell us your story</div>
+    <div class="section-desc">This becomes the heart of your website. Don't worry about perfect wording — just tell us what you'd want visitors to know and feel.</div>
+
+    <div class="field-row">
+      <div>
+        <label class="field-label">Site / Family Name *</label>
+        <input type="text" name="siteName" placeholder="e.g. The Dickson Family" required>
+      </div>
+      <div>
+        <label class="field-label">Your Name *</label>
+        <input type="text" name="ownerName" placeholder="Who's creating this site?" required>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Tagline or motto <span class="field-hint">optional — we'll create one if blank</span></label>
+      <input type="text" name="tagline" placeholder='e.g. "Together since 1952" or "Forever in our hearts"'>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Tell your story *</label>
+      <textarea name="story" rows="5" placeholder="Write freely — who are you, what makes this family/group special, what do you want people to feel when they visit this site? Even a few sentences is fine." required></textarea>
+    </div>
+
+    <div class="field-row">
+      <div>
+        <label class="field-label">Location / City <span class="field-hint">optional</span></label>
+        <input type="text" name="city" placeholder="e.g. Canterbury, NH">
+      </div>
+      <div>
+        <label class="field-label">Year Founded / Est. <span class="field-hint">optional</span></label>
+        <input type="text" name="yearFounded" placeholder="e.g. 1952 or June 14, 2025">
+      </div>
+    </div>
+
+    <!-- EVENT-SPECIFIC (shown conditionally) -->
+    <div id="event-fields">
+      <hr class="divider">
+      <div class="section-eyebrow">Event Details</div>
+      <div class="field-row">
+        <div>
+          <label class="field-label">Event Date</label>
+          <input type="date" name="eventDate">
+        </div>
+        <div>
+          <label class="field-label">Event Location / Venue</label>
+          <input type="text" name="eventVenue" placeholder="e.g. Lake Tahoe Lodge, CA">
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Event Address</label>
+        <input type="text" name="eventAddress" placeholder="Full address for map/directions">
+      </div>
+      <div class="field-row">
+        <div>
+          <label class="field-label">Start Time</label>
+          <input type="text" name="eventStart" placeholder="e.g. 2:00 PM">
+        </div>
+        <div>
+          <label class="field-label">Dress Code <span class="field-hint">optional</span></label>
+          <input type="text" name="dresscode" placeholder="e.g. Casual, Semi-formal">
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="prevStep(2)">← Back</button>
+      <button class="btn-next" onclick="nextStep(2)">Next — Features →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: FEATURES -->
+  <div class="section-card" id="step-3">
+    <div class="section-eyebrow">Step 3 of 5</div>
+    <div class="section-title">What should your site include?</div>
+    <div class="section-desc">Check everything you'd like. We'll build each section into your site automatically.</div>
+
+    <div class="section-eyebrow" style="margin-bottom:12px;">📸 Photos & Media</div>
+    <div class="check-grid">
+      <div class="check-item"><input type="checkbox" name="feat_gallery" id="feat_gallery"><label for="feat_gallery">📸 Photo Gallery</label></div>
+      <div class="check-item"><input type="checkbox" name="feat_video" id="feat_video"><label for="feat_video">🎬 Video Section</label></div>
+      <div class="check-item"><input type="checkbox" name="feat_slideshow" id="feat_slideshow"><label for="feat_slideshow">🖼️ Slideshow</label></div>
+      <div class="check-item"><input type="checkbox" name="feat_timeline" id="feat_timeline"><label for="feat_timeline">📅 Photo Timeline</label></div>
+    </div>
+
+    <div class="section-eyebrow" style="margin-bottom:12px;margin-top:20px;">💬 Interaction & Community</div>
+    <div class="check-grid">
+      <div class="check-item"><input type="checkbox" name="feat_memories" id="feat_memories"><label for="feat_memories">💌 Memories Wall</label></div>
+      <div class="check-item"><input type="checkbox" name="feat_guestbook" id="feat_guestbook"><label for="feat_guestbook">📖 Guestbook</label></div>
+      <div class="check-item"><input type="checkbox" name="feat_rsvp" id="feat_rsvp"><label for="feat_rsvp">✉️ RSVP Form</label></div>
+      <div class="check-item"><input type="checkbox" name="feat_updates" id="feat_updates"><label for="feat_updates">📢 News & Updates</label></div>
+    </div>
+
+    <div class="section-eyebrow" style="margin-bottom:12px;margin-top:20px;">🌳 History & Legacy</div>
+    <div class="check-grid">
+      <div class="check-item"><input type="checkbox" name="feat_history" id="feat_history"><label for="feat_history">📜 Family History</label></div>
+      <div class="check-item"><input type="checkbox" name="feat_tree" id="feat_tree"><label for="feat_tree">🌳 Family Tree</label></div>
+      <div class="check-item"><input type="checkbox" name="feat_tribute" id="feat_tribute"><label for="feat_tribute">🕯️ Tribute / Memorial</label></div>
+      <div class="check-item"><input type="checkbox" name="feat_recipes" id="feat_recipes"><label for="feat_recipes">🍲 Family Recipes</label></div>
+    </div>
+
+    <div class="section-eyebrow" style="margin-bottom:12px;margin-top:20px;">🔒 Privacy & Access</div>
+    <div class="check-grid">
+      <div class="check-item"><input type="checkbox" name="feat_private" id="feat_private"><label for="feat_private">🔒 Password Protected</label></div>
+      <div class="check-item"><input type="checkbox" name="feat_countdown" id="feat_countdown"><label for="feat_countdown">⏳ Event Countdown</label></div>
+      <div class="check-item"><input type="checkbox" name="feat_map" id="feat_map"><label for="feat_map">📍 Map & Directions</label></div>
+      <div class="check-item"><input type="checkbox" name="feat_contact" id="feat_contact"><label for="feat_contact">📬 Contact Form</label></div>
+    </div>
+
+    <hr class="divider">
+    <div class="field-group">
+      <label class="field-label">Anything else you'd like on the site? <span class="field-hint">optional</span></label>
+      <textarea name="additionalFeatures" rows="3" placeholder="Describe any special sections, features, or ideas you have..."></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="prevStep(3)">← Back</button>
+      <button class="btn-next" onclick="nextStep(3)">Next — Look & Feel →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: LOOK & FEEL -->
+  <div class="section-card" id="step-4">
+    <div class="section-eyebrow">Step 4 of 5</div>
+    <div class="section-title">Look & feel</div>
+    <div class="section-desc">We'll design your site to match the mood and personality of your family or event.</div>
+
+    <label class="field-label">What tone should your site have?</label>
+    <div class="tone-grid">
+      <div class="tone-btn" onclick="selectTone(this, 'warm')">
+        <span class="tone-emoji">🌻</span>
+        <div class="tone-name">Warm & Cozy</div>
+      </div>
+      <div class="tone-btn" onclick="selectTone(this, 'elegant')">
+        <span class="tone-emoji">✨</span>
+        <div class="tone-name">Elegant</div>
+      </div>
+      <div class="tone-btn" onclick="selectTone(this, 'playful')">
+        <span class="tone-emoji">🎉</span>
+        <div class="tone-name">Fun & Playful</div>
+      </div>
+      <div class="tone-btn" onclick="selectTone(this, 'rustic')">
+        <span class="tone-emoji">🍂</span>
+        <div class="tone-name">Rustic & Natural</div>
+      </div>
+      <div class="tone-btn" onclick="selectTone(this, 'modern')">
+        <span class="tone-emoji">🏙️</span>
+        <div class="tone-name">Clean & Modern</div>
+      </div>
+      <div class="tone-btn" onclick="selectTone(this, 'classic')">
+        <span class="tone-emoji">📚</span>
+        <div class="tone-name">Classic & Traditional</div>
+      </div>
+      <div class="tone-btn" onclick="selectTone(this, 'heartfelt')">
+        <span class="tone-emoji">💛</span>
+        <div class="tone-name">Heartfelt & Soft</div>
+      </div>
+      <div class="tone-btn" onclick="selectTone(this, 'bold')">
+        <span class="tone-emoji">💪</span>
+        <div class="tone-name">Bold & Proud</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <label class="field-label">Color preference <span class="field-hint">pick one or we'll choose for you</span></label>
+    <div class="color-grid">
+      <div class="color-swatch" style="background:#1e3a5f;" onclick="selectColor(this,'navy')" title="Navy Blue"></div>
+      <div class="color-swatch" style="background:#14532d;" onclick="selectColor(this,'forest')" title="Forest Green"></div>
+      <div class="color-swatch" style="background:#7f1d1d;" onclick="selectColor(this,'burgundy')" title="Burgundy"></div>
+      <div class="color-swatch" style="background:#c9a84c;" onclick="selectColor(this,'gold')" title="Warm Gold"></div>
+      <div class="color-swatch" style="background:#701a75;" onclick="selectColor(this,'plum')" title="Plum"></div>
+      <div class="color-swatch" style="background:#7c3aed;" onclick="selectColor(this,'violet')" title="Violet"></div>
+      <div class="color-swatch" style="background:#9f1239;" onclick="selectColor(this,'rose')" title="Deep Rose"></div>
+      <div class="color-swatch" style="background:#0f766e;" onclick="selectColor(this,'teal')" title="Teal"></div>
+      <div class="color-swatch" style="background:#78350f;" onclick="selectColor(this,'brown')" title="Warm Brown"></div>
+      <div class="color-swatch" style="background:#1e293b;" onclick="selectColor(this,'slate')" title="Slate"></div>
+      <div class="color-swatch" style="background:linear-gradient(135deg,#fdf8f0,#e8dcc8);border:2px solid #ccc;" onclick="selectColor(this,'light')" title="Light & Airy"></div>
+    </div>
+
+    <hr class="divider">
+    <div class="field-group">
+      <label class="field-label">Do you have photos to include? <span class="field-hint">optional</span></label>
+      <select name="hasPhotos">
+        <option value="">— Select —</option>
+        <option value="yes_many">Yes — I have lots of photos to share</option>
+        <option value="yes_few">Yes — I have a few key photos</option>
+        <option value="no_yet">Not yet — I'll send them after</option>
+        <option value="no">No photos needed</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Any websites or styles you admire? <span class="field-hint">optional</span></label>
+      <input type="text" name="styleRef" placeholder="e.g. Shutterfly family sites, or just describe a style you like">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="prevStep(4)">← Back</button>
+      <button class="btn-next" onclick="nextStep(4)">Next — Almost Done →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: CONTACT -->
+  <div class="section-card" id="step-5">
+    <div class="section-eyebrow">Step 5 of 5</div>
+    <div class="section-title">Last step — how do we reach you?</div>
+    <div class="section-desc">We'll send your finished site here within 24 hours. No payment needed to see your preview.</div>
+
+    <div class="field-row">
+      <div>
+        <label class="field-label">Your Name *</label>
+        <input type="text" name="contactName" placeholder="First and last name" required>
+      </div>
+      <div>
+        <label class="field-label">Email Address *</label>
+        <input type="email" name="email" placeholder="Where we'll send your preview" required>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div>
+        <label class="field-label">Phone Number <span class="field-hint">optional</span></label>
+        <input type="tel" name="phone" placeholder="In case we have quick questions">
+      </div>
+      <div>
+        <label class="field-label">Best time to reach you <span class="field-hint">optional</span></label>
+        <input type="text" name="bestTime" placeholder="e.g. Evenings after 6pm">
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="field-group">
+      <label class="field-label">Pricing preference</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:6px;">
+        <div class="site-type-btn selected" id="price-monthly" onclick="selectPricing(this,'monthly')" style="padding:18px 14px;">
+          <span class="site-type-icon">⭐</span>
+          <div class="site-type-name">$29 / month</div>
+          <div class="site-type-desc">Living family site — grows with you. Add births, milestones, photos anytime. Most popular.</div>
+        </div>
+        <div class="site-type-btn" id="price-onetime" onclick="selectPricing(this,'one_time')" style="padding:18px 14px;">
+          <span class="site-type-icon">📌</span>
+          <div class="site-type-name">$149 one-time</div>
+          <div class="site-type-desc">For memorials or single events with no ongoing updates needed. Pay once, keeps forever.</div>
+        </div>
+      </div>
+      <input type="hidden" name="pricing" id="pricing-value" value="monthly">
+      <p style="font-size:12px;color:var(--muted);margin-top:8px;">Not sure yet? Pick monthly — you can always cancel. No payment needed to see your preview.</p>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">How did you hear about us? <span class="field-hint">optional</span></label>
+      <select name="referral">
+        <option value="">— Select —</option>
+        <option value="family">Family or friend told me</option>
+        <option value="facebook">Facebook</option>
+        <option value="google">Google search</option>
+        <option value="partner">Through a TurnkeyAI partner</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Anything else we should know? <span class="field-hint">optional</span></label>
+      <textarea name="notes" rows="3" placeholder="Special requests, deadline, questions for us..."></textarea>
+    </div>
+
+    <div style="background:#f8f4ff;border:1.5px solid #c0a0e0;border-radius:12px;padding:18px 20px;margin-top:8px;font-size:14px;color:var(--text);line-height:1.6;">
+      🔒 <strong>Your privacy matters.</strong> The information you share here is used only to build your site. We never sell or share your family's data with anyone.
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="prevStep(5)">← Back</button>
+      <button class="btn-submit" onclick="submitForm()">🌟 Build My Site →</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="success">
+    <span class="success-icon">🎉</span>
+    <div class="success-title">You're all set!</div>
+    <p class="success-sub">We've received everything we need. Your preview will be ready within 24 hours and sent to your email.</p>
+    <div class="success-next">
+      <p>What happens next</p>
+      <ul>
+        <li>We build your site using your answers</li>
+        <li>You get an email with a preview link</li>
+        <li>Review it — approve, edit, or request changes</li>
+        <li>We make it live the moment you say go</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="form-footer">
+  Powered by <a href="#">TurnkeyAI Services</a> · Questions? Call <a href="tel:6039222004">(603) 922-2004</a>
+</div>
+
+<script>
+let currentStep = 1;
+let selectedType = '';
+let selectedTone = '';
+let selectedColor = '';
+
+function selectType(el, type) {
+  document.querySelectorAll('.site-type-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedType = type;
+  document.getElementById('other-type-field').style.display = type === 'other' ? 'block' : 'none';
+  // Show/hide event fields on step 2
+  const eventTypes = ['reunion', 'wedding', 'milestone', 'memorial'];
+  document.getElementById('event-fields').style.display = eventTypes.includes(type) ? 'block' : 'none';
+}
+
+function selectTone(el, tone) {
+  document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedTone = tone;
+}
+
+function selectColor(el, color) {
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedColor = color;
+}
+
+function nextStep(from) {
+  if (from === 1 && !selectedType) {
+    alert('Please choose a site type to continue.');
+    return;
+  }
+  goToStep(from + 1);
+}
+
+function prevStep(from) {
+  goToStep(from - 1);
+}
+
+function goToStep(n) {
+  document.getElementById('step-' + currentStep).classList.remove('active');
+  document.getElementById('step-ind-' + currentStep).classList.remove('active');
+  document.getElementById('step-ind-' + currentStep).classList.add('done');
+  currentStep = n;
+  document.getElementById('step-' + currentStep).classList.add('active');
+  document.getElementById('step-ind-' + currentStep).classList.remove('done');
+  document.getElementById('step-ind-' + currentStep).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function submitForm() {
+  // Collect all form data
+  const data = {};
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    if (el.name) {
+      if (el.type === 'checkbox') {
+        if (el.checked) data[el.name] = true;
+      } else if (el.value) {
+        data[el.name] = el.value;
+      }
+    }
+  });
+  // Add selected site type and pricing
+  data.siteType = selectedType || 'Family Site';
+  data.plan = document.getElementById('pricing-value')?.value || '$29/month';
+
+  // Send to server
+  try {
+    await fetch('/api/family-intake', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  } catch (e) {
+    console.log('Submit error (non-fatal):', e.message);
+  }
+
+  // Show success regardless
+  document.getElementById('step-5').classList.remove('active');
+  document.getElementById('success').classList.add('show');
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('step-ind-' + i).classList.remove('active');
+    document.getElementById('step-ind-' + i).classList.add('done');
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectPricing(el, value) {
+  document.querySelectorAll('#price-monthly, #price-onetime').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('pricing-value').value = value;
+}
+
+// Initialize — hide event fields by default
+document.getElementById('event-fields').style.display = 'none';
+</script>
+</body>
+</html>
