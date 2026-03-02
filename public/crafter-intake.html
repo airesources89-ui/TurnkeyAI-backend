@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Crafter Store — Let's Build Your Shop</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,800;1,700&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --clay:#b84c2a;
+  --clay2:#8b3520;
+  --warm:#fff8f2;
+  --cream:#fffaf6;
+  --text:#2d1a0e;
+  --muted:#8a6652;
+  --border:#f0d8c8;
+  --teal:#0d7377;
+  --gold:#e8a020;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
+
+.hero{background:linear-gradient(150deg,#1a0800 0%,#2d1208 50%,#4a1e08 100%);padding:56px 40px 72px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(232,160,32,.15) 0%,transparent 65%);}
+.hero-ornament{font-size:52px;display:block;margin-bottom:14px;position:relative;filter:drop-shadow(0 0 20px rgba(232,160,32,.4));}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(34px,6vw,62px);font-weight:800;color:#fff;line-height:1.1;margin-bottom:14px;letter-spacing:-1px;position:relative;}
+.hero h1 em{color:#f0c060;font-style:italic;}
+.hero-sub{font-size:17px;color:rgba(255,255,255,.55);max-width:520px;margin:0 auto 28px;line-height:1.7;font-weight:300;position:relative;}
+.hero-tags{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;}
+.hero-tag{background:rgba(255,255,255,.08);border:1px solid rgba(232,160,32,.3);border-radius:30px;padding:7px 16px;font-size:13px;color:#f0c060;font-weight:700;}
+
+.progress-bar{background:#fff;border-bottom:1px solid var(--border);padding:18px 40px;display:flex;justify-content:center;gap:0;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.05);}
+.step{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;color:#bbb;text-transform:uppercase;letter-spacing:.8px;padding:0 16px;position:relative;}
+.step::after{content:'—';position:absolute;right:-4px;color:#ddd;font-weight:300;}
+.step:last-child::after{display:none;}
+.step.active{color:var(--clay);}
+.step.done{color:var(--teal);}
+.step-num{width:24px;height:24px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;}
+.step.active .step-num{background:var(--clay);color:#fff;}
+.step.done .step-num{background:var(--teal);color:#fff;}
+
+.form-body{max-width:760px;margin:0 auto;padding:44px 24px 80px;}
+.section-card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:38px;margin-bottom:24px;box-shadow:0 2px 14px rgba(0,0,0,.04);display:none;}
+.section-card.active{display:block;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+.eyebrow{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--clay);margin-bottom:8px;}
+.card-title{font-family:'Fraunces',serif;font-size:26px;font-weight:800;color:var(--text);margin-bottom:6px;}
+.card-desc{font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:28px;}
+
+.field-group{margin-bottom:20px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.field-label{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--text);margin-bottom:7px;display:block;}
+.field-hint{font-size:11px;color:var(--muted);font-weight:400;margin-left:6px;}
+input[type=text],input[type=email],input[type=tel],input[type=number],select,textarea{width:100%;padding:12px 15px;border:1.5px solid var(--border);border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;color:var(--text);background:var(--warm);transition:border .15s,box-shadow .15s;outline:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--clay);box-shadow:0 0 0 3px rgba(184,76,42,.1);background:#fff;}
+textarea{resize:vertical;min-height:90px;}
+
+.craft-types{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px;}
+.craft-btn{border:2px solid var(--border);border-radius:12px;padding:16px 10px;text-align:center;cursor:pointer;transition:all .2s;background:var(--warm);}
+.craft-btn:hover{border-color:var(--clay);background:#fff;transform:translateY(-2px);}
+.craft-btn.selected{border-color:var(--clay);background:#fff8f5;box-shadow:0 0 0 3px rgba(184,76,42,.12);}
+.craft-icon{font-size:28px;display:block;margin-bottom:6px;}
+.craft-name{font-size:12px;font-weight:800;color:var(--text);}
+
+.check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:9px;margin-bottom:18px;}
+.check-item{display:flex;align-items:center;gap:9px;padding:11px 13px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;transition:all .15s;background:var(--warm);}
+.check-item:hover{border-color:var(--clay);background:#fff;}
+.check-item input[type=checkbox]{width:15px;height:15px;accent-color:var(--clay);flex-shrink:0;}
+.check-item label{font-size:13px;font-weight:700;cursor:pointer;}
+
+.tone-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:9px;margin-bottom:18px;}
+.tone-btn{border:2px solid var(--border);border-radius:11px;padding:13px 10px;text-align:center;cursor:pointer;transition:all .15s;background:var(--warm);}
+.tone-btn:hover{border-color:var(--clay);}
+.tone-btn.selected{border-color:var(--clay);background:#fff8f5;}
+.tone-emoji{font-size:22px;display:block;margin-bottom:5px;}
+.tone-name{font-size:12px;font-weight:700;color:var(--text);}
+
+.divider{border:none;border-top:1px solid var(--border);margin:24px 0;}
+
+.btn-row{display:flex;justify-content:space-between;align-items:center;margin-top:32px;flex-wrap:wrap;gap:12px;}
+.btn-next{background:linear-gradient(135deg,var(--clay),var(--clay2));color:#fff;border:none;border-radius:11px;padding:14px 34px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px;}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(184,76,42,.35);}
+.btn-back{background:transparent;color:var(--muted);border:2px solid var(--border);border-radius:11px;padding:12px 26px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;}
+.btn-back:hover{border-color:var(--muted);color:var(--text);}
+.btn-submit{background:linear-gradient(135deg,var(--teal),#085c60);color:#fff;border:none;border-radius:11px;padding:14px 38px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px;}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(13,115,119,.35);}
+
+/* PRODUCT EDITOR DEMO */
+.product-editor{background:var(--warm);border:1.5px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;}
+.product-editor-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.product-card-preview{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;display:grid;grid-template-columns:80px 1fr;gap:16px;align-items:start;}
+.product-img-placeholder{width:80px;height:80px;background:linear-gradient(135deg,#f0d8c8,#e8c0a0);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
+.product-fields{display:flex;flex-direction:column;gap:8px;}
+.product-fields input{padding:8px 12px;font-size:13px;}
+.product-fields input[type=number]{width:120px;}
+.product-add-btn{display:flex;align-items:center;gap:6px;background:none;border:2px dashed var(--border);border-radius:10px;padding:12px 20px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s;margin-top:10px;width:100%;justify-content:center;}
+.product-add-btn:hover{border-color:var(--clay);color:var(--clay);}
+
+.success-screen{display:none;text-align:center;padding:72px 40px;background:#fff;border:1px solid var(--border);border-radius:20px;}
+.success-screen.show{display:block;animation:fadeUp .4s ease;}
+.success-icon{font-size:68px;display:block;margin-bottom:20px;}
+.success-title{font-family:'Fraunces',serif;font-size:38px;font-weight:800;color:var(--text);margin-bottom:10px;}
+.success-sub{font-size:16px;color:var(--muted);line-height:1.7;max-width:460px;margin:0 auto 28px;}
+.success-next{background:var(--warm);border:1px solid var(--border);border-radius:14px;padding:22px 28px;display:inline-block;text-align:left;}
+.success-next p{font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;}
+.success-next ul{list-style:none;}
+.success-next li{font-size:14px;color:var(--text);padding:3px 0;}
+.success-next li::before{content:'✓ ';color:var(--teal);font-weight:800;}
+
+.form-footer{text-align:center;padding:28px;font-size:13px;color:var(--muted);}
+.form-footer a{color:var(--clay);text-decoration:none;}
+
+@media(max-width:580px){.field-row{grid-template-columns:1fr;}.section-card{padding:22px 18px;}.hero{padding:40px 20px 56px;}.progress-bar{padding:12px 8px;}.step{padding:0 7px;font-size:9px;}.step-label{display:none;}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <span class="hero-ornament">🧶</span>
+  <h1>Your Craft.<br>Your <em>Shop.</em><br>Your Rules.</h1>
+  <p class="hero-sub">Tell us about your handmade creations and we'll build you a beautiful online store — no Etsy fees, no middleman, no tech skills needed.</p>
+  <div class="hero-tags">
+    <span class="hero-tag">🧵 Fiber Arts</span>
+    <span class="hero-tag">🪡 Jewelry</span>
+    <span class="hero-tag">🪵 Woodwork</span>
+    <span class="hero-tag">🎨 Art & Prints</span>
+    <span class="hero-tag">🧴 Candles & Soap</span>
+    <span class="hero-tag">🧸 Plushies & Dolls</span>
+  </div>
+</div>
+
+<div class="progress-bar">
+  <div class="step active" id="step-ind-1"><div class="step-num">1</div><span class="step-label">Your Craft</span></div>
+  <div class="step" id="step-ind-2"><div class="step-num">2</div><span class="step-label">Your Story</span></div>
+  <div class="step" id="step-ind-3"><div class="step-num">3</div><span class="step-label">Your Products</span></div>
+  <div class="step" id="step-ind-4"><div class="step-num">4</div><span class="step-label">Shop Style</span></div>
+  <div class="step" id="step-ind-5"><div class="step-num">5</div><span class="step-label">Contact</span></div>
+</div>
+
+<div class="form-body">
+
+  <!-- STEP 1: CRAFT TYPE -->
+  <div class="section-card active" id="step-1">
+    <div class="eyebrow">Step 1 of 5</div>
+    <div class="card-title">What do you make?</div>
+    <div class="card-desc">Choose your craft type. This shapes how your shop is organized and displayed.</div>
+    <div class="craft-types">
+      <div class="craft-btn" onclick="selectCraft(this,'fiber')"><span class="craft-icon">🧵</span><div class="craft-name">Knit & Crochet</div></div>
+      <div class="craft-btn" onclick="selectCraft(this,'jewelry')"><span class="craft-icon">💍</span><div class="craft-name">Jewelry</div></div>
+      <div class="craft-btn" onclick="selectCraft(this,'wood')"><span class="craft-icon">🪵</span><div class="craft-name">Woodwork</div></div>
+      <div class="craft-btn" onclick="selectCraft(this,'art')"><span class="craft-icon">🎨</span><div class="craft-name">Art & Prints</div></div>
+      <div class="craft-btn" onclick="selectCraft(this,'candles')"><span class="craft-icon">🕯️</span><div class="craft-name">Candles & Soap</div></div>
+      <div class="craft-btn" onclick="selectCraft(this,'sewing')"><span class="craft-icon">🪡</span><div class="craft-name">Sewing & Quilts</div></div>
+      <div class="craft-btn" onclick="selectCraft(this,'pottery')"><span class="craft-icon">🏺</span><div class="craft-name">Pottery & Clay</div></div>
+      <div class="craft-btn" onclick="selectCraft(this,'plushies')"><span class="craft-icon">🧸</span><div class="craft-name">Plushies & Dolls</div></div>
+      <div class="craft-btn" onclick="selectCraft(this,'resin')"><span class="craft-icon">💎</span><div class="craft-name">Resin & Epoxy</div></div>
+      <div class="craft-btn" onclick="selectCraft(this,'paper')"><span class="craft-icon">📄</span><div class="craft-name">Paper & Cards</div></div>
+      <div class="craft-btn" onclick="selectCraft(this,'food')"><span class="craft-icon">🍪</span><div class="craft-name">Baked Goods</div></div>
+      <div class="craft-btn" onclick="selectCraft(this,'other')"><span class="craft-icon">✨</span><div class="craft-name">Something Else</div></div>
+    </div>
+    <div class="field-group" id="other-craft-field" style="display:none;">
+      <label class="field-label">Describe your craft</label>
+      <input type="text" name="craftTypeOther" placeholder="e.g. Hand-painted silk scarves">
+    </div>
+    <div class="btn-row">
+      <div></div>
+      <button class="btn-next" onclick="nextStep(1)">Next — Your Story →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: YOUR STORY -->
+  <div class="section-card" id="step-2">
+    <div class="eyebrow">Step 2 of 5</div>
+    <div class="card-title">Tell us about you and your shop</div>
+    <div class="card-desc">This becomes your shop's About section — the story that turns browsers into buyers.</div>
+    <div class="field-row">
+      <div><label class="field-label">Shop Name *</label><input type="text" name="shopName" placeholder="e.g. Rosie's Handknit Studio" required></div>
+      <div><label class="field-label">Your Name *</label><input type="text" name="ownerName" placeholder="First and last name" required></div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Shop tagline <span class="field-hint">optional — we'll write one if blank</span></label>
+      <input type="text" name="tagline" placeholder='e.g. "Made with love, one stitch at a time"'>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Tell your story *</label>
+      <textarea name="story" rows="4" placeholder="How did you get into your craft? What makes your work special? Why do you love making things? Even a few sentences helps." required></textarea>
+    </div>
+    <div class="field-row">
+      <div><label class="field-label">Location <span class="field-hint">optional</span></label><input type="text" name="city" placeholder="City, State"></div>
+      <div><label class="field-label">Years crafting <span class="field-hint">optional</span></label><input type="text" name="yearsActive" placeholder="e.g. 5 years, since 2010"></div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Do you ship? <span class="field-hint">select all that apply</span></label>
+      <div class="check-grid">
+        <div class="check-item"><input type="checkbox" name="ship_local" id="ship_local"><label for="ship_local">📍 Local pickup</label></div>
+        <div class="check-item"><input type="checkbox" name="ship_domestic" id="ship_domestic"><label for="ship_domestic">🇺🇸 Ships within US</label></div>
+        <div class="check-item"><input type="checkbox" name="ship_international" id="ship_international"><label for="ship_international">🌍 Ships internationally</label></div>
+        <div class="check-item"><input type="checkbox" name="ship_digital" id="ship_digital"><label for="ship_digital">📧 Digital downloads only</label></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="prevStep(2)">← Back</button>
+      <button class="btn-next" onclick="nextStep(2)">Next — Your Products →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: PRODUCTS -->
+  <div class="section-card" id="step-3">
+    <div class="eyebrow">Step 3 of 5</div>
+    <div class="card-title">Tell us about your products</div>
+    <div class="card-desc">Give us a sample of what you sell. You'll be able to add, edit, and update products yourself from your dashboard after launch.</div>
+
+    <div class="product-editor">
+      <div class="product-editor-title">🛍️ Sample Product #1 <span style="font-size:11px;color:var(--muted);font-weight:400;">— Add your first item so we can set up your shop</span></div>
+      <div class="product-card-preview">
+        <div class="product-img-placeholder">📷</div>
+        <div class="product-fields">
+          <input type="text" name="product1_name" placeholder="Product name (e.g. Hand-knit merino scarf)">
+          <input type="text" name="product1_desc" placeholder="Short description (e.g. Soft, warm, available in 6 colors)">
+          <input type="number" name="product1_price" placeholder="Price ($)" min="0" step="0.01">
+        </div>
+      </div>
+      <div class="product-card-preview" style="margin-top:10px;">
+        <div class="product-img-placeholder">📷</div>
+        <div class="product-fields">
+          <input type="text" name="product2_name" placeholder="Product name (optional)">
+          <input type="text" name="product2_desc" placeholder="Short description (optional)">
+          <input type="number" name="product2_price" placeholder="Price ($)" min="0" step="0.01">
+        </div>
+      </div>
+      <button class="product-add-btn">+ Add Another Product</button>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">How many products do you plan to list in total? <span class="field-hint">approximate</span></label>
+      <select name="productCount">
+        <option value="">— Select —</option>
+        <option value="1-10">1–10 items</option>
+        <option value="11-25">11–25 items</option>
+        <option value="26-50">26–50 items</option>
+        <option value="50+">50+ items</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Do you take custom orders?</label>
+      <select name="customOrders">
+        <option value="">— Select —</option>
+        <option value="yes">Yes — I love custom orders</option>
+        <option value="sometimes">Sometimes — depends on the request</option>
+        <option value="no">No — I only sell ready-made items</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Typical turnaround time</label>
+      <select name="turnaround">
+        <option value="">— Select —</option>
+        <option value="in_stock">Items in stock — ships within 3–5 days</option>
+        <option value="1_2_weeks">Made to order — 1–2 weeks</option>
+        <option value="3_4_weeks">Made to order — 3–4 weeks</option>
+        <option value="varies">Varies by item</option>
+      </select>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="prevStep(3)">← Back</button>
+      <button class="btn-next" onclick="nextStep(3)">Next — Shop Style →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: SHOP STYLE -->
+  <div class="section-card" id="step-4">
+    <div class="eyebrow">Step 4 of 5</div>
+    <div class="card-title">What should your shop feel like?</div>
+    <div class="card-desc">We'll design your store to match the personality of your work.</div>
+
+    <label class="field-label">Shop vibe</label>
+    <div class="tone-grid">
+      <div class="tone-btn" onclick="selectTone(this,'rustic')"><span class="tone-emoji">🍂</span><div class="tone-name">Rustic & Cozy</div></div>
+      <div class="tone-btn" onclick="selectTone(this,'bright')"><span class="tone-emoji">🌸</span><div class="tone-name">Bright & Cheerful</div></div>
+      <div class="tone-btn" onclick="selectTone(this,'elegant')"><span class="tone-emoji">✨</span><div class="tone-name">Elegant & Refined</div></div>
+      <div class="tone-btn" onclick="selectTone(this,'earthy')"><span class="tone-emoji">🌿</span><div class="tone-name">Natural & Earthy</div></div>
+      <div class="tone-btn" onclick="selectTone(this,'bold')"><span class="tone-emoji">🎨</span><div class="tone-name">Bold & Colorful</div></div>
+      <div class="tone-btn" onclick="selectTone(this,'minimal')"><span class="tone-emoji">⬜</span><div class="tone-name">Clean & Minimal</div></div>
+      <div class="tone-btn" onclick="selectTone(this,'vintage')"><span class="tone-emoji">📻</span><div class="tone-name">Vintage & Nostalgic</div></div>
+      <div class="tone-btn" onclick="selectTone(this,'whimsical')"><span class="tone-emoji">🦋</span><div class="tone-name">Whimsical & Fun</div></div>
+    </div>
+
+    <hr class="divider">
+    <div class="field-group">
+      <label class="field-label">Do you have photos of your work? <span class="field-hint">optional</span></label>
+      <select name="hasPhotos">
+        <option value="">— Select —</option>
+        <option value="yes_many">Yes — I have lots of product photos</option>
+        <option value="yes_few">Yes — I have a few photos</option>
+        <option value="no_yet">Not yet — I'll send them after</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Social media handles <span class="field-hint">optional — we'll add links to your shop</span></label>
+      <div class="field-row">
+        <input type="text" name="instagram" placeholder="Instagram @handle">
+        <input type="text" name="facebook" placeholder="Facebook page name">
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Any shops or styles you like? <span class="field-hint">optional</span></label>
+      <input type="text" name="styleRef" placeholder="e.g. I love the look of Etsy shop XYZ, or just describe a style">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="prevStep(4)">← Back</button>
+      <button class="btn-next" onclick="nextStep(4)">Next — Almost Done →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: CONTACT -->
+  <div class="section-card" id="step-5">
+    <div class="eyebrow">Step 5 of 5</div>
+    <div class="card-title">Last step — how do we reach you?</div>
+    <div class="card-desc">We'll send your shop preview here within 24 hours. No payment needed to see it first.</div>
+    <div class="field-row">
+      <div><label class="field-label">Your Name *</label><input type="text" name="contactName" placeholder="First and last name" required></div>
+      <div><label class="field-label">Email Address *</label><input type="email" name="email" placeholder="We'll send your preview here" required></div>
+    </div>
+    <div class="field-row">
+      <div><label class="field-label">Phone <span class="field-hint">optional</span></label><input type="tel" name="phone" placeholder="In case we have quick questions"></div>
+      <div><label class="field-label">Best time to reach you <span class="field-hint">optional</span></label><input type="text" name="bestTime" placeholder="e.g. Evenings after 6pm"></div>
+    </div>
+    <hr class="divider">
+    <div class="field-group">
+      <label class="field-label">Do you have an existing Etsy, website, or social shop? <span class="field-hint">optional</span></label>
+      <input type="text" name="existingShop" placeholder="Paste link here — we'll use it to understand your style">
+    </div>
+    <div class="field-group">
+      <label class="field-label">How did you hear about us? <span class="field-hint">optional</span></label>
+      <select name="referral">
+        <option value="">— Select —</option>
+        <option value="friend">Friend or family told me</option>
+        <option value="facebook">Facebook</option>
+        <option value="google">Google search</option>
+        <option value="partner">Through a TurnkeyAI partner</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Anything else we should know? <span class="field-hint">optional</span></label>
+      <textarea name="notes" rows="3" placeholder="Special requests, questions, ideas for your shop..."></textarea>
+    </div>
+    <div style="background:#fff8f2;border:1.5px solid #f0d8c8;border-radius:11px;padding:16px 18px;margin-top:6px;font-size:13px;color:var(--text);line-height:1.6;">
+      💳 <strong>Pricing:</strong> $39/month + 10% of sales. No setup fee. No payment needed until you approve your preview. Cancel anytime.
+    </div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="prevStep(5)">← Back</button>
+      <button class="btn-submit" onclick="submitForm()">🛍️ Build My Shop →</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="success">
+    <span class="success-icon">🎉</span>
+    <div class="success-title">Your shop is on its way!</div>
+    <p class="success-sub">We received everything we need. Your store preview will be ready within 24 hours and sent to your email.</p>
+    <div class="success-next">
+      <p>What happens next</p>
+      <ul>
+        <li>We build your shop using your answers</li>
+        <li>You get an email with a preview link</li>
+        <li>Review your shop — approve or request changes</li>
+        <li>We go live the moment you say go</li>
+        <li>You start adding products & taking orders</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="form-footer">Powered by <a href="https://turnkeyaiservices.com">TurnkeyAI Services</a> · Questions? Call <a href="tel:6039222004">(603) 922-2004</a></div>
+
+<script>
+let currentStep = 1;
+let selectedCraft = '';
+let selectedTone = '';
+
+function selectCraft(el, type) {
+  document.querySelectorAll('.craft-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCraft = type;
+  document.getElementById('other-craft-field').style.display = type === 'other' ? 'block' : 'none';
+}
+function selectTone(el, tone) {
+  document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedTone = tone;
+}
+function nextStep(from) {
+  if (from === 1 && !selectedCraft) { alert('Please choose your craft type to continue.'); return; }
+  goToStep(from + 1);
+}
+function prevStep(from) { goToStep(from - 1); }
+function goToStep(n) {
+  document.getElementById('step-' + currentStep).classList.remove('active');
+  document.getElementById('step-ind-' + currentStep).classList.remove('active');
+  document.getElementById('step-ind-' + currentStep).classList.add('done');
+  currentStep = n;
+  document.getElementById('step-' + currentStep).classList.add('active');
+  document.getElementById('step-ind-' + currentStep).classList.remove('done');
+  document.getElementById('step-ind-' + currentStep).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+async function submitForm() {
+  const data = {};
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    if (el.name) {
+      if (el.type === 'checkbox') { if (el.checked) data[el.name] = true; }
+      else if (el.value) data[el.name] = el.value;
+    }
+  });
+  data.craftType = selectedCraft;
+  data.shopVibe  = selectedTone;
+  try {
+    await fetch('/api/crafter-intake', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  } catch (e) { console.log('Submit error:', e.message); }
+
+  document.getElementById('step-5').classList.remove('active');
+  document.getElementById('success').classList.add('show');
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('step-ind-' + i).classList.remove('active');
+    document.getElementById('step-ind-' + i).classList.add('done');
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
