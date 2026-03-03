@@ -17,7 +17,7 @@ async function sendEmail(to, subject, htmlContent) {
       headers: { 'Authorization': 'Bearer ' + sgKey, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         personalizations: [{ to: [{ email: to }] }],
-        from: { email: 'noreply@turnkeyaiservices.com', name: 'TurnkeyAI Services' },
+        from: { email: 'turnkeyaiservices@gmail.com', name: 'TurnkeyAI Services' },
         subject: subject,
         content: [{ type: 'text/html', value: htmlContent }]
       })
