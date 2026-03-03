@@ -245,3 +245,38 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
   console.log('🚀 TurnkeyAI Services running on port ' + PORT);
 });
+
+// ─── CHAT API (Cloudflare AI) ────────────────────────────────────────────────
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { messages, context } = req.body;
+    const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+    const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+    if (!apiToken || !accountId) return res.json({ reply: "Chat is temporarily unavailable. Please call (603) 922-2004." });
+
+    // Build messages array with system context
+    const cfMessages = [
+      { role: 'system', content: context || 'You are a helpful assistant for TurnkeyAI Services.' },
+      ...(messages || [])
+    ];
+
+    const response = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/meta/llama-3.1-8b-instruct`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + apiToken,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ messages: cfMessages, max_tokens: 300 })
+      }
+    );
+
+    const data = await response.json();
+    const reply = data.result?.response || "I'm not sure about that. Please call (603) 922-2004.";
+    res.json({ reply });
+  } catch (e) {
+    console.error('[Chat]', e.message);
+    res.json({ reply: "I'm having trouble right now. Please call (603) 922-2004." });
+  }
+});
