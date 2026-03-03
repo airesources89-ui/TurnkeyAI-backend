@@ -56,7 +56,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(15,30,60,0.9
 .btn-ghost{background:transparent;color:#fff;padding:16px 36px;border-radius:10px;font-size:16px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,0.2);transition:all .2s;}
 .btn-ghost:hover{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.05);}
 .hero-stats{display:flex;gap:40px;flex-wrap:wrap;}
-.hero-stat{}
 .hero-stat-num{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;color:#fff;}
 .hero-stat-label{font-size:12px;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
 .hero-right{position:relative;}
@@ -84,7 +83,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(15,30,60,0.9
 .section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,4vw,52px);font-weight:800;color:var(--navy);line-height:1.1;margin-bottom:20px;letter-spacing:-1px;}
 .section-sub{font-size:18px;color:var(--gray);line-height:1.7;max-width:640px;margin-bottom:60px;}
 
-/* WHAT YOU GET */
+/* FEATURES GRID */
 .features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;}
 .feat-card{background:#fff;border:1px solid var(--light);border-radius:16px;padding:28px;transition:all .2s;position:relative;overflow:hidden;}
 .feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),#60a5fa);transform:scaleX(0);transform-origin:left;transition:transform .3s;}
@@ -94,6 +93,32 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(15,30,60,0.9
 .feat-title{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:8px;}
 .feat-desc{font-size:14px;color:var(--gray);line-height:1.6;}
 .feat-free{display:inline-block;background:#dcfce7;color:#16a34a;font-size:11px;font-weight:800;padding:3px 10px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px;margin-top:10px;}
+
+/* BLOG ADD-ON SECTION */
+.blog-section{background:#f0f4ff;padding:100px 40px;}
+.blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;margin-bottom:40px;}
+.blog-card{background:#fff;border:1px solid var(--light);border-radius:16px;overflow:hidden;transition:all .2s;}
+.blog-card:hover{box-shadow:0 8px 32px rgba(15,30,60,0.1);transform:translateY(-2px);}
+.blog-card-top{padding:32px 28px 24px;}
+.blog-card-icon{font-size:44px;margin-bottom:16px;display:block;}
+.blog-card-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:10px;}
+.blog-card-desc{font-size:14px;color:var(--gray);line-height:1.65;margin-bottom:16px;}
+.blog-card-features{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.blog-card-features li{font-size:13px;color:var(--gray);display:flex;align-items:center;gap:8px;}
+.blog-card-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;}
+.blog-card-bottom{padding:20px 28px;border-top:1px solid var(--light);display:flex;align-items:center;justify-content:space-between;}
+.blog-card-price{font-size:13px;color:var(--gray);}
+.blog-card-price strong{font-size:24px;font-weight:800;color:var(--navy);font-family:'Cormorant Garamond',serif;}
+.blog-card-btn{background:var(--blue);color:#fff;padding:10px 22px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s;}
+.blog-card-btn:hover{background:var(--blue2);}
+.blog-onetime{background:#fff;border:1px solid var(--light);border-radius:16px;padding:32px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:24px;}
+.blog-onetime-left{display:flex;align-items:center;gap:20px;}
+.blog-onetime-icon{font-size:40px;}
+.blog-onetime-text h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.blog-onetime-text p{font-size:14px;color:var(--gray);line-height:1.6;max-width:500px;}
+.blog-onetime-price{text-align:right;flex-shrink:0;}
+.blog-onetime-price strong{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:800;color:var(--navy);display:block;line-height:1;}
+.blog-onetime-price span{font-size:12px;color:var(--gray);font-weight:600;}
 
 /* PRICING */
 .pricing-section{background:var(--navy);padding:100px 40px;}
@@ -164,6 +189,7 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
 .footer-logo span{color:#60a5fa;}
 .footer-desc{font-size:14px;color:rgba(255,255,255,0.4);line-height:1.7;margin-bottom:20px;}
 .footer-contact{font-size:14px;color:rgba(255,255,255,0.6);line-height:2;}
+.footer-contact a{color:rgba(255,255,255,0.6);text-decoration:none;}
 .footer-col-title{font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:16px;}
 .footer-col a{display:block;font-size:14px;color:rgba(255,255,255,0.55);text-decoration:none;margin-bottom:10px;transition:color .2s;}
 .footer-col a:hover{color:#fff;}
@@ -176,14 +202,6 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
 .modal-overlay.open{display:flex;}
 .modal-box{background:#fff;border-radius:20px;padding:40px;max-width:540px;width:100%;text-align:center;position:relative;}
 .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--gray);line-height:1;}
-.modal-title{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:800;color:var(--navy);margin-bottom:8px;}
-.modal-sub{font-size:15px;color:var(--gray);margin-bottom:28px;line-height:1.6;}
-.modal-form{display:flex;flex-direction:column;gap:14px;text-align:left;}
-.modal-input{width:100%;padding:14px 16px;border:2px solid var(--light);border-radius:10px;font-size:15px;font-family:inherit;color:var(--navy);outline:none;transition:border .2s;}
-.modal-input:focus{border-color:var(--blue);}
-.modal-submit{background:var(--blue);color:#fff;padding:16px;border-radius:10px;font-size:16px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s;}
-.modal-submit:hover{background:var(--blue2);}
-.modal-note{font-size:12px;color:var(--gray);text-align:center;margin-top:8px;}
 
 /* SCROLL ANIMATIONS */
 .fade-up{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease;}
@@ -213,70 +231,27 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
     <div>
       <div class="hero-badge">🚀 AI-Powered Local Business Websites</div>
       <p style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:600;letter-spacing:.5px;margin-bottom:16px;margin-top:-12px;">Mississippi-founded SaaS platform helping local service businesses capture more calls and close more jobs.</p>
-      <h1 class="hero-title">
-        Your Business,<br>
-        <span class="accent">Online in</span><br>
-        <span class="gold">24 Hours.</span>
-      </h1>
+      <h1 class="hero-title">Your Business,<br><span class="accent">Online in</span><br><span class="gold">24 Hours.</span></h1>
       <p class="hero-sub">Professional AI-powered websites built specifically for local businesses. 24/7 AI chat, after-hours call answering, online reservations, and more — all included.</p>
       <div class="hero-btns">
-        <a href="/intake.html" class="btn-primary">Start For Free → </a>
+        <a href="/intake.html" class="btn-primary">Start For Free →</a>
         <a href="#how" class="btn-ghost">See How It Works</a>
       </div>
       <div class="hero-stats">
-        <div class="hero-stat">
-          <div class="hero-stat-num">$0</div>
-          <div class="hero-stat-label">Setup Fee</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-num">24hr</div>
-          <div class="hero-stat-label">To Go Live</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-num">24/7</div>
-          <div class="hero-stat-label">AI Support</div>
-        </div>
+        <div class="hero-stat"><div class="hero-stat-num">$0</div><div class="hero-stat-label">Setup Fee</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">24hr</div><div class="hero-stat-label">To Go Live</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">24/7</div><div class="hero-stat-label">AI Support</div></div>
       </div>
     </div>
     <div class="hero-right">
       <div class="hero-card">
         <div class="hero-card-title">Everything Included</div>
         <div class="feature-list">
-          <div class="feature-item">
-            <div class="feature-icon">🤖</div>
-            <div class="feature-text">
-              <div class="feature-name">24/7 AI Chat Assistant</div>
-              <div class="feature-desc">Answers questions, captures leads, books appointments</div>
-            </div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">📞</div>
-            <div class="feature-text">
-              <div class="feature-name">After-Hours Call Answering <span class="free-badge">FREE</span></div>
-              <div class="feature-desc">Never miss a customer call — included with every site</div>
-            </div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">🔄</div>
-            <div class="feature-text">
-              <div class="feature-name">Missed Call Return <span class="free-badge">FREE</span></div>
-              <div class="feature-desc">Automatic follow-up on every missed call</div>
-            </div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">📅</div>
-            <div class="feature-text">
-              <div class="feature-name">Online Reservations & Booking</div>
-              <div class="feature-desc">Let customers book directly from your site</div>
-            </div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">📍</div>
-            <div class="feature-text">
-              <div class="feature-name">Google Maps SEO</div>
-              <div class="feature-desc">Built to get found in local searches</div>
-            </div>
-          </div>
+          <div class="feature-item"><div class="feature-icon">🤖</div><div class="feature-text"><div class="feature-name">24/7 AI Chat Assistant</div><div class="feature-desc">Answers questions, captures leads, books appointments</div></div></div>
+          <div class="feature-item"><div class="feature-icon">📞</div><div class="feature-text"><div class="feature-name">After-Hours Call Answering <span class="free-badge">FREE</span></div><div class="feature-desc">Never miss a customer call — included with every site</div></div></div>
+          <div class="feature-item"><div class="feature-icon">🔄</div><div class="feature-text"><div class="feature-name">Missed Call Return <span class="free-badge">FREE</span></div><div class="feature-desc">Automatic follow-up on every missed call</div></div></div>
+          <div class="feature-item"><div class="feature-icon">📅</div><div class="feature-text"><div class="feature-name">Online Reservations & Booking</div><div class="feature-desc">Let customers book directly from your site</div></div></div>
+          <div class="feature-item"><div class="feature-icon">📍</div><div class="feature-text"><div class="feature-name">Google Maps SEO</div><div class="feature-desc">Built to get found in local searches</div></div></div>
         </div>
       </div>
     </div>
@@ -303,53 +278,83 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
       <p class="section-sub">One monthly fee. No hidden costs. No tech knowledge required.</p>
     </div>
     <div class="features-grid">
-      <div class="feat-card fade-up">
-        <span class="feat-emoji">🏆</span>
-        <div class="feat-title">Professional Website</div>
-        <div class="feat-desc">Custom-designed for your industry. Looks like you paid $5,000 for it. Ready in 24 hours.</div>
+      <div class="feat-card fade-up"><span class="feat-emoji">🏆</span><div class="feat-title">Professional Website</div><div class="feat-desc">Custom-designed for your industry. Looks like you paid $5,000 for it. Ready in 24 hours.</div></div>
+      <div class="feat-card fade-up"><span class="feat-emoji">🤖</span><div class="feat-title">24/7 AI Chat Assistant</div><div class="feat-desc">Answers customer questions, captures leads, and books appointments around the clock — even while you sleep.</div></div>
+      <div class="feat-card fade-up"><span class="feat-emoji">📞</span><div class="feat-title">After-Hours Call Answering</div><div class="feat-desc">Every call gets answered. Every lead gets captured. Even at 2am on a Sunday.</div><span class="feat-free">FREE — Included</span></div>
+      <div class="feat-card fade-up"><span class="feat-emoji">🔄</span><div class="feat-title">Missed Call Return</div><div class="feat-desc">Automatic text follow-up on every missed call. Turn missed calls into booked jobs.</div><span class="feat-free">FREE — Included</span></div>
+      <div class="feat-card fade-up"><span class="feat-emoji">📅</span><div class="feat-title">Online Reservations & Booking</div><div class="feat-desc">Restaurants, salons, spas — let customers book directly from your site, 24/7.</div></div>
+      <div class="feat-card fade-up"><span class="feat-emoji">📍</span><div class="feat-title">Google Maps & SEO</div><div class="feat-desc">Built to rank in local search. Google Maps optimization included. More customers find you.</div></div>
+      <div class="feat-card fade-up"><span class="feat-emoji">🔄</span><div class="feat-title">Easy Site Updates</div><div class="feat-desc">Change your hours, prices, or services anytime from your client dashboard. No developer needed.</div></div>
+      <div class="feat-card fade-up"><span class="feat-emoji">📊</span><div class="feat-title">Visitor Analytics</div><div class="feat-desc">See how many people visited your site, where they came from, and what they looked at.</div></div>
+      <div class="feat-card fade-up"><span class="feat-emoji">📱</span><div class="feat-title">Mobile-First Design</div><div class="feat-desc">Looks perfect on every phone, tablet, and desktop. Because 80% of your customers search on mobile.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG & SOCIAL ADD-ONS -->
+<section class="blog-section" id="blog">
+  <div class="section-inner">
+    <div class="fade-up" style="text-align:center;max-width:660px;margin:0 auto 60px;">
+      <div class="section-label">Grow Your Presence</div>
+      <h2 class="section-title">Blog & Social Media Add-Ons</h2>
+      <p class="section-sub" style="margin:0 auto;">Fresh content and active social media are what separate businesses that get found from those that don't. We write and post everything — you just run your business.</p>
+    </div>
+    <div class="blog-grid">
+      <div class="blog-card fade-up">
+        <div class="blog-card-top" style="background:linear-gradient(135deg,#f0f7ff,#dbeafe);">
+          <span class="blog-card-icon">🌐</span>
+          <div class="blog-card-name">Website Only</div>
+          <div class="blog-card-desc">Your professional AI-powered site, fully hosted and maintained. Everything you need to have a serious online presence.</div>
+          <ul class="blog-card-features">
+            <li>Custom-designed for your business</li>
+            <li>AI chat, call answering & booking</li>
+            <li>Mobile-friendly & fast-loading</li>
+            <li>Local SEO built in</li>
+            <li>Upgrade anytime</li>
+          </ul>
+        </div>
+        <div class="blog-card-bottom"><div class="blog-card-price"><strong>$99</strong>/mo</div><a href="/intake.html" class="blog-card-btn">Get Started →</a></div>
       </div>
-      <div class="feat-card fade-up">
-        <span class="feat-emoji">🤖</span>
-        <div class="feat-title">24/7 AI Chat Assistant</div>
-        <div class="feat-desc">Answers customer questions, captures leads, and books appointments around the clock — even while you sleep.</div>
+      <div class="blog-card fade-up">
+        <div class="blog-card-top" style="background:linear-gradient(135deg,#f5f0ff,#ede0ff);">
+          <span class="blog-card-icon">✍️</span>
+          <div class="blog-card-name">Website + Blog</div>
+          <div class="blog-card-desc">8 professionally written, SEO-optimized blog posts per month posted directly to your site. Drives organic traffic and keeps customers coming back.</div>
+          <ul class="blog-card-features">
+            <li>8 posts/month written for your business</li>
+            <li>SEO-optimized for local search terms</li>
+            <li>Posted directly — nothing for you to do</li>
+            <li>Topics matched to your industry</li>
+            <li>Builds Google ranking over time</li>
+          </ul>
+        </div>
+        <div class="blog-card-bottom"><div class="blog-card-price"><strong>$129</strong>/mo</div><a href="/intake.html" class="blog-card-btn">Add Blog →</a></div>
       </div>
-      <div class="feat-card fade-up">
-        <span class="feat-emoji">📞</span>
-        <div class="feat-title">After-Hours Call Answering</div>
-        <div class="feat-desc">Every call gets answered. Every lead gets captured. Even at 2am on a Sunday.</div>
-        <span class="feat-free">FREE — Included</span>
+      <div class="blog-card fade-up">
+        <div class="blog-card-top" style="background:linear-gradient(135deg,#fff0f8,#ffd6ee);">
+          <span class="blog-card-icon">📱</span>
+          <div class="blog-card-name">Website + Blog + Social</div>
+          <div class="blog-card-desc">Everything in the Blog plan plus we manage your Facebook and Instagram — creating posts, scheduling content, and keeping your audience engaged every week.</div>
+          <ul class="blog-card-features">
+            <li>8 blog posts/month on your site</li>
+            <li>Regular Facebook & Instagram posts</li>
+            <li>Content calendar planned for you</li>
+            <li>Consistent brand voice everywhere</li>
+            <li>Drives traffic back to your website</li>
+          </ul>
+        </div>
+        <div class="blog-card-bottom"><div class="blog-card-price"><strong>$159</strong>/mo</div><a href="/intake.html" class="blog-card-btn">Full Package →</a></div>
       </div>
-      <div class="feat-card fade-up">
-        <span class="feat-emoji">🔄</span>
-        <div class="feat-title">Missed Call Return</div>
-        <div class="feat-desc">Automatic text follow-up on every missed call. Turn missed calls into booked jobs.</div>
-        <span class="feat-free">FREE — Included</span>
+    </div>
+    <div class="blog-onetime fade-up">
+      <div class="blog-onetime-left">
+        <span class="blog-onetime-icon">🚀</span>
+        <div class="blog-onetime-text">
+          <h3>Social Media Account Setup — One-Time Fee</h3>
+          <p>Don't have a Facebook or Instagram yet? We'll create and fully set up your business accounts — profile photo, cover image, bio, and links — so you're ready to go from day one.</p>
+        </div>
       </div>
-      <div class="feat-card fade-up">
-        <span class="feat-emoji">📅</span>
-        <div class="feat-title">Online Reservations & Booking</div>
-        <div class="feat-desc">Restaurants, salons, spas — let customers book directly from your site, 24/7.</div>
-      </div>
-      <div class="feat-card fade-up">
-        <span class="feat-emoji">📍</span>
-        <div class="feat-title">Google Maps & SEO</div>
-        <div class="feat-desc">Built to rank in local search. Google Maps optimization included. More customers find you.</div>
-      </div>
-      <div class="feat-card fade-up">
-        <span class="feat-emoji">🔄</span>
-        <div class="feat-title">Easy Site Updates</div>
-        <div class="feat-desc">Change your hours, prices, or services anytime from your client dashboard. No developer needed.</div>
-      </div>
-      <div class="feat-card fade-up">
-        <span class="feat-emoji">📊</span>
-        <div class="feat-title">Visitor Analytics</div>
-        <div class="feat-desc">See how many people visited your site, where they came from, and what they looked at.</div>
-      </div>
-      <div class="feat-card fade-up">
-        <span class="feat-emoji">📱</span>
-        <div class="feat-title">Mobile-First Design</div>
-        <div class="feat-desc">Looks perfect on every phone, tablet, and desktop. Because 80% of your customers search on mobile.</div>
-      </div>
+      <div class="blog-onetime-price"><strong>$99</strong><span>one-time fee</span></div>
     </div>
   </div>
 </section>
@@ -363,26 +368,10 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
       <p class="section-sub" style="margin-bottom:0;">No tech skills needed. We handle everything.</p>
     </div>
     <div class="steps">
-      <div class="step fade-up">
-        <div class="step-num">1</div>
-        <div class="step-title">Fill Out Our 10-Minute Form</div>
-        <div class="step-desc">Tell us about your business, services, and hours. Our intake form is simple and designed for non-technical people.</div>
-      </div>
-      <div class="step fade-up">
-        <div class="step-num">2</div>
-        <div class="step-title">We Build Your Site</div>
-        <div class="step-desc">Our AI builds a professional, fully-customized website for your industry within 24 hours.</div>
-      </div>
-      <div class="step fade-up">
-        <div class="step-num">3</div>
-        <div class="step-title">You Review & Approve</div>
-        <div class="step-desc">We send you a preview link. Request any changes you want before going live.</div>
-      </div>
-      <div class="step fade-up">
-        <div class="step-num">4</div>
-        <div class="step-title">Go Live & Get Found</div>
-        <div class="step-desc">Your site goes live with AI chat, call answering, and SEO all running from day one.</div>
-      </div>
+      <div class="step fade-up"><div class="step-num">1</div><div class="step-title">Fill Out Our 10-Minute Form</div><div class="step-desc">Tell us about your business, services, and hours. Simple and designed for non-technical people.</div></div>
+      <div class="step fade-up"><div class="step-num">2</div><div class="step-title">We Build Your Site</div><div class="step-desc">Our AI builds a professional, fully-customized website for your industry within 24 hours.</div></div>
+      <div class="step fade-up"><div class="step-num">3</div><div class="step-title">You Review & Approve</div><div class="step-desc">We send you a preview link. Request any changes you want before going live.</div></div>
+      <div class="step fade-up"><div class="step-num">4</div><div class="step-title">Go Live & Get Found</div><div class="step-desc">Your site goes live with AI chat, call answering, and SEO all running from day one.</div></div>
     </div>
   </div>
 </section>
@@ -455,30 +444,14 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
       <h2 class="partner-title">Own a Territory.<br>Build Recurring Revenue.</h2>
       <p class="partner-sub">Become a TurnkeyAI Territory Partner and earn 60% of every client you sign in your protected area. No tech skills needed — just local relationships.</p>
       <div class="partner-stats">
-        <div class="partner-stat">
-          <div class="partner-stat-num">60%</div>
-          <div class="partner-stat-label">Revenue share per client</div>
-        </div>
-        <div class="partner-stat">
-          <div class="partner-stat-num">$59</div>
-          <div class="partner-stat-label">Per client per month</div>
-        </div>
-        <div class="partner-stat">
-          <div class="partner-stat-num">5</div>
-          <div class="partner-stat-label">Clients = $295/mo passive</div>
-        </div>
-        <div class="partner-stat">
-          <div class="partner-stat-num">10</div>
-          <div class="partner-stat-label">Clients = $590/mo passive</div>
-        </div>
+        <div class="partner-stat"><div class="partner-stat-num">60%</div><div class="partner-stat-label">Revenue share per client</div></div>
+        <div class="partner-stat"><div class="partner-stat-num">$59</div><div class="partner-stat-label">Per client per month</div></div>
+        <div class="partner-stat"><div class="partner-stat-num">5</div><div class="partner-stat-label">Clients = $295/mo passive</div></div>
+        <div class="partner-stat"><div class="partner-stat-num">10</div><div class="partner-stat-label">Clients = $590/mo passive</div></div>
       </div>
-      <a href="/turnkeyai-intake-form.html" class="btn-gold" onclick="openPartnerVideo(event)">
-        Watch How It Works ▶
-      </a>
+      <a href="/turnkeyai-intake-form.html" class="btn-gold" onclick="openPartnerVideo(event)">Watch How It Works ▶</a>
       &nbsp;&nbsp;
-      <a href="/turnkeyai-intake-form.html" class="btn-ghost" style="display:inline-flex;align-items:center;gap:8px;margin-top:16px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.2);padding:18px 32px;border-radius:10px;text-decoration:none;font-weight:600;font-size:16px;">
-        Apply Now — 5 Minutes →
-      </a>
+      <a href="/turnkeyai-intake-form.html" class="btn-ghost" style="display:inline-flex;align-items:center;gap:8px;margin-top:16px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.2);padding:18px 32px;border-radius:10px;text-decoration:none;font-weight:600;font-size:16px;">Apply Now — 5 Minutes →</a>
     </div>
     <div class="fade-up">
       <div class="video-box">
@@ -496,7 +469,7 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
 <section class="cta-section">
   <div class="cta-inner fade-up">
     <h2 class="cta-title">Ready to Get Your Business Online?</h2>
-    <p class="cta-sub">$0 setup. Live in 24 hours. After-hours call answering included free. Join hundreds of local businesses already using TurnkeyAI.</p>
+    <p class="cta-sub">$0 setup. Live in 24 hours. After-hours call answering included free.</p>
     <a href="/intake.html" class="btn-white">Build My Website — It's Free to Start →</a>
   </div>
 </section>
@@ -508,9 +481,9 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
       <div class="footer-logo">TurnkeyAI<span>Services</span></div>
       <div class="footer-desc">AI-powered professional websites for local businesses. Built in 24 hours. No tech skills required.</div>
       <div class="footer-contact">
-        📞 (603) 922-2004<br>
-        ✉️ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9cfdf5eef9eff3e9eefff9efa4a5dcfbf1fdf5f0b2fff3f1">[email&#160;protected]</a><br>
-        📍 Bay St. Louis, Mississippi
+        📞 <a href="tel:6039222004">(603) 922-2004</a><br>
+        ✉️ <a href="mailto:turnkeyaiservices@gmail.com">turnkeyaiservices@gmail.com</a><br>
+        📍 300 Blakemore Ave, Bay St. Louis, Mississippi 39520
       </div>
     </div>
     <div class="footer-col">
@@ -526,13 +499,14 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
       <a href="/turnkeyai-intake-form.html">Apply Now</a>
     </div>
     <div class="footer-col">
-      <div class="footer-col-title">Legal</div>
+      <div class="footer-col-title">Company</div>
+      <a href="/blog.html">Blog</a>
       <a href="#">Privacy Policy</a>
       <a href="#">Terms of Service</a>
     </div>
   </div>
   <div class="footer-bottom">
-    <div class="footer-copy">© 2026 TurnkeyAI Services LLC. All Rights Reserved. George Dickson, Bay St. Louis, MS.</div>
+    <div class="footer-copy">© 2026 TurnkeyAI Services LLC. All Rights Reserved. Bay St. Louis, MS.</div>
     <div class="footer-copy">Built with TurnkeyAI</div>
   </div>
 </footer>
@@ -548,14 +522,12 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// Scroll animations
+<script>
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-// Partner video modal
 function openPartnerVideo(e) {
   e.preventDefault();
   document.getElementById('modalVideo').src = 'https://www.youtube.com/embed/WWOOUWxIhU8?autoplay=1';
@@ -568,6 +540,12 @@ function closeVideoModal() {
 document.getElementById('videoModal').addEventListener('click', function(e) {
   if(e.target === this) closeVideoModal();
 });
-
-// Smooth scroll for nav links
-document.querySelectorAll('a[href^="#"]').forE
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}
+  });
+});
+</script>
+</body>
+</html>
