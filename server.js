@@ -16,7 +16,7 @@ async function sendEmail(to, subject, htmlContent) {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'TurnkeyAI Services <onboarding@resend.dev>',
+        from: 'TurnkeyAI Services <noreply@turnkeyaiservices.com>',
         to: [to],
         subject: subject,
         html: htmlContent
