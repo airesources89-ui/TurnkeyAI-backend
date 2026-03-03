@@ -9,17 +9,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── SENDGRID HELPER ────────────────────────────────────────────────────────
 async function sendEmail(to, subject, htmlContent) {
-  const sgKey = process.env.SENDGRID_API_KEY;
-  if (!sgKey) { console.log('[Email] No SENDGRID_API_KEY — skipping'); return; }
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) { console.log('[Email] No RESEND_API_KEY — skipping'); return; }
   try {
-    const res = await fetch('https://api.sendgrid.com/v3/mail/send', {
+    const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + sgKey, 'Content-Type': 'application/json' },
+      headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        personalizations: [{ to: [{ email: to }] }],
-        from: { email: 'turnkeyaiservices@gmail.com', name: 'TurnkeyAI Services' },
+        from: 'TurnkeyAI Services <onboarding@resend.dev>',
+        to: [to],
         subject: subject,
-        content: [{ type: 'text/html', value: htmlContent }]
+        html: htmlContent
       })
     });
     if (res.ok) { console.log('[Email] Sent to ' + to); }
