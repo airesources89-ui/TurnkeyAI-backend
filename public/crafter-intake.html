@@ -86,7 +86,6 @@ textarea{resize:vertical;min-height:90px;}
 .btn-submit{background:linear-gradient(135deg,var(--teal),#085c60);color:#fff;border:none;border-radius:11px;padding:14px 38px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px;}
 .btn-submit:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(13,115,119,.35);}
 
-/* PRODUCT EDITOR DEMO */
 .product-editor{background:var(--warm);border:1.5px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;}
 .product-editor-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .product-card-preview{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;display:grid;grid-template-columns:80px 1fr;gap:16px;align-items:start;}
@@ -210,7 +209,6 @@ textarea{resize:vertical;min-height:90px;}
     <div class="eyebrow">Step 3 of 5</div>
     <div class="card-title">Tell us about your products</div>
     <div class="card-desc">Give us a sample of what you sell. You'll be able to add, edit, and update products yourself from your dashboard after launch.</div>
-
     <div class="product-editor">
       <div class="product-editor-title">🛍️ Sample Product #1 <span style="font-size:11px;color:var(--muted);font-weight:400;">— Add your first item so we can set up your shop</span></div>
       <div class="product-card-preview">
@@ -231,7 +229,6 @@ textarea{resize:vertical;min-height:90px;}
       </div>
       <button class="product-add-btn">+ Add Another Product</button>
     </div>
-
     <div class="field-group">
       <label class="field-label">How many products do you plan to list in total? <span class="field-hint">approximate</span></label>
       <select name="productCount">
@@ -242,7 +239,6 @@ textarea{resize:vertical;min-height:90px;}
         <option value="50+">50+ items</option>
       </select>
     </div>
-
     <div class="field-group">
       <label class="field-label">Do you take custom orders?</label>
       <select name="customOrders">
@@ -252,7 +248,6 @@ textarea{resize:vertical;min-height:90px;}
         <option value="no">No — I only sell ready-made items</option>
       </select>
     </div>
-
     <div class="field-group">
       <label class="field-label">Typical turnaround time</label>
       <select name="turnaround">
@@ -263,7 +258,6 @@ textarea{resize:vertical;min-height:90px;}
         <option value="varies">Varies by item</option>
       </select>
     </div>
-
     <div class="btn-row">
       <button class="btn-back" onclick="prevStep(3)">← Back</button>
       <button class="btn-next" onclick="nextStep(3)">Next — Shop Style →</button>
@@ -275,7 +269,6 @@ textarea{resize:vertical;min-height:90px;}
     <div class="eyebrow">Step 4 of 5</div>
     <div class="card-title">What should your shop feel like?</div>
     <div class="card-desc">We'll design your store to match the personality of your work.</div>
-
     <label class="field-label">Shop vibe</label>
     <div class="tone-grid">
       <div class="tone-btn" onclick="selectTone(this,'rustic')"><span class="tone-emoji">🍂</span><div class="tone-name">Rustic & Cozy</div></div>
@@ -287,7 +280,6 @@ textarea{resize:vertical;min-height:90px;}
       <div class="tone-btn" onclick="selectTone(this,'vintage')"><span class="tone-emoji">📻</span><div class="tone-name">Vintage & Nostalgic</div></div>
       <div class="tone-btn" onclick="selectTone(this,'whimsical')"><span class="tone-emoji">🦋</span><div class="tone-name">Whimsical & Fun</div></div>
     </div>
-
     <hr class="divider">
     <div class="field-group">
       <label class="field-label">Do you have photos of your work? <span class="field-hint">optional</span></label>
@@ -309,7 +301,6 @@ textarea{resize:vertical;min-height:90px;}
       <label class="field-label">Any shops or styles you like? <span class="field-hint">optional</span></label>
       <input type="text" name="styleRef" placeholder="e.g. I love the look of Etsy shop XYZ, or just describe a style">
     </div>
-
     <div class="btn-row">
       <button class="btn-back" onclick="prevStep(4)">← Back</button>
       <button class="btn-next" onclick="nextStep(4)">Next — Almost Done →</button>
@@ -349,9 +340,46 @@ textarea{resize:vertical;min-height:90px;}
       <label class="field-label">Anything else we should know? <span class="field-hint">optional</span></label>
       <textarea name="notes" rows="3" placeholder="Special requests, questions, ideas for your shop..."></textarea>
     </div>
-    <div style="background:#fff8f2;border:1.5px solid #f0d8c8;border-radius:11px;padding:16px 18px;margin-top:6px;font-size:13px;color:var(--text);line-height:1.6;">
-      💳 <strong>Pricing:</strong> $39/month + 10% of sales. No setup fee. No payment needed until you approve your preview. Cancel anytime.
+
+    <hr class="divider">
+
+    <div class="field-group">
+      <label class="field-label">Which plan are you interested in?</label>
+      <select name="plan">
+        <option value="">— Select a plan —</option>
+        <option value="website_only">Website Only — $99/month</option>
+        <option value="website_blog">Website + Blog (8 posts/mo) — $129/month</option>
+        <option value="website_blog_social">Website + Blog + Social Media — $159/month</option>
+        <option value="not_sure">Not sure yet — show me options</option>
+      </select>
     </div>
+
+    <div class="field-group">
+      <label class="field-label">How would you prefer to pay?</label>
+      <select name="paymentMethod">
+        <option value="">— Select —</option>
+        <option value="credit_card">Credit or Debit Card</option>
+        <option value="paypal">PayPal</option>
+        <option value="bank_transfer">Bank Transfer / ACH</option>
+        <option value="check">Check</option>
+        <option value="discuss">I'd like to discuss payment options</option>
+      </select>
+    </div>
+
+    <hr class="divider">
+
+    <div style="background:linear-gradient(135deg,#fff8e8,#fff3d0);border:1.5px solid #f0c060;border-radius:14px;padding:20px 22px;margin-bottom:20px;">
+      <div style="font-size:14px;font-weight:800;color:#7c4a00;margin-bottom:8px;">🤝 Know other crafters or small businesses who need a website?</div>
+      <div style="font-size:13px;color:#8a6000;line-height:1.6;margin-bottom:14px;">TurnkeyAI Territory Partners earn <strong>60% of every client's monthly fee</strong> — that's $59/month per person you refer who signs up. No tech skills needed, just local connections. Partners pay $199/month and keep 60% of all client revenue they generate.</div>
+      <div class="check-grid" style="grid-template-columns:1fr;">
+        <div class="check-item" style="border-color:#f0c060;background:#fffdf0;"><input type="checkbox" name="partner_interest" id="partner_interest"><label for="partner_interest" style="color:#7c4a00;font-weight:800;">✋ Yes — I'm interested in the Territory Partner program</label></div>
+      </div>
+    </div>
+
+    <div style="background:#fff8f2;border:1.5px solid #f0d8c8;border-radius:11px;padding:16px 18px;margin-top:6px;font-size:13px;color:var(--text);line-height:1.6;">
+      💳 <strong>Pricing:</strong> $99/month — Website Only &nbsp;|&nbsp; $129/month — Website + Blog &nbsp;|&nbsp; $159/month — Website + Blog + Social. No setup fee. No payment needed until you approve your preview. Cancel anytime.
+    </div>
+
     <div class="btn-row">
       <button class="btn-back" onclick="prevStep(5)">← Back</button>
       <button class="btn-submit" onclick="submitForm()">🛍️ Build My Shop →</button>
@@ -437,5 +465,6 @@ async function submitForm() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 </script>
+<script src="/chatbot.js"></script>
 </body>
 </html>
