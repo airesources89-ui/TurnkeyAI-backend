@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ─── SENDGRID HELPER ────────────────────────────────────────────────────────
+// ─── EMAIL HELPER (Resend) ───────────────────────────────────────────────────
 async function sendEmail(to, subject, htmlContent) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) { console.log('[Email] No RESEND_API_KEY — skipping'); return; }
@@ -136,7 +136,7 @@ app.post('/api/family-intake', async (req, res) => {
     const contactName = d.contactName || d.ownerName || 'Unknown';
     const email       = d.email || '';
     const phone       = d.phone || '';
-    const plan        = d.plan  || '$29/month';
+    const plan        = d.plan  || '$99/month';
 
     await sendEmail('turnkeyaiservices@gmail.com',
       '🌳 New Personal Site Request: ' + familyName,
@@ -232,29 +232,14 @@ app.post('/api/crafter-intake', async (req, res) => {
   }
 });
 
-// ─── HEALTH CHECK ────────────────────────────────────────────────────────────
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'TurnkeyAI Services', timestamp: new Date().toISOString() });
-});
-
-// ─── CATCH-ALL → index.html ──────────────────────────────────────────────────
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.listen(PORT, () => {
-  console.log('🚀 TurnkeyAI Services running on port ' + PORT);
-});
-
 // ─── CHAT API (Cloudflare AI) ────────────────────────────────────────────────
 app.post('/api/chat', async (req, res) => {
   try {
     const { messages, context } = req.body;
-    const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+    const apiToken  = process.env.CLOUDFLARE_API_TOKEN;
     const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
     if (!apiToken || !accountId) return res.json({ reply: "Chat is temporarily unavailable. Please call (603) 922-2004." });
 
-    // Build messages array with system context
     const cfMessages = [
       { role: 'system', content: context || 'You are a helpful assistant for TurnkeyAI Services.' },
       ...(messages || [])
@@ -264,10 +249,7 @@ app.post('/api/chat', async (req, res) => {
       `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/meta/llama-3.1-8b-instruct`,
       {
         method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + apiToken,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Authorization': 'Bearer ' + apiToken, 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: cfMessages, max_tokens: 300 })
       }
     );
@@ -279,4 +261,19 @@ app.post('/api/chat', async (req, res) => {
     console.error('[Chat]', e.message);
     res.json({ reply: "I'm having trouble right now. Please call (603) 922-2004." });
   }
+});
+
+// ─── HEALTH CHECK ────────────────────────────────────────────────────────────
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: 'TurnkeyAI Services', timestamp: new Date().toISOString() });
+});
+
+// ─── CATCH-ALL → index.html ──────────────────────────────────────────────────
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// ─── START SERVER ────────────────────────────────────────────────────────────
+app.listen(PORT, () => {
+  console.log('🚀 TurnkeyAI Services running on port ' + PORT);
 });
