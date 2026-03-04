@@ -5,6 +5,12 @@ const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ─── HEALTH CHECK (must be before static and catch-all) ──────────────────────
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: 'TurnkeyAI Services', timestamp: new Date().toISOString() });
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── EMAIL HELPER (Resend) ───────────────────────────────────────────────────
@@ -261,11 +267,6 @@ app.post('/api/chat', async (req, res) => {
     console.error('[Chat]', e.message);
     res.json({ reply: "I'm having trouble right now. Please call (603) 922-2004." });
   }
-});
-
-// ─── HEALTH CHECK ────────────────────────────────────────────────────────────
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'TurnkeyAI Services', timestamp: new Date().toISOString() });
 });
 
 // ─── CATCH-ALL → index.html ──────────────────────────────────────────────────
