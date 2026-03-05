@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TurnkeyAI Blog — Gulf Coast Small Business & Family Websites</title>
+<meta name="description" content="Tips, guides, and local insights for Gulf Coast small businesses and families. Learn how to get found online, grow your customer base, and build your digital presence.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1a64d6;
+    --blue-dark: #0f3fa8;
+    --blue-deep: #0a1f5c;
+    --green: #00c87a;
+    --green-dark: #00a362;
+    --white: #ffffff;
+    --off-white: #f8f9fc;
+    --gray-light: #eef1f7;
+    --gray-mid: #9aa3b8;
+    --gray-text: #4a5068;
+    --dark: #111827;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Source Sans 3', sans-serif; background: var(--off-white); color: var(--dark); }
+
+  nav {
+    background: var(--blue-deep);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(10,31,92,0.3);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-logo span { font-weight: 700; font-size: 1.1rem; color: white; }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.95rem; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--green); }
+  .nav-cta { background: var(--green); color: white !important; padding: 8px 20px; border-radius: 6px; font-weight: 600 !important; }
+  .nav-cta:hover { background: var(--green-dark) !important; }
+
+  .blog-hero {
+    background: linear-gradient(135deg, var(--blue-deep) 0%, var(--blue-dark) 50%, #1a4a9e 100%);
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .blog-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -20%;
+    width: 60%; height: 200%;
+    background: radial-gradient(ellipse, rgba(0,200,122,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .blog-hero-tag {
+    display: inline-block;
+    background: rgba(0,200,122,0.15);
+    color: var(--green);
+    border: 1px solid rgba(0,200,122,0.3);
+    padding: 6px 18px;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+  .blog-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    color: white;
+    line-height: 1.15;
+    max-width: 700px;
+    margin: 0 auto 1.25rem;
+    position: relative;
+    z-index: 1;
+  }
+  .blog-hero h1 span { color: var(--green); }
+  .blog-hero p {
+    font-size: 1.15rem;
+    color: rgba(255,255,255,0.75);
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.7;
+    position: relative;
+    z-index: 1;
+  }
+
+  .blog-container { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+  .section-label span {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray-mid);
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--gray-light); }
+
+  /* FEATURED - LIVE */
+  .featured-post {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    box-shadow: 0 4px 30px rgba(26,31,92,0.08);
+    margin-bottom: 3rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+    text-decoration: none;
+    color: inherit;
+  }
+  .featured-post:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(26,31,92,0.15); }
+  .featured-image {
+    background: linear-gradient(135deg, var(--blue-deep), var(--blue));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    padding: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .featured-image::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(0,200,122,0.2) 0%, transparent 60%);
+  }
+  .featured-image-icon { font-size: 5rem; position: relative; z-index: 1; }
+  .featured-content { padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; }
+  .post-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,200,122,0.1);
+    color: var(--green-dark);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    width: fit-content;
+  }
+  .live-dot {
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+  .featured-content h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--dark);
+    margin-bottom: 1rem;
+  }
+  .featured-content p { color: var(--gray-text); line-height: 1.7; font-size: 1rem; margin-bottom: 1.5rem; }
+  .read-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--blue);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: gap 0.2s;
+  }
+  .read-link:hover { gap: 12px; }
+
+  /* COMING SOON GRID */
+  .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+
+  .post-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(26,31,92,0.06);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  /* Live cards get hover */
+  .post-card.live {
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+  }
+  .post-card.live:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(26,31,92,0.12); }
+
+  /* Coming soon cards are dimmed */
+  .post-card.coming-soon { opacity: 0.55; cursor: default; }
+
+  .post-card-image {
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    position: relative;
+  }
+  .coming-soon-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .coming-soon-pill {
+    background: white;
+    color: var(--dark);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 100px;
+  }
+  .post-card-body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
+  .post-week { font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--gray-mid); margin-bottom: 0.6rem; }
+  .post-publish-date { font-size: 0.75rem; font-weight: 600; color: var(--blue); margin-bottom: 0.6rem; }
+  .post-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--dark);
+    margin-bottom: 0.75rem;
+  }
+  .post-card p { color: var(--gray-text); font-size: 0.88rem; line-height: 1.6; flex: 1; margin-bottom: 1rem; }
+  .post-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--gray-light); }
+  .post-tag { font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: 100px; }
+  .tag-business { background: rgba(26,100,214,0.08); color: var(--blue); }
+  .tag-family { background: rgba(0,200,122,0.1); color: var(--green-dark); }
+  .tag-seo { background: rgba(107,70,193,0.08); color: #6b46c1; }
+  .tag-crafters { background: rgba(236,72,153,0.08); color: #db2777; }
+  .tag-food { background: rgba(245,158,11,0.1); color: #d97706; }
+  .tag-roi { background: rgba(16,185,129,0.1); color: #059669; }
+  .arrow-link { color: var(--blue); font-size: 1.2rem; transition: transform 0.2s; display: inline-block; }
+  .post-card.live:hover .arrow-link { transform: translateX(4px); }
+
+  .bg-1 { background: linear-gradient(135deg, #0a1f5c, #1a64d6); }
+  .bg-2 { background: linear-gradient(135deg, #065f46, #00c87a); }
+  .bg-3 { background: linear-gradient(135deg, #831843, #db2777); }
+  .bg-4 { background: linear-gradient(135deg, #78350f, #d97706); }
+  .bg-5 { background: linear-gradient(135deg, #4c1d95, #7c3aed); }
+  .bg-6 { background: linear-gradient(135deg, #1e3a8a, #3b82f6); }
+  .bg-7 { background: linear-gradient(135deg, #7f1d1d, #ef4444); }
+  .bg-8 { background: linear-gradient(135deg, #0c4a6e, #0284c7); }
+  .bg-9 { background: linear-gradient(135deg, #14532d, #16a34a); }
+  .bg-10 { background: linear-gradient(135deg, #1c1917, #57534e); }
+  .bg-11 { background: linear-gradient(135deg, #7c2d12, #ea580c); }
+
+  /* SUBSCRIBE */
+  .subscribe-bar {
+    background: white;
+    border: 1px solid var(--gray-light);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 3rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+  .subscribe-bar h4 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.25rem; }
+  .subscribe-bar p { color: var(--gray-text); font-size: 0.9rem; }
+  .subscribe-form { display: flex; gap: 0.75rem; flex-shrink: 0; }
+  .subscribe-form input {
+    padding: 10px 16px;
+    border: 1px solid var(--gray-light);
+    border-radius: 6px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.9rem;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .subscribe-form input:focus { border-color: var(--blue); }
+  .subscribe-form button {
+    background: var(--blue);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .subscribe-form button:hover { background: var(--blue-dark); }
+
+  .cta-strip {
+    background: linear-gradient(135deg, var(--blue-deep), var(--blue-dark));
+    border-radius: 16px;
+    padding: 3rem;
+    margin-top: 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-strip::before {
+    content: '';
+    position: absolute;
+    top: -30%; right: -10%;
+    width: 40%; height: 160%;
+    background: radial-gradient(ellipse, rgba(0,200,122,0.15) 0%, transparent 70%);
+  }
+  .cta-strip h3 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: white; margin-bottom: 0.75rem; position: relative; z-index: 1; }
+  .cta-strip p { color: rgba(255,255,255,0.75); margin-bottom: 1.75rem; font-size: 1.05rem; position: relative; z-index: 1; }
+  .cta-btn {
+    display: inline-block;
+    background: var(--green);
+    color: white;
+    padding: 14px 36px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+    position: relative;
+    z-index: 1;
+  }
+  .cta-btn:hover { background: var(--green-dark); transform: translateY(-2px); }
+
+  footer { background: var(--blue-deep); color: rgba(255,255,255,0.6); text-align: center; padding: 2rem; font-size: 0.85rem; }
+  footer a { color: var(--green); text-decoration: none; }
+
+  @media (max-width: 768px) {
+    .featured-post { grid-template-columns: 1fr; }
+    .featured-image { min-height: 180px; }
+    .nav-links { display: none; }
+    .posts-grid { grid-template-columns: 1fr; }
+    .subscribe-bar { flex-direction: column; }
+    .subscribe-form { flex-direction: column; }
+    .subscribe-form input { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/index.html" class="nav-logo">
+    <span>TurnkeyAI Services</span>
+  </a>
+  <div class="nav-links">
+    <a href="/index.html">Home</a>
+    <a href="/business.html">Business Sites</a>
+    <a href="/personal.html">Personal Sites</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/business.html#intake" class="nav-cta">Get Started</a>
+  </div>
+</nav>
+
+<div class="blog-hero">
+  <div class="blog-hero-tag">Gulf Coast Insights</div>
+  <h1>Grow Your Business.<br><span>Get Found Online.</span></h1>
+  <p>Tips, guides, and local insights for Gulf Coast small businesses, families, and creators — published every Tuesday.</p>
+</div>
+
+<div class="blog-container">
+
+  <!-- FEATURED - LIVE POST -->
+  <div class="section-label"><span>This Week</span></div>
+
+  <a href="/blog/gulf-coast-small-business-website-2026.html" class="featured-post">
+    <div class="featured-image">
+      <div class="featured-image-icon">🌊</div>
+    </div>
+    <div class="featured-content">
+      <div class="post-badge"><span class="live-dot"></span>&nbsp; Live Now · Week 1</div>
+      <h2>Why Every Gulf Coast Small Business Needs a Website in 2026</h2>
+      <p>If your Bay St. Louis, Biloxi, or Gulfport business doesn't have a website, you're invisible to customers searching online. Here's what you're missing — and how to fix it fast.</p>
+      <span class="read-link">Read the full post →</span>
+    </div>
+  </a>
+
+  <!-- COMING SOON GRID -->
+  <div class="section-label"><span>Coming Up — New Post Every Tuesday</span></div>
+
+  <div class="posts-grid">
+
+    <div class="post-card coming-soon">
+      <div class="post-card-image bg-2">
+        🧹
+        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 2</span></div>
+      </div>
+      <div class="post-card-body">
+        <div class="post-publish-date">Publishes next Tuesday</div>
+        <h3>House Cleaners in Biloxi and Gulfport: How to Get More Customers Without Paying for Ads</h3>
+        <p>How cleaning companies on the Gulf Coast are winning new customers with local SEO — no expensive ads required.</p>
+        <div class="post-card-footer">
+          <span class="post-tag tag-business">Small Business</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-image bg-3">
+        👨‍👩‍👧‍👦
+        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 3</span></div>
+      </div>
+      <div class="post-card-body">
+        <div class="post-publish-date">2 weeks away</div>
+        <h3>Family Reunion Coming Up? Why Your Family Needs Its Own Website</h3>
+        <p>A dedicated family website makes RSVPs, photos, and coordination effortless — and keeps your family connected long after the event.</p>
+        <div class="post-card-footer">
+          <span class="post-tag tag-family">Family</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-image bg-4">
+        🔨
+        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 4</span></div>
+      </div>
+      <div class="post-card-body">
+        <div class="post-publish-date">3 weeks away</div>
+        <h3>Contractors on the Gulf Coast: Why Your Truck Wrap Isn't Enough Anymore</h3>
+        <p>Contractors in Biloxi, Gulfport, and Bay St. Louis are losing jobs to competitors with better websites.</p>
+        <div class="post-card-footer">
+          <span class="post-tag tag-business">Small Business</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-image bg-5">
+        🎨
+        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 5</span></div>
+      </div>
+      <div class="post-card-body">
+        <div class="post-publish-date">4 weeks away</div>
+        <h3>Selling Handmade Goods on the Gulf Coast? Stop Paying Etsy's Fees</h3>
+        <p>Gulf Coast crafters are leaving Etsy and opening their own stores — keeping 90% of every sale.</p>
+        <div class="post-card-footer">
+          <span class="post-tag tag-crafters">Crafters</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-image bg-6">
+        📍
+        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 6</span></div>
+      </div>
+      <div class="post-card-body">
+        <div class="post-publish-date">5 weeks away</div>
+        <h3>What Is Local SEO and Why Does Every Bay St. Louis Business Need It?</h3>
+        <p>Plain-English breakdown of what local SEO is and how it gets your business found on Google.</p>
+        <div class="post-card-footer">
+          <span class="post-tag tag-seo">SEO</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-image bg-7">
+        🍳
+        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 7</span></div>
+      </div>
+      <div class="post-card-body">
+        <div class="post-publish-date">6 weeks away</div>
+        <h3>Mississippi Recipe Creators: Turn Your Family Recipes Into Income</h3>
+        <p>Mississippi home cooks are building audiences and earning real income from their recipes online.</p>
+        <div class="post-card-footer">
+          <span class="post-tag tag-food">Food & Recipes</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-image bg-8">
+        💇
+        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 8</span></div>
+      </div>
+      <div class="post-card-body">
+        <div class="post-publish-date">7 weeks away</div>
+        <h3>Why Gulf Coast Salons and Spas Are Losing Appointments to Competitors With Better Websites</h3>
+        <p>Salons in Biloxi, Gulfport, and Pass Christian are watching customers book with competitors online.</p>
+        <div class="post-card-footer">
+          <span class="post-tag tag-business">Small Business</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-image bg-9">
+        💰
+        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 9</span></div>
+      </div>
+      <div class="post-card-body">
+        <div class="post-publish-date">8 weeks away</div>
+        <h3>How a $99/Month Website Pays for Itself With One New Customer</h3>
+        <p>The simple math showing how a single new customer each month makes your TurnkeyAI site pay for itself.</p>
+        <div class="post-card-footer">
+          <span class="post-tag tag-roi">ROI</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-image bg-10">
+        📷
+        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 10</span></div>
+      </div>
+      <div class="post-card-body">
+        <div class="post-publish-date">9 weeks away</div>
+        <h3>Preserving Family History on the Gulf Coast: The Digital Archive Every Family Should Build</h3>
+        <p>Gulf Coast families are using family websites to preserve stories and photos before they're lost forever.</p>
+        <div class="post-card-footer">
+          <span class="post-tag tag-family">Family</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-image bg-11">
+        🦐
+        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 11</span></div>
+      </div>
+      <div class="post-card-body">
+        <div class="post-publish-date">10 weeks away</div>
+        <h3>Restaurants and Food Businesses on the Gulf Coast: Your Menu Belongs Online</h3>
+        <p>Gulf Coast restaurants without a website are losing customers every day to competitors who are easy to find online.</p>
+        <div class="post-card-footer">
+          <span class="post-tag tag-food">Food</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-image bg-1">
+        🔑
+        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 12</span></div>
+      </div>
+      <div class="post-card-body">
+        <div class="post-publish-date">11 weeks away</div>
+        <h3>What Makes TurnkeyAI Different From Every Other Website Builder</h3>
+        <p>Wix, Squarespace, and GoDaddy put the work on you. TurnkeyAI does it all — in 24 hours, from a simple form.</p>
+        <div class="post-card-footer">
+          <span class="post-tag tag-business">TurnkeyAI</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end posts-grid -->
+
+  <!-- SUBSCRIBE -->
+  <div class="subscribe-bar">
+    <div>
+      <h4>Get new posts in your inbox every Tuesday</h4>
+      <p>Gulf Coast business tips, local SEO guides, and platform updates — no spam, ever.</p>
+    </div>
+    <div class="subscribe-form">
+      <input type="email" placeholder="your@email.com">
+      <button>Subscribe</button>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-strip">
+    <h3>Ready to get your business online?</h3>
+    <p>Fill out our 10-minute intake form and your professional website is live in 24 hours.</p>
+    <a href="/business.html" class="cta-btn">Get Started Today →</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 TurnkeyAI Services · Bay St. Louis, Mississippi · <a href="mailto:turnkeyaiservices@gmail.com">turnkeyaiservices@gmail.com</a></p>
+</footer>
+
+</body>
+</html>
