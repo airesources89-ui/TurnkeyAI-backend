@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Dashboard | TurnkeyAI Services</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--primary:#0066FF;--accent:#00D68F;--dark:#1a1a2e;--gray-100:#F3F4F6;--gray-300:#D1D5DB;--gray-500:#6B7280;--gray-700:#374151;--white:#FFFFFF;--error:#EF4444;}
+body{font-family:'DM Sans',sans-serif;background:#f8fafc;min-height:100vh;color:#1F2937;}
+.header{background:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;}
+.logo{color:white;font-size:22px;font-weight:700;text-decoration:none;}
+.logo span{color:var(--accent);}
+.header-right{color:rgba(255,255,255,.7);font-size:14px;}
+#loginScreen{max-width:420px;margin:80px auto;background:white;border-radius:20px;padding:48px;box-shadow:0 8px 40px rgba(0,0,0,.12);}
+#loginScreen h1{font-family:'Playfair Display',serif;font-size:28px;color:var(--dark);margin-bottom:8px;}
+#loginScreen p{color:var(--gray-500);margin-bottom:32px;font-size:15px;}
+.form-group{margin-bottom:20px;}
+label{display:block;font-weight:600;color:var(--gray-700);margin-bottom:8px;font-size:14px;}
+input[type="password"],input[type="text"]{width:100%;padding:14px 16px;border:2px solid var(--gray-300);border-radius:10px;font-size:16px;font-family:inherit;}
+input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,102,255,.1);}
+.btn{padding:14px 28px;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
+.btn-primary{background:linear-gradient(135deg,var(--primary),#0052CC);color:white;width:100%;}
+.btn-primary:hover{opacity:.9;}
+.btn-secondary{background:var(--gray-100);color:var(--gray-700);}
+.btn-success{background:linear-gradient(135deg,var(--accent),#00b377);color:white;}
+.btn-sm{padding:8px 16px;font-size:14px;}
+.error-msg{color:var(--error);font-size:14px;margin-top:8px;display:none;}
+
+#dashboard{display:none;max-width:1000px;margin:0 auto;padding:32px 24px 80px;}
+.welcome-bar{background:linear-gradient(135deg,var(--dark),#0066FF);color:white;border-radius:16px;padding:28px 32px;margin-bottom:32px;display:flex;justify-content:space-between;align-items:center;}
+.welcome-bar h2{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:4px;}
+.welcome-bar p{opacity:.8;font-size:15px;}
+.status-badge{background:rgba(0,214,143,.2);border:1px solid var(--accent);color:var(--accent);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;}
+
+.tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+.tab{padding:10px 20px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;border:2px solid var(--gray-300);background:white;color:var(--gray-700);transition:all .2s;}
+.tab.active{background:var(--primary);border-color:var(--primary);color:white;}
+
+.panel{background:white;border-radius:16px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,.06);display:none;}
+.panel.active{display:block;}
+.panel h3{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:6px;}
+.panel .sub{color:var(--gray-500);font-size:14px;margin-bottom:24px;}
+
+.hours-grid{display:grid;gap:12px;}
+.hours-row{display:grid;grid-template-columns:140px 1fr 100px;gap:12px;align-items:center;padding:12px 16px;background:var(--gray-100);border-radius:10px;}
+.hours-row label{display:flex;align-items:center;gap:10px;margin:0;cursor:pointer;font-weight:600;}
+.hours-row input[type="checkbox"]{width:18px;height:18px;accent-color:var(--primary);}
+.hours-row input[type="text"]{padding:8px 12px;font-size:14px;}
+.hours-row .day-status{font-size:12px;color:var(--gray-500);text-align:right;}
+
+.services-list{display:grid;gap:10px;margin-bottom:20px;}
+.service-row{display:grid;grid-template-columns:1fr 160px;gap:12px;align-items:center;padding:12px 16px;background:var(--gray-100);border-radius:10px;}
+.service-row span{font-weight:600;text-transform:capitalize;}
+.service-row .price{color:var(--gray-500);font-size:14px;}
+
+textarea{width:100%;padding:14px 16px;border:2px solid var(--gray-300);border-radius:10px;font-size:15px;font-family:inherit;min-height:100px;resize:vertical;}
+textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,102,255,.1);}
+select{width:100%;padding:14px 16px;border:2px solid var(--gray-300);border-radius:10px;font-size:15px;font-family:inherit;}
+select:focus{outline:none;border-color:var(--primary);}
+
+.success-msg{background:#d1fae5;border:1px solid #6ee7b7;color:#065f46;padding:14px 18px;border-radius:10px;font-size:15px;display:none;margin-top:16px;}
+.info-box{background:#eff6ff;border:1px solid #bfdbfe;padding:14px 18px;border-radius:10px;color:#1d4ed8;font-size:14px;margin-bottom:20px;}
+
+.contact-info{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:600px){.contact-info{grid-template-columns:1fr;}.hours-row{grid-template-columns:1fr 1fr;}}
+.contact-item{padding:16px;background:var(--gray-100);border-radius:12px;}
+.contact-item .label{font-size:12px;color:var(--gray-500);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.contact-item .value{font-weight:600;color:var(--dark);}
+
+.preview-link{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--primary),#0052CC);color:white;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:700;margin-top:16px;}
+.logout-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:white;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;}
+.logout-btn:hover{background:rgba(255,255,255,.25);}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="logo">TurnkeyAI<span>Services</span></a>
+  <div class="header-right" id="headerBizName">Client Dashboard</div>
+</header>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <h1>Client Dashboard</h1>
+  <p>Enter your password to manage your website.</p>
+  <div class="form-group">
+    <label>Password</label>
+    <input type="password" id="passwordInput" placeholder="Enter your dashboard password" onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="error-msg" id="loginError">Incorrect password. Please try again.</div>
+  </div>
+  <button class="btn btn-primary" onclick="doLogin()">Sign In →</button>
+  <p style="margin-top:20px;font-size:13px;color:var(--gray-500);">Your password was emailed when your site was approved. Need help? Call <strong>(228) 604-3200</strong></p>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="welcome-bar">
+    <div>
+      <h2 id="dashBizName">Your Business</h2>
+      <p id="dashOwnerName">Welcome back!</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <span class="status-badge">✅ Site Active</span>
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('hours')">🕒 Business Hours</div>
+    <div class="tab" onclick="showTab('services')">📋 My Services</div>
+    <div class="tab" onclick="showTab('request')">📩 Request Changes</div>
+    <div class="tab" onclick="showTab('info')">👁️ My Site Info</div>
+  </div>
+
+  <!-- HOURS PANEL -->
+  <div class="panel active" id="panel-hours">
+    <h3>Business Hours</h3>
+    <p class="sub">Check the days you're open and enter your hours. Save when done.</p>
+    <div class="info-box">✏️ Changes you make here go into effect immediately on your website.</div>
+    <div class="hours-grid" id="hoursGrid"></div>
+    <div style="margin-top:20px;display:flex;gap:12px;align-items:center;">
+      <button class="btn btn-success" onclick="saveHours()">💾 Save Hours</button>
+      <span style="font-size:14px;color:var(--gray-500);" id="hoursSaveStatus"></span>
+    </div>
+    <div class="success-msg" id="hoursSuccess">✅ Your hours have been updated successfully!</div>
+  </div>
+
+  <!-- SERVICES PANEL -->
+  <div class="panel" id="panel-services">
+    <h3>My Services</h3>
+    <p class="sub">Your current services from your intake form. To make changes, use the "Request Changes" tab.</p>
+    <div class="services-list" id="servicesList"></div>
+    <div class="info-box">To add, remove, or reprice services, use the <strong>Request Changes</strong> tab and we'll update your site within 24 hours.</div>
+  </div>
+
+  <!-- CHANGE REQUEST PANEL -->
+  <div class="panel" id="panel-request">
+    <h3>Request Changes</h3>
+    <p class="sub">Need something updated that you can't do yourself? Submit a request and we'll handle it within 24-48 hours.</p>
+    <div class="form-group">
+      <label>What type of change do you need?</label>
+      <select id="requestType">
+        <option value="">— Select a change type —</option>
+        <option value="Add or update photos">📷 Add or update photos</option>
+        <option value="Update services or pricing">💰 Update services or pricing</option>
+        <option value="Update business description">✏️ Update business description</option>
+        <option value="Add a new page or section">➕ Add a new page or section</option>
+        <option value="Update contact information">📞 Update contact information</option>
+        <option value="Fix something on the site">🔧 Fix something on the site</option>
+        <option value="Other">📋 Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Describe what you need</label>
+      <textarea id="requestDetails" placeholder="Please describe exactly what you'd like changed. The more detail you give us, the faster we can get it done."></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="submitChangeRequest()" style="width:auto;">📩 Submit Request</button>
+    <div class="success-msg" id="requestSuccess">✅ Request submitted! We'll handle it within 24-48 hours and confirm by email.</div>
+  </div>
+
+  <!-- SITE INFO PANEL -->
+  <div class="panel" id="panel-info">
+    <h3>My Site Info</h3>
+    <p class="sub">Your current business information on file.</p>
+    <div id="liveUrlBox" style="display:none;background:linear-gradient(135deg,#00D68F,#00b377);border-radius:12px;padding:20px 24px;margin-bottom:20px;text-align:center;">
+      <p style="color:rgba(255,255,255,.8);font-size:13px;margin-bottom:6px;">YOUR LIVE WEBSITE</p>
+      <a id="liveUrlLink" href="#" target="_blank" style="color:white;font-size:18px;font-weight:700;text-decoration:none;word-break:break-all;"></a>
+    </div>
+    <div class="contact-info" id="contactInfo"></div>
+    <a id="previewLinkBtn" href="#" target="_blank" class="preview-link" style="margin-top:16px;">👁️ View Site Preview</a>
+  </div>
+</div>
+
+<script>
+const BACKEND = 'https://turnkeyai-backend-production.up.railway.app';
+let sessionToken = '';
+let sessionPassword = '';
+let sessionData = null;
+
+function getToken() {
+  return new URLSearchParams(window.location.search).get('token') || '';
+}
+
+async function doLogin() {
+  const pw = document.getElementById('passwordInput').value.trim();
+  const token = getToken();
+  if (!pw) { showLoginError('Please enter your password.'); return; }
+  if (!token) { showLoginError('Missing dashboard token. Please use the link from your email.'); return; }
+
+  try {
+    const r = await fetch(BACKEND + '/api/client-auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, password: pw })
+    });
+    const d = await r.json();
+    if (!r.ok) { showLoginError(d.error || 'Login failed.'); return; }
+
+    sessionToken = token;
+    sessionPassword = pw.toUpperCase();
+    sessionData = d;
+    showDashboard(d);
+  } catch (e) {
+    showLoginError('Could not connect. Please try again.');
+  }
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function showDashboard(d) {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('dashBizName').textContent = d.businessName || 'Your Business';
+  document.getElementById('dashOwnerName').textContent = 'Welcome back, ' + (d.ownerName || '') + '!';
+  document.getElementById('headerBizName').textContent = d.businessName || 'Dashboard';
+
+  buildHoursGrid(d.data.hours);
+  buildServicesList(d.data.services);
+  buildContactInfo(d);
+}
+
+function buildHoursGrid(hours) {
+  const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  const labels = {'monday':'Monday','tuesday':'Tuesday','wednesday':'Wednesday','thursday':'Thursday','friday':'Friday','saturday':'Saturday','sunday':'Sunday'};
+  let html = '';
+  days.forEach(d => {
+    const h = hours[d] || {};
+    html += `<div class="hours-row">
+      <label><input type="checkbox" id="day_${d}" ${h.open ? 'checked' : ''}> ${labels[d]}</label>
+      <input type="text" id="hours_${d}" value="${h.hours || ''}" placeholder="e.g. 8am - 5pm">
+      <span class="day-status" id="status_${d}">${h.open ? '✅ Open' : '❌ Closed'}</span>
+    </div>`;
+  });
+  document.getElementById('hoursGrid').innerHTML = html;
+
+  // Live status update
+  days.forEach(d => {
+    document.getElementById('day_' + d).addEventListener('change', function() {
+      document.getElementById('status_' + d).textContent = this.checked ? '✅ Open' : '❌ Closed';
+    });
+  });
+}
+
+function buildServicesList(services) {
+  if (!services || !services.length) {
+    document.getElementById('servicesList').innerHTML = '<p style="color:var(--gray-500);">No services on file. Submit a change request to add services.</p>';
+    return;
+  }
+  let html = '';
+  services.forEach(s => {
+    html += `<div class="service-row">
+      <span>${s.label}</span>
+      <span class="price">${s.price ? s.price : 'No price set'}</span>
+    </div>`;
+  });
+  document.getElementById('servicesList').innerHTML = html;
+}
+
+function buildContactInfo(d) {
+  const data = d.data;
+  const fields = [
+    { label: 'Business Name', value: d.businessName },
+    { label: 'Owner Name', value: d.ownerName },
+    { label: 'Phone', value: data.phone },
+    { label: 'Email', value: data.email },
+    { label: 'Address', value: data.address },
+    { label: 'City / State', value: (data.city || '') + (data.state ? ', ' + data.state : '') }
+  ];
+  let html = '';
+  fields.forEach(f => {
+    if (f.value) html += `<div class="contact-item"><div class="label">${f.label}</div><div class="value">${f.value}</div></div>`;
+  });
+  document.getElementById('contactInfo').innerHTML = html;
+
+  // Live URL
+  if (d.liveUrl) {
+    document.getElementById('liveUrlBox').style.display = 'block';
+    const liveLink = document.getElementById('liveUrlLink');
+    liveLink.href = d.liveUrl;
+    liveLink.textContent = d.liveUrl;
+  }
+
+  // Preview link
+  const previewLink = document.getElementById('previewLinkBtn');
+  if (d.previewToken) {
+    previewLink.href = 'https://turnkeyaiservices.com/preview/' + d.previewToken;
+  }
+}
+
+async function saveHours() {
+  const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  const updateData = {};
+  days.forEach(d => {
+    updateData['day_' + d] = document.getElementById('day_' + d).checked ? 'on' : '';
+    updateData['hours_' + d] = document.getElementById('hours_' + d).value;
+  });
+
+  document.getElementById('hoursSaveStatus').textContent = 'Saving...';
+  try {
+    const r = await fetch(BACKEND + '/api/client-update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: sessionToken, password: sessionPassword, updateType: 'hours', updateData })
+    });
+    const d = await r.json();
+    if (r.ok && d.success) {
+      document.getElementById('hoursSaveStatus').textContent = '';
+      document.getElementById('hoursSuccess').style.display = 'block';
+      setTimeout(() => document.getElementById('hoursSuccess').style.display = 'none', 4000);
+    } else {
+      document.getElementById('hoursSaveStatus').textContent = 'Save failed. Please try again.';
+    }
+  } catch (e) {
+    document.getElementById('hoursSaveStatus').textContent = 'Connection error. Please try again.';
+  }
+}
+
+async function submitChangeRequest() {
+  const requestType = document.getElementById('requestType').value;
+  const details = document.getElementById('requestDetails').value.trim();
+  if (!requestType) { alert('Please select a change type.'); return; }
+  if (!details) { alert('Please describe what you need changed.'); return; }
+
+  try {
+    const r = await fetch(BACKEND + '/api/client-update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: sessionToken,
+        password: sessionPassword,
+        updateType: 'change_request',
+        updateData: { requestType, details }
+      })
+    });
+    const d = await r.json();
+    if (r.ok && d.success) {
+      document.getElementById('requestDetails').value = '';
+      document.getElementById('requestType').value = '';
+      document.getElementById('requestSuccess').style.display = 'block';
+      setTimeout(() => document.getElementById('requestSuccess').style.display = 'none', 5000);
+    }
+  } catch (e) {
+    alert('Could not submit request. Please try again or email george@turnkeyaiservices.com');
+  }
+}
+
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function doLogout() {
+  sessionToken = '';
+  sessionPassword = '';
+  sessionData = null;
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'block';
+  document.getElementById('passwordInput').value = '';
+}
+</script>
+</body>
+</html>
