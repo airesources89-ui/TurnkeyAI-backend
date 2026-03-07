@@ -111,6 +111,7 @@ select:focus{outline:none;border-color:var(--primary);}
     <div class="tab active" onclick="showTab('hours')">🕒 Business Hours</div>
     <div class="tab" onclick="showTab('services')">📋 My Services</div>
     <div class="tab" onclick="showTab('request')">📩 Request Changes</div>
+    <div class="tab" onclick="showTab('addons')">🎬 Add-Ons</div>
     <div class="tab" onclick="showTab('info')">👁️ My Site Info</div>
   </div>
 
@@ -158,6 +159,48 @@ select:focus{outline:none;border-color:var(--primary);}
     </div>
     <button class="btn btn-primary" onclick="submitChangeRequest()" style="width:auto;">📩 Submit Request</button>
     <div class="success-msg" id="requestSuccess">✅ Request submitted! We'll handle it within 24-48 hours and confirm by email.</div>
+  </div>
+
+  <!-- ADD-ONS PANEL -->
+  <div class="panel" id="panel-addons">
+    <h3>Free Video & Add-On Services</h3>
+    <p class="sub">Activate add-ons or request your free promo video and Mini-Me AI avatar.</p>
+
+    <!-- FREE VIDEO -->
+    <div style="background:linear-gradient(135deg,#1a1200,#2e1f00);border:2px solid #f59e0b;border-radius:14px;padding:22px;margin-bottom:18px;color:white;">
+      <h4 style="font-family:'Playfair Display',serif;font-size:17px;margin-bottom:7px;">🎬 Your Free 60-Second Promo Video</h4>
+      <p style="font-size:13px;opacity:0.82;margin-bottom:14px;line-height:1.6;">Every TurnkeyAI client gets one free 60-second promo video. We write the script from your business info. You record a short clip on your phone. We handle the rest.</p>
+      <button class="btn btn-primary" onclick="requestFreeVideo()" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#1a1200;border:none;padding:12px 24px;border-radius:9px;font-weight:700;font-size:14px;cursor:pointer;">🎬 Request My Free Video</button>
+      <div id="videoSuccess" class="success-msg" style="margin-top:10px;display:none;background:rgba(0,214,143,0.15);color:#00D68F;padding:10px 14px;border-radius:8px;border:1px solid rgba(0,214,143,0.3);">✅ Request received! Check your email — your script and recording instructions are on the way.</div>
+    </div>
+
+    <!-- MINI-ME -->
+    <div style="background:linear-gradient(135deg,#0a1f14,#0d2b1c);border:2px solid #00D68F;border-radius:14px;padding:22px;margin-bottom:18px;color:white;">
+      <h4 style="font-family:'Playfair Display',serif;font-size:17px;margin-bottom:7px;">🤖 Mini-Me AI Avatar <span style="background:#00D68F;color:#0a1628;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:700;margin-left:6px;">$59/mo</span></h4>
+      <p style="font-size:13px;opacity:0.82;margin-bottom:6px;line-height:1.6;">Mini-Me is a digital version of you — your face, your voice — that appears on your website 24/7. You record one short clip on your phone. We create your AI avatar. Your first video is FREE when you subscribe.</p>
+      <p style="font-size:12px;opacity:0.65;margin-bottom:14px;">Subscribing adds $59/month to your plan. You can cancel at any time.</p>
+      <!-- Consent -->
+      <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(0,214,143,0.3);border-radius:9px;padding:14px 16px;margin-bottom:14px;">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin:0;font-weight:400;color:white;">
+          <input type="checkbox" id="dashMiniMeConsent" style="width:18px;height:18px;accent-color:#00D68F;margin-top:2px;flex-shrink:0;">
+          <span style="font-size:12px;line-height:1.6;opacity:0.85;">I authorize TurnkeyAI Services to use my image, likeness, and voice recording to create my AI avatar (Mini-Me) for my business website. I can revoke this at any time by contacting george@turnkeyaiservices.com.</span>
+        </label>
+      </div>
+      <button class="btn btn-primary" onclick="requestMiniMe()" style="background:linear-gradient(135deg,#00D68F,#00b377);color:#0a1628;border:none;padding:12px 24px;border-radius:9px;font-weight:700;font-size:14px;cursor:pointer;">🤖 Subscribe to Mini-Me</button>
+      <div id="miniMeSuccess" class="success-msg" style="margin-top:10px;display:none;background:rgba(0,214,143,0.15);color:#00D68F;padding:10px 14px;border-radius:8px;border:1px solid rgba(0,214,143,0.3);">✅ Subscribed! Check your email — your script, recording instructions, and upload link are on the way.</div>
+    </div>
+
+    <!-- CALL HANDLING -->
+    <div style="background:var(--gray-100);border:2px solid var(--gray-300);border-radius:14px;padding:22px;">
+      <h4 style="font-size:17px;font-weight:700;color:var(--dark);margin-bottom:6px;">📞 Call Handling Add-Ons</h4>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px;line-height:1.6;">These are included in your plan. Contact us to activate any you didn't select during signup.</p>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
+        <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--gray-700);"><span style="color:#00D68F;font-weight:700;flex-shrink:0;">✓</span><span><strong>After Hours Answering</strong> — Automatic SMS when customers call after hours</span></li>
+        <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--gray-700);"><span style="color:#00D68F;font-weight:700;flex-shrink:0;">✓</span><span><strong>Missed Call Text Return</strong> — Instant SMS on any missed call during business hours</span></li>
+        <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--gray-700);"><span style="color:#00D68F;font-weight:700;flex-shrink:0;">✓</span><span><strong>Custom Voicemail Greeting</strong> — Professional voicemail we script and produce for you</span></li>
+      </ul>
+      <p style="font-size:12px;color:var(--gray-500);margin-top:14px;">To activate, use the <strong>Request Changes</strong> tab and select "Other" — just say which add-ons you want turned on.</p>
+    </div>
   </div>
 
   <!-- SITE INFO PANEL -->
@@ -347,6 +390,44 @@ async function submitChangeRequest() {
     }
   } catch (e) {
     alert('Could not submit request. Please try again or email george@turnkeyaiservices.com');
+  }
+}
+
+async function requestFreeVideo() {
+  try {
+    const r = await fetch(BACKEND + '/api/client-update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: sessionToken, password: sessionPassword, updateType: 'request_free_video', updateData: {} })
+    });
+    const d = await r.json();
+    if (r.ok && d.success) {
+      document.getElementById('videoSuccess').style.display = 'block';
+    } else {
+      alert(d.error || 'Could not submit request. Please email george@turnkeyaiservices.com');
+    }
+  } catch(e) {
+    alert('Connection error. Please email george@turnkeyaiservices.com or call (228) 604-3200');
+  }
+}
+
+async function requestMiniMe() {
+  const consent = document.getElementById('dashMiniMeConsent').checked;
+  if (!consent) { alert('Please check the image/likeness consent box before subscribing to Mini-Me.'); return; }
+  try {
+    const r = await fetch(BACKEND + '/api/client-update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: sessionToken, password: sessionPassword, updateType: 'request_mini_me', updateData: { consentTimestamp: new Date().toISOString() } })
+    });
+    const d = await r.json();
+    if (r.ok && d.success) {
+      document.getElementById('miniMeSuccess').style.display = 'block';
+    } else {
+      alert(d.error || 'Could not submit request. Please email george@turnkeyaiservices.com');
+    }
+  } catch(e) {
+    alert('Connection error. Please email george@turnkeyaiservices.com or call (228) 604-3200');
   }
 }
 
