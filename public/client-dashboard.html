@@ -108,11 +108,46 @@ select:focus{outline:none;border-color:var(--primary);}
   </div>
 
   <div class="tabs">
+    <div class="tab" onclick="showTab('mysite')" id="tab-mysite">🌐 My Site</div>
     <div class="tab active" onclick="showTab('hours')">🕒 Business Hours</div>
     <div class="tab" onclick="showTab('services')">📋 My Services</div>
     <div class="tab" onclick="showTab('request')">📩 Request Changes</div>
     <div class="tab" onclick="showTab('addons')">🎬 Add-Ons</div>
     <div class="tab" onclick="showTab('info')">👁️ My Site Info</div>
+  </div>
+
+  <!-- MY SITE PANEL -->
+  <div class="panel" id="panel-mysite">
+    <h3>My Website</h3>
+    <p class="sub">Preview your site, go live, update your info, or send us a message — all from here.</p>
+
+    <!-- Status row -->
+    <div id="mySiteStatus" style="background:var(--gray-100);border:2px solid var(--gray-300);border-radius:12px;padding:18px 20px;margin-bottom:22px;">
+      <p style="font-weight:700;margin:0 0 4px;" id="mySiteStatusText">Loading...</p>
+      <p style="font-size:13px;color:var(--gray-500);margin:0;" id="mySiteUrlText"></p>
+    </div>
+
+    <!-- Action buttons -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;">
+      <a id="dashPreviewBtn" href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#0066FF,#0052CC);color:white;padding:16px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;">
+        👁️ Preview My Site
+      </a>
+      <button id="dashApproveBtn" onclick="dashApprove()" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#00D68F,#00b377);color:#0a1628;padding:16px 20px;border-radius:12px;border:none;font-weight:700;font-size:15px;cursor:pointer;width:100%;">
+        ✅ Approve & Go Live
+      </button>
+      <a id="dashEditBtn" href="#" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;padding:16px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;">
+        ✏️ Edit My Info
+      </a>
+      <a id="dashEmailBtn" href="mailto:george@turnkeyaiservices.com" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--gray-700);color:white;padding:16px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;">
+        📧 Email George
+      </a>
+    </div>
+
+    <!-- Live site box (hidden until live) -->
+    <div id="dashLiveBox" style="display:none;background:linear-gradient(135deg,#00D68F,#00b377);border-radius:12px;padding:20px 24px;text-align:center;">
+      <p style="color:#0a1628;font-weight:700;font-size:14px;margin:0 0 8px;">🌐 Your Live Website</p>
+      <a id="dashLiveLink" href="#" target="_blank" style="color:#0a1628;font-size:18px;font-weight:800;text-decoration:none;word-break:break-all;"></a>
+    </div>
   </div>
 
   <!-- HOURS PANEL -->
@@ -183,7 +218,7 @@ select:focus{outline:none;border-color:var(--primary);}
       <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(0,214,143,0.3);border-radius:9px;padding:14px 16px;margin-bottom:14px;">
         <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin:0;font-weight:400;color:white;">
           <input type="checkbox" id="dashMiniMeConsent" style="width:18px;height:18px;accent-color:#00D68F;margin-top:2px;flex-shrink:0;">
-          <span style="font-size:12px;line-height:1.6;opacity:0.85;">I authorize TurnkeyAI Services to use my image, likeness, and voice recording to create my AI avatar (Mini-Me) for my business website. I can revoke this at any time by contacting george@turnkeyaiservices.com.</span>
+          <span style="font-size:12px;line-height:1.6;opacity:0.85;">I authorize TurnkeyAI Services to use my image, likeness, and voice recording to create my AI avatar (Mini-Me) for my business website. I can revoke this at any time by contacting <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ed8a88829f8a88ad99989f838688948c849e889f9b848e889ec38e8280">[email&#160;protected]</a>.</span>
         </label>
       </div>
       <button class="btn btn-primary" onclick="requestMiniMe()" style="background:linear-gradient(135deg,#00D68F,#00b377);color:#0a1628;border:none;padding:12px 24px;border-radius:9px;font-weight:700;font-size:14px;cursor:pointer;">🤖 Subscribe to Mini-Me</button>
@@ -216,7 +251,7 @@ select:focus{outline:none;border-color:var(--primary);}
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const BACKEND = 'https://turnkeyai-backend-production.up.railway.app';
 let sessionToken = '';
 let sessionPassword = '';
@@ -334,6 +369,31 @@ function buildContactInfo(d) {
   if (d.previewToken) {
     previewLink.href = 'https://turnkeyaiservices.com/preview/' + d.previewToken;
   }
+
+  // My Site panel
+  const BASE = 'https://turnkeyaiservices.com';
+  const reviewUrl = `${BASE}/client-review.html?id=${d.id}&token=${d.previewToken}`;
+  const approveUrl = `${BASE}/api/client-approve/${d.id}?token=${d.previewToken}`;
+  const editUrl = `${BASE}/client-review.html?id=${d.id}&token=${d.previewToken}&action=changes`;
+
+  document.getElementById('dashPreviewBtn').href = `${BASE}/preview/${d.previewToken}`;
+  document.getElementById('dashEditBtn').href = editUrl;
+  document.getElementById('dashEmailBtn').href = `mailto:george@turnkeyaiservices.com?subject=Site Update Request: ${encodeURIComponent(d.businessName||'My Business')}`;
+
+  if (d.status === 'active' && d.liveUrl) {
+    document.getElementById('mySiteStatusText').textContent = '✅ Your site is LIVE';
+    document.getElementById('mySiteUrlText').textContent = d.liveUrl;
+    document.getElementById('mySiteStatus').style.borderColor = '#00D68F';
+    document.getElementById('mySiteStatus').style.background = '#f0fff4';
+    document.getElementById('dashApproveBtn').style.display = 'none';
+    document.getElementById('dashLiveBox').style.display = 'block';
+    document.getElementById('dashLiveLink').href = d.liveUrl;
+    document.getElementById('dashLiveLink').textContent = d.liveUrl;
+  } else {
+    document.getElementById('mySiteStatusText').textContent = '⏳ Preview ready — not live yet';
+    document.getElementById('mySiteUrlText').textContent = 'Click "Approve & Go Live" to publish your site.';
+    document.getElementById('dashApproveBtn').onclick = () => { window.location.href = approveUrl; };
+  }
 }
 
 async function saveHours() {
@@ -440,12 +500,4 @@ function showTab(name) {
 
 function doLogout() {
   sessionToken = '';
-  sessionPassword = '';
-  sessionData = null;
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('loginScreen').style.display = 'block';
-  document.getElementById('passwordInput').value = '';
-}
-</script>
-</body>
-</html>
+  sessionPassword =
