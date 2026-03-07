@@ -1,280 +1,343 @@
-(function() {
-  // ── TurnkeyAI Chat Widget ──────────────────────────────────────────────────
-  const SITE_CONTEXT = `
-You are the TurnkeyAI Services virtual assistant. You help visitors learn about TurnkeyAI Services and answer their questions 24/7.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat & Mini-Me | TurnkeyAI Services</title>
+    <meta name="description" content="Every TurnkeyAI website includes a 24/7 AI chat assistant. Add Mini-Me — your personal AI avatar — and never miss a lead again.">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        :root{--primary:#0066FF;--primary-dark:#0052CC;--accent:#00D68F;--dark:#1a1a2e;--gray-700:#374151;--gray-500:#6B7280;--gray-100:#F3F4F6;}
+        body{font-family:'DM Sans',sans-serif;color:#1F2937;}
+        /* NAV */
+        .nav{background:white;box-shadow:0 2px 20px rgba(0,0,0,0.08);padding:18px 0;position:sticky;top:0;z-index:100;}
+        .nav-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;}
+        .logo{font-size:24px;font-weight:700;color:var(--dark);text-decoration:none;}
+        .logo span{color:var(--accent);}
+        .nav-links{display:flex;gap:28px;align-items:center;}
+        .nav-links a{text-decoration:none;color:var(--gray-500);font-weight:500;font-size:15px;transition:color 0.2s;}
+        .nav-links a:hover,.nav-links a.active{color:var(--primary);}
+        .nav-cta{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;padding:11px 22px;border-radius:9px;font-weight:600;font-size:14px;text-decoration:none;}
+        @media(max-width:640px){.nav-links a:not(.nav-cta){display:none;}}
+        /* HERO */
+        .hero{background:linear-gradient(135deg,#080c22 0%,#1a1a2e 55%,#0a1f30 100%);color:white;padding:90px 24px 70px;text-align:center;position:relative;overflow:hidden;}
+        .hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at center,rgba(0,102,255,0.12) 0%,transparent 60%);}
+        .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,214,143,0.13);border:1px solid rgba(0,214,143,0.4);color:var(--accent);padding:7px 18px;border-radius:20px;font-size:13px;font-weight:700;margin-bottom:22px;position:relative;}
+        .hero h1{font-family:'Playfair Display',serif;font-size:54px;font-weight:700;margin-bottom:20px;line-height:1.15;position:relative;}
+        .hero h1 .hl{background:linear-gradient(135deg,var(--accent),#00b377);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+        .hero p{font-size:19px;opacity:0.82;max-width:580px;margin:0 auto 36px;line-height:1.7;position:relative;}
+        .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative;}
+        .btn-hero-primary{background:linear-gradient(135deg,var(--accent),#00b377);color:#0a1628;padding:16px 36px;border-radius:11px;font-weight:700;font-size:16px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s;}
+        .btn-hero-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,214,143,0.4);}
+        .btn-hero-secondary{background:rgba(255,255,255,0.09);color:white;padding:16px 36px;border-radius:11px;font-weight:600;font-size:16px;text-decoration:none;border:2px solid rgba(255,255,255,0.22);transition:all 0.2s;}
+        .btn-hero-secondary:hover{background:rgba(255,255,255,0.16);}
+        /* STATS */
+        .stats{background:var(--dark);padding:44px 24px;}
+        .stats-inner{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:28px;text-align:center;}
+        .stat-num{font-family:'Playfair Display',serif;font-size:46px;font-weight:700;color:var(--accent);}
+        .stat-label{color:rgba(255,255,255,0.65);font-size:14px;margin-top:4px;}
+        /* SECTION LAYOUT */
+        .section{padding:80px 24px;}
+        .section-inner{max-width:1100px;margin:0 auto;}
+        .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--primary);margin-bottom:10px;}
+        .section h2{font-family:'Playfair Display',serif;font-size:40px;font-weight:700;color:var(--dark);margin-bottom:14px;line-height:1.2;}
+        .section .sub{font-size:17px;color:var(--gray-500);max-width:560px;line-height:1.7;margin-bottom:44px;}
+        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;}
+        @media(max-width:768px){.two-col{grid-template-columns:1fr;}.hero h1{font-size:36px;}}
+        /* FEATURES */
+        .feature-list{display:flex;flex-direction:column;gap:22px;}
+        .feature-item{display:flex;gap:14px;align-items:flex-start;}
+        .feature-icon{width:46px;height:46px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+        .feature-text h3{font-weight:700;font-size:16px;color:var(--dark);margin-bottom:3px;}
+        .feature-text p{font-size:13px;color:var(--gray-500);line-height:1.6;}
+        /* CHAT DEMO */
+        .chat-demo{background:white;border-radius:18px;box-shadow:0 8px 40px rgba(0,0,0,0.12);overflow:hidden;}
+        .chat-header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;padding:18px 22px;display:flex;align-items:center;gap:12px;}
+        .chat-header .avatar{width:38px;height:38px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+        .chat-header h3{font-weight:700;font-size:15px;}
+        .chat-header p{font-size:12px;opacity:0.8;}
+        .chat-header .online{display:flex;align-items:center;gap:5px;font-size:12px;opacity:0.85;margin-left:auto;white-space:nowrap;}
+        .online-dot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;}
+        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+        .chat-messages{padding:20px;min-height:260px;display:flex;flex-direction:column;gap:14px;max-height:340px;overflow-y:auto;}
+        .chat-msg{max-width:82%;}
+        .chat-msg.bot{align-self:flex-start;}
+        .chat-msg.user{align-self:flex-end;}
+        .chat-name{font-size:11px;color:var(--gray-500);margin-bottom:3px;font-weight:600;}
+        .chat-bubble{padding:11px 15px;border-radius:14px;font-size:14px;line-height:1.6;}
+        .bot .chat-bubble{background:var(--gray-100);color:var(--dark);border-bottom-left-radius:4px;}
+        .user .chat-bubble{background:var(--primary);color:white;border-bottom-right-radius:4px;}
+        .typing{display:none;align-self:flex-start;}
+        .typing .chat-bubble{padding:11px 18px;}
+        .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#9CA3AF;margin:0 2px;animation:bounce 1.4s infinite;}
+        .dot:nth-child(2){animation-delay:0.2s;}.dot:nth-child(3){animation-delay:0.4s;}
+        @keyframes bounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-5px);}}
+        .quick-replies{display:flex;flex-wrap:wrap;gap:7px;padding:0 20px 14px;}
+        .qr-btn{background:#e8f0fe;color:var(--primary);border:none;padding:7px 14px;border-radius:18px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+        .qr-btn:hover{background:var(--primary);color:white;}
+        .chat-input-row{display:flex;gap:10px;padding:14px 20px;border-top:1px solid #eee;}
+        .chat-input-row input{flex:1;padding:11px 14px;border:2px solid #eee;border-radius:9px;font-size:14px;font-family:inherit;}
+        .chat-input-row input:focus{outline:none;border-color:var(--primary);}
+        .chat-send{background:var(--primary);color:white;border:none;border-radius:9px;padding:11px 18px;font-weight:600;cursor:pointer;font-size:14px;}
+        /* MINI-ME SECTION */
+        .mini-me-section{background:linear-gradient(135deg,#080d1e,#0d1f14);padding:90px 24px;color:white;}
+        .mini-me-inner{max-width:1100px;margin:0 auto;}
+        .mini-me-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,214,143,0.12);border:1px solid rgba(0,214,143,0.4);color:var(--accent);padding:7px 18px;border-radius:20px;font-size:13px;font-weight:700;margin-bottom:20px;}
+        .mini-me-inner h2{font-family:'Playfair Display',serif;font-size:46px;font-weight:700;margin-bottom:18px;line-height:1.2;}
+        .mini-me-inner .sub{font-size:18px;opacity:0.78;max-width:580px;line-height:1.7;margin-bottom:44px;}
+        .mm-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:44px;}
+        .mm-step{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:24px;}
+        .mm-step .num{font-size:30px;font-weight:700;color:var(--accent);margin-bottom:10px;}
+        .mm-step h3{font-size:16px;font-weight:700;margin-bottom:7px;}
+        .mm-step p{font-size:13px;opacity:0.72;line-height:1.6;}
+        .mm-cta{background:rgba(0,214,143,0.07);border:2px solid rgba(0,214,143,0.28);border-radius:18px;padding:36px;display:grid;grid-template-columns:1fr auto;gap:28px;align-items:center;}
+        @media(max-width:580px){.mm-cta{grid-template-columns:1fr;}}
+        .mm-cta h3{font-size:22px;font-weight:700;margin-bottom:8px;}
+        .mm-cta p{font-size:14px;opacity:0.78;line-height:1.6;}
+        .price-tag{font-size:46px;font-weight:700;color:var(--accent);white-space:nowrap;text-align:center;}
+        .price-tag .mo{font-size:17px;opacity:0.65;}
+        .price-free{font-size:12px;opacity:0.6;margin-top:4px;text-align:center;}
+        .btn-mm{display:inline-block;background:linear-gradient(135deg,var(--accent),#00b377);color:#0a1628;padding:15px 32px;border-radius:11px;font-weight:700;font-size:15px;text-decoration:none;margin-top:14px;transition:all 0.2s;}
+        .btn-mm:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,214,143,0.4);}
+        /* PRICING */
+        .pricing-section{background:var(--gray-100);padding:80px 24px;}
+        .pricing-inner{max-width:820px;margin:0 auto;text-align:center;}
+        .pricing-inner h2{font-family:'Playfair Display',serif;font-size:40px;color:var(--dark);margin-bottom:12px;}
+        .pricing-inner .sub{font-size:17px;color:var(--gray-500);margin-bottom:44px;}
+        .pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+        @media(max-width:580px){.pricing-grid{grid-template-columns:1fr;}}
+        .price-card{background:white;border:2px solid #e5e7eb;border-radius:18px;padding:30px;text-align:left;position:relative;}
+        .price-card.featured{border-color:var(--accent);box-shadow:0 8px 32px rgba(0,214,143,0.18);}
+        .pc-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#0a1628;padding:4px 16px;border-radius:18px;font-size:12px;font-weight:700;white-space:nowrap;}
+        .price-card h3{font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px;}
+        .price-card .price{font-family:'Playfair Display',serif;font-size:40px;font-weight:700;color:var(--primary);margin-bottom:3px;}
+        .price-card .price-sub{font-size:12px;color:var(--gray-500);margin-bottom:22px;}
+        .price-card ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+        .price-card ul li{font-size:13px;color:var(--gray-700);display:flex;align-items:flex-start;gap:7px;line-height:1.5;}
+        .price-card ul li::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0;}
+        .price-card .pc-cta{display:block;text-align:center;margin-top:22px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;padding:13px;border-radius:9px;font-weight:600;text-decoration:none;font-size:14px;transition:all 0.2s;}
+        .price-card .pc-cta:hover{transform:translateY(-2px);}
+        /* FOOTER */
+        footer{background:var(--dark);color:rgba(255,255,255,0.55);text-align:center;padding:28px 24px;font-size:14px;}
+        footer a{color:var(--accent);text-decoration:none;}
+    </style>
+</head>
+<body>
 
-COMPANY INFO:
-- Name: TurnkeyAI Services
-- Owner: George Dickson
-- Location: 300 Blakemore Ave, Bay St. Louis, Mississippi 39520
-- Phone: (603) 922-2004
-- Email: turnkeyaiservices@gmail.com
-- Website: turnkeyaiservices.com
-
-WHAT WE DO:
-TurnkeyAI Services builds professional, fully functional AI-powered websites for local small businesses and personal/family use — fully automated, delivered within 24 hours. No tech skills required.
-
-PRICING:
-- Website Only: $99/month, $0 setup fee, 12-month minimum
-- Website + Blog (8 SEO posts/month): $129/month
-- Website + Blog + Social Media Management: $159/month
-- Social media account setup (one-time): $99
-- Territory Partner (Hub): $199/month, protected territory, 60/40 revenue split
-- Lead Discovery: $1.50/search, no monthly fee
-
-WHAT'S INCLUDED WITH EVERY SITE:
-- Professional website built from a 10-minute intake form
-- 24/7 AI chat assistant on the client's site
-- After-hours call answering — FREE
-- Missed call return — FREE
-- Online reservation & booking system
-- Google Maps & local SEO optimization
-- Client dashboard for self-service updates
-- Google Analytics integration
-- Mobile-first responsive design
-- Site delivered within 24 hours
-- Review before go-live — no surprises
-
-BUSINESS SITE TYPES (55+ industries):
-Restaurants, cleaning companies, plumbers, electricians, salons, contractors, landscapers, auto repair, medical/dental, agriculture, and many more.
-
-PERSONAL SITE TYPES:
-Family heritage sites, reunion sites, crafter/maker stores, recipe collections, memorial/tribute pages.
-
-TERRITORY PARTNER PROGRAM:
-- Partners pay $199/month
-- Earn 60% of every client's monthly fee they generate
-- Protected territory
-- No tech skills needed
-- Partners who refer clients earn $59.40/month per $99/month client
-
-HOW IT WORKS:
-1. Customer fills out a 10-minute industry-specific intake form
-2. TurnkeyAI builds the site within 24 hours using AI
-3. Customer reviews and approves before go-live
-4. Site goes live — customer manages via dashboard
-
-PAYMENT OPTIONS: Credit/debit card, PayPal, bank transfer, check.
-
-RULES FOR RESPONSES:
-- Be friendly, helpful, and concise
-- If someone wants to get started, direct them to the correct intake form
-- Business sites: turnkeyaiservices.com/business.html
-- Personal/family sites: turnkeyaiservices.com/personal.html
-- Crafter stores: turnkeyaiservices.com/crafter-intake.html
-- Territory Partner: turnkeyaiservices.com/territory-partner.html
-- For complex questions or to speak with George directly, provide the phone number (603) 922-2004
-- Never make up information not listed here
-- Keep responses under 150 words
-- If asked about pricing always mention no setup fee and 24-hour delivery
-`;
-
-  const styles = `
-    #tkai-chat-btn {
-      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-      width: 60px; height: 60px; border-radius: 50%;
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(37,99,235,.4);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 26px; transition: transform .2s, box-shadow .2s;
-    }
-    #tkai-chat-btn:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(37,99,235,.5); }
-    #tkai-chat-btn .tkai-badge {
-      position: absolute; top: -4px; right: -4px;
-      background: #ef4444; color: #fff; border-radius: 50%;
-      width: 18px; height: 18px; font-size: 11px; font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
-      display: none;
-    }
-    #tkai-chat-window {
-      position: fixed; bottom: 96px; right: 24px; z-index: 9998;
-      width: 360px; max-width: calc(100vw - 48px);
-      background: #fff; border-radius: 16px;
-      box-shadow: 0 8px 40px rgba(0,0,0,.18);
-      display: none; flex-direction: column;
-      font-family: 'Nunito', system-ui, sans-serif;
-      overflow: hidden; max-height: 520px;
-    }
-    #tkai-chat-window.open { display: flex; animation: tkaiSlideUp .25s ease; }
-    @keyframes tkaiSlideUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
-    .tkai-header {
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      padding: 14px 16px; display: flex; align-items: center; gap: 10px;
-    }
-    .tkai-avatar { font-size: 24px; }
-    .tkai-header-info { flex: 1; }
-    .tkai-header-name { color: #fff; font-weight: 800; font-size: 14px; }
-    .tkai-header-status { color: rgba(255,255,255,.7); font-size: 11px; }
-    .tkai-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 20px; opacity: .8; padding: 0; line-height: 1; }
-    .tkai-close:hover { opacity: 1; }
-    .tkai-messages {
-      flex: 1; overflow-y: auto; padding: 16px; display: flex;
-      flex-direction: column; gap: 10px; min-height: 200px; max-height: 320px;
-    }
-    .tkai-msg { max-width: 85%; font-size: 13px; line-height: 1.5; }
-    .tkai-msg.bot { align-self: flex-start; }
-    .tkai-msg.user { align-self: flex-end; }
-    .tkai-msg-bubble {
-      padding: 10px 13px; border-radius: 12px;
-    }
-    .tkai-msg.bot .tkai-msg-bubble { background: #f1f5f9; color: #1e293b; border-radius: 4px 12px 12px 12px; }
-    .tkai-msg.user .tkai-msg-bubble { background: linear-gradient(135deg,#2563eb,#1d4ed8); color: #fff; border-radius: 12px 4px 12px 12px; }
-    .tkai-typing { display: flex; gap: 4px; padding: 10px 13px; background: #f1f5f9; border-radius: 4px 12px 12px 12px; width: fit-content; }
-    .tkai-typing span { width: 7px; height: 7px; background: #94a3b8; border-radius: 50%; animation: tkaiDot 1.2s infinite; }
-    .tkai-typing span:nth-child(2) { animation-delay: .2s; }
-    .tkai-typing span:nth-child(3) { animation-delay: .4s; }
-    @keyframes tkaiDot { 0%,80%,100%{transform:scale(.8);opacity:.5} 40%{transform:scale(1.1);opacity:1} }
-    .tkai-input-row {
-      padding: 12px; border-top: 1px solid #e2e8f0;
-      display: flex; gap: 8px; align-items: center;
-    }
-    .tkai-input {
-      flex: 1; border: 1.5px solid #e2e8f0; border-radius: 10px;
-      padding: 9px 13px; font-family: inherit; font-size: 13px;
-      outline: none; resize: none; line-height: 1.4;
-      max-height: 80px; overflow-y: auto;
-      transition: border .15s;
-    }
-    .tkai-input:focus { border-color: #2563eb; }
-    .tkai-send {
-      background: linear-gradient(135deg,#2563eb,#1d4ed8);
-      border: none; border-radius: 9px; width: 36px; height: 36px;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: transform .15s;
-    }
-    .tkai-send:hover { transform: scale(1.08); }
-    .tkai-send svg { width: 16px; height: 16px; fill: #fff; }
-    .tkai-footer { text-align: center; padding: 6px; font-size: 10px; color: #94a3b8; border-top: 1px solid #f1f5f9; }
-    .tkai-footer a { color: #2563eb; text-decoration: none; }
-  `;
-
-  // Inject styles
-  const styleEl = document.createElement('style');
-  styleEl.textContent = styles;
-  document.head.appendChild(styleEl);
-
-  // Build HTML
-  const btn = document.createElement('button');
-  btn.id = 'tkai-chat-btn';
-  btn.innerHTML = '💬<span class="tkai-badge" id="tkai-badge">1</span>';
-  btn.title = 'Chat with TurnkeyAI';
-
-  const win = document.createElement('div');
-  win.id = 'tkai-chat-window';
-  win.innerHTML = `
-    <div class="tkai-header">
-      <div class="tkai-avatar">🤖</div>
-      <div class="tkai-header-info">
-        <div class="tkai-header-name">TurnkeyAI Assistant</div>
-        <div class="tkai-header-status">● Online 24/7</div>
-      </div>
-      <button class="tkai-close" id="tkai-close">✕</button>
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="/" class="logo">TurnkeyAI<span>Services</span></a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/business.html">Business Sites</a>
+            <a href="/chatbot.html" class="active">AI Chat & Mini-Me</a>
+            <a href="/turnkeyai-intake-form.html" class="nav-cta">Get Started Free</a>
+        </div>
     </div>
-    <div class="tkai-messages" id="tkai-messages"></div>
-    <div class="tkai-input-row">
-      <textarea class="tkai-input" id="tkai-input" placeholder="Ask me anything..." rows="1"></textarea>
-      <button class="tkai-send" id="tkai-send">
-        <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
-      </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-badge">🤖 AI Chat & Avatar Technology</div>
+    <h1>Your Business Never<br>Sleeps with <span class="hl">AI Chat</span></h1>
+    <p>Every TurnkeyAI website comes with a 24/7 AI assistant that answers questions, captures leads, and books appointments — even at 2am on a Sunday.</p>
+    <div class="hero-btns">
+        <a href="#demo" class="btn-hero-primary">💬 Try the Live Demo</a>
+        <a href="#mini-me" class="btn-hero-secondary">🎬 See Mini-Me</a>
     </div>
-    <div class="tkai-footer">Powered by <a href="https://turnkeyaiservices.com">TurnkeyAI Services</a></div>
-  `;
+</section>
 
-  document.body.appendChild(btn);
-  document.body.appendChild(win);
+<!-- STATS -->
+<div class="stats">
+    <div class="stats-inner">
+        <div><div class="stat-num">67%</div><div class="stat-label">of missed calls never call back</div></div>
+        <div><div class="stat-num">24/7</div><div class="stat-label">AI captures leads while you sleep</div></div>
+        <div><div class="stat-num">3×</div><div class="stat-label">more conversions with instant response</div></div>
+        <div><div class="stat-num">$0</div><div class="stat-label">extra — included in your plan</div></div>
+    </div>
+</div>
 
-  const messagesEl = document.getElementById('tkai-messages');
-  const inputEl = document.getElementById('tkai-input');
-  const badge = document.getElementById('tkai-badge');
+<!-- AI CHAT FEATURES + DEMO -->
+<section class="section" id="demo">
+    <div class="section-inner">
+        <div class="two-col">
+            <div>
+                <div class="section-label">AI Chat Assistant</div>
+                <h2>Your 24/7 Virtual Receptionist</h2>
+                <p class="sub">Built into every TurnkeyAI website at no extra charge. Your AI knows your business inside and out.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon">💬</div>
+                        <div class="feature-text"><h3>Answers questions instantly</h3><p>Hours, services, pricing, availability — your AI responds in seconds, any time of day.</p></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📋</div>
+                        <div class="feature-text"><h3>Captures leads 24/7</h3><p>While you're on a job or asleep, your AI is collecting contact info and booking inquiries.</p></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🎯</div>
+                        <div class="feature-text"><h3>Matches your personality</h3><p>Set it to professional, friendly, warm, or confident. Your AI represents your brand your way.</p></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📱</div>
+                        <div class="feature-text"><h3>Missed call text return</h3><p>Any missed call triggers an instant SMS so you never lose a lead to voicemail again.</p></div>
+                    </div>
+                </div>
+            </div>
 
-  let history = [];
-  let isOpen = false;
-  let hasGreeted = false;
+            <!-- LIVE DEMO CHAT -->
+            <div>
+                <div class="chat-demo">
+                    <div class="chat-header">
+                        <div class="avatar">💬</div>
+                        <div><h3>Ask Us Anything</h3><p>Jazzy's House Cleaning — Demo</p></div>
+                        <div class="online"><div class="online-dot"></div>Online now</div>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-msg bot">
+                            <div class="chat-name">AI Assistant</div>
+                            <div class="chat-bubble">Hi there! 👋 Welcome to Jazzy's House Cleaning. I can help with pricing, availability, or booking. What can I do for you?</div>
+                        </div>
+                    </div>
+                    <div class="typing" id="typingIndicator">
+                        <div class="chat-bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                    </div>
+                    <div class="quick-replies" id="quickReplies">
+                        <button class="qr-btn" onclick="sendQuick('How much does a cleaning cost?')">💰 Pricing?</button>
+                        <button class="qr-btn" onclick="sendQuick('What areas do you serve?')">📍 Service area?</button>
+                        <button class="qr-btn" onclick="sendQuick('How do I book?')">📅 Book now?</button>
+                        <button class="qr-btn" onclick="sendQuick('Are you insured?')">🛡️ Insured?</button>
+                    </div>
+                    <div class="chat-input-row">
+                        <input type="text" id="chatInput" placeholder="Type a question..." onkeydown="if(event.key==='Enter')sendChat()">
+                        <button class="chat-send" onclick="sendChat()">Send</button>
+                    </div>
+                </div>
+                <p style="font-size:12px;color:var(--gray-500);text-align:center;margin-top:10px;">This is a live demo — try typing anything!</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-  function addMessage(role, text) {
-    const msg = document.createElement('div');
-    msg.className = 'tkai-msg ' + role;
-    msg.innerHTML = `<div class="tkai-msg-bubble">${text}</div>`;
-    messagesEl.appendChild(msg);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-    return msg;
-  }
+<!-- MINI-ME -->
+<section class="mini-me-section" id="mini-me">
+    <div class="mini-me-inner">
+        <div class="mini-me-badge">🤖 NEW — Mini-Me AI Avatar</div>
+        <h2>Meet Mini-Me —<br>Your Personal AI Avatar</h2>
+        <p class="sub">Mini-Me is a digital version of you that lives on your website — your face, your voice, your personality — representing your business around the clock. It's the most personal way to connect with new customers before they ever call you.</p>
 
-  function showTyping() {
-    const el = document.createElement('div');
-    el.className = 'tkai-msg bot';
-    el.id = 'tkai-typing';
-    el.innerHTML = `<div class="tkai-typing"><span></span><span></span><span></span></div>`;
-    messagesEl.appendChild(el);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
+        <div class="mm-steps">
+            <div class="mm-step"><div class="num">01</div><h3>You record one short clip</h3><p>On your phone. We send you a script based on your business info. One take, 30–60 seconds. That's it.</p></div>
+            <div class="mm-step"><div class="num">02</div><h3>We create your AI avatar</h3><p>Using your clip, we build a digital Mini-Me — your face, your voice, your personality — powered by AI video technology.</p></div>
+            <div class="mm-step"><div class="num">03</div><h3>It lives on your website</h3><p>Your Mini-Me greets every visitor, answers questions in your voice, and makes your business unforgettable.</p></div>
+            <div class="mm-step"><div class="num">04</div><h3>It works for you 24/7</h3><p>Never takes a day off. Always says the right thing. Builds trust before you ever pick up the phone.</p></div>
+        </div>
 
-  function removeTyping() {
-    const el = document.getElementById('tkai-typing');
-    if (el) el.remove();
-  }
+        <div class="mm-cta">
+            <div>
+                <h3>🎬 Your first Mini-Me video is FREE</h3>
+                <p>Sign up for any TurnkeyAI plan today and get your first Mini-Me video included at no charge. After that, it's just $59/month to keep your avatar active and updated on your site.</p>
+                <a href="/turnkeyai-intake-form.html" class="btn-mm">Add Mini-Me When I Sign Up →</a>
+            </div>
+            <div>
+                <div class="price-tag">$59<span class="mo">/mo</span></div>
+                <div class="price-free">First video FREE</div>
+            </div>
+        </div>
+    </div>
+</section>
 
-  async function sendMessage(text) {
-    if (!text.trim()) return;
-    inputEl.value = '';
-    inputEl.style.height = 'auto';
-    addMessage('user', text);
-    history.push({ role: 'user', content: text });
-    showTyping();
+<!-- PRICING -->
+<section class="pricing-section">
+    <div class="pricing-inner">
+        <h2>Simple, Transparent Pricing</h2>
+        <p class="sub">No setup fees. No contracts. Cancel anytime.</p>
+        <div class="pricing-grid">
+            <div class="price-card">
+                <h3>Website + AI Chat</h3>
+                <div class="price">$99</div>
+                <div class="price-sub">per month · $0 setup fee</div>
+                <ul>
+                    <li>Professional AI-powered website</li>
+                    <li>24/7 AI chat assistant</li>
+                    <li>Missed call text return</li>
+                    <li>After hours auto-reply</li>
+                    <li>Client dashboard — update your info anytime</li>
+                    <li>1 free 60-second promo video</li>
+                </ul>
+                <a href="/turnkeyai-intake-form.html" class="pc-cta">Get Started</a>
+            </div>
+            <div class="price-card featured">
+                <div class="pc-badge">🔥 Most Popular</div>
+                <h3>Website + AI Chat + Mini-Me</h3>
+                <div class="price">$158</div>
+                <div class="price-sub">per month · first Mini-Me video FREE</div>
+                <ul>
+                    <li>Everything in the standard plan</li>
+                    <li>Your personal Mini-Me AI avatar</li>
+                    <li>Mini-Me on your homepage — greets every visitor</li>
+                    <li>Monthly avatar update option</li>
+                    <li>Image/likeness consent stored on file</li>
+                    <li>Priority support</li>
+                </ul>
+                <a href="/turnkeyai-intake-form.html" class="pc-cta">Add Mini-Me</a>
+            </div>
+        </div>
+    </div>
+</section>
 
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history, context: SITE_CONTEXT })
-      });
-      const data = await res.json();
-      removeTyping();
-      const reply = data.reply || "I'm having trouble right now. Please call (603) 922-2004 or email turnkeyaiservices@gmail.com.";
-      addMessage('bot', reply);
-      history.push({ role: 'assistant', content: reply });
-    } catch (e) {
-      removeTyping();
-      addMessage('bot', "I'm having trouble connecting. Please call <strong>(603) 922-2004</strong> or email turnkeyaiservices@gmail.com.");
+<footer>
+    <p>© 2025 TurnkeyAI Services · <a href="/">Home</a> · <a href="/turnkeyai-intake-form.html">Get Started</a> · <a href="mailto:george@turnkeyaiservices.com">george@turnkeyaiservices.com</a> · (228) 604-3200</p>
+    <p style="margin-top:7px;font-size:12px;">AI-Powered Websites for Local Business — Built by TurnkeyAI Services</p>
+</footer>
+
+<script>
+var DEMO_SYSTEM = "You are a friendly AI assistant demo for Jazzy's House Cleaning, a professional house cleaning service in Bay St. Louis, MS. Answer questions about: pricing (standard cleaning $120, deep clean $200, move-in/out $250), hours (Mon-Sat 8am-6pm), service area (Bay St. Louis, Gulfport, Biloxi, and surrounding areas), booking (call 228-604-3200 or fill out the contact form), and insurance (yes, fully insured and bonded). Keep answers short, friendly, and end with a follow-up question.";
+
+async function sendChat(){
+    var input=document.getElementById('chatInput');
+    var text=input.value.trim();
+    if(!text)return;
+    input.value='';
+    addMsg(text,'user');
+    document.getElementById('quickReplies').style.display='none';
+    showTyping(true);
+    try{
+        var res=await fetch('https://turnkeyai-backend-production.up.railway.app/api/chat',{
+            method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({message:text,systemPrompt:DEMO_SYSTEM})
+        });
+        var data=await res.json();
+        showTyping(false);
+        addMsg(data.reply||"Thanks! For immediate help call (228) 604-3200.",'bot');
+    }catch(e){
+        showTyping(false);
+        addMsg("Thanks for your message! For immediate help call (228) 604-3200.",'bot');
     }
-  }
+}
 
-  function openChat() {
-    isOpen = true;
-    win.classList.add('open');
-    badge.style.display = 'none';
-    if (!hasGreeted) {
-      hasGreeted = true;
-      addMessage('bot', "Hi! 👋 I'm the TurnkeyAI assistant. I can answer questions about our website services, pricing, and partner program — or help you get started. What can I help you with?");
-    }
-    inputEl.focus();
-  }
+function sendQuick(text){document.getElementById('chatInput').value=text;sendChat();}
 
-  function closeChat() {
-    isOpen = false;
-    win.classList.remove('open');
-  }
+function addMsg(text,role){
+    var c=document.getElementById('chatMessages');
+    var d=document.createElement('div');
+    d.className='chat-msg '+role;
+    if(role==='bot')d.innerHTML='<div class="chat-name">AI Assistant</div><div class="chat-bubble">'+escHtml(text)+'</div>';
+    else d.innerHTML='<div class="chat-bubble">'+escHtml(text)+'</div>';
+    c.appendChild(d);
+    c.scrollTop=c.scrollHeight;
+}
 
-  btn.addEventListener('click', () => isOpen ? closeChat() : openChat());
-  document.getElementById('tkai-close').addEventListener('click', closeChat);
+function showTyping(show){
+    var t=document.getElementById('typingIndicator');
+    t.style.display=show?'flex':'none';
+    if(show)document.getElementById('chatMessages').scrollTop=document.getElementById('chatMessages').scrollHeight;
+}
 
-  document.getElementById('tkai-send').addEventListener('click', () => sendMessage(inputEl.value));
-
-  inputEl.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage(inputEl.value);
-    }
-  });
-
-  inputEl.addEventListener('input', () => {
-    inputEl.style.height = 'auto';
-    inputEl.style.height = Math.min(inputEl.scrollHeight, 80) + 'px';
-  });
-
-  // Show badge after 8 seconds to draw attention
-  setTimeout(() => {
-    if (!isOpen) { badge.style.display = 'flex'; }
-  }, 8000);
-
-})();
+function escHtml(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
