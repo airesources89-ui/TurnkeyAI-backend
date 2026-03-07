@@ -385,7 +385,7 @@
                 <div class="form-group" style="margin-top:16px;padding:16px;background:#fff3cd;border:1px solid #ffc107;border-radius:10px;">
                     <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin:0;">
                         <input type="checkbox" id="skipPhotosCheckbox" name="skipPhotos" value="yes" onchange="updatePhotoRequirement()" style="width:18px;height:18px;margin-top:2px;">
-                        <span style="font-size:13px;"><strong>Skip photos for now</strong> — I can email photos later to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="cea9aba1bca9ab8ebabbbca0a5abb7afa7bdabbcb8a7adabbde0ada1a3">[email&#160;protected]</a></span>
+                        <span style="font-size:13px;"><strong>Skip photos for now</strong> — I can email photos later to george&#64;turnkeyaiservices.com</span>
                     </label>
                 </div>
                 <div id="photoValidationMsg" style="display:none;color:#dc2626;font-size:13px;font-weight:600;margin-top:10px;padding:10px;background:#fef2f2;border-radius:8px;">⚠️ Please upload at least an owner photo and one work photo, or check the box above to skip.</div>
@@ -417,7 +417,7 @@
                     <div class="consent-sub" id="miniMeConsentBox">
                         <label>
                             <input type="checkbox" name="mini_me_consent" id="miniMeConsentCb" value="yes">
-                            <span>I authorize TurnkeyAI Services to use my image, likeness, and voice recording to create my AI avatar (Mini-Me) for my business website. I can revoke this authorization at any time by contacting <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ccaba9a3beaba98cb8b9bea2a7a9b5ada5bfa9bebaa5afa9bfe2afa3a1">[email&#160;protected]</a>. <strong style="color:#00D68F;">Consent is stored with a timestamp in your account.</strong></span>
+                            <span>I authorize TurnkeyAI Services to use my image, likeness, and voice recording to create my AI avatar (Mini-Me) for my business website. I can revoke this authorization at any time by contacting george&#64;turnkeyaiservices.com. <strong style="color:#00D68F;">Consent is stored with a timestamp in your account.</strong></span>
                         </label>
                     </div>
                 </div>
@@ -513,7 +513,7 @@
                     <li>We build your AI-powered website (typically within 24 hours)</li>
                     <li>You'll receive a preview link by email to review and approve</li>
                     <li>Once approved and paid, your site goes live automatically</li>
-                    <li>Send your logo and photos to <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ddbab8b2afbab89da9a8afb3b6b8a4bcb4aeb8afabb4beb8aef3beb2b0">[email&#160;protected]</a></strong></li>
+                    <li>Send your logo and photos to <strong>george&#64;turnkeyaiservices.com</strong></li>
                 </ul>
             </div>
             <p style="margin-top:24px;font-size:14px;color:var(--gray-500);">Questions? Call us at (228) 604-3200</p>
@@ -735,4 +735,19 @@
                 document.getElementById('photoValidationMsg').style.display='none';
             };
             img.src=e.target.result;
-       
+               };
+        reader.readAsDataURL(file);
+    }
+
+    function validatePhotos(){
+        var skipPhotos=document.getElementById('skipPhotosCheckbox').checked;
+        if(skipPhotos)return true;
+        var ownerPhoto=document.getElementById('ownerPhotoData').value;
+        var workPhoto1=document.getElementById('workPhoto1Data').value;
+        if(!ownerPhoto||!workPhoto1){document.getElementById('photoValidationMsg').style.display='block';return false;}
+        return true;
+    }
+
+    </script>
+</body>
+</html>
