@@ -6,24 +6,26 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const ADMIN_EMAIL = 'turnkeyaiservices@gmail.com';
 const PORT = process.env.PORT || 8080;
 
 async function sendEmail({ to, subject, html }) {
-  const res = await fetch('https://api.resend.com/emails', {
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${RESEND_API_KEY}`
+      'api-key': BREVO_API_KEY
     },
     body: JSON.stringify({
-      from: 'TurnkeyAI Services <onboarding@resend.dev>',
-      to, subject, html
+      sender: { name: 'TurnkeyAI Services', email: 'turnkeyaiservices@gmail.com' },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html
     })
   });
   const data = await res.json();
-  if (!res.ok) console.error('[Resend error]', data);
+  if (!res.ok) console.error('[Brevo error]', data);
   return data;
 }
 
