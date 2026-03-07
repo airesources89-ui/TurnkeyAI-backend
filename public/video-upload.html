@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Your Video Clip | TurnkeyAI Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        :root{--primary:#0066FF;--accent:#00D68F;--dark:#1a1a2e;}
+        body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#0a0a1a 0%,#1a1a2e 100%);min-height:100vh;color:white;}
+        .header{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);padding:20px 0;border-bottom:1px solid rgba(255,255,255,0.1);}
+        .header-inner{max-width:700px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;}
+        .logo{font-size:24px;font-weight:700;color:white;text-decoration:none;}
+        .logo span{color:var(--accent);}
+        .container{max-width:700px;margin:0 auto;padding:60px 24px 80px;}
+        .hero{text-align:center;margin-bottom:48px;}
+        .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,214,143,0.15);border:1px solid rgba(0,214,143,0.4);color:var(--accent);padding:8px 20px;border-radius:20px;font-size:14px;font-weight:700;margin-bottom:20px;}
+        .hero h1{font-family:'Playfair Display',serif;font-size:40px;font-weight:700;margin-bottom:14px;}
+        .hero p{font-size:17px;opacity:0.8;max-width:480px;margin:0 auto;line-height:1.7;}
+        .card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:28px 32px;margin-bottom:24px;}
+        .card h2{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:8px;color:var(--accent);}
+        .card .sub{font-size:14px;opacity:0.75;margin-bottom:18px;line-height:1.6;}
+        .steps{display:flex;flex-direction:column;gap:16px;}
+        .step{display:flex;align-items:flex-start;gap:14px;}
+        .step-num{width:34px;height:34px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;}
+        .step-text strong{display:block;font-size:15px;margin-bottom:3px;}
+        .step-text span{font-size:13px;opacity:0.7;line-height:1.5;}
+        .form-group{margin-bottom:18px;}
+        .form-group label{display:block;font-weight:600;margin-bottom:7px;font-size:14px;opacity:0.9;}
+        .form-group input,.form-group textarea,.form-group select{width:100%;padding:13px 15px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:white;font-size:15px;font-family:inherit;}
+        .form-group input::placeholder,.form-group textarea::placeholder{color:rgba(255,255,255,0.35);}
+        .form-group input:focus,.form-group textarea:focus,.form-group select:focus{outline:none;border-color:var(--accent);}
+        .form-group textarea{min-height:90px;resize:vertical;}
+        .form-group select option{background:#1a1a2e;}
+        .upload-zone{border:2px dashed rgba(0,214,143,0.4);border-radius:14px;padding:40px 24px;text-align:center;cursor:pointer;transition:all 0.3s;background:rgba(0,214,143,0.03);margin-bottom:16px;}
+        .upload-zone:hover,.upload-zone.dragover{border-color:var(--accent);background:rgba(0,214,143,0.09);}
+        .upload-zone .icon{font-size:44px;margin-bottom:14px;}
+        .upload-zone h3{font-size:18px;font-weight:600;margin-bottom:6px;}
+        .upload-zone p{font-size:13px;opacity:0.6;}
+        .upload-zone .btn-choose{display:inline-block;margin-top:16px;background:linear-gradient(135deg,var(--primary),#0052CC);color:white;padding:12px 28px;border-radius:9px;font-weight:600;font-size:14px;border:none;cursor:pointer;}
+        .file-preview{display:none;background:rgba(0,214,143,0.1);border:1px solid rgba(0,214,143,0.3);border-radius:10px;padding:14px 16px;margin-bottom:16px;}
+        .file-preview .fname{font-weight:600;color:var(--accent);}
+        .file-preview .fsize{font-size:13px;opacity:0.6;margin-top:3px;}
+        .consent-box{background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.3);border-radius:12px;padding:18px 20px;margin-bottom:20px;}
+        .consent-box label{display:flex;align-items:flex-start;gap:11px;cursor:pointer;font-weight:400;margin:0;}
+        .consent-box input[type="checkbox"]{width:19px;height:19px;accent-color:var(--accent);margin-top:2px;flex-shrink:0;}
+        .consent-box span{font-size:13px;line-height:1.6;opacity:0.85;}
+        .btn-submit{width:100%;padding:17px;background:linear-gradient(135deg,var(--accent),#00b377);color:#0a1628;font-size:17px;font-weight:700;border:none;border-radius:12px;cursor:pointer;transition:all 0.2s;}
+        .btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,214,143,0.4);}
+        .btn-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+        .script-box{background:rgba(255,255,255,0.05);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:16px 20px;margin-bottom:20px;}
+        .script-box h4{color:var(--accent);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+        .script-box p{font-size:14px;line-height:1.8;opacity:0.85;font-style:italic;}
+        .success-state{display:none;text-align:center;padding:80px 24px;}
+        .success-state .s-icon{font-size:70px;margin-bottom:22px;}
+        .success-state h2{font-family:'Playfair Display',serif;font-size:34px;margin-bottom:14px;color:var(--accent);}
+        .success-state p{font-size:17px;opacity:0.8;max-width:480px;margin:0 auto;line-height:1.7;}
+    </style>
+</head>
+<body>
+<header class="header">
+    <div class="header-inner">
+        <a href="/" class="logo">TurnkeyAI<span>Services</span></a>
+        <span style="font-size:13px;opacity:0.55;">Client Video Upload Portal</span>
+    </div>
+</header>
+
+<div class="container" id="mainContent">
+    <div class="hero">
+        <div class="hero-badge">🎬 Video Submission Portal</div>
+        <h1>Submit Your Video Clip</h1>
+        <p>One short clip on your phone is all it takes. We handle everything else — editing, production, and putting it on your site.</p>
+    </div>
+
+    <!-- HOW TO RECORD -->
+    <div class="card">
+        <h2>📱 How To Record Your Clip</h2>
+        <p class="sub">Use your phone camera. No special equipment needed.</p>
+        <div class="steps">
+            <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Find good lighting</strong><span>Stand near a window or go outside. Bright light = professional look. Avoid dark rooms.</span></div></div>
+            <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Hold your phone sideways (landscape)</strong><span>Turn your phone horizontal. Prop it against something if needed — steady is better.</span></div></div>
+            <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Read your script naturally</strong><span>Use the script we emailed you, or say it in your own words. One take is fine. Be yourself.</span></div></div>
+            <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Keep it 30–90 seconds</strong><span>Short is better. We'll edit and produce the final polished version.</span></div></div>
+        </div>
+    </div>
+
+    <!-- SCRIPT (shown if URL param present) -->
+    <div class="card" id="scriptCard" style="display:none;">
+        <h2>📝 Your Script</h2>
+        <p class="sub">Use this or put it in your own words — either is great.</p>
+        <div class="script-box"><h4>Your Personalized Script</h4><p id="scriptText"></p></div>
+    </div>
+
+    <!-- UPLOAD FORM -->
+    <div class="card">
+        <h2>⬆️ Upload Your Clip</h2>
+        <p class="sub">Fill in your details below and select your video file.</p>
+
+        <div class="form-group"><label>Your Name</label><input type="text" id="uploaderName" placeholder="Your full name"></div>
+        <div class="form-group"><label>Business Name</label><input type="text" id="uploaderBiz" placeholder="Your business name"></div>
+        <div class="form-group"><label>Email Address</label><input type="email" id="uploaderEmail" placeholder="you@email.com"></div>
+        <div class="form-group">
+            <label>Video Type</label>
+            <select id="videoType">
+                <option value="promo">Free 60-Second Promo Video</option>
+                <option value="mini_me">Mini-Me AI Avatar Clip</option>
+                <option value="both">Both — Promo Video + Mini-Me</option>
+            </select>
+        </div>
+        <div class="form-group"><label>Notes for us (optional)</label><textarea id="uploaderNotes" placeholder="e.g., I went off script a bit, want to emphasize my weekend special..."></textarea></div>
+
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('videoFileInput').click()">
+            <div class="icon">🎬</div>
+            <h3>Click to Select Your Video File</h3>
+            <p>MP4, MOV, or AVI — up to 500MB</p>
+            <button type="button" class="btn-choose">Choose File</button>
+        </div>
+        <input type="file" id="videoFileInput" accept="video/*" style="display:none;" onchange="handleVideoSelect(this)">
+
+        <div class="file-preview" id="filePreview">
+            <div class="fname" id="fileName"></div>
+            <div class="fsize" id="fileSize"></div>
+        </div>
+
+        <div class="consent-box">
+            <label>
+                <input type="checkbox" id="consentCb">
+                <span>I authorize TurnkeyAI Services to use this video clip, my image, likeness, and voice to create promotional content and/or an AI avatar (Mini-Me) for my business website. This is solely for my business marketing. I can revoke this at any time by contacting george@turnkeyaiservices.com.</span>
+            </label>
+        </div>
+
+        <button type="button" class="btn-submit" id="submitBtn" onclick="submitVideo()">🚀 Submit My Video Clip</button>
+    </div>
+</div>
+
+<div class="success-state" id="successState">
+    <div class="s-icon">🎉</div>
+    <h2>Video Received!</h2>
+    <p>We've got your clip. Production begins within 48 hours — you'll receive a preview by email before anything goes live on your site.</p>
+    <p style="margin-top:22px;font-size:14px;opacity:0.55;">Questions? Email george@turnkeyaiservices.com or call (228) 604-3200</p>
+</div>
+
+<script>
+// Pre-fill from URL params (sent in client email)
+(function(){
+    var p=new URLSearchParams(window.location.search);
+    if(p.get('name'))document.getElementById('uploaderName').value=decodeURIComponent(p.get('name'));
+    if(p.get('biz'))document.getElementById('uploaderBiz').value=decodeURIComponent(p.get('biz'));
+    if(p.get('email'))document.getElementById('uploaderEmail').value=decodeURIComponent(p.get('email'));
+    if(p.get('type'))document.getElementById('videoType').value=p.get('type');
+    if(p.get('script')){
+        document.getElementById('scriptText').textContent=decodeURIComponent(p.get('script'));
+        document.getElementById('scriptCard').style.display='block';
+    }
+})();
+
+// Drag and drop
+var zone=document.getElementById('uploadZone');
+zone.addEventListener('dragover',function(e){e.preventDefault();this.classList.add('dragover');});
+zone.addEventListener('dragleave',function(){this.classList.remove('dragover');});
+zone.addEventListener('drop',function(e){e.preventDefault();this.classList.remove('dragover');if(e.dataTransfer.files[0])processFile(e.dataTransfer.files[0]);});
+
+var selectedFile=null;
+function handleVideoSelect(input){if(input.files&&input.files[0])processFile(input.files[0]);}
+function processFile(file){
+    if(file.size>500*1024*1024){alert('File too large. Please keep under 500MB.');return;}
+    selectedFile=file;
+    document.getElementById('fileName').textContent='✅ '+file.name;
+    document.getElementById('fileSize').textContent=(file.size/(1024*1024)).toFixed(1)+' MB';
+    document.getElementById('filePreview').style.display='block';
+    document.getElementById('uploadZone').style.borderColor='#00D68F';
+}
+
+async function submitVideo(){
+    var name=document.getElementById('uploaderName').value.trim();
+    var biz=document.getElementById('uploaderBiz').value.trim();
+    var email=document.getElementById('uploaderEmail').value.trim();
+    if(!name||!biz||!email){alert('Please fill in your name, business name, and email.');return;}
+    if(!selectedFile){alert('Please select your video file first.');return;}
+    if(!document.getElementById('consentCb').checked){alert('Please check the consent box before submitting.');return;}
+    var btn=document.getElementById('submitBtn');
+    btn.disabled=true;btn.textContent='⏳ Submitting...';
+    try{
+        await fetch('https://turnkeyai-backend-production.up.railway.app/api/video-upload-notify',{
+            method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({type:'video_upload',uploaderName:name,businessName:biz,email:email,videoType:document.getElementById('videoType').value,notes:document.getElementById('uploaderNotes').value,fileName:selectedFile.name,fileSize:(selectedFile.size/(1024*1024)).toFixed(1)+' MB',consentGiven:true,consentTimestamp:new Date().toISOString()})
+        });
+    }catch(e){console.log('notify:',e);}
+    document.getElementById('mainContent').style.display='none';
+    document.getElementById('successState').style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
