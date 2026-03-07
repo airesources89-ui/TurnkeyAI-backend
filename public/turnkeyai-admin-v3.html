@@ -2,444 +2,176 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TurnkeyAI Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-:root{--bg:#0a0f1e;--surface:#111827;--surface2:#1e293b;--border:rgba(255,255,255,.07);--text:#f1f5f9;--muted:#64748b;--accent:#3b82f6;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--purple:#8b5cf6;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+body{font-family:'DM Sans',sans-serif;background:#0f172a;min-height:100vh;color:#e2e8f0;}
+.header{background:#1e293b;border-bottom:1px solid #334155;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;}
+.logo{font-size:20px;font-weight:700;color:white;}.logo span{color:#00D68F;}
+.admin-badge{background:rgba(0,214,143,.15);border:1px solid #00D68F;color:#00D68F;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+.container{max-width:1100px;margin:0 auto;padding:32px 24px;}
 
-/* LOGIN */
-#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%, #1e3a8a 0%, var(--bg) 60%);}
-.login-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:48px 40px;width:100%;max-width:400px;text-align:center;}
-.login-logo{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#fff;margin-bottom:4px;}
-.login-logo span{color:#60a5fa;}
-.login-sub{font-size:14px;color:var(--muted);margin-bottom:36px;}
-.login-input{width:100%;padding:14px 16px;background:#0a0f1e;border:1px solid #334155;border-radius:10px;font-size:15px;color:#f1f5f9;font-family:inherit;margin-bottom:12px;transition:border .15s;}
-.login-input:focus{outline:none;border-color:var(--accent);}
-.login-btn{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
-.login-btn:hover{background:#2563eb;}
-.login-error{color:var(--red);font-size:13px;margin-top:8px;display:none;}
+#loginScreen{max-width:400px;margin:80px auto;background:#1e293b;border-radius:16px;padding:40px;border:1px solid #334155;}
+#loginScreen h2{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:8px;}
+#loginScreen p{color:#94a3b8;font-size:14px;margin-bottom:28px;}
+input[type="password"]{width:100%;padding:12px 16px;background:#0f172a;border:1px solid #334155;border-radius:8px;color:white;font-size:15px;margin-bottom:12px;}
+input[type="password"]:focus{outline:none;border-color:#0066FF;}
+.btn{padding:12px 24px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
+.btn-primary{background:linear-gradient(135deg,#0066FF,#0052CC);color:white;width:100%;}
+.btn-approve{background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:8px 16px;font-size:13px;}
+.btn-preview{background:rgba(0,102,255,.15);border:1px solid #0066FF;color:#60a5fa;padding:8px 16px;font-size:13px;cursor:pointer;}
+.btn-sm{padding:6px 14px;font-size:13px;}
 
-/* APP */
-#app{display:none;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:32px;}
+.stat{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px;}
+.stat .number{font-size:36px;font-weight:700;color:#00D68F;}
+.stat .label{color:#94a3b8;font-size:14px;margin-top:4px;}
 
-/* HEADER */
-.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
-.header-brand{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;}
-.header-brand span{color:#60a5fa;}
-.header-right{display:flex;align-items:center;gap:16px;}
-.header-status{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--green);}
-.header-status .dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
-.logout-btn{padding:8px 16px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
-.logout-btn:hover{border-color:#ef4444;color:#ef4444;}
+.section-title{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.refresh-btn{background:#1e293b;border:1px solid #334155;color:#94a3b8;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;}
+.refresh-btn:hover{border-color:#0066FF;color:#60a5fa;}
 
-/* STATS */
-.stats-bar{padding:20px 28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
-.stat-num{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;line-height:1;}
-.stat-label{font-size:12px;color:var(--muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
-.s-blue{color:#60a5fa;}
-.s-green{color:var(--green);}
-.s-yellow{color:var(--yellow);}
-.s-purple{color:var(--purple);}
+.clients-list{display:grid;gap:16px;}
+.client-card{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:20px;}
+.client-card.active{border-color:#00D68F;}
+.client-card.pending{border-color:#f59e0b;}
+.client-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:12px;flex-wrap:wrap;}
+.client-header h3{font-size:18px;font-weight:700;}
+.status-pill{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+.status-pill.pending{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid #f59e0b;}
+.status-pill.active{background:rgba(0,214,143,.15);color:#00D68F;border:1px solid #00D68F;}
+.client-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:16px;}
+.meta-item .label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;}
+.meta-item .value{font-size:14px;color:#e2e8f0;font-weight:500;}
+.client-actions{display:flex;gap:10px;flex-wrap:wrap;}
 
-/* TABS */
-.tabs{display:flex;gap:0;padding:0 28px;border-bottom:1px solid var(--border);}
-.tab{padding:14px 20px;font-size:14px;font-weight:600;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.empty-state{text-align:center;padding:60px 24px;color:#64748b;}
+.empty-state .icon{font-size:48px;margin-bottom:16px;}
 
-/* TOOLBAR */
-.toolbar{padding:16px 28px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-.search-box{flex:1;min-width:200px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);font-family:inherit;}
-.search-box:focus{outline:none;border-color:var(--accent);}
-.filter-select{padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);font-family:inherit;cursor:pointer;}
-.filter-select:focus{outline:none;}
-.refresh-btn{padding:10px 18px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;}
-.refresh-btn:hover{border-color:var(--accent);color:var(--accent);}
-
-/* TABLE */
-.table-wrap{padding:0 28px 28px;overflow-x:auto;}
-table{width:100%;border-collapse:collapse;}
-thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);border-bottom:1px solid var(--border);background:var(--surface);}
-tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
-tbody tr:hover{background:var(--surface);}
-tbody td{padding:14px;font-size:14px;vertical-align:middle;}
-.td-biz{font-weight:700;color:#f1f5f9;}
-.td-sub{font-size:12px;color:var(--muted);margin-top:2px;}
-.status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;}
-.sb-review{background:#1e3a8a;color:#93c5fd;}
-.sb-active{background:#064e3b;color:#6ee7b7;}
-.sb-changes{background:#78350f;color:#fcd34d;}
-.sb-trial{background:#3b0764;color:#c4b5fd;}
-.sb-pending{background:#1e293b;color:#94a3b8;}
-.sb-declined{background:#1c1917;color:#78716c;}
-.action-cell{display:flex;gap:6px;flex-wrap:wrap;}
-.act{padding:7px 12px;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
-.act-preview{background:#1e3a8a;color:#93c5fd;}
-.act-preview:hover{background:#1d4ed8;color:#fff;}
-.act-approve{background:#064e3b;color:#6ee7b7;}
-.act-approve:hover{background:var(--green);color:#fff;}
-.act-resend{background:#374151;color:#d1d5db;}
-.act-resend:hover{background:#4b5563;color:#fff;}
-.act-partner-approve{background:#064e3b;color:#6ee7b7;}
-.act-partner-approve:hover{background:var(--green);color:#fff;}
-.act-partner-decline{background:#7f1d1d;color:#fca5a5;}
-.act-partner-decline:hover{background:var(--red);color:#fff;}
-.act-changes{background:#78350f;color:#fcd34d;}
-.act-changes:hover{background:var(--yellow);color:#fff;}
-.empty-state{text-align:center;padding:60px;color:var(--muted);}
-.empty-state .icon{font-size:48px;margin-bottom:12px;}
-
-/* MODAL */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;}
-.modal-bg.open{display:flex;}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;max-width:480px;width:92%;max-height:90vh;overflow-y:auto;}
-.modal h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:16px;}
-.modal-input{width:100%;padding:11px 14px;background:var(--bg);border:1px solid #334155;border-radius:8px;font-size:14px;color:var(--text);font-family:inherit;margin-bottom:10px;}
-.modal-input:focus{outline:none;border-color:var(--accent);}
-.modal-btns{display:flex;gap:10px;margin-top:16px;}
-.modal-btns button{flex:1;padding:12px;border-radius:8px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;}
-.mbtn-confirm{background:var(--green);color:#fff;}
-.mbtn-cancel{background:#334155;color:var(--text);}
-.info-grid{display:grid;gap:8px;margin-bottom:16px;}
-.info-item{display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid var(--border);}
-.info-item:last-child{border-bottom:none;}
-.info-item .k{color:var(--muted);}
-.info-item .v{color:var(--text);font-weight:600;text-align:right;}
-
-/* TOAST */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface2);color:var(--text);padding:14px 24px;border-radius:12px;font-size:14px;font-weight:600;border:1px solid var(--border);z-index:600;transition:transform .3s;box-shadow:0 8px 32px rgba(0,0,0,.4);}
-.toast.show{transform:translateX(-50%) translateY(0);}
-.toast.success{border-color:var(--green);color:var(--green);}
-.toast.error{border-color:var(--red);color:var(--red);}
-
-/* NOTES */
-.notes-badge{display:inline-block;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--muted);}
+.toast{position:fixed;bottom:24px;right:24px;background:#00D68F;color:white;padding:14px 20px;border-radius:10px;font-weight:600;font-size:14px;display:none;z-index:999;}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="loginScreen">
-  <div class="login-card">
-    <div class="login-logo">TurnkeyAI<span>Admin</span></div>
-    <div class="login-sub">Secure Admin Dashboard</div>
-    <input class="login-input" type="password" id="loginPass" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" onclick="doLogin()">Log In →</button>
-    <div class="login-error" id="loginError">Incorrect password. Try again.</div>
-  </div>
+<div class="header">
+  <div class="logo">TurnkeyAI<span>Services</span> <span style="font-size:14px;font-weight:400;color:#94a3b8;margin-left:8px;">Admin</span></div>
+  <span class="admin-badge">ADMIN PANEL</span>
 </div>
 
-<!-- APP -->
-<div id="app">
-  <div class="header">
-    <div class="header-brand">TurnkeyAI<span>Admin</span></div>
-    <div class="header-right">
-      <div class="header-status"><div class="dot"></div>Live</div>
-      <div style="font-size:13px;color:var(--muted);" id="lastRefresh"></div>
-      <button class="logout-btn" onclick="doLogout()">Log Out</button>
+<div class="container">
+
+  <!-- LOGIN -->
+  <div id="loginScreen">
+    <h2>Admin Login</h2>
+    <p>Enter your admin key to access the dashboard.</p>
+    <input type="password" id="adminKeyInput" placeholder="Admin key" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    <button class="btn btn-primary" onclick="doAdminLogin()">Access Dashboard</button>
+    <p id="loginErr" style="color:#f87171;font-size:13px;margin-top:10px;display:none;">Incorrect key. Try again.</p>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div id="adminDash" style="display:none;">
+    <div class="stats">
+      <div class="stat"><div class="number" id="statTotal">0</div><div class="label">Total Clients</div></div>
+      <div class="stat"><div class="number" id="statPending" style="color:#f59e0b;">0</div><div class="label">Pending Approval</div></div>
+      <div class="stat"><div class="number" id="statActive">0</div><div class="label">Active Sites</div></div>
+    </div>
+
+    <div class="section-title">
+      All Clients
+      <button class="refresh-btn" onclick="loadClients()">↻ Refresh</button>
+    </div>
+    <div class="clients-list" id="clientsList">
+      <div class="empty-state"><div class="icon">📋</div><p>Loading clients...</p></div>
     </div>
   </div>
 
-  <div class="stats-bar" id="statsBar">
-    <div class="stat-card"><div class="stat-num s-yellow" id="st_pending">—</div><div class="stat-label">Pending Review</div></div>
-    <div class="stat-card"><div class="stat-num s-green" id="st_active">—</div><div class="stat-label">Live Sites</div></div>
-    <div class="stat-card"><div class="stat-num s-blue" id="st_total">—</div><div class="stat-label">Total Clients</div></div>
-    <div class="stat-card"><div class="stat-num s-purple" id="st_partners">—</div><div class="stat-label">Partners</div></div>
-    <div class="stat-card"><div class="stat-num s-yellow" id="st_changes">—</div><div class="stat-label">Changes Requested</div></div>
-  </div>
-
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('clients',this)">👥 Client Submissions</div>
-    <div class="tab" onclick="switchTab('partners',this)">🤝 Territory Partners</div>
-  </div>
-
-  <div class="toolbar">
-    <input class="search-box" type="text" placeholder="Search by name, email, city…" id="searchBox" oninput="renderTable()">
-    <select class="filter-select" id="filterStatus" onchange="renderTable()">
-      <option value="">All Statuses</option>
-      <option value="review">Awaiting Review</option>
-      <option value="active">Live</option>
-      <option value="changes_requested">Changes Requested</option>
-      <option value="trial">Trial</option>
-    </select>
-    <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
-  </div>
-
-  <div class="table-wrap">
-    <!-- CLIENTS -->
-    <div id="clientsTab">
-      <table>
-        <thead><tr>
-          <th>Business</th>
-          <th>Contact</th>
-          <th>Location</th>
-          <th>Status</th>
-          <th>Notes</th>
-          <th>Actions</th>
-        </tr></thead>
-        <tbody id="clientsBody"></tbody>
-      </table>
-    </div>
-    <!-- PARTNERS -->
-    <div id="partnersTab" style="display:none;">
-      <table>
-        <thead><tr>
-          <th>Name</th>
-          <th>Contact</th>
-          <th>Territory</th>
-          <th>Tier</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr></thead>
-        <tbody id="partnersBody"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- MODALS -->
-<div class="modal-bg" id="clientModal">
-  <div class="modal">
-    <h3 id="cm_title">Client Details</h3>
-    <div class="info-grid" id="cm_info"></div>
-    <div style="margin-bottom:10px;"><label style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;">Notes</label>
-    <textarea class="modal-input" id="cm_notes" rows="3" placeholder="Add notes…"></textarea></div>
-    <div class="modal-btns">
-      <button class="mbtn-cancel" onclick="closeModals()">Close</button>
-      <button class="mbtn-confirm" onclick="saveNotes()">Save Notes</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-bg" id="partnerModal">
-  <div class="modal">
-    <h3 id="pm_title">Partner Details</h3>
-    <div class="info-grid" id="pm_info"></div>
-    <div style="margin-bottom:10px;"><label style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;">Approved ZIP Codes</label>
-    <input class="modal-input" id="pm_zips" placeholder="e.g. 39520, 39521, 39529"></div>
-    <div class="modal-btns">
-      <button class="mbtn-cancel" onclick="closeModals()">Cancel</button>
-      <button class="mbtn-confirm" onclick="approvePartner('approve')">✓ Approve</button>
-    </div>
-    <button style="width:100%;padding:10px;background:transparent;border:1px solid var(--red);color:var(--red);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-top:10px;font-family:inherit;" onclick="approvePartner('decline')">✗ Decline</button>
-  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const API = 'https://turnkeyai-backend-production.up.railway.app';
+const BACKEND = 'https://turnkeyai-backend-production.up.railway.app';
 let adminKey = '';
-let allClients = [];
-let allPartners = [];
-let activeTab = 'clients';
-let selectedClient = null;
-let selectedPartner = null;
 
-function doLogin() {
-  const pass = document.getElementById('loginPass').value;
-  if (!pass) return;
-  adminKey = pass;
-  // Try to fetch data to validate
-  fetch(API + '/api/submissions', { headers: { 'x-admin-key': adminKey } })
-    .then(r => {
-      if (r.ok) {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-        loadData();
-        setInterval(loadData, 60000);
-      } else {
-        document.getElementById('loginError').style.display = 'block';
-        adminKey = '';
-      }
-    })
-    .catch(() => {
-      document.getElementById('loginError').style.display = 'block';
-      adminKey = '';
-    });
+function doAdminLogin() {
+  const key = document.getElementById('adminKeyInput').value.trim();
+  if (!key) return;
+  adminKey = key;
+  loadClients();
 }
 
-function doLogout() {
-  adminKey = '';
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('loginPass').value = '';
-}
-
-async function loadData() {
+async function loadClients() {
   try {
-    const [cr, pr] = await Promise.all([
-      fetch(API + '/api/submissions', { headers: { 'x-admin-key': adminKey } }),
-      fetch(API + '/api/partners', { headers: { 'x-admin-key': adminKey } })
-    ]);
-    allClients = await cr.json();
-    allPartners = await pr.json();
-    updateStats();
-    renderTable();
-    document.getElementById('lastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    const r = await fetch(`${BACKEND}/api/admin/clients?adminKey=${encodeURIComponent(adminKey)}`);
+    if (r.status === 403) {
+      document.getElementById('loginErr').style.display = 'block';
+      return;
+    }
+    const clients = await r.json();
+    document.getElementById('loginErr').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminDash').style.display = 'block';
+    renderClients(clients);
   } catch(e) {
-    showToast('Failed to load data. Check connection.', 'error');
+    alert('Could not connect to backend. Is Railway running?');
   }
 }
 
-function updateStats() {
-  document.getElementById('st_pending').textContent = allClients.filter(c=>c.status==='review').length;
-  document.getElementById('st_active').textContent = allClients.filter(c=>c.status==='active').length;
-  document.getElementById('st_total').textContent = allClients.length;
-  document.getElementById('st_partners').textContent = allPartners.filter(p=>p.status==='active').length;
-  document.getElementById('st_changes').textContent = allClients.filter(c=>c.status==='changes_requested').length;
-}
+function renderClients(clients) {
+  document.getElementById('statTotal').textContent = clients.length;
+  document.getElementById('statPending').textContent = clients.filter(c => c.status === 'pending').length;
+  document.getElementById('statActive').textContent = clients.filter(c => c.status === 'active').length;
 
-function switchTab(name, el) {
-  activeTab = name;
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('clientsTab').style.display = name==='clients'?'block':'none';
-  document.getElementById('partnersTab').style.display = name==='partners'?'block':'none';
-  document.getElementById('filterStatus').style.display = name==='clients'?'block':'none';
-  renderTable();
-}
+  if (!clients.length) {
+    document.getElementById('clientsList').innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No clients yet. They\'ll appear here when someone submits the intake form.</p></div>';
+    return;
+  }
 
-function renderTable() {
-  const q = document.getElementById('searchBox').value.toLowerCase();
-  const fs = document.getElementById('filterStatus').value;
-  if (activeTab === 'clients') renderClients(q, fs);
-  else renderPartners(q);
-}
-
-function renderClients(q, fs) {
-  const tb = document.getElementById('clientsBody');
-  let list = allClients.filter(c => {
-    const match = !q || (c.businessName+c.email+c.city+c.ownerName+c.phone).toLowerCase().includes(q);
-    const statusMatch = !fs || c.status === fs;
-    return match && statusMatch;
+  // Sort: pending first, then by date
+  clients.sort((a, b) => {
+    if (a.status === 'pending' && b.status !== 'pending') return -1;
+    if (a.status !== 'pending' && b.status === 'pending') return 1;
+    return new Date(b.createdAt) - new Date(a.createdAt);
   });
-  if (!list.length) { tb.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">📭</div><div>No clients found</div></div></td></tr>`; return; }
-  const statusMap = { review:'sb-review', active:'sb-active', changes_requested:'sb-changes', trial:'sb-trial', pending:'sb-pending' };
-  const statusLabel = { review:'Awaiting Review', active:'Live', changes_requested:'Changes Requested', trial:'Trial', pending:'Pending' };
-  tb.innerHTML = list.map(c => `<tr>
-    <td><div class="td-biz">${esc(c.businessName)}</div><div class="td-sub">${esc(c.industry||'')}</div></td>
-    <td><div>${esc(c.ownerName)}</div><div class="td-sub">${esc(c.email)}</div><div class="td-sub">${esc(c.phone)}</div></td>
-    <td>${esc(c.city)}${c.state?', '+esc(c.state):''}</td>
-    <td><span class="status-badge ${statusMap[c.status]||'sb-pending'}">${statusLabel[c.status]||c.status}</span></td>
-    <td><span class="notes-badge">${esc(c.notes||'—')}</span></td>
-    <td><div class="action-cell">
-      <button class="act act-preview" onclick="window.open('${API}/preview/${esc(c.previewSite)}','_blank')">👁 Preview</button>
-      ${c.status==='active'?`<button class="act act-preview" onclick="window.open('${API}/site/${esc(c.liveSlug)}','_blank')">🔗 Live Site</button>`:''}
-      ${c.status!=='active'?`<button class="act act-resend" onclick="resendReview('${esc(c.id)}')">📧 Resend</button>`:''}
-      <button class="act act-changes" onclick="openClientModal('${esc(c.id)}')">📝 Notes</button>
-    </div></td>
-  </tr>`).join('');
-}
 
-function renderPartners(q) {
-  const tb = document.getElementById('partnersBody');
-  let list = allPartners.filter(p => !q || (p.name+p.email+p.territory).toLowerCase().includes(q));
-  if (!list.length) { tb.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">🤝</div><div>No partners found</div></div></td></tr>`; return; }
-  const statusMap = { active:'sb-active', pending:'sb-pending', declined:'sb-declined' };
-  tb.innerHTML = list.map(p => `<tr>
-    <td><div class="td-biz">${esc(p.name)}</div><div class="td-sub">${new Date(p.appliedAt||'').toLocaleDateString()}</div></td>
-    <td><div>${esc(p.email)}</div><div class="td-sub">${esc(p.phone)}</div></td>
-    <td>${esc(p.territory)}<div class="td-sub">${esc(p.zipCodes)}</div></td>
-    <td style="text-transform:uppercase;font-weight:700;font-size:13px;">${esc(p.tier||'node')}</td>
-    <td><span class="status-badge ${statusMap[p.status]||'sb-pending'}">${p.status}</span></td>
-    <td><div class="action-cell">
-      ${p.status==='pending'?`<button class="act act-partner-approve" onclick="openPartnerModal('${esc(p.id)}')">✓ Review</button>`:''}
-      <button class="act act-resend" onclick="openPartnerModal('${esc(p.id)}')">📋 Details</button>
-    </div></td>
-  </tr>`).join('');
-}
-
-function openClientModal(id) {
-  selectedClient = allClients.find(c=>c.id===id);
-  if (!selectedClient) return;
-  document.getElementById('cm_title').textContent = selectedClient.businessName;
-  document.getElementById('cm_notes').value = selectedClient.notes || '';
-  document.getElementById('cm_info').innerHTML = [
-    ['Owner', selectedClient.ownerName],
-    ['Email', selectedClient.email],
-    ['Phone', selectedClient.phone],
-    ['Location', selectedClient.city+(selectedClient.state?', '+selectedClient.state:'')],
-    ['Industry', selectedClient.industry],
-    ['Status', selectedClient.status],
-    ['Submitted', new Date(selectedClient.submittedAt||'').toLocaleString()],
-    ['Partner Ref', selectedClient.operator_ref||'—'],
-    ['Preview URL', selectedClient.previewSite ? `<a href="${API}/preview/${selectedClient.previewSite}" target="_blank" style="color:#60a5fa;">View Preview</a>` : '—'],
-    ['Live URL', selectedClient.liveUrl ? `<a href="${selectedClient.liveUrl}" target="_blank" style="color:#6ee7b7;">View Live</a>` : '—']
-  ].map(([k,v])=>`<div class="info-item"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
-  document.getElementById('clientModal').classList.add('open');
-}
-
-function openPartnerModal(id) {
-  selectedPartner = allPartners.find(p=>p.id===id);
-  if (!selectedPartner) return;
-  document.getElementById('pm_title').textContent = selectedPartner.name;
-  document.getElementById('pm_zips').value = selectedPartner.approvedZips || selectedPartner.zipCodes || '';
-  document.getElementById('pm_info').innerHTML = [
-    ['Email', selectedPartner.email],
-    ['Phone', selectedPartner.phone],
-    ['Territory', selectedPartner.territory],
-    ['Requested ZIPs', selectedPartner.zipCodes||'—'],
-    ['Tier', (selectedPartner.tier||'node').toUpperCase()],
-    ['Status', selectedPartner.status],
-    ['Applied', new Date(selectedPartner.appliedAt||'').toLocaleString()]
-  ].map(([k,v])=>`<div class="info-item"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
-  document.getElementById('partnerModal').classList.add('open');
-}
-
-async function saveNotes() {
-  if (!selectedClient) return;
-  const notes = document.getElementById('cm_notes').value;
-  await fetch(API+'/api/update-submission', {
-    method:'POST', headers:{'Content-Type':'application/json','x-admin-key':adminKey},
-    body: JSON.stringify({ id: selectedClient.id, notes })
+  let html = '';
+  clients.forEach(c => {
+    const date = c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+    const previewUrl = `https://turnkeyaiservices.com/preview/${c.previewToken}`;
+    const approveUrl = `${BACKEND}/api/approve/${c.id}?adminKey=${encodeURIComponent(adminKey)}`;
+    html += `
+      <div class="client-card ${c.status}">
+        <div class="client-header">
+          <h3>${c.businessName || 'Unnamed Business'}</h3>
+          <span class="status-pill ${c.status}">${c.status === 'active' ? '✅ Active' : '⏳ Pending'}</span>
+        </div>
+        <div class="client-meta">
+          <div class="meta-item"><div class="label">Owner</div><div class="value">${c.ownerName || '—'}</div></div>
+          <div class="meta-item"><div class="label">Email</div><div class="value">${c.email || '—'}</div></div>
+          <div class="meta-item"><div class="label">Phone</div><div class="value">${c.phone || '—'}</div></div>
+          <div class="meta-item"><div class="label">Industry</div><div class="value">${(c.industry || '').replace(/_/g,' ')}</div></div>
+          <div class="meta-item"><div class="label">City</div><div class="value">${c.city || '—'}</div></div>
+          <div class="meta-item"><div class="label">Submitted</div><div class="value">${date}</div></div>
+        </div>
+        <div class="client-actions">
+          <a href="${previewUrl}" target="_blank"><button class="btn btn-preview">👁️ View Preview</button></a>
+          ${c.liveUrl ? `<a href="${c.liveUrl}" target="_blank"><button class="btn btn-approve" style="background:linear-gradient(135deg,#0066FF,#0052CC);">🌐 View Live Site</button></a>` : ''}
+          ${c.status === 'pending' ? `<a href="${approveUrl}" target="_blank"><button class="btn btn-approve" onclick="showToast('Deploying ${c.businessName}...')">✅ Approve &amp; Deploy Live</button></a>` : `<span style="color:#00D68F;font-size:13px;font-weight:600;">✅ Live — credentials sent</span>`}
+        </div>
+      </div>`;
   });
-  selectedClient.notes = notes;
-  closeModals();
-  renderTable();
-  showToast('Notes saved ✓', 'success');
+  document.getElementById('clientsList').innerHTML = html;
 }
 
-async function resendReview(id) {
-  const c = allClients.find(x=>x.id===id);
-  if (!c) return;
-  await fetch(API+'/api/client-review-action', {
-    method:'POST', headers:{'Content-Type':'application/json','x-admin-key':adminKey},
-    body: JSON.stringify({ action:'resend-review', previewSite:c.previewSite, id:c.id, email:c.email, businessName:c.businessName, ownerName:c.ownerName })
-  });
-  showToast('Review email sent to '+c.email+' ✓', 'success');
-}
-
-async function approvePartner(action) {
-  if (!selectedPartner) return;
-  const zips = document.getElementById('pm_zips').value;
-  await fetch(API+'/api/partner-action', {
-    method:'POST', headers:{'Content-Type':'application/json','x-admin-key':adminKey},
-    body: JSON.stringify({ action, partner:{ ...selectedPartner, approvedZips:zips } })
-  });
-  closeModals();
-  await loadData();
-  showToast('Partner '+action+'d — email sent ✓', 'success');
-}
-
-function closeModals() {
-  document.querySelectorAll('.modal-bg').forEach(m=>m.classList.remove('open'));
-  selectedClient = null;
-  selectedPartner = null;
-}
-
-function showToast(msg, type='') {
+function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.className = 'toast show'+(type?' '+type:'');
-  setTimeout(()=>t.classList.remove('show'), 3000);
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 4000);
 }
-
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>
