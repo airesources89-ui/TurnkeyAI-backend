@@ -18,7 +18,7 @@ async function sendEmail({ to, subject, html }) {
       'Authorization': `Bearer ${RESEND_API_KEY}`
     },
     body: JSON.stringify({
-      from: 'TurnkeyAI Services <noreply@turnkeyaiservices.com>',
+      from: 'TurnkeyAI Services <onboarding@resend.dev>',
       to, subject, html
     })
   });
@@ -83,7 +83,6 @@ app.post('/api/chat', async (req, res) => {
   } catch (err) { console.error('[/api/chat]', err); res.status(500).json({ reply: 'Chat temporarily unavailable.' }); }
 });
 
-// FIXED CATCH-ALL: only fall back to index.html if the file doesn't exist
 app.get('*', (req, res) => {
   const filePath = path.join(__dirname, 'public', req.path);
   if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
