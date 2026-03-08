@@ -248,15 +248,15 @@ async function runDeploy(client) {
   await sendEmail({
     to: ADMIN_EMAIL,
     subject: `✅ LIVE: ${client.data.businessName}`,
-    html: `<p><strong>${client.data.businessName}</strong> live at <a href="${client.liveUrl}">${client.liveUrl}</a> | Password: <strong>${dashPassword}</strong></p>`
+    html: `<p><strong>${client.data.businessName}</strong> live at <a href="${client.liveUrl}">${client.liveUrl}</a> | Dashboard password: <strong>${dashPassword}</strong></p>`
   });
-  if (client.data.wantsMiniMe === 'yes') await sendMiniMeEmail(client).catch(e => console.error('[miniMe email]', e.message));
-  if (client.data.wantsFreeVideo === 'yes') await sendFreeVideoEmail(client).catch(e => console.error('[video email]', e.message));
-  if (client.data.wantsAfterHours === 'yes' || client.data.wantsMissedCall === 'yes' || client.data.wantsVoicemailDrop === 'yes') {
+  if (client.data.wants_mini_me === 'yes') await sendMiniMeEmail(client).catch(e => console.error('[miniMe email]', e.message));
+  if (client.data.wants_free_video === 'yes' && client.data.wants_mini_me !== 'yes') await sendFreeVideoEmail(client).catch(e => console.error('[video email]', e.message));
+  if (client.data.addon_after_hours === 'yes' || client.data.addon_missed_call === 'yes' || client.data.addon_voicemail_drop === 'yes') {
     await sendEmail({
       to: ADMIN_EMAIL,
       subject: `📞 Phone Services Needed: ${client.data.businessName}`,
-      html: `<p><strong>${client.data.businessName}</strong> requested phone services:<br>After Hours: ${client.data.wantsAfterHours==='yes'?'✅':'❌'} | Missed Call SMS: ${client.data.wantsMissedCall==='yes'?'✅':'❌'} | Voicemail Drop: ${client.data.wantsVoicemailDrop==='yes'?'✅':'❌'}<br>Phone: ${client.data.phone} — assign Twilio number and configure.</p>`
+      html: `<p><strong>${client.data.businessName}</strong> requested phone services:<br>After Hours: ${client.data.addon_after_hours==='yes'?'✅':'❌'} | Missed Call SMS: ${client.data.addon_missed_call==='yes'?'✅':'❌'} | Voicemail Drop: ${client.data.addon_voicemail_drop==='yes'?'✅':'❌'}<br>Phone: ${client.data.phone} — assign Twilio number and configure.</p>`
     }).catch(() => {});
   }
   return client;
@@ -343,23 +343,19 @@ app.post('/api/submission-created', async (req, res) => {
     const approveUrl = `${BASE_URL}/api/approve/${id}?adminKey=${ADMIN_KEY}`;
     const d = data;
 
-    // ── helpers ──────────────────────────────────────────────
     const row = (label, val) => val
       ? `<tr><td style="padding:9px 14px;font-weight:600;color:#374151;background:#f9fafb;width:170px;border-bottom:1px solid #e5e7eb;vertical-align:top;">${label}</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;vertical-align:top;">${val}</td></tr>`
       : '';
     const table = (rows) => `<table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:22px;">${rows}</table>`;
     const h2 = (txt) => `<h2 style="color:#0066FF;font-size:17px;margin:0 0 12px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">${txt}</h2>`;
 
-    // Services with prices
     const servicesList = Object.keys(d)
       .filter(k => k.startsWith('service_') && d[k] === 'on')
       .map(k => { const n = k.replace('service_',''); return `${n.replace(/_/g,' ')}${d['price_'+n] ? ' — ' + d['price_'+n] : ''}`; });
 
-    // Hours
     const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
     const hoursLines = days.filter(dy => d['day_'+dy]).map(dy => `<li>${dy.charAt(0).toUpperCase()+dy.slice(1)}: ${d['hours_'+dy]||'Open'}</li>`);
 
-    // Add-ons
     const addons = [];
     if (d.wants_mini_me === 'yes') addons.push(`🤖 Mini-Me AI Avatar ($59/mo) — consent given at ${d.mini_me_consent_timestamp||'submission'}`);
     if (d.wants_free_video === 'yes' && d.wants_mini_me !== 'yes') addons.push('🎬 Free 60-Second Promo Video');
@@ -369,7 +365,7 @@ app.post('/api/submission-created', async (req, res) => {
 
     const payMethods = ['cash','card','check','venmo','cashapp','zelle'].filter(p => d['pay_'+p]).join(', ');
 
-    // ── ADMIN EMAIL ─────────────────────────────────────────
+    // ── ADMIN EMAIL ──────────────────────────────────────────────────────────
     await sendEmail({
       to: ADMIN_EMAIL,
       subject: `🆕 New Client: ${d.businessName||'Unknown'} — ${d.city||''}, ${d.state||''} — ${(d.industry||'').replace(/_/g,' ')}`,
@@ -449,7 +445,7 @@ ${addons.length ? `
 </div></div>`
     });
 
-    // ── CLIENT EMAIL ────────────────────────────────────────
+    // ── CLIENT EMAIL ─────────────────────────────────────────────────────────
     if (d.email) {
       const clientAddons = [];
       if (d.wants_mini_me === 'yes') clientAddons.push('<li>🤖 <strong>Mini-Me AI Avatar</strong> — you\'ll receive a custom script and recording instructions within 24 hours</li>');
@@ -459,53 +455,42 @@ ${addons.length ? `
       if (d.addon_voicemail_drop === 'yes') clientAddons.push('<li>🎙️ <strong>Custom Voicemail Greeting</strong> — we\'ll write it and send it for your approval</li>');
 
       const reviewUrl = `${BASE_URL}/client-review.html?id=${id}&token=${previewToken}`;
-      const approveUrl = `${BASE_URL}/client-review.html?id=${id}&token=${previewToken}&action=approve`;
+      const clientApproveUrl = `${BASE_URL}/api/client-approve/${id}?token=${previewToken}`;
       const changesUrl = `${BASE_URL}/client-review.html?id=${id}&token=${previewToken}&action=changes`;
 
       await sendEmail({
         to: d.email,
-        subject: `Your ${d.businessName||'Business'} website preview is ready — review it now!`,
+        subject: `🎉 We're building your website — ${d.businessName||'Your Business'}!`,
         html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1F2937;">
 <div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:28px 32px;border-radius:12px 12px 0 0;text-align:center;">
-  <h1 style="color:white;margin:0;font-size:26px;">Your Website Preview is Ready! 🎉</h1>
-  <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;font-size:16px;">Hi ${d.ownerName||'there'} — take a look and let us know what you think.</p>
+  <h1 style="color:white;margin:0;font-size:26px;">We Got It! 🎉</h1>
+  <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;font-size:16px;">Hi ${d.ownerName||'there'} — your website is on the way.</p>
 </div>
 <div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:32px;">
 
-  <p style="font-size:15px;line-height:1.7;margin:0 0 22px;">We've built your AI-powered website for <strong>${d.businessName||'your business'}</strong>. Click below to preview it — then approve it to go live or request any changes.</p>
-
-  <!-- PRIMARY ACTION -->
-  <div style="text-align:center;margin:0 0 16px;">
-    <a href="${previewUrl}" style="display:inline-block;background:linear-gradient(135deg,#0066FF,#0052CC);color:white;padding:18px 44px;border-radius:12px;text-decoration:none;font-weight:700;font-size:18px;">👀 Preview My Website</a>
-  </div>
-
-  <!-- APPROVE / CHANGES -->
-  <div style="text-align:center;margin:0 0 28px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-    <a href="${approveUrl}" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;margin:4px;">✅ Approve & Go Live</a>
-    <a href="${changesUrl}" style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;margin:4px;">✏️ Request Changes</a>
-  </div>
+  <p style="font-size:15px;line-height:1.7;margin:0 0 22px;">We've received everything for <strong>${d.businessName||'your business'}</strong>. Our team is building your AI-powered website now. You'll receive a preview link within 24 hours to review before anything goes live.</p>
 
   <div style="background:#f0f9ff;border:2px solid #0066FF;border-radius:10px;padding:20px;margin:0 0 22px;">
     <p style="font-weight:700;margin:0 0 12px;color:#0066FF;">What you're getting:</p>
     <ul style="margin:0;padding-left:20px;line-height:2.1;font-size:14px;">
       <li>✅ AI-powered business website for <strong>${d.businessName||'your business'}</strong></li>
       <li>✅ 24/7 AI chat assistant — captures leads while you sleep</li>
-      <li>✅ Client dashboard — update your hours anytime</li>
+      <li>✅ Client dashboard — update hours and request changes anytime</li>
       ${clientAddons.join('')}
     </ul>
   </div>
 
   <div style="background:#f9fafb;border-radius:10px;padding:20px;margin:0 0 22px;">
-    <p style="font-weight:700;margin:0 0 10px;">How to go live:</p>
+    <p style="font-weight:700;margin:0 0 10px;">What happens next:</p>
     <ol style="margin:0;padding-left:20px;line-height:2.2;font-size:14px;color:#374151;">
-      <li>Preview your site using the button above</li>
-      <li>Click <strong>Approve & Go Live</strong> if it looks good, or <strong>Request Changes</strong> if you'd like adjustments</li>
-      <li>Once approved — pay to activate: <strong>$99/month, no setup fee</strong></li>
-      <li>Your site goes live automatically after payment</li>
+      <li>We build your website — typically within 24 hours</li>
+      <li>You'll receive a preview link by email to review</li>
+      <li>Approve it to go live — or request any changes</li>
+      <li>Activate for <strong>$99/month, no setup fee</strong></li>
     </ol>
   </div>
 
-  <p style="font-size:14px;color:#6B7280;margin:0 0 6px;">Have a logo or photos to add? Email them to <a href="mailto:george@turnkeyaiservices.com" style="color:#0066FF;">george@turnkeyaiservices.com</a></p>
+  <p style="font-size:14px;color:#6B7280;margin:0 0 6px;">Have a logo or photos? Email them to <a href="mailto:george@turnkeyaiservices.com" style="color:#0066FF;">george@turnkeyaiservices.com</a></p>
   <p style="font-size:14px;color:#6B7280;margin:0 0 24px;">Questions? Call <strong>(228) 604-3200</strong> or reply to this email.</p>
 
   <div style="border-top:1px solid #e5e7eb;padding-top:20px;text-align:center;">
@@ -554,8 +539,6 @@ app.get('/api/approve-status/:id', (req, res) => {
   }
 });
 
-
-// ── CLIENT SELF-APPROVE (uses previewToken, no adminKey needed) ─────────────
 app.get('/api/client-approve/:id', async (req, res) => {
   const { token } = req.query;
   const client = clients[req.params.id];
@@ -569,7 +552,6 @@ app.get('/api/client-approve/:id', async (req, res) => {
     <p><a href="${client.liveUrl}" style="color:#0066FF;">${client.liveUrl}</a></p>
     </body></html>`);
   }
-  // Start deploy, redirect to polling page
   res.send(`<html><head><meta http-equiv="refresh" content="5;url=${BASE_URL}/api/client-approve-status/${req.params.id}?token=${token}"></head>
   <body style="font-family:sans-serif;padding:60px;text-align:center;background:#f9fafb;">
   <div style="max-width:480px;margin:0 auto;background:white;padding:48px 40px;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
@@ -623,7 +605,6 @@ app.get('/api/client-approve-status/:id', (req, res) => {
   }
 });
 
-// ── PREFILL DATA for intake form updates ────────────────────────────────────
 app.get('/api/prefill/:id', (req, res) => {
   const { token } = req.query;
   const client = clients[req.params.id];
@@ -632,17 +613,14 @@ app.get('/api/prefill/:id', (req, res) => {
   res.json({ success: true, data: client.data, businessName: client.data.businessName, status: client.status });
 });
 
-// ── CLIENT UPDATE (re-submit intake to rebuild site) ────────────────────────
 app.post('/api/client-update-intake/:id', async (req, res) => {
   const { token } = req.query;
   const client = clients[req.params.id];
   if (!client) return res.status(404).json({ error: 'Not found' });
   if (!token || (token !== client.previewToken && token !== client.dashToken)) return res.status(403).json({ error: 'Invalid token' });
-  // Merge new data over old
   client.data = { ...client.data, ...req.body, _updatedAt: new Date().toISOString() };
   client.updatedAt = new Date().toISOString();
   saveClients();
-  // Rebuild the site
   try {
     if (client.status === 'active') {
       await runDeploy(client);
@@ -650,7 +628,6 @@ app.post('/api/client-update-intake/:id', async (req, res) => {
       if (client.data.email) await sendEmail({ to: client.data.email, subject: `Your site has been updated — ${client.data.businessName}`, html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;"><div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:24px 32px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:22px;">✅ Site Updated!</h1></div><div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:28px 32px;"><p>Your changes to <strong>${client.data.businessName}</strong> are live now.</p><a href="${client.liveUrl}" style="display:inline-block;background:#0066FF;color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;">View My Site →</a><p style="margin-top:20px;font-size:13px;color:#6B7280;">Questions? Call (228) 604-3200</p></div></div>` });
       res.json({ success: true, message: 'Site rebuilt', liveUrl: client.liveUrl });
     } else {
-      // Still pending — rebuild preview
       res.json({ success: true, message: 'Info updated. Preview refreshed.', previewUrl: `${BASE_URL}/preview/${client.previewToken}` });
     }
   } catch (err) {
@@ -737,7 +714,7 @@ app.post('/api/missed-call', async (req, res) => {
     const { clientId, callerPhone } = req.body;
     const client = clients[clientId];
     if (!client) return res.status(404).json({ error: 'Not found' });
-    if (client.data.wantsMissedCall !== 'yes') return res.json({ skipped: true });
+    if (client.data.addon_missed_call !== 'yes') return res.json({ skipped: true });
     const msg = `Hi! This is ${client.data.ownerName||'the team'} from ${client.data.businessName}. Sorry I missed your call — I'll get back to you shortly. Questions? Call ${client.data.phone}.`;
     await sendSMS(callerPhone, msg);
     res.json({ success: true });
@@ -749,7 +726,7 @@ app.post('/api/after-hours', async (req, res) => {
     const { clientId, callerPhone } = req.body;
     const client = clients[clientId];
     if (!client) return res.status(404).json({ error: 'Not found' });
-    if (client.data.wantsAfterHours !== 'yes') return res.json({ skipped: true });
+    if (client.data.addon_after_hours !== 'yes') return res.json({ skipped: true });
     const msg = `Thanks for calling ${client.data.businessName}! We're currently closed but will contact you when we reopen. For urgent matters, reply to this text.`;
     await sendSMS(callerPhone, msg);
     res.json({ success: true });
@@ -780,7 +757,7 @@ app.post('/api/client-update', async (req, res) => {
     return res.json({ success: true, message: 'Hours updated! Live site refreshing — changes appear within 30 seconds.' });
   }
   if (updateType === 'request_minime') {
-    client.data.wantsMiniMe = 'yes'; saveClients();
+    client.data.wants_mini_me = 'yes'; saveClients();
     await sendMiniMeEmail(client).catch(e=>console.error('[dashboard miniMe]',e.message));
     return res.json({ success: true, message: 'Mini-Me request received! Check your email for next steps.' });
   }
@@ -802,78 +779,115 @@ app.get('/api/admin/clients', (req, res) => {
   if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
   res.json(Object.values(clients).map(c => ({
     id: c.id, businessName: c.data.businessName, ownerName: c.data.ownerName, email: c.data.email, phone: c.data.phone, industry: c.data.industry, city: c.data.city, status: c.status, liveUrl: c.liveUrl, createdAt: c.createdAt, previewToken: c.previewToken,
-    wantsMiniMe: c.data.wantsMiniMe, miniMeConsent: c.miniMeConsent, miniMeSubscribed: c.miniMeSubscribed, miniMeVideoFile: c.miniMeVideoFile||null, promoVideoFile: c.promoVideoFile||null, wantsFreeVideo: c.freeVideoRequested, wantsAfterHours: c.data.wantsAfterHours, wantsMissedCall: c.data.wantsMissedCall, wantsVoicemailDrop: c.data.wantsVoicemailDrop
+    wantsMiniMe: c.data.wants_mini_me, miniMeConsent: c.miniMeConsent, miniMeSubscribed: c.miniMeSubscribed, miniMeVideoFile: c.miniMeVideoFile||null, promoVideoFile: c.promoVideoFile||null, wantsFreeVideo: c.freeVideoRequested, wantsAfterHours: c.data.addon_after_hours, wantsMissedCall: c.data.addon_missed_call, wantsVoicemailDrop: c.data.addon_voicemail_drop
   })));
 });
 
+// ── /api/intake — legacy endpoint, now sends full rich emails ────────────────
 app.post('/api/intake', async (req, res) => {
   try {
-    const d = req.body;
+    const data = req.body;
+    const id = data.id || ('client_' + Date.now());
+    const previewToken = makeToken();
+    clients[id] = {
+      id, status: 'pending', data, previewToken,
+      dashToken: null, dashPassword: null, liveUrl: null, cfProjectName: null,
+      miniMeConsent: null, miniMeConsentAt: null, miniMeVideoUrl: null,
+      miniMeSubscribed: false,
+      freeVideoRequested: data.wants_free_video === 'yes' || data.wantsFreeVideo === 'yes',
+      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+    };
+    saveClients();
+
+    const previewUrl = `${BASE_URL}/preview/${previewToken}`;
+    const approveUrl = `${BASE_URL}/api/approve/${id}?adminKey=${ADMIN_KEY}`;
+    const d = data;
+
     const row = (label, val) => val
       ? `<tr><td style="padding:9px 14px;font-weight:600;color:#374151;background:#f9fafb;width:170px;border-bottom:1px solid #e5e7eb;vertical-align:top;">${label}</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;vertical-align:top;">${val}</td></tr>`
       : '';
     const table = (rows) => `<table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:22px;">${rows}</table>`;
+    const h2 = (txt) => `<h2 style="color:#0066FF;font-size:17px;margin:0 0 12px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">${txt}</h2>`;
 
+    const addons = [];
+    if (d.wants_mini_me === 'yes' || d.wantsMiniMe === 'yes') addons.push('🤖 Mini-Me AI Avatar ($59/mo)');
+    if ((d.wants_free_video === 'yes' || d.wantsFreeVideo === 'yes') && d.wants_mini_me !== 'yes') addons.push('🎬 Free 60-Second Promo Video');
+    if (d.addon_after_hours === 'yes' || d.wantsAfterHours === 'yes') addons.push('📞 After Hours Answering');
+    if (d.addon_missed_call === 'yes' || d.wantsMissedCall === 'yes') addons.push('📱 Missed Call Text Return');
+    if (d.addon_voicemail_drop === 'yes' || d.wantsVoicemailDrop === 'yes') addons.push('🎙️ Custom Voicemail Greeting');
+
+    // ── ADMIN EMAIL ──────────────────────────────────────────────────────────
     await sendEmail({
       to: ADMIN_EMAIL,
-      subject: `🆕 New Client: ${d.businessName||'Unknown'} — ${d.location||d.city||''} — ${(d.industry||'').replace(/_/g,' ')}`,
+      subject: `🆕 New Client: ${d.businessName||'Unknown'} — ${d.city||d.location||''} — ${(d.industry||'').replace(/_/g,' ')}`,
       html: `<div style="font-family:sans-serif;max-width:700px;margin:0 auto;color:#1F2937;">
 <div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:24px 32px;border-radius:12px 12px 0 0;">
   <h1 style="color:white;margin:0;font-size:22px;">🆕 New Client Submission</h1>
   <p style="color:rgba(255,255,255,0.82);margin:6px 0 0;font-size:14px;">${new Date().toLocaleString('en-US',{timeZone:'America/Chicago',dateStyle:'full',timeStyle:'short'})}</p>
 </div>
 <div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:28px 32px;">
-  <h2 style="color:#0066FF;font-size:17px;margin:0 0 12px;">Business Information</h2>
-  ${table(`
-    ${row('Business Name', d.businessName)}
-    ${row('Owner', d.ownerName)}
-    ${row('Industry', (d.industry||'').replace(/_/g,' '))}
-    ${row('Business Type', d.businessType)}
-    ${row('Phone', d.phone)}
-    ${row('Email', d.email)}
-    ${row('City', d.location||d.city)}
-    ${row('Years in Business', d.yearsInBusiness)}
-    ${row('Current Website', d.currentWebsite)}
-    ${row('Site Vibe', d.siteVibe)}
-  `)}
-  <h2 style="color:#0066FF;font-size:17px;margin:0 0 12px;">Add-Ons & Extras</h2>
-  <p style="background:#f9fafb;padding:14px;border-radius:8px;font-size:14px;line-height:1.8;margin:0 0 22px;">
-    Mini-Me: ${d.wantsMiniMe==='yes'||d.wants_mini_me==='yes'?'✅ YES':'❌ No'} &nbsp;|&nbsp;
-    Free Video: ${d.wantsFreeVideo==='yes'||d.wants_free_video==='yes'?'✅ YES':'❌ No'} &nbsp;|&nbsp;
-    After Hours: ${d.wantsAfterHours==='yes'||d.addon_after_hours==='yes'?'✅ YES':'❌ No'} &nbsp;|&nbsp;
-    Missed Call SMS: ${d.wantsMissedCall==='yes'||d.addon_missed_call==='yes'?'✅ YES':'❌ No'} &nbsp;|&nbsp;
-    Voicemail Drop: ${d.wantsVoicemailDrop==='yes'||d.addon_voicemail_drop==='yes'?'✅ YES':'❌ No'}
-  </p>
-  <details style="margin-bottom:22px;"><summary style="cursor:pointer;font-weight:600;color:#0066FF;">View all submitted data</summary><pre style="font-size:12px;background:#f9fafb;padding:14px;border-radius:8px;overflow:auto;">${JSON.stringify(d,null,2)}</pre></details>
-  <a href="${BASE_URL}/turnkeyai-admin-v3.html" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">📋 Open Admin Panel</a>
+${h2('Business Information')}
+${table(`
+  ${row('Business Name', d.businessName)}
+  ${row('Owner', d.ownerName)}
+  ${row('Industry', (d.industry||'').replace(/_/g,' '))}
+  ${row('Business Type', d.businessType)}
+  ${row('Phone', d.phone)}
+  ${row('Email', d.email)}
+  ${row('City', d.city||d.location)}
+  ${row('State', d.state)}
+  ${row('Address', d.address)}
+  ${row('Years in Business', d.yearsInBusiness)}
+  ${row('Current Website', d.currentWebsite)}
+`)}
+${addons.length ? `
+<div style="background:#f0fff4;border:2px solid #00D68F;border-radius:10px;padding:18px 22px;margin-bottom:22px;">
+  <p style="font-weight:700;color:#065f46;margin:0 0 10px;font-size:15px;">🎯 Add-Ons Selected</p>
+  <ul style="margin:0;padding-left:20px;line-height:2;font-size:14px;">${addons.map(a=>'<li><strong>'+a+'</strong></li>').join('')}</ul>
+</div>` : ''}
+<details style="margin-bottom:22px;"><summary style="cursor:pointer;font-weight:600;color:#0066FF;padding:10px;background:#f9fafb;border-radius:8px;">📋 View All Submitted Data</summary><pre style="font-size:12px;background:#f9fafb;padding:14px;border-radius:8px;overflow:auto;margin-top:8px;">${JSON.stringify(d,null,2)}</pre></details>
+<div style="display:flex;gap:12px;flex-wrap:wrap;">
+  <a href="${approveUrl}" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">✅ Approve & Go Live</a>
+  <a href="${previewUrl}" style="display:inline-block;background:#0066FF;color:white;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">👁️ Preview Site</a>
+</div>
 </div></div>`
     });
 
-    if (d.email) await sendEmail({
-      to: d.email,
-      subject: `We're building your website — ${d.businessName||'Your Business'}! 🚀`,
-      html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1F2937;">
+    // ── CLIENT EMAIL ─────────────────────────────────────────────────────────
+    if (d.email) {
+      const clientAddons = [];
+      if (d.wants_mini_me === 'yes' || d.wantsMiniMe === 'yes') clientAddons.push('<li>🤖 <strong>Mini-Me AI Avatar</strong> — you\'ll receive a custom script and recording instructions within 24 hours</li>');
+      else if (d.wants_free_video === 'yes' || d.wantsFreeVideo === 'yes') clientAddons.push('<li>🎬 <strong>Free 60-Second Promo Video</strong> — you\'ll receive a custom script and recording instructions within 24 hours</li>');
+      if (d.addon_after_hours === 'yes' || d.wantsAfterHours === 'yes') clientAddons.push('<li>📞 <strong>After Hours Answering</strong> — activated when your site goes live</li>');
+      if (d.addon_missed_call === 'yes' || d.wantsMissedCall === 'yes') clientAddons.push('<li>📱 <strong>Missed Call Text Return</strong> — activated when your site goes live</li>');
+      if (d.addon_voicemail_drop === 'yes' || d.wantsVoicemailDrop === 'yes') clientAddons.push('<li>🎙️ <strong>Custom Voicemail Greeting</strong> — we\'ll write it and send for your approval</li>');
+
+      await sendEmail({
+        to: d.email,
+        subject: `🎉 We're building your website — ${d.businessName||'Your Business'}!`,
+        html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1F2937;">
 <div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:28px 32px;border-radius:12px 12px 0 0;text-align:center;">
   <h1 style="color:white;margin:0;font-size:26px;">We Got It! 🎉</h1>
-  <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;font-size:16px;">Your website is on the way.</p>
+  <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;font-size:16px;">Hi ${d.ownerName||'there'} — your website is on the way.</p>
 </div>
 <div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:32px;">
-  <p style="font-size:15px;line-height:1.7;margin:0 0 20px;">Hi <strong>${d.ownerName||'there'}</strong>, we've received everything for <strong>${d.businessName||'your business'}</strong>. Our team is building your AI-powered website now. You'll get a preview link within 24 hours to review before anything goes live.</p>
+  <p style="font-size:15px;line-height:1.7;margin:0 0 22px;">We've received everything for <strong>${d.businessName||'your business'}</strong>. Our team is building your AI-powered website now. You'll receive a preview link within 24 hours to review before anything goes live.</p>
   <div style="background:#f0f9ff;border:2px solid #0066FF;border-radius:10px;padding:20px;margin:0 0 22px;">
     <p style="font-weight:700;margin:0 0 12px;color:#0066FF;">What you're getting:</p>
     <ul style="margin:0;padding-left:20px;line-height:2.1;font-size:14px;">
-      <li>✅ AI-powered business website</li>
+      <li>✅ AI-powered business website for <strong>${d.businessName||'your business'}</strong></li>
       <li>✅ 24/7 AI chat assistant — captures leads while you sleep</li>
-      <li>✅ Client dashboard — update your hours and request changes anytime</li>
+      <li>✅ Client dashboard — update hours and request changes anytime</li>
+      ${clientAddons.join('')}
     </ul>
   </div>
   <div style="background:#f9fafb;border-radius:10px;padding:20px;margin:0 0 22px;">
-    <p style="font-weight:700;margin:0 0 12px;">What happens next:</p>
+    <p style="font-weight:700;margin:0 0 10px;">What happens next:</p>
     <ol style="margin:0;padding-left:20px;line-height:2.2;font-size:14px;color:#374151;">
       <li>We build your website — typically within 24 hours</li>
-      <li>You receive a preview link to review and approve</li>
-      <li>You pay to activate — <strong>$99/month, no setup fee</strong></li>
-      <li>Your site goes live automatically</li>
+      <li>You'll receive a preview link by email to review</li>
+      <li>Approve it to go live — or request any changes</li>
+      <li>Activate for <strong>$99/month, no setup fee</strong></li>
     </ol>
   </div>
   <p style="font-size:14px;color:#6B7280;margin:0 0 6px;">Have a logo or photos? Email them to <a href="mailto:george@turnkeyaiservices.com" style="color:#0066FF;">george@turnkeyaiservices.com</a></p>
@@ -882,11 +896,13 @@ app.post('/api/intake', async (req, res) => {
     <p style="font-size:12px;color:#9CA3AF;margin:0;">TurnkeyAI Services — AI-Powered Websites for Local Business<br>300 Blakemore Ave, Bay St. Louis, MS 39520</p>
   </div>
 </div></div>`
-    });
+      });
+    }
 
     res.json({ success: true });
   } catch(err) { console.error('[/api/intake]', err); res.status(500).json({ error: 'Failed' }); }
 });
+
 app.post('/api/territory-partner', async (req, res) => { try { const d=req.body; await sendEmail({to:ADMIN_EMAIL,subject:`New Territory Partner: ${d.name||'Unknown'}`,html:`<h2>Territory Partner Application</h2><pre>${JSON.stringify(d,null,2)}</pre>`}); if(d.email)await sendEmail({to:d.email,subject:'Your TurnkeyAI Territory Partner Application',html:`<h2>Thanks, ${d.name}!</h2><p>We'll review within 24 hours.</p><p>— TurnkeyAI Services Team</p>`}); res.json({success:true}); } catch(err){console.error('[/api/territory-partner]',err);res.status(500).json({error:'Failed'});} });
 app.post('/api/family-intake', async (req, res) => { try { const d=req.body; await sendEmail({to:ADMIN_EMAIL,subject:`New Family Site: ${d.familyName||'Unknown'}`,html:`<h2>Family Intake</h2><pre>${JSON.stringify(d,null,2)}</pre>`}); if(d.email)await sendEmail({to:d.email,subject:'Your TurnkeyAI Family Site Request',html:`<h2>Thanks!</h2><p>Preview ready within 24 hours.</p><p>— TurnkeyAI Services Team</p>`}); res.json({success:true}); } catch(err){console.error('[/api/family-intake]',err);res.status(500).json({error:'Failed'});} });
 app.post('/api/crafter-intake', async (req, res) => { try { const d=req.body; await sendEmail({to:ADMIN_EMAIL,subject:`New Crafter Store: ${d.shopName||d.name||'Unknown'}`,html:`<h2>Crafter Intake</h2><pre>${JSON.stringify(d,null,2)}</pre>`}); if(d.email)await sendEmail({to:d.email,subject:'Your TurnkeyAI Crafter Store Request',html:`<h2>Thanks!</h2><p>Preview ready within 24 hours.</p><p>— TurnkeyAI Services Team</p>`}); res.json({success:true}); } catch(err){console.error('[/api/crafter-intake]',err);res.status(500).json({error:'Failed'});} });
@@ -915,7 +931,6 @@ function extractServices(data) {
   return s;
 }
 
-// ── VIDEO UPLOAD NOTIFICATION ──
 app.post('/api/video-upload-notify', async (req, res) => {
   try {
     const d = req.body;
@@ -923,41 +938,33 @@ app.post('/api/video-upload-notify', async (req, res) => {
     await sendEmail({
       to: ADMIN_EMAIL,
       subject: `🎬 Video Clip Uploaded: ${d.businessName || 'Unknown'}`,
-      html: `
-        <h2 style="color:#0066FF;">New Client Video Clip Submitted</h2>
+      html: `<h2 style="color:#0066FF;">New Client Video Clip Submitted</h2>
         <table style="border-collapse:collapse;width:100%;max-width:500px;">
-          <tr><td style="padding:8px;font-weight:700;color:#374151;">Client</td><td style="padding:8px;">${d.uploaderName || ''}</td></tr>
-          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;color:#374151;">Business</td><td style="padding:8px;">${d.businessName || ''}</td></tr>
-          <tr><td style="padding:8px;font-weight:700;color:#374151;">Email</td><td style="padding:8px;">${d.email || ''}</td></tr>
+          <tr><td style="padding:8px;font-weight:700;color:#374151;">Client</td><td style="padding:8px;">${d.uploaderName||''}</td></tr>
+          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;color:#374151;">Business</td><td style="padding:8px;">${d.businessName||''}</td></tr>
+          <tr><td style="padding:8px;font-weight:700;color:#374151;">Email</td><td style="padding:8px;">${d.email||''}</td></tr>
           <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;color:#374151;">Video Type</td><td style="padding:8px;">${typeLabel}</td></tr>
-          <tr><td style="padding:8px;font-weight:700;color:#374151;">File</td><td style="padding:8px;">${d.fileName || ''} (${d.fileSize || ''})</td></tr>
-          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;color:#374151;">Consent</td><td style="padding:8px;">${d.consentGiven ? '✅ Yes — ' + (d.consentTimestamp || '') : '❌ No'}</td></tr>
-          ${d.notes ? `<tr><td style="padding:8px;font-weight:700;color:#374151;">Notes</td><td style="padding:8px;">${d.notes}</td></tr>` : ''}
+          <tr><td style="padding:8px;font-weight:700;color:#374151;">File</td><td style="padding:8px;">${d.fileName||''} (${d.fileSize||''})</td></tr>
+          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;color:#374151;">Consent</td><td style="padding:8px;">${d.consentGiven?'✅ Yes — '+(d.consentTimestamp||''):'❌ No'}</td></tr>
+          ${d.notes?`<tr><td style="padding:8px;font-weight:700;color:#374151;">Notes</td><td style="padding:8px;">${d.notes}</td></tr>`:''}
         </table>
-        <p style="margin-top:20px;color:#6B7280;font-size:13px;">The client's video file is on their device. They will also email it to george@turnkeyaiservices.com.</p>
-      `
+        <p style="margin-top:20px;color:#6B7280;font-size:13px;">The client will also email the video file to george@turnkeyaiservices.com.</p>`
     });
-    // Also send confirmation to client
     if (d.email) {
       await sendEmail({
         to: d.email,
-        subject: `✅ Video Received — ${d.businessName || 'Your Business'}`,
-        html: `
-          <h2 style="color:#0066FF;">We Got Your Video Clip!</h2>
-          <p>Hi ${d.uploaderName || 'there'},</p>
+        subject: `✅ Video Received — ${d.businessName||'Your Business'}`,
+        html: `<h2 style="color:#0066FF;">We Got Your Video Clip!</h2>
+          <p>Hi ${d.uploaderName||'there'},</p>
           <p>We've received your submission for <strong>${typeLabel}</strong>. Production begins within 48 hours.</p>
           <p>You'll receive a preview by email before anything goes live on your site.</p>
           <p style="margin-top:20px;"><strong>Important:</strong> Please also email your video file to <a href="mailto:george@turnkeyaiservices.com">george@turnkeyaiservices.com</a> so we can begin production.</p>
           <p>Questions? Call us at (228) 604-3200</p>
-          <p>— TurnkeyAI Services Team</p>
-        `
+          <p>— TurnkeyAI Services Team</p>`
       });
     }
     res.json({ success: true });
-  } catch(err) {
-    console.error('[/api/video-upload-notify]', err);
-    res.status(500).json({ error: 'Failed' });
-  }
+  } catch(err) { console.error('[/api/video-upload-notify]', err); res.status(500).json({ error: 'Failed' }); }
 });
 
 app.get('*', (req, res) => {
