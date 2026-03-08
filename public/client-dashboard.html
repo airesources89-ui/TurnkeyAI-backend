@@ -3,501 +3,514 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Client Dashboard | TurnkeyAI Services</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<title>My TurnkeyAI Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-:root{--primary:#0066FF;--accent:#00D68F;--dark:#1a1a2e;--gray-100:#F3F4F6;--gray-300:#D1D5DB;--gray-500:#6B7280;--gray-700:#374151;--white:#FFFFFF;--error:#EF4444;}
-body{font-family:'DM Sans',sans-serif;background:#f8fafc;min-height:100vh;color:#1F2937;}
-.header{background:var(--dark);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;}
-.logo{color:white;font-size:22px;font-weight:700;text-decoration:none;}
-.logo span{color:var(--accent);}
-.header-right{color:rgba(255,255,255,.7);font-size:14px;}
-#loginScreen{max-width:420px;margin:80px auto;background:white;border-radius:20px;padding:48px;box-shadow:0 8px 40px rgba(0,0,0,.12);}
-#loginScreen h1{font-family:'Playfair Display',serif;font-size:28px;color:var(--dark);margin-bottom:8px;}
-#loginScreen p{color:var(--gray-500);margin-bottom:32px;font-size:15px;}
-.form-group{margin-bottom:20px;}
-label{display:block;font-weight:600;color:var(--gray-700);margin-bottom:8px;font-size:14px;}
-input[type="password"],input[type="text"]{width:100%;padding:14px 16px;border:2px solid var(--gray-300);border-radius:10px;font-size:16px;font-family:inherit;}
-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,102,255,.1);}
-.btn{padding:14px 28px;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
-.btn-primary{background:linear-gradient(135deg,var(--primary),#0052CC);color:white;width:100%;}
-.btn-primary:hover{opacity:.9;}
-.btn-secondary{background:var(--gray-100);color:var(--gray-700);}
-.btn-success{background:linear-gradient(135deg,var(--accent),#00b377);color:white;}
-.btn-sm{padding:8px 16px;font-size:14px;}
-.error-msg{color:var(--error);font-size:14px;margin-top:8px;display:none;}
+:root {
+  --bg: #f4f6fa;
+  --white: #ffffff;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --primary: #0066FF;
+  --accent: #00D68F;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --dark: #1a1d24;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --mono: 'IBM Plex Mono', monospace;
+  --head: 'Plus Jakarta Sans', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--head); min-height: 100vh; }
+a { text-decoration: none; color: inherit; }
 
-#dashboard{display:none;max-width:1000px;margin:0 auto;padding:32px 24px 80px;}
-.welcome-bar{background:linear-gradient(135deg,var(--dark),#0066FF);color:white;border-radius:16px;padding:28px 32px;margin-bottom:32px;display:flex;justify-content:space-between;align-items:center;}
-.welcome-bar h2{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:4px;}
-.welcome-bar p{opacity:.8;font-size:15px;}
-.status-badge{background:rgba(0,214,143,.2);border:1px solid var(--accent);color:var(--accent);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;}
+/* LOGIN */
+#loginScreen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #0066FF08 0%, #00D68F08 100%);
+}
+.login-card {
+  background: var(--white); border: 1px solid var(--border); border-radius: 20px;
+  padding: 48px 40px; width: 400px; box-shadow: 0 8px 40px rgba(0,0,0,.08);
+}
+.login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.login-logo-text { font-size: 22px; font-weight: 800; color: var(--primary); }
+.login-logo-text span { color: var(--accent); }
+.login-tagline { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+.form-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; display: block; }
+.form-input {
+  width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 13px 16px; font-size: 15px; font-family: var(--head); outline: none;
+  margin-bottom: 16px; color: var(--text); background: #f9fafb; transition: border-color .2s;
+}
+.form-input:focus { border-color: var(--primary); background: white; }
+.btn-primary {
+  width: 100%; background: var(--primary); color: white; border: none; border-radius: 10px;
+  padding: 14px; font-size: 15px; font-weight: 700; font-family: var(--head); cursor: pointer;
+  transition: opacity .2s;
+}
+.btn-primary:hover { opacity: .9; }
+.form-err { color: var(--danger); font-size: 13px; margin-top: 8px; display: none; }
+.login-note { margin-top: 20px; font-size: 12px; color: var(--muted); text-align: center; line-height: 1.6; }
 
-.tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
-.tab{padding:10px 20px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;border:2px solid var(--gray-300);background:white;color:var(--gray-700);transition:all .2s;}
-.tab.active{background:var(--primary);border-color:var(--primary);color:white;}
+/* MAIN LAYOUT */
+#mainScreen { display: none; }
+.topbar {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 0 32px; height: 64px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+.topbar-logo { font-size: 18px; font-weight: 800; color: var(--primary); }
+.topbar-logo span { color: var(--accent); }
+.topbar-biz { font-size: 14px; color: var(--muted); }
+.topbar-biz strong { color: var(--text); }
 
-.panel{background:white;border-radius:16px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,.06);display:none;}
-.panel.active{display:block;}
-.panel h3{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:6px;}
-.panel .sub{color:var(--gray-500);font-size:14px;margin-bottom:24px;}
+.content { padding: 32px; max-width: 1000px; margin: 0 auto; }
 
-.hours-grid{display:grid;gap:12px;}
-.hours-row{display:grid;grid-template-columns:140px 1fr 100px;gap:12px;align-items:center;padding:12px 16px;background:var(--gray-100);border-radius:10px;}
-.hours-row label{display:flex;align-items:center;gap:10px;margin:0;cursor:pointer;font-weight:600;}
-.hours-row input[type="checkbox"]{width:18px;height:18px;accent-color:var(--primary);}
-.hours-row input[type="text"]{padding:8px 12px;font-size:14px;}
-.hours-row .day-status{font-size:12px;color:var(--gray-500);text-align:right;}
+/* HERO CARD */
+.hero-card {
+  background: linear-gradient(135deg, var(--dark) 0%, #0066FFcc 100%);
+  border-radius: 20px; padding: 36px 40px; margin-bottom: 24px; position: relative; overflow: hidden;
+}
+.hero-card::before {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 200px; height: 200px; background: rgba(255,255,255,.04); border-radius: 50%;
+}
+.hero-status-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+  padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; color: white;
+  margin-bottom: 16px;
+}
+.hero-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(.85)} }
+.hero-biz { font-size: 30px; font-weight: 800; color: white; margin-bottom: 8px; }
+.hero-url { font-family: var(--mono); font-size: 14px; color: rgba(255,255,255,.7); margin-bottom: 24px; }
+.hero-url a { color: var(--accent); }
+.hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-btn {
+  padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 700;
+  font-family: var(--head); border: none; cursor: pointer; display: inline-block;
+}
+.hero-btn-primary { background: var(--accent); color: var(--dark); }
+.hero-btn-outline { background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.25); color: white; }
 
-.services-list{display:grid;gap:10px;margin-bottom:20px;}
-.service-row{display:grid;grid-template-columns:1fr 160px;gap:12px;align-items:center;padding:12px 16px;background:var(--gray-100);border-radius:10px;}
-.service-row span{font-weight:600;text-transform:capitalize;}
-.service-row .price{color:var(--gray-500);font-size:14px;}
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+@media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } .hero-card { padding: 24px; } .content { padding: 16px; } }
 
-textarea{width:100%;padding:14px 16px;border:2px solid var(--gray-300);border-radius:10px;font-size:15px;font-family:inherit;min-height:100px;resize:vertical;}
-textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,102,255,.1);}
-select{width:100%;padding:14px 16px;border:2px solid var(--gray-300);border-radius:10px;font-size:15px;font-family:inherit;}
-select:focus{outline:none;border-color:var(--primary);}
+/* CARDS */
+.card {
+  background: var(--white); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+}
+.card-head {
+  padding: 18px 24px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.card-title { font-size: 15px; font-weight: 700; }
+.card-body { padding: 20px 24px; }
 
-.success-msg{background:#d1fae5;border:1px solid #6ee7b7;color:#065f46;padding:14px 18px;border-radius:10px;font-size:15px;display:none;margin-top:16px;}
-.info-box{background:#eff6ff;border:1px solid #bfdbfe;padding:14px 18px;border-radius:10px;color:#1d4ed8;font-size:14px;margin-bottom:20px;}
+/* HOURS */
+.day-row {
+  display: flex; align-items: center; gap: 12px; padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.day-row:last-child { border-bottom: none; }
+.day-toggle { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
+.day-toggle input { opacity: 0; width: 0; height: 0; }
+.day-toggle .slider {
+  position: absolute; cursor: pointer; inset: 0; background: #e5e7eb;
+  border-radius: 22px; transition: .3s;
+}
+.day-toggle input:checked + .slider { background: var(--accent); }
+.day-toggle .slider::before {
+  content: ''; position: absolute; left: 3px; top: 3px;
+  width: 16px; height: 16px; background: white; border-radius: 50%; transition: .3s;
+}
+.day-toggle input:checked + .slider::before { transform: translateX(16px); }
+.day-label { font-size: 14px; font-weight: 600; width: 90px; flex-shrink: 0; }
+.day-hours {
+  flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px;
+  font-size: 13px; font-family: var(--mono); outline: none; color: var(--text);
+  background: #f9fafb; transition: border-color .2s;
+}
+.day-hours:focus { border-color: var(--primary); background: white; }
+.day-hours:disabled { opacity: .4; }
+.hours-save-btn {
+  width: 100%; margin-top: 16px; background: var(--primary); color: white; border: none;
+  border-radius: 10px; padding: 13px; font-size: 14px; font-weight: 700;
+  font-family: var(--head); cursor: pointer; transition: opacity .2s;
+}
+.hours-save-btn:hover { opacity: .9; }
 
-.contact-info{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-@media(max-width:600px){.contact-info{grid-template-columns:1fr;}.hours-row{grid-template-columns:1fr 1fr;}}
-.contact-item{padding:16px;background:var(--gray-100);border-radius:12px;}
-.contact-item .label{font-size:12px;color:var(--gray-500);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
-.contact-item .value{font-weight:600;color:var(--dark);}
+/* ADDONS */
+.addon-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+}
+.addon-row:last-child { border-bottom: none; }
+.addon-info { display: flex; align-items: center; gap: 12px; }
+.addon-icon { font-size: 24px; width: 40px; text-align: center; }
+.addon-name { font-size: 14px; font-weight: 600; }
+.addon-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.addon-status { font-size: 13px; font-weight: 600; }
+.addon-active { color: var(--accent); }
+.addon-pending { color: var(--warn); }
+.addon-btn {
+  padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 700;
+  font-family: var(--head); border: none; cursor: pointer;
+  background: var(--primary); color: white;
+}
 
-.preview-link{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--primary),#0052CC);color:white;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:700;margin-top:16px;}
-.logout-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:white;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;}
-.logout-btn:hover{background:rgba(255,255,255,.25);}
+/* CHANGE REQUEST */
+.change-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.change-type-btn {
+  padding: 14px; border: 2px solid var(--border); border-radius: 12px; background: #f9fafb;
+  cursor: pointer; text-align: left; transition: all .2s; font-family: var(--head);
+}
+.change-type-btn:hover, .change-type-btn.selected { border-color: var(--primary); background: #f0f7ff; }
+.change-type-icon { font-size: 20px; margin-bottom: 6px; }
+.change-type-label { font-size: 13px; font-weight: 700; color: var(--text); }
+.change-type-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.change-textarea {
+  width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 13px 16px;
+  font-size: 14px; font-family: var(--head); outline: none; resize: vertical; min-height: 100px;
+  margin-bottom: 12px; color: var(--text); transition: border-color .2s;
+}
+.change-textarea:focus { border-color: var(--primary); }
+.change-submit-btn {
+  background: var(--primary); color: white; border: none; border-radius: 10px;
+  padding: 12px 24px; font-size: 14px; font-weight: 700; font-family: var(--head); cursor: pointer;
+}
+
+/* PLAN */
+.plan-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.plan-row:last-child { border-bottom: none; }
+.plan-key { color: var(--muted); }
+.plan-val { font-weight: 600; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--dark); color: white; padding: 14px 22px; border-radius: 12px;
+  font-size: 14px; font-weight: 600; box-shadow: 0 8px 32px rgba(0,0,0,.2);
+  transform: translateY(80px); transition: transform .3s; z-index: 999;
+}
+.toast.show { transform: translateY(0); }
+.toast.success { background: var(--accent); color: var(--dark); }
 </style>
 </head>
 <body>
 
-<header class="header">
-  <a href="/" class="logo">TurnkeyAI<span>Services</span></a>
-  <div class="header-right" id="headerBizName">Client Dashboard</div>
-</header>
-
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 <div id="loginScreen">
-  <h1>Client Dashboard</h1>
-  <p>Enter your password to manage your website.</p>
-  <div class="form-group">
-    <label>Password</label>
-    <input type="password" id="passwordInput" placeholder="Enter your dashboard password" onkeydown="if(event.key==='Enter')doLogin()">
-    <div class="error-msg" id="loginError">Incorrect password. Please try again.</div>
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-text">Turnkey<span>AI</span></div>
+    </div>
+    <div class="login-tagline">Your business website dashboard</div>
+    <label class="form-label">Dashboard URL token</label>
+    <input class="form-input" type="text" id="dashToken" placeholder="From your welcome email link...">
+    <label class="form-label">Password</label>
+    <input class="form-input" type="password" id="dashPassword" placeholder="4-character code from email" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-primary" onclick="doLogin()">Access My Dashboard →</button>
+    <div class="form-err" id="loginErr">Wrong password or link. Check your welcome email.</div>
+    <div class="login-note">Your login link and password were in your welcome email.<br>Questions? Call <strong>(228) 604-3200</strong></div>
   </div>
-  <button class="btn btn-primary" onclick="doLogin()">Sign In →</button>
-  <p style="margin-top:20px;font-size:13px;color:var(--gray-500);">Your password was emailed when your site was approved. Need help? Call <strong>(228) 604-3200</strong></p>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard">
-  <div class="welcome-bar">
-    <div>
-      <h2 id="dashBizName">Your Business</h2>
-      <p id="dashOwnerName">Welcome back!</p>
-    </div>
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <span class="status-badge">✅ Site Active</span>
-      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
-    </div>
+<!-- MAIN -->
+<div id="mainScreen">
+  <div class="topbar">
+    <div class="topbar-logo">Turnkey<span>AI</span></div>
+    <div class="topbar-biz">Logged in as: <strong id="topbarBiz">—</strong></div>
   </div>
 
-  <div class="tabs">
-    <div class="tab" onclick="showTab('mysite')" id="tab-mysite">🌐 My Site</div>
-    <div class="tab active" onclick="showTab('hours')">🕒 Business Hours</div>
-    <div class="tab" onclick="showTab('services')">📋 My Services</div>
-    <div class="tab" onclick="showTab('request')">📩 Request Changes</div>
-    <div class="tab" onclick="showTab('addons')">🎬 Add-Ons</div>
-    <div class="tab" onclick="showTab('info')">👁️ My Site Info</div>
-  </div>
-
-  <!-- MY SITE PANEL -->
-  <div class="panel" id="panel-mysite">
-    <h3>My Website</h3>
-    <p class="sub">Preview your site, go live, update your info, or send us a message — all from here.</p>
-
-    <!-- Status row -->
-    <div id="mySiteStatus" style="background:var(--gray-100);border:2px solid var(--gray-300);border-radius:12px;padding:18px 20px;margin-bottom:22px;">
-      <p style="font-weight:700;margin:0 0 4px;" id="mySiteStatusText">Loading...</p>
-      <p style="font-size:13px;color:var(--gray-500);margin:0;" id="mySiteUrlText"></p>
+  <div class="content">
+    <!-- HERO -->
+    <div class="hero-card">
+      <div class="hero-status-badge"><span class="hero-dot"></span><span id="heroStatus">Loading...</span></div>
+      <div class="hero-biz" id="heroBiz">—</div>
+      <div class="hero-url" id="heroUrl"></div>
+      <div class="hero-btns" id="heroBtns"></div>
     </div>
 
-    <!-- Action buttons -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;">
-      <a id="dashPreviewBtn" href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#0066FF,#0052CC);color:white;padding:16px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;">
-        👁️ Preview My Site
-      </a>
-      <button id="dashApproveBtn" onclick="dashApprove()" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#00D68F,#00b377);color:#0a1628;padding:16px 20px;border-radius:12px;border:none;font-weight:700;font-size:15px;cursor:pointer;width:100%;">
-        ✅ Approve & Go Live
-      </button>
-      <a id="dashEditBtn" href="#" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;padding:16px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;">
-        ✏️ Edit My Info
-      </a>
-      <a id="dashEmailBtn" href="mailto:george@turnkeyaiservices.com" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--gray-700);color:white;padding:16px 20px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;">
-        📧 Email George
-      </a>
-    </div>
-
-    <!-- Live site box (hidden until live) -->
-    <div id="dashLiveBox" style="display:none;background:linear-gradient(135deg,#00D68F,#00b377);border-radius:12px;padding:20px 24px;text-align:center;">
-      <p style="color:#0a1628;font-weight:700;font-size:14px;margin:0 0 8px;">🌐 Your Live Website</p>
-      <a id="dashLiveLink" href="#" target="_blank" style="color:#0a1628;font-size:18px;font-weight:800;text-decoration:none;word-break:break-all;"></a>
-    </div>
-  </div>
-
-  <!-- HOURS PANEL -->
-  <div class="panel active" id="panel-hours">
-    <h3>Business Hours</h3>
-    <p class="sub">Check the days you're open and enter your hours. Save when done.</p>
-    <div class="info-box">✏️ Changes you make here go into effect immediately on your website.</div>
-    <div class="hours-grid" id="hoursGrid"></div>
-    <div style="margin-top:20px;display:flex;gap:12px;align-items:center;">
-      <button class="btn btn-success" onclick="saveHours()">💾 Save Hours</button>
-      <span style="font-size:14px;color:var(--gray-500);" id="hoursSaveStatus"></span>
-    </div>
-    <div class="success-msg" id="hoursSuccess">✅ Your hours have been updated successfully!</div>
-  </div>
-
-  <!-- SERVICES PANEL -->
-  <div class="panel" id="panel-services">
-    <h3>My Services</h3>
-    <p class="sub">Your current services from your intake form. To make changes, use the "Request Changes" tab.</p>
-    <div class="services-list" id="servicesList"></div>
-    <div class="info-box">To add, remove, or reprice services, use the <strong>Request Changes</strong> tab and we'll update your site within 24 hours.</div>
-  </div>
-
-  <!-- CHANGE REQUEST PANEL -->
-  <div class="panel" id="panel-request">
-    <h3>Request Changes</h3>
-    <p class="sub">Need something updated that you can't do yourself? Submit a request and we'll handle it within 24-48 hours.</p>
-    <div class="form-group">
-      <label>What type of change do you need?</label>
-      <select id="requestType">
-        <option value="">— Select a change type —</option>
-        <option value="Add or update photos">📷 Add or update photos</option>
-        <option value="Update services or pricing">💰 Update services or pricing</option>
-        <option value="Update business description">✏️ Update business description</option>
-        <option value="Add a new page or section">➕ Add a new page or section</option>
-        <option value="Update contact information">📞 Update contact information</option>
-        <option value="Fix something on the site">🔧 Fix something on the site</option>
-        <option value="Other">📋 Other</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Describe what you need</label>
-      <textarea id="requestDetails" placeholder="Please describe exactly what you'd like changed. The more detail you give us, the faster we can get it done."></textarea>
-    </div>
-    <button class="btn btn-primary" onclick="submitChangeRequest()" style="width:auto;">📩 Submit Request</button>
-    <div class="success-msg" id="requestSuccess">✅ Request submitted! We'll handle it within 24-48 hours and confirm by email.</div>
-  </div>
-
-  <!-- ADD-ONS PANEL -->
-  <div class="panel" id="panel-addons">
-    <h3>Free Video & Add-On Services</h3>
-    <p class="sub">Activate add-ons or request your free promo video and Mini-Me AI avatar.</p>
-
-    <!-- FREE VIDEO -->
-    <div style="background:linear-gradient(135deg,#1a1200,#2e1f00);border:2px solid #f59e0b;border-radius:14px;padding:22px;margin-bottom:18px;color:white;">
-      <h4 style="font-family:'Playfair Display',serif;font-size:17px;margin-bottom:7px;">🎬 Your Free 60-Second Promo Video</h4>
-      <p style="font-size:13px;opacity:0.82;margin-bottom:14px;line-height:1.6;">Every TurnkeyAI client gets one free 60-second promo video. We write the script from your business info. You record a short clip on your phone. We handle the rest.</p>
-      <button class="btn btn-primary" onclick="requestFreeVideo()" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#1a1200;border:none;padding:12px 24px;border-radius:9px;font-weight:700;font-size:14px;cursor:pointer;">🎬 Request My Free Video</button>
-      <div id="videoSuccess" class="success-msg" style="margin-top:10px;display:none;background:rgba(0,214,143,0.15);color:#00D68F;padding:10px 14px;border-radius:8px;border:1px solid rgba(0,214,143,0.3);">✅ Request received! Check your email — your script and recording instructions are on the way.</div>
-    </div>
-
-    <!-- MINI-ME -->
-    <div style="background:linear-gradient(135deg,#0a1f14,#0d2b1c);border:2px solid #00D68F;border-radius:14px;padding:22px;margin-bottom:18px;color:white;">
-      <h4 style="font-family:'Playfair Display',serif;font-size:17px;margin-bottom:7px;">🤖 Mini-Me AI Avatar <span style="background:#00D68F;color:#0a1628;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:700;margin-left:6px;">$59/mo</span></h4>
-      <p style="font-size:13px;opacity:0.82;margin-bottom:6px;line-height:1.6;">Mini-Me is a digital version of you — your face, your voice — that appears on your website 24/7. You record one short clip on your phone. We create your AI avatar. Your first video is FREE when you subscribe.</p>
-      <p style="font-size:12px;opacity:0.65;margin-bottom:14px;">Subscribing adds $59/month to your plan. You can cancel at any time.</p>
-      <!-- Consent -->
-      <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(0,214,143,0.3);border-radius:9px;padding:14px 16px;margin-bottom:14px;">
-        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin:0;font-weight:400;color:white;">
-          <input type="checkbox" id="dashMiniMeConsent" style="width:18px;height:18px;accent-color:#00D68F;margin-top:2px;flex-shrink:0;">
-          <span style="font-size:12px;line-height:1.6;opacity:0.85;">I authorize TurnkeyAI Services to use my image, likeness, and voice recording to create my AI avatar (Mini-Me) for my business website. I can revoke this at any time by contacting <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ed8a88829f8a88ad99989f838688948c849e889f9b848e889ec38e8280">[email&#160;protected]</a>.</span>
-        </label>
+    <!-- GRID TOP -->
+    <div class="grid-2">
+      <!-- HOURS -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">⏰ Business Hours</div>
+        </div>
+        <div class="card-body">
+          <div id="hoursEditor"></div>
+          <button class="hours-save-btn" onclick="saveHours()">Save Hours</button>
+        </div>
       </div>
-      <button class="btn btn-primary" onclick="requestMiniMe()" style="background:linear-gradient(135deg,#00D68F,#00b377);color:#0a1628;border:none;padding:12px 24px;border-radius:9px;font-weight:700;font-size:14px;cursor:pointer;">🤖 Subscribe to Mini-Me</button>
-      <div id="miniMeSuccess" class="success-msg" style="margin-top:10px;display:none;background:rgba(0,214,143,0.15);color:#00D68F;padding:10px 14px;border-radius:8px;border:1px solid rgba(0,214,143,0.3);">✅ Subscribed! Check your email — your script, recording instructions, and upload link are on the way.</div>
+
+      <!-- PLAN + CHANGE -->
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <!-- PLAN INFO -->
+        <div class="card">
+          <div class="card-head"><div class="card-title">💳 My Plan</div></div>
+          <div class="card-body" id="planBody"></div>
+        </div>
+
+        <!-- CHANGE REQUEST -->
+        <div class="card">
+          <div class="card-head"><div class="card-title">✏️ Request a Change</div></div>
+          <div class="card-body">
+            <div class="change-type-grid">
+              <div class="change-type-btn" onclick="selectChangeType('content',this)">
+                <div class="change-type-icon">📝</div>
+                <div class="change-type-label">Content Update</div>
+                <div class="change-type-desc">Text, services, prices</div>
+              </div>
+              <div class="change-type-btn" onclick="selectChangeType('design',this)">
+                <div class="change-type-icon">🎨</div>
+                <div class="change-type-label">Design / Layout</div>
+                <div class="change-type-desc">Colors, images, sections</div>
+              </div>
+              <div class="change-type-btn" onclick="selectChangeType('photo',this)">
+                <div class="change-type-icon">📸</div>
+                <div class="change-type-label">Add Photos</div>
+                <div class="change-type-desc">Upload new images</div>
+              </div>
+              <div class="change-type-btn" onclick="selectChangeType('other',this)">
+                <div class="change-type-icon">💬</div>
+                <div class="change-type-label">Something Else</div>
+                <div class="change-type-desc">Describe your need</div>
+              </div>
+            </div>
+            <textarea class="change-textarea" id="changeDetails" placeholder="Describe what you'd like changed..."></textarea>
+            <button class="change-submit-btn" onclick="submitChangeRequest()">Submit Request →</button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- CALL HANDLING -->
-    <div style="background:var(--gray-100);border:2px solid var(--gray-300);border-radius:14px;padding:22px;">
-      <h4 style="font-size:17px;font-weight:700;color:var(--dark);margin-bottom:6px;">📞 Call Handling Add-Ons</h4>
-      <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px;line-height:1.6;">These are included in your plan. Contact us to activate any you didn't select during signup.</p>
-      <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
-        <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--gray-700);"><span style="color:#00D68F;font-weight:700;flex-shrink:0;">✓</span><span><strong>After Hours Answering</strong> — Automatic SMS when customers call after hours</span></li>
-        <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--gray-700);"><span style="color:#00D68F;font-weight:700;flex-shrink:0;">✓</span><span><strong>Missed Call Text Return</strong> — Instant SMS on any missed call during business hours</span></li>
-        <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--gray-700);"><span style="color:#00D68F;font-weight:700;flex-shrink:0;">✓</span><span><strong>Custom Voicemail Greeting</strong> — Professional voicemail we script and produce for you</span></li>
-      </ul>
-      <p style="font-size:12px;color:var(--gray-500);margin-top:14px;">To activate, use the <strong>Request Changes</strong> tab and select "Other" — just say which add-ons you want turned on.</p>
+    <!-- ADD-ONS -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-head"><div class="card-title">🚀 Features & Add-Ons</div></div>
+      <div class="card-body" id="addonsBody"></div>
     </div>
-  </div>
-
-  <!-- SITE INFO PANEL -->
-  <div class="panel" id="panel-info">
-    <h3>My Site Info</h3>
-    <p class="sub">Your current business information on file.</p>
-    <div id="liveUrlBox" style="display:none;background:linear-gradient(135deg,#00D68F,#00b377);border-radius:12px;padding:20px 24px;margin-bottom:20px;text-align:center;">
-      <p style="color:rgba(255,255,255,.8);font-size:13px;margin-bottom:6px;">YOUR LIVE WEBSITE</p>
-      <a id="liveUrlLink" href="#" target="_blank" style="color:white;font-size:18px;font-weight:700;text-decoration:none;word-break:break-all;"></a>
-    </div>
-    <div class="contact-info" id="contactInfo"></div>
-    <a id="previewLinkBtn" href="#" target="_blank" class="preview-link" style="margin-top:16px;">👁️ View Site Preview</a>
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-const BACKEND = 'https://turnkeyai-backend-production.up.railway.app';
-let sessionToken = '';
-let sessionPassword = '';
-let sessionData = null;
+<div class="toast" id="toast"></div>
 
-function getToken() {
-  return new URLSearchParams(window.location.search).get('token') || '';
-}
+<script>
+const BASE_URL = 'https://turnkeyaiservices.com';
+let TOKEN = '', PASS = '', clientData = null;
+let selectedChangeType = '';
+
+// Auto-fill token from URL
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const t = params.get('token');
+  if (t) document.getElementById('dashToken').value = t;
+});
 
 async function doLogin() {
-  const pw = document.getElementById('passwordInput').value.trim();
-  const token = getToken();
-  if (!pw) { showLoginError('Please enter your password.'); return; }
-  if (!token) { showLoginError('Missing dashboard token. Please use the link from your email.'); return; }
-
+  const token = document.getElementById('dashToken').value.trim();
+  const password = document.getElementById('dashPassword').value.trim();
+  if (!token || !password) return;
+  TOKEN = token; PASS = password;
   try {
-    const r = await fetch(BACKEND + '/api/client-auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, password: pw })
+    const res = await fetch(`${BASE_URL}/api/client-auth`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ token, password })
     });
-    const d = await r.json();
-    if (!r.ok) { showLoginError(d.error || 'Login failed.'); return; }
-
-    sessionToken = token;
-    sessionPassword = pw.toUpperCase();
-    sessionData = d;
-    showDashboard(d);
-  } catch (e) {
-    showLoginError('Could not connect. Please try again.');
+    if (res.status === 401 || res.status === 404) {
+      document.getElementById('loginErr').style.display = 'block'; return;
+    }
+    clientData = await res.json();
+    buildDashboard();
+  } catch(e) {
+    document.getElementById('loginErr').textContent = 'Connection error. Try again.';
+    document.getElementById('loginErr').style.display = 'block';
   }
 }
 
-function showLoginError(msg) {
-  const el = document.getElementById('loginError');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-
-function showDashboard(d) {
+function buildDashboard() {
   document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-  document.getElementById('dashBizName').textContent = d.businessName || 'Your Business';
-  document.getElementById('dashOwnerName').textContent = 'Welcome back, ' + (d.ownerName || '') + '!';
-  document.getElementById('headerBizName').textContent = d.businessName || 'Dashboard';
+  document.getElementById('mainScreen').style.display = 'block';
 
-  buildHoursGrid(d.data.hours);
-  buildServicesList(d.data.services);
-  buildContactInfo(d);
-}
+  const biz = clientData.businessName || 'Your Business';
+  document.getElementById('topbarBiz').textContent = biz;
+  document.getElementById('heroBiz').textContent = biz;
 
-function buildHoursGrid(hours) {
-  const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-  const labels = {'monday':'Monday','tuesday':'Tuesday','wednesday':'Wednesday','thursday':'Thursday','friday':'Friday','saturday':'Saturday','sunday':'Sunday'};
-  let html = '';
-  days.forEach(d => {
-    const h = hours[d] || {};
-    html += `<div class="hours-row">
-      <label><input type="checkbox" id="day_${d}" ${h.open ? 'checked' : ''}> ${labels[d]}</label>
-      <input type="text" id="hours_${d}" value="${h.hours || ''}" placeholder="e.g. 8am - 5pm">
-      <span class="day-status" id="status_${d}">${h.open ? '✅ Open' : '❌ Closed'}</span>
-    </div>`;
-  });
-  document.getElementById('hoursGrid').innerHTML = html;
-
-  // Live status update
-  days.forEach(d => {
-    document.getElementById('day_' + d).addEventListener('change', function() {
-      document.getElementById('status_' + d).textContent = this.checked ? '✅ Open' : '❌ Closed';
-    });
-  });
-}
-
-function buildServicesList(services) {
-  if (!services || !services.length) {
-    document.getElementById('servicesList').innerHTML = '<p style="color:var(--gray-500);">No services on file. Submit a change request to add services.</p>';
-    return;
-  }
-  let html = '';
-  services.forEach(s => {
-    html += `<div class="service-row">
-      <span>${s.label}</span>
-      <span class="price">${s.price ? s.price : 'No price set'}</span>
-    </div>`;
-  });
-  document.getElementById('servicesList').innerHTML = html;
-}
-
-function buildContactInfo(d) {
-  const data = d.data;
-  const fields = [
-    { label: 'Business Name', value: d.businessName },
-    { label: 'Owner Name', value: d.ownerName },
-    { label: 'Phone', value: data.phone },
-    { label: 'Email', value: data.email },
-    { label: 'Address', value: data.address },
-    { label: 'City / State', value: (data.city || '') + (data.state ? ', ' + data.state : '') }
-  ];
-  let html = '';
-  fields.forEach(f => {
-    if (f.value) html += `<div class="contact-item"><div class="label">${f.label}</div><div class="value">${f.value}</div></div>`;
-  });
-  document.getElementById('contactInfo').innerHTML = html;
-
-  // Live URL
-  if (d.liveUrl) {
-    document.getElementById('liveUrlBox').style.display = 'block';
-    const liveLink = document.getElementById('liveUrlLink');
-    liveLink.href = d.liveUrl;
-    liveLink.textContent = d.liveUrl;
-  }
-
-  // Preview link
-  const previewLink = document.getElementById('previewLinkBtn');
-  if (d.previewToken) {
-    previewLink.href = 'https://turnkeyaiservices.com/preview/' + d.previewToken;
-  }
-
-  // My Site panel
-  const BASE = 'https://turnkeyaiservices.com';
-  const reviewUrl = `${BASE}/client-review.html?id=${d.id}&token=${d.previewToken}`;
-  const approveUrl = `${BASE}/api/client-approve/${d.id}?token=${d.previewToken}`;
-  const editUrl = `${BASE}/client-review.html?id=${d.id}&token=${d.previewToken}&action=changes`;
-
-  document.getElementById('dashPreviewBtn').href = `${BASE}/preview/${d.previewToken}`;
-  document.getElementById('dashEditBtn').href = editUrl;
-  document.getElementById('dashEmailBtn').href = `mailto:george@turnkeyaiservices.com?subject=Site Update Request: ${encodeURIComponent(d.businessName||'My Business')}`;
-
-  if (d.status === 'active' && d.liveUrl) {
-    document.getElementById('mySiteStatusText').textContent = '✅ Your site is LIVE';
-    document.getElementById('mySiteUrlText').textContent = d.liveUrl;
-    document.getElementById('mySiteStatus').style.borderColor = '#00D68F';
-    document.getElementById('mySiteStatus').style.background = '#f0fff4';
-    document.getElementById('dashApproveBtn').style.display = 'none';
-    document.getElementById('dashLiveBox').style.display = 'block';
-    document.getElementById('dashLiveLink').href = d.liveUrl;
-    document.getElementById('dashLiveLink').textContent = d.liveUrl;
+  // Hero
+  if (clientData.status === 'active') {
+    document.getElementById('heroStatus').textContent = '● Your site is LIVE';
+    document.getElementById('heroUrl').innerHTML = clientData.liveUrl
+      ? `<a href="${clientData.liveUrl}" target="_blank">${clientData.liveUrl}</a>`
+      : '';
+    document.getElementById('heroBtns').innerHTML = `
+      <a href="${clientData.liveUrl}" target="_blank" class="hero-btn hero-btn-primary">🌐 View My Live Site</a>`;
   } else {
-    document.getElementById('mySiteStatusText').textContent = '⏳ Preview ready — not live yet';
-    document.getElementById('mySiteUrlText').textContent = 'Click "Approve & Go Live" to publish your site.';
-    document.getElementById('dashApproveBtn').onclick = () => { window.location.href = approveUrl; };
+    document.getElementById('heroStatus').textContent = '⏳ Site pending approval';
+    document.getElementById('heroUrl').textContent = 'Preview is ready — approval activates your live site';
+    document.getElementById('heroBtns').innerHTML = '';
   }
+
+  buildHoursEditor();
+  buildPlan();
+  buildAddons();
+}
+
+const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+const DAY_LABELS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+function buildHoursEditor() {
+  const hours = clientData.data?.hours || {};
+  document.getElementById('hoursEditor').innerHTML = DAYS.map((d, i) => {
+    const isOpen = hours[d]?.open || false;
+    const h = hours[d]?.hours || '9:00 AM – 5:00 PM';
+    return `<div class="day-row">
+      <label class="day-toggle">
+        <input type="checkbox" id="tog_${d}" ${isOpen?'checked':''} onchange="toggleDay('${d}')">
+        <span class="slider"></span>
+      </label>
+      <span class="day-label">${DAY_LABELS[i]}</span>
+      <input class="day-hours" type="text" id="hrs_${d}" value="${h}" ${isOpen?'':'disabled'} placeholder="e.g. 9 AM – 5 PM">
+    </div>`;
+  }).join('');
+}
+
+function toggleDay(d) {
+  const chk = document.getElementById('tog_'+d);
+  const inp = document.getElementById('hrs_'+d);
+  inp.disabled = !chk.checked;
 }
 
 async function saveHours() {
-  const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-  const updateData = {};
-  days.forEach(d => {
-    updateData['day_' + d] = document.getElementById('day_' + d).checked ? 'on' : '';
-    updateData['hours_' + d] = document.getElementById('hours_' + d).value;
+  const update = {};
+  DAYS.forEach(d => {
+    update['day_'+d] = document.getElementById('tog_'+d).checked;
+    update['hours_'+d] = document.getElementById('hrs_'+d).value;
   });
-
-  document.getElementById('hoursSaveStatus').textContent = 'Saving...';
   try {
-    const r = await fetch(BACKEND + '/api/client-update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: sessionToken, password: sessionPassword, updateType: 'hours', updateData })
+    const res = await fetch(`${BASE_URL}/api/client-update`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ token: TOKEN, password: PASS, updateType: 'hours', updateData: update })
     });
-    const d = await r.json();
-    if (r.ok && d.success) {
-      document.getElementById('hoursSaveStatus').textContent = '';
-      document.getElementById('hoursSuccess').style.display = 'block';
-      setTimeout(() => document.getElementById('hoursSuccess').style.display = 'none', 4000);
-    } else {
-      document.getElementById('hoursSaveStatus').textContent = 'Save failed. Please try again.';
+    const d = await res.json();
+    if (d.success) showToast('✅ ' + d.message, true);
+    else showToast('❌ ' + (d.error || 'Failed'));
+  } catch(e) { showToast('❌ Connection error'); }
+}
+
+function buildPlan() {
+  document.getElementById('planBody').innerHTML = `
+    <div class="plan-row"><span class="plan-key">Plan</span><span class="plan-val">Website + AI Chat</span></div>
+    <div class="plan-row"><span class="plan-key">Monthly Rate</span><span class="plan-val" style="color:var(--primary);">$99/mo</span></div>
+    <div class="plan-row"><span class="plan-key">Status</span><span class="plan-val" style="color:${clientData.status==='active'?'var(--accent)':'var(--warn)'};">${clientData.status==='active'?'✅ Active':'⏳ Pending'}</span></div>
+    <div class="plan-row"><span class="plan-key">Support</span><span class="plan-val">(228) 604-3200</span></div>
+  `;
+}
+
+function buildAddons() {
+  const cd = clientData;
+  const addons = [
+    {
+      icon: '🤖', name: 'Mini-Me AI Avatar', desc: '$59/mo — A video avatar that represents you 24/7',
+      status: cd.miniMeVideoUrl ? '✅ Live on your site' : cd.miniMeConsent ? '⏳ In production' : cd.data?.miniMe === 'yes' ? '⏳ Requested — check email' : null,
+      btn: (!cd.miniMeConsent && !cd.data?.miniMe) ? { label: 'Get Mini-Me →', fn: 'requestMiniMe' } : null
+    },
+    {
+      icon: '🎬', name: 'Free 60-Sec Promo Video', desc: 'Included with your plan — we produce it for you',
+      status: cd.freeVideoRequested ? '⏳ Check your email for recording instructions' : null,
+      btn: !cd.freeVideoRequested ? { label: 'Claim My Free Video →', fn: 'requestFreeVideo' } : null
+    },
+    {
+      icon: '📞', name: 'After Hours Answering', desc: 'Auto-texts customers when you\'re closed',
+      status: cd.data?.wantsAfterHours === 'yes' ? '✅ Active' : '❌ Not enabled — contact us to add'
+    },
+    {
+      icon: '📱', name: 'Missed Call Text Return', desc: 'Auto-texts when you miss a call',
+      status: cd.data?.wantsMissedCall === 'yes' ? '✅ Active' : '❌ Not enabled — contact us to add'
     }
-  } catch (e) {
-    document.getElementById('hoursSaveStatus').textContent = 'Connection error. Please try again.';
-  }
+  ];
+
+  document.getElementById('addonsBody').innerHTML = addons.map(a => `
+    <div class="addon-row">
+      <div class="addon-info">
+        <div class="addon-icon">${a.icon}</div>
+        <div>
+          <div class="addon-name">${a.name}</div>
+          <div class="addon-desc">${a.desc}</div>
+          ${a.status ? `<div class="addon-status ${a.status.startsWith('✅')?'addon-active':'addon-pending'}">${a.status}</div>` : ''}
+        </div>
+      </div>
+      ${a.btn ? `<button class="addon-btn" onclick="${a.btn.fn}()">${a.btn.label}</button>` : ''}
+    </div>`).join('');
+}
+
+function selectChangeType(type, el) {
+  selectedChangeType = type;
+  document.querySelectorAll('.change-type-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  const ta = document.getElementById('changeDetails');
+  const hints = {
+    content: 'Example: "Change my business hours to Mon–Sat 8am–6pm" or "Update my services list to include..."',
+    design: 'Example: "I want to add a photo gallery" or "Can we change the color to blue?"',
+    photo: 'Please describe the photos you want added. You can also email them to george@turnkeyaiservices.com',
+    other: 'Describe what you need and we\'ll take care of it within 24–48 hours.'
+  };
+  ta.placeholder = hints[type] || 'Describe your request...';
 }
 
 async function submitChangeRequest() {
-  const requestType = document.getElementById('requestType').value;
-  const details = document.getElementById('requestDetails').value.trim();
-  if (!requestType) { alert('Please select a change type.'); return; }
-  if (!details) { alert('Please describe what you need changed.'); return; }
-
+  const details = document.getElementById('changeDetails').value.trim();
+  if (!details) { showToast('Please describe your change request'); return; }
   try {
-    const r = await fetch(BACKEND + '/api/client-update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        token: sessionToken,
-        password: sessionPassword,
-        updateType: 'change_request',
-        updateData: { requestType, details }
-      })
+    const res = await fetch(`${BASE_URL}/api/client-update`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ token: TOKEN, password: PASS, updateType: 'change_request', updateData: { requestType: selectedChangeType || 'General', details } })
     });
-    const d = await r.json();
-    if (r.ok && d.success) {
-      document.getElementById('requestDetails').value = '';
-      document.getElementById('requestType').value = '';
-      document.getElementById('requestSuccess').style.display = 'block';
-      setTimeout(() => document.getElementById('requestSuccess').style.display = 'none', 5000);
-    }
-  } catch (e) {
-    alert('Could not submit request. Please try again or email george@turnkeyaiservices.com');
-  }
+    const d = await res.json();
+    if (d.success) {
+      document.getElementById('changeDetails').value = '';
+      showToast("✅ Request submitted! We'll handle it within 24–48 hours.", true);
+    } else showToast('❌ ' + (d.error || 'Failed'));
+  } catch(e) { showToast('❌ Connection error'); }
+}
+
+async function requestMiniMe() {
+  try {
+    const res = await fetch(`${BASE_URL}/api/client-update`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ token: TOKEN, password: PASS, updateType: 'request_minime', updateData: {} })
+    });
+    const d = await res.json();
+    if (d.success) { showToast('✅ Mini-Me requested! Check your email.', true); buildAddons(); }
+    else showToast('❌ ' + (d.error || 'Failed'));
+  } catch(e) { showToast('❌ Connection error'); }
 }
 
 async function requestFreeVideo() {
   try {
-    const r = await fetch(BACKEND + '/api/client-update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: sessionToken, password: sessionPassword, updateType: 'request_free_video', updateData: {} })
+    const res = await fetch(`${BASE_URL}/api/client-update`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ token: TOKEN, password: PASS, updateType: 'request_free_video', updateData: {} })
     });
-    const d = await r.json();
-    if (r.ok && d.success) {
-      document.getElementById('videoSuccess').style.display = 'block';
-    } else {
-      alert(d.error || 'Could not submit request. Please email george@turnkeyaiservices.com');
-    }
-  } catch(e) {
-    alert('Connection error. Please email george@turnkeyaiservices.com or call (228) 604-3200');
-  }
+    const d = await res.json();
+    if (d.success) {
+      clientData.freeVideoRequested = true;
+      showToast('✅ Check your email for recording instructions!', true);
+      buildAddons();
+    } else showToast('❌ ' + (d.error || 'Failed'));
+  } catch(e) { showToast('❌ Connection error'); }
 }
 
-async function requestMiniMe() {
-  const consent = document.getElementById('dashMiniMeConsent').checked;
-  if (!consent) { alert('Please check the image/likeness consent box before subscribing to Mini-Me.'); return; }
-  try {
-    const r = await fetch(BACKEND + '/api/client-update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: sessionToken, password: sessionPassword, updateType: 'request_mini_me', updateData: { consentTimestamp: new Date().toISOString() } })
-    });
-    const d = await r.json();
-    if (r.ok && d.success) {
-      document.getElementById('miniMeSuccess').style.display = 'block';
-    } else {
-      alert(d.error || 'Could not submit request. Please email george@turnkeyaiservices.com');
-    }
-  } catch(e) {
-    alert('Connection error. Please email george@turnkeyaiservices.com or call (228) 604-3200');
-  }
+function showToast(msg, success) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (success ? ' success' : '');
+  setTimeout(() => t.classList.remove('show'), 4000);
 }
-
-function showTab(name) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
-  event.target.classList.add('active');
-}
-
-function doLogout() {
-  sessionToken = '';
-  sessionPassword =
+</script>
+</body>
+</html>
