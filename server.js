@@ -130,13 +130,18 @@ async function deployToCloudflarePages(projectName, htmlContent) {
     if (!createRes.ok) throw new Error('CF Pages create failed: ' + JSON.stringify(createData.errors));
     await new Promise(r => setTimeout(r, 2000));
   }
+  const htmlBuffer = Buffer.from(htmlContent, 'utf8');
+  const htmlHash = require('crypto').createHash('sha256').update(htmlBuffer).digest('hex');
+  const manifest = { '/index.html': htmlHash };
   const form = new FormData();
-  form.append('index.html', Buffer.from(htmlContent, 'utf8'), { filename: 'index.html', contentType: 'text/html; charset=utf-8' });
+  form.append('manifest', JSON.stringify(manifest), { filename: 'manifest', contentType: 'application/json' });
+  form.append('/index.html', htmlBuffer, { filename: 'index.html', contentType: 'text/html; charset=utf-8' });
   const deployRes = await fetch(
     `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/pages/projects/${projectName}/deployments`,
     { method: 'POST', headers: { 'Authorization': `Bearer ${CF_API_TOKEN}`, ...form.getHeaders() }, body: form }
   );
   const deployData = await deployRes.json();
+  console.log('[CF Pages deploy response]', JSON.stringify(deployData).substring(0,300));
   if (!deployRes.ok) throw new Error('CF Pages deploy failed: ' + JSON.stringify(deployData.errors));
   const liveUrl = `https://${projectName}.pages.dev`;
   console.log(`[CF Pages] Deployed: ${liveUrl}`);
@@ -852,7 +857,8 @@ app.post('/api/video-upload', async (req, res) => {
     if (isPromo) { client.promoVideoFile = videoFileName; client.promoVideoUploadedAt = new Date().toISOString(); }
     else { client.miniMeVideoFile = videoFileName; client.miniMeVideoUploadedAt = new Date().toISOString(); }
     saveClients();
-    await sendEmail({ to: ADMIN_EMAIL, subject: `🎬 Video Uploaded: ${client.data.businessName} — ${isPromo?'Promo':'Mini-Me'}`, html: `<h3>${isPromo?'Promo Video':'Mini-Me Clip'} Received</h3><p><strong>Business:</strong> ${client.data.businessName}</p><p><strong>File:</strong> ${videoFileName}</p><p><strong>Mini-Me Consent:</strong> ${client.miniMeConsent?'✅ '+client.miniMeConsentAt:'⏳ Pending'}</p>` });
+    const setVideoLink = `${BASE_URL}/api/admin/set-video?adminKey=${ADMIN_KEY}&clientId=${client.id}&videoType=${isPromo?'promo':'miniMe'}&videoUrl=PASTE_URL_HERE`;
+    await sendEmail({ to: ADMIN_EMAIL, subject: `🎬 Video Uploaded: ${client.data.businessName} — ${isPromo?'Promo':'Mini-Me'}`, html: `<div style="font-family:sans-serif;max-width:600px;"><h2 style="color:#0066FF;">${isPromo?'🎬 Promo Video':'🤖 Mini-Me Clip'} Received</h2><table style="width:100%;border-collapse:collapse;margin-bottom:20px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;"><tr style="background:#f9fafb;"><td style="padding:9px 14px;font-weight:700;">Business</td><td style="padding:9px 14px;">${client.data.businessName}</td></tr><tr><td style="padding:9px 14px;font-weight:700;">Owner</td><td style="padding:9px 14px;">${client.data.ownerName}</td></tr><tr style="background:#f9fafb;"><td style="padding:9px 14px;font-weight:700;">Email</td><td style="padding:9px 14px;">${client.data.email}</td></tr><tr><td style="padding:9px 14px;font-weight:700;">Phone</td><td style="padding:9px 14px;">${client.data.phone}</td></tr><tr style="background:#f9fafb;"><td style="padding:9px 14px;font-weight:700;">File</td><td style="padding:9px 14px;">${videoFileName}</td></tr><tr><td style="padding:9px 14px;font-weight:700;">Mini-Me Consent</td><td style="padding:9px 14px;">${client.miniMeConsent?'✅ '+client.miniMeConsentAt:'⏳ Pending'}</td></tr></table><div style="background:#f0f9ff;border:2px solid #0066FF;border-radius:12px;padding:20px;"><p style="font-weight:700;color:#0066FF;margin:0 0 10px;">📋 After producing the video:</p><p style="margin:0 0 10px;font-size:14px;color:#374151;">1. Host the finished video (YouTube, Vimeo, or direct URL)<br>2. Copy the URL<br>3. Replace PASTE_URL_HERE in the link below and open it in your browser to publish it to their site:</p><p style="font-family:monospace;font-size:12px;word-break:break-all;background:#fff;padding:12px;border-radius:6px;border:1px solid #e5e7eb;color:#374151;">${setVideoLink}</p></div></div>` });
     res.json({ success: true, message: "Video uploaded! We'll have your video ready within 48 hours." });
   } catch(err) { console.error('[video-upload]', err); res.status(500).json({ error: 'Upload failed' }); }
 });
