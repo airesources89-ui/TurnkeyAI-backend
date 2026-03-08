@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TurnkeyAI Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c10;
+  --surface: #111318;
+  --surface2: #1a1d24;
+  --border: #252830;
+  --border2: #2e3240;
+  --primary: #0066FF;
+  --accent: #00D68F;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --text: #e8eaf0;
+  --muted: #6b7280;
+  --mono: 'IBM Plex Mono', monospace;
+  --head: 'Syne', sans-serif;
+  --body: 'DM Sans', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--body); min-height: 100vh; }
+a { color: inherit; text-decoration: none; }
+
+/* LOGIN */
+#loginScreen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 30% 20%, #0066FF18 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 80%, #00D68F0e 0%, transparent 60%),
+              var(--bg);
+}
+.login-card {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 20px; padding: 48px 40px; width: 380px;
+  box-shadow: 0 32px 80px rgba(0,0,0,.6);
+}
+.login-logo { font-family: var(--head); font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+.login-logo span { color: var(--accent); }
+.login-sub { color: var(--muted); font-size: 14px; margin-bottom: 32px; font-family: var(--mono); }
+.login-input {
+  width: 100%; background: var(--bg); border: 1px solid var(--border2); color: var(--text);
+  padding: 14px 16px; border-radius: 10px; font-size: 15px; font-family: var(--body);
+  outline: none; margin-bottom: 12px; transition: border-color .2s;
+}
+.login-input:focus { border-color: var(--primary); }
+.login-btn {
+  width: 100%; background: var(--primary); color: white; border: none; border-radius: 10px;
+  padding: 14px; font-size: 15px; font-weight: 700; font-family: var(--body); cursor: pointer;
+  transition: opacity .2s;
+}
+.login-btn:hover { opacity: .9; }
+.login-err { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; font-family: var(--mono); }
+
+/* MAIN */
+#mainScreen { display: none; }
+
+/* TOPBAR */
+.topbar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-logo { font-family: var(--head); font-size: 18px; font-weight: 800; color: var(--primary); }
+.topbar-logo span { color: var(--accent); }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.topbar-stat { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.topbar-stat strong { color: var(--accent); }
+
+/* CONTENT */
+.content { padding: 32px; max-width: 1400px; margin: 0 auto; }
+
+/* STATS ROW */
+.stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 32px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+  position: relative; overflow: hidden;
+}
+.stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--accent-color, var(--primary));
+}
+.stat-label { font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.stat-val { font-family: var(--head); font-size: 32px; font-weight: 800; color: var(--text); line-height: 1; }
+.stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+/* FILTERS */
+.filters { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
+.filter-btn {
+  background: var(--surface); border: 1px solid var(--border2); color: var(--muted);
+  padding: 8px 16px; border-radius: 8px; font-size: 13px; font-family: var(--mono); cursor: pointer;
+  transition: all .2s;
+}
+.filter-btn:hover, .filter-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+.search-input {
+  background: var(--surface); border: 1px solid var(--border2); color: var(--text);
+  padding: 8px 14px; border-radius: 8px; font-size: 13px; font-family: var(--body);
+  outline: none; width: 240px; margin-left: auto;
+}
+.search-input:focus { border-color: var(--primary); }
+
+/* CLIENT TABLE */
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+.table-head {
+  display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr 1.2fr 1fr 160px;
+  padding: 12px 20px; background: var(--surface2); border-bottom: 1px solid var(--border);
+  font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
+}
+.client-row {
+  display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr 1.2fr 1fr 160px;
+  padding: 16px 20px; border-bottom: 1px solid var(--border); align-items: center;
+  cursor: pointer; transition: background .15s;
+}
+.client-row:last-child { border-bottom: none; }
+.client-row:hover { background: var(--surface2); }
+.biz-name { font-weight: 600; font-size: 15px; color: var(--text); }
+.biz-owner { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: var(--mono); }
+.biz-contact { font-size: 13px; color: var(--muted); }
+.biz-contact a { color: var(--primary); }
+.industry-tag {
+  display: inline-block; background: var(--primary)18; color: var(--primary);
+  padding: 3px 10px; border-radius: 6px; font-size: 11px; font-family: var(--mono); text-transform: capitalize;
+}
+.status-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; font-family: var(--mono);
+}
+.status-pending { background: var(--warn)22; color: var(--warn); }
+.status-active { background: var(--accent)22; color: var(--accent); }
+.status-partner { background: var(--primary)22; color: var(--primary); }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.addon-icons { display: flex; gap: 4px; flex-wrap: wrap; }
+.addon-icon { font-size: 14px; }
+
+.action-btns { display: flex; gap: 6px; }
+.btn-sm {
+  padding: 6px 12px; border-radius: 7px; font-size: 12px; font-weight: 700;
+  font-family: var(--mono); border: none; cursor: pointer; transition: opacity .2s; white-space: nowrap;
+}
+.btn-sm:hover { opacity: .85; }
+.btn-approve { background: var(--accent); color: #0a2e1e; }
+.btn-preview { background: var(--primary); color: white; }
+.btn-live { background: var(--surface2); color: var(--accent); border: 1px solid var(--accent)44; }
+
+/* DETAIL PANEL */
+#detailPanel {
+  position: fixed; right: 0; top: 60px; bottom: 0; width: 480px;
+  background: var(--surface); border-left: 1px solid var(--border2);
+  overflow-y: auto; transform: translateX(100%); transition: transform .3s ease;
+  z-index: 50;
+}
+#detailPanel.open { transform: translateX(0); }
+.panel-head {
+  padding: 24px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: flex-start;
+  position: sticky; top: 0; background: var(--surface); z-index: 2;
+}
+.panel-biz { font-family: var(--head); font-size: 20px; font-weight: 800; }
+.panel-close { cursor: pointer; color: var(--muted); font-size: 20px; line-height: 1; }
+.panel-body { padding: 24px; }
+
+.detail-section { margin-bottom: 24px; }
+.detail-section-title {
+  font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.detail-row { display: flex; justify-content: space-between; padding: 7px 0; font-size: 14px; border-bottom: 1px solid var(--border)66; }
+.detail-row:last-child { border-bottom: none; }
+.detail-key { color: var(--muted); }
+.detail-val { color: var(--text); font-weight: 500; text-align: right; max-width: 60%; word-break: break-all; }
+.detail-val a { color: var(--primary); }
+
+.panel-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+.panel-btn {
+  padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 700;
+  font-family: var(--body); border: none; cursor: pointer; transition: opacity .2s; text-align: center;
+  display: block; width: 100%;
+}
+.panel-btn:hover { opacity: .88; }
+.panel-btn-approve { background: linear-gradient(135deg, var(--accent), #00b377); color: #071c12; }
+.panel-btn-preview { background: var(--primary); color: white; }
+.panel-btn-live { background: var(--surface2); border: 1px solid var(--accent)55; color: var(--accent); }
+.panel-btn-danger { background: var(--surface2); border: 1px solid var(--danger)55; color: var(--danger); }
+
+.services-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.service-chip {
+  background: var(--surface2); border: 1px solid var(--border2);
+  padding: 4px 10px; border-radius: 6px; font-size: 12px; color: var(--text); font-family: var(--mono);
+}
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--surface2); border: 1px solid var(--border2); color: var(--text);
+  padding: 12px 24px; border-radius: 10px; font-size: 14px; font-family: var(--mono);
+  box-shadow: 0 8px 32px rgba(0,0,0,.5); transition: transform .3s; z-index: 999;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--accent); color: var(--accent); }
+
+/* EMPTY */
+.empty { text-align: center; padding: 60px 20px; color: var(--muted); font-family: var(--mono); }
+.empty-icon { font-size: 40px; margin-bottom: 16px; }
+
+@media (max-width: 900px) {
+  .stats-row { grid-template-columns: repeat(3, 1fr); }
+  .table-head, .client-row { grid-template-columns: 1fr 1fr 80px; }
+  .col-hide { display: none; }
+  #detailPanel { width: 100%; top: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">Turnkey<span>AI</span></div>
+    <div class="login-sub">// admin_dashboard v2.0</div>
+    <input class="login-input" type="password" id="adminKey" placeholder="Admin key" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Access Dashboard →</button>
+    <div class="login-err" id="loginErr">⚠ Invalid key</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="mainScreen">
+  <div class="topbar">
+    <div class="topbar-logo">Turnkey<span>AI</span> <span style="font-size:12px;font-family:var(--mono);color:var(--muted);font-weight:400;">Admin</span></div>
+    <div class="topbar-right">
+      <div class="topbar-stat">MRR: <strong id="statMRR">—</strong></div>
+      <div class="topbar-stat">Active: <strong id="statActive">—</strong></div>
+      <div class="topbar-stat">Pending: <strong id="statPending">—</strong></div>
+      <button class="btn-sm btn-preview" onclick="loadClients()" style="font-size:11px;">↻ Refresh</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- STATS -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card" style="--accent-color:#00D68F">
+        <div class="stat-label">Total Clients</div>
+        <div class="stat-val" id="s1">—</div>
+        <div class="stat-sub">All time</div>
+      </div>
+      <div class="stat-card" style="--accent-color:#00D68F">
+        <div class="stat-label">Live Sites</div>
+        <div class="stat-val" id="s2">—</div>
+        <div class="stat-sub">Active & deployed</div>
+      </div>
+      <div class="stat-card" style="--accent-color:#f59e0b">
+        <div class="stat-label">Awaiting Approval</div>
+        <div class="stat-val" id="s3">—</div>
+        <div class="stat-sub">Pending review</div>
+      </div>
+      <div class="stat-card" style="--accent-color:#0066FF">
+        <div class="stat-label">Mini-Me Requests</div>
+        <div class="stat-val" id="s4">—</div>
+        <div class="stat-sub">Consented</div>
+      </div>
+      <div class="stat-card" style="--accent-color:#7c3aed">
+        <div class="stat-label">Video Uploads</div>
+        <div class="stat-val" id="s5">—</div>
+        <div class="stat-sub">Awaiting production</div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('pending',this)">⏳ Pending</button>
+      <button class="filter-btn" onclick="setFilter('active',this)">✅ Live</button>
+      <button class="filter-btn" onclick="setFilter('minime',this)">🤖 Mini-Me</button>
+      <button class="filter-btn" onclick="setFilter('video',this)">🎬 Video</button>
+      <button class="filter-btn" onclick="setFilter('phone',this)">📞 Phone Add-ons</button>
+      <input class="search-input" id="searchInput" placeholder="Search business, owner, city..." oninput="renderTable()">
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <div class="table-head">
+        <div>Business</div>
+        <div class="col-hide">Contact</div>
+        <div class="col-hide">Industry</div>
+        <div>Status</div>
+        <div class="col-hide">Add-Ons</div>
+        <div class="col-hide">Created</div>
+        <div>Actions</div>
+      </div>
+      <div id="tableBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div id="detailPanel">
+  <div class="panel-head">
+    <div>
+      <div class="panel-biz" id="panelBiz">—</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px;font-family:var(--mono);" id="panelStatus">—</div>
+    </div>
+    <span class="panel-close" onclick="closePanel()">✕</span>
+  </div>
+  <div class="panel-body" id="panelBody"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const BASE_URL = 'https://turnkeyaiservices.com';
+let ADMIN_KEY = '';
+let allClients = [];
+let currentFilter = 'all';
+let selectedClient = null;
+
+function doLogin() {
+  const key = document.getElementById('adminKey').value.trim();
+  if (!key) return;
+  ADMIN_KEY = key;
+  loadClients();
+}
+
+async function loadClients() {
+  try {
+    const res = await fetch(`${BASE_URL}/api/admin/clients?adminKey=${ADMIN_KEY}`);
+    if (res.status === 403) {
+      document.getElementById('loginErr').style.display = 'block';
+      return;
+    }
+    allClients = await res.json();
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainScreen').style.display = 'block';
+    updateStats();
+    renderTable();
+  } catch(e) {
+    document.getElementById('loginErr').style.display = 'block';
+    document.getElementById('loginErr').textContent = '⚠ Connection failed — check URL';
+  }
+}
+
+function updateStats() {
+  const total = allClients.length;
+  const active = allClients.filter(c => c.status === 'active').length;
+  const pending = allClients.filter(c => c.status === 'pending').length;
+  const miniMe = allClients.filter(c => c.miniMeConsent).length;
+  const videos = allClients.filter(c => c.miniMeVideoFile || c.promoVideoFile).length;
+  const mrr = active * 99;
+
+  document.getElementById('s1').textContent = total;
+  document.getElementById('s2').textContent = active;
+  document.getElementById('s3').textContent = pending;
+  document.getElementById('s4').textContent = miniMe;
+  document.getElementById('s5').textContent = videos;
+  document.getElementById('statMRR').textContent = '$' + (mrr).toLocaleString();
+  document.getElementById('statActive').textContent = active;
+  document.getElementById('statPending').textContent = pending;
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function renderTable() {
+  const search = (document.getElementById('searchInput').value || '').toLowerCase();
+  let filtered = allClients.filter(c => {
+    const match = !search ||
+      (c.businessName||'').toLowerCase().includes(search) ||
+      (c.ownerName||'').toLowerCase().includes(search) ||
+      (c.city||'').toLowerCase().includes(search) ||
+      (c.email||'').toLowerCase().includes(search) ||
+      (c.phone||'').toLowerCase().includes(search) ||
+      (c.industry||'').toLowerCase().includes(search);
+    if (!match) return false;
+    if (currentFilter === 'pending') return c.status === 'pending';
+    if (currentFilter === 'active') return c.status === 'active';
+    if (currentFilter === 'minime') return c.wantsMiniMe === 'yes';
+    if (currentFilter === 'video') return c.wantsFreeVideo || c.miniMeVideoFile || c.promoVideoFile;
+    if (currentFilter === 'phone') return c.wantsAfterHours === 'yes' || c.wantsMissedCall === 'yes' || c.wantsVoicemailDrop === 'yes';
+    return true;
+  });
+
+  // Sort: pending first, then by date
+  filtered.sort((a, b) => {
+    if (a.status === 'pending' && b.status !== 'pending') return -1;
+    if (b.status === 'pending' && a.status !== 'pending') return 1;
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
+
+  const body = document.getElementById('tableBody');
+  if (!filtered.length) {
+    body.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div>No clients match this filter</div></div>';
+    return;
+  }
+
+  body.innerHTML = filtered.map(c => {
+    const addons = [];
+    if (c.wantsMiniMe === 'yes') addons.push(c.miniMeConsent ? '🤖✅' : '🤖⏳');
+    if (c.wantsFreeVideo) addons.push(c.promoVideoFile ? '🎬✅' : '🎬⏳');
+    if (c.wantsAfterHours === 'yes') addons.push('📞');
+    if (c.wantsMissedCall === 'yes') addons.push('📱');
+    if (c.wantsVoicemailDrop === 'yes') addons.push('🎙️');
+
+    const statusClass = c.status === 'active' ? 'status-active' : 'status-pending';
+    const statusLabel = c.status === 'active' ? '● Live' : '● Pending';
+    const date = c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '—';
+
+    const actionBtns = c.status === 'active'
+      ? `<a href="${c.liveUrl}" target="_blank" class="btn-sm btn-live">🌐 Live</a>
+         <a href="${BASE_URL}/preview/${c.previewToken}" target="_blank" class="btn-sm btn-preview">👁</a>`
+      : `<button class="btn-sm btn-approve" onclick="approveClient(event,'${c.id}')">✅ Approve</button>
+         <a href="${BASE_URL}/preview/${c.previewToken}" target="_blank" class="btn-sm btn-preview">👁</a>`;
+
+    return `<div class="client-row" onclick="openPanel('${c.id}')">
+      <div>
+        <div class="biz-name">${c.businessName||'—'}</div>
+        <div class="biz-owner">${c.ownerName||''}</div>
+      </div>
+      <div class="col-hide">
+        <div class="biz-contact"><a href="tel:${c.phone||''}" onclick="event.stopPropagation()">${c.phone||'—'}</a></div>
+        <div class="biz-contact"><a href="mailto:${c.email||''}" onclick="event.stopPropagation()">${c.email||''}</a></div>
+      </div>
+      <div class="col-hide"><span class="industry-tag">${(c.industry||'').replace(/_/g,' ')}</span></div>
+      <div><span class="status-badge ${statusClass}"><span class="dot"></span>${statusLabel}</span></div>
+      <div class="col-hide"><div class="addon-icons">${addons.map(a=>`<span class="addon-icon">${a}</span>`).join('')||'<span style="color:var(--muted);font-size:12px;">—</span>'}</div></div>
+      <div class="col-hide" style="font-family:var(--mono);font-size:12px;color:var(--muted);">${date}</div>
+      <div class="action-btns" onclick="event.stopPropagation()">${actionBtns}</div>
+    </div>`;
+  }).join('');
+}
+
+function openPanel(id) {
+  const c = allClients.find(x => x.id === id);
+  if (!c) return;
+  selectedClient = c;
+
+  document.getElementById('panelBiz').textContent = c.businessName || '—';
+  document.getElementById('panelStatus').textContent = c.status === 'active' ? '✅ Live' : '⏳ Pending Review';
+
+  const previewUrl = `${BASE_URL}/preview/${c.previewToken}`;
+  const approveUrl = `${BASE_URL}/api/approve/${c.id}?adminKey=${ADMIN_KEY}`;
+
+  // Build panel content
+  let html = '';
+
+  // Quick actions
+  html += `<div class="panel-actions">`;
+  if (c.status !== 'active') {
+    html += `<a href="${approveUrl}" target="_blank" class="panel-btn panel-btn-approve">✅ Approve & Deploy Live</a>`;
+  } else {
+    html += `<a href="${c.liveUrl}" target="_blank" class="panel-btn panel-btn-live">🌐 View Live Site</a>`;
+  }
+  html += `<a href="${previewUrl}" target="_blank" class="panel-btn panel-btn-preview">👁️ View Preview</a>`;
+  html += `</div>`;
+
+  // Business info
+  html += section('Business Info', [
+    ['Business Name', c.businessName],
+    ['Owner', c.ownerName],
+    ['Industry', (c.industry||'').replace(/_/g,' ')],
+    ['City', c.city],
+    ['Phone', c.phone ? `<a href="tel:${c.phone}">${c.phone}</a>` : null],
+    ['Email', c.email ? `<a href="mailto:${c.email}">${c.email}</a>` : null],
+    ['Submitted', c.createdAt ? new Date(c.createdAt).toLocaleString() : null],
+    ['Status', c.status],
+  ]);
+
+  // Live site info
+  if (c.status === 'active') {
+    html += section('Live Site', [
+      ['URL', c.liveUrl ? `<a href="${c.liveUrl}" target="_blank">${c.liveUrl}</a>` : null],
+      ['Dashboard Password', c.dashPassword || '—'],
+      ['Approved', c.approvedAt ? new Date(c.approvedAt).toLocaleString() : null],
+    ]);
+  }
+
+  // Add-ons
+  const addonRows = [
+    ['Mini-Me AI Avatar', c.wantsMiniMe === 'yes' ? (c.miniMeConsent ? '✅ Consented — ' + (c.miniMeConsentAt ? new Date(c.miniMeConsentAt).toLocaleString() : '') : '⏳ Requested — no consent yet') : '❌ Not requested'],
+    ['Mini-Me Video File', c.miniMeVideoFile || '❌ Not uploaded'],
+    ['Mini-Me Subscribed', c.miniMeSubscribed ? '✅ Yes — $59/mo' : '❌ No'],
+    ['Free Promo Video', c.wantsFreeVideo ? (c.promoVideoFile ? '✅ Uploaded' : '⏳ Requested — awaiting upload') : '❌ Not requested'],
+    ['After Hours Answering', c.wantsAfterHours === 'yes' ? '✅ Yes' : '❌ No'],
+    ['Missed Call Text', c.wantsMissedCall === 'yes' ? '✅ Yes' : '❌ No'],
+    ['Voicemail Drop', c.wantsVoicemailDrop === 'yes' ? '✅ Yes' : '❌ No'],
+  ];
+  html += section('Add-Ons & Services', addonRows);
+
+  // Preview / tokens (admin use)
+  html += section('Admin Tokens', [
+    ['Preview URL', `<a href="${previewUrl}" target="_blank">Open Preview</a>`],
+    ['Approve URL', c.status !== 'active' ? `<a href="${approveUrl}" target="_blank">Approve Link</a>` : 'Already approved'],
+    ['Client ID', `<span style="font-family:var(--mono);font-size:11px;">${c.id}</span>`],
+  ]);
+
+  document.getElementById('panelBody').innerHTML = html;
+  document.getElementById('detailPanel').classList.add('open');
+}
+
+function section(title, rows) {
+  const filled = rows.filter(r => r[1]);
+  if (!filled.length) return '';
+  return `<div class="detail-section">
+    <div class="detail-section-title">${title}</div>
+    ${filled.map(r => `<div class="detail-row"><span class="detail-key">${r[0]}</span><span class="detail-val">${r[1]}</span></div>`).join('')}
+  </div>`;
+}
+
+function closePanel() {
+  document.getElementById('detailPanel').classList.remove('open');
+  selectedClient = null;
+}
+
+async function approveClient(e, id) {
+  e.stopPropagation();
+  if (!confirm('Approve and deploy this site live?')) return;
+  showToast('⏳ Deploying...');
+  window.open(`${BASE_URL}/api/approve/${id}?adminKey=${ADMIN_KEY}`, '_blank');
+  setTimeout(() => { loadClients(); showToast('✅ Deployment started — refresh in 30s', true); }, 1000);
+}
+
+function showToast(msg, success) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (success ? ' success' : '');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// Close panel on outside click
+document.addEventListener('click', e => {
+  if (!document.getElementById('detailPanel').contains(e.target) && !e.target.closest('.client-row')) {
+    closePanel();
+  }
+});
+</script>
+</body>
+</html>
