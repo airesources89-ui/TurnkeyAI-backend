@@ -86,10 +86,10 @@
         .addon-box.mini-me-box { background: linear-gradient(135deg, #0a1f14, #0f2b1c); border: 2px solid #00D68F; color: white; }
         .addon-box h3 { font-family: 'Playfair Display', serif; font-size: 19px; margin-bottom: 8px; }
         .addon-box .addon-desc { font-size: 14px; opacity: 0.85; margin-bottom: 16px; line-height: 1.6; }
-        .addon-check-row { display: flex; align-items: flex-start; gap: 12px; background: rgba(255,255,255,0.08); padding: 14px 16px; border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; }
+        .addon-check-row { display: flex; align-items: flex-start; gap: 12px; background: rgba(255,255,255,0.08); padding: 14px 16px; border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; user-select: none; }
         .addon-check-row:hover { border-color: rgba(255,255,255,0.3); }
         .addon-check-row.checked { border-color: #00D68F; background: rgba(0,214,143,0.15); }
-        .addon-check-row input { width: 20px; height: 20px; accent-color: #00D68F; margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+        .addon-check-row input { width: 20px; height: 20px; accent-color: #00D68F; margin-top: 2px; flex-shrink: 0; cursor: pointer; pointer-events: none; }
         .addon-check-row span { font-size: 14px; line-height: 1.5; }
         .addon-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; margin-left: 8px; }
         .addon-badge.green { background: #00D68F; color: #0a1628; }
@@ -392,7 +392,7 @@
                 <div class="nav-buttons"><button type="button" class="btn btn-secondary" onclick="prevSection()"><span>←</span> Back</button><button type="button" class="btn btn-primary" onclick="nextSection()">Continue <span>→</span></button></div>
             </div>
 
-            <!-- SECTION 10: Add-On Services (NEW) -->
+            <!-- SECTION 10: Add-On Services -->
             <div class="form-section" data-section="10">
                 <div class="section-header"><div class="section-number">10</div><div><div class="section-title">Free Video & Add-On Services</div><div class="section-subtitle">Boost your website — never miss a customer call</div></div></div>
 
@@ -400,20 +400,22 @@
                 <div class="addon-box video-box">
                     <h3>🎬 Your Free 60-Second Promo Video <span class="addon-badge gold">FREE with any plan</span></h3>
                     <p class="addon-desc">Every TurnkeyAI client gets one free 60-second professional promo video — powered by AI video technology. We write the script from your intake info and send it to you. You record a short clip on your phone. We handle the rest.</p>
-                    <label class="addon-check-row" id="videoCheckRow" onclick="toggleAddonRow('wantsFreeVideo','videoCheckRow')">
+                    <!-- FIX: div instead of label to prevent double-toggle -->
+                    <div class="addon-check-row" id="videoCheckRow" onclick="toggleFreeVideo()">
                         <input type="checkbox" name="wants_free_video" id="wantsFreeVideo" value="yes">
                         <span><strong>Yes, I want my free promo video!</strong> — We'll email you a custom script and recording instructions within 24 hours of signup.</span>
-                    </label>
+                    </div>
                 </div>
 
                 <!-- MINI-ME -->
                 <div class="addon-box mini-me-box">
                     <h3>🤖 Mini-Me AI Avatar <span class="addon-badge green">$59/mo — First video FREE</span></h3>
                     <p class="addon-desc">Mini-Me is a digital version of you that lives on your website — your face, your voice, your personality — available 24/7. You record one short clip on your phone using a script we write. We create your AI avatar and put it on your site. Mini-Me subscribers automatically get the free 60-second promo video too.</p>
-                    <label class="addon-check-row" id="miniMeCheckRow" onclick="toggleMiniMe()">
+                    <!-- FIX: div instead of label to prevent double-toggle -->
+                    <div class="addon-check-row" id="miniMeCheckRow" onclick="toggleMiniMe()">
                         <input type="checkbox" name="wants_mini_me" id="wantsMiniMe" value="yes">
                         <span><strong>Yes, I want Mini-Me!</strong> — $59/month after the free first video. We'll send everything you need to get started.</span>
-                    </label>
+                    </div>
                     <div class="consent-sub" id="miniMeConsentBox">
                         <label>
                             <input type="checkbox" name="mini_me_consent" id="miniMeConsentCb" value="yes">
@@ -497,10 +499,17 @@
                     <a href="https://buy.stripe.com/dRm3cx0PY13J6Wu4DrfnO05" target="_blank" style="display:inline-block;background:#00D68F;color:white;padding:16px 40px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;width:280px;">💳 Pay with Credit Card</a>
                     <a href="https://www.paypal.com/paypalme/airesources89" target="_blank" style="display:inline-block;background:#FFC439;color:#003087;padding:16px 40px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;width:280px;">🅿️ Pay with PayPal</a>
                     <a href="#" onclick="showCashAppInfo();return false;" style="display:inline-block;background:#00D632;color:white;padding:16px 40px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;width:280px;">💲 Pay with CashApp</a>
+                    <!-- FIX 3: Partner button added -->
+                    <a href="#" onclick="showPartnerInfo();return false;" style="display:inline-block;background:rgba(255,255,255,.15);color:white;padding:16px 40px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;width:280px;border:2px solid rgba(255,255,255,.4);">🤝 TurnkeyAI Partner</a>
                 </div>
                 <div id="cashAppInfo" style="display:none;background:rgba(255,255,255,.15);padding:14px;border-radius:8px;margin-top:12px;">
                     <p style="font-size:14px;font-weight:600;">Send $99 to <span style="font-size:16px;">$AIResources89</span></p>
                     <p style="font-size:12px;opacity:.8;margin-top:4px;">Include your business name in the note</p>
+                </div>
+                <!-- FIX 3: Partner info panel -->
+                <div id="partnerInfo" style="display:none;background:rgba(255,255,255,.15);padding:14px;border-radius:8px;margin-top:12px;">
+                    <p style="font-size:14px;font-weight:600;">✅ Partner Account — No Payment Required</p>
+                    <p style="font-size:12px;opacity:.8;margin-top:4px;">Your site will be deployed automatically. You'll receive your preview link and dashboard credentials by email within minutes.</p>
                 </div>
             </div>
             <div id="successAddons" style="display:none;background:#f0fff4;border:2px solid #00D68F;border-radius:12px;padding:20px;max-width:500px;margin:0 auto 16px;text-align:left;">
@@ -574,10 +583,13 @@
         });
     }
 
-    function toggleAddonRow(cbId,rowId){
-        var cb=document.getElementById(cbId);
+    // FIX 2: Separate toggle functions that directly set checked state, no double-fire
+    function toggleFreeVideo(){
+        var cb=document.getElementById('wantsFreeVideo');
+        // Only toggle if Mini-Me is NOT checked (Mini-Me auto-includes free video)
+        if(document.getElementById('wantsMiniMe').checked) return;
         cb.checked=!cb.checked;
-        document.getElementById(rowId).classList.toggle('checked',cb.checked);
+        document.getElementById('videoCheckRow').classList.toggle('checked',cb.checked);
     }
 
     function toggleMiniMe(){
@@ -586,7 +598,7 @@
         document.getElementById('miniMeCheckRow').classList.toggle('checked',cb.checked);
         document.getElementById('miniMeConsentBox').style.display=cb.checked?'block':'none';
         if(cb.checked){
-            // Mini-Me auto-includes free video
+            // Mini-Me auto-includes free video — check it and lock it
             document.getElementById('wantsFreeVideo').checked=true;
             document.getElementById('videoCheckRow').classList.add('checked');
         }
@@ -620,7 +632,7 @@
     bindCheckboxStyles();
     updateProgress();
 
-    // ── UPDATE MODE: pre-fill form if ?update=id&token=xxx ──────────────
+    // ── UPDATE MODE ──────────────────────────────────────────────────────────
     var urlP = new URLSearchParams(location.search);
     var UPDATE_ID = urlP.get('update');
     var UPDATE_TOKEN = urlP.get('token');
@@ -629,8 +641,6 @@
     if (IS_UPDATE) {
       var submitBtn2 = document.getElementById('submitBtn');
       if (submitBtn2) submitBtn2.textContent = '💾 Save & Update My Site';
-      var h1els = document.querySelectorAll('h1,h2');
-      h1els.forEach(function(el){ if(el.textContent.includes('Build') || el.textContent.includes('Tell us')) el.textContent = 'Update Your Business Info'; });
       fetch('https://turnkeyaiservices.com/api/prefill/'+UPDATE_ID+'?token='+UPDATE_TOKEN)
         .then(function(r){ return r.json(); })
         .then(function(json){
@@ -658,7 +668,6 @@
         var submitBtn=document.getElementById('submitBtn');
         if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='⏳ Submitting...';}
 
-        // Validate Mini-Me consent
         if(document.getElementById('wantsMiniMe').checked&&!document.getElementById('miniMeConsentCb').checked){
             alert('Please check the image/likeness consent box to add Mini-Me.');
             if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='🚀 Submit & Build My Website';}
@@ -674,13 +683,13 @@
         }
 
         try{
+            // FIX 1: Correct endpoint — always use turnkeyaiservices.com
             var endpoint = IS_UPDATE
                 ? 'https://turnkeyaiservices.com/api/client-update-intake/'+UPDATE_ID+'?token='+UPDATE_TOKEN
-                : 'https://turnkeyai-backend-production.up.railway.app/api/submission-created';
+                : 'https://turnkeyaiservices.com/api/submission-created';
             var response=await fetch(endpoint,{
                 method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)
             });
-            // If update mode, redirect to review page after save
             if (IS_UPDATE) {
                 var rj = await response.json();
                 document.getElementById('intakeForm').style.display='none';
@@ -692,7 +701,6 @@
             if(!response.ok)console.error('Submission error:',await response.text());
         }catch(err){console.error('Submission failed:',err);}
 
-        // Build success addon list
         var addonList=[];
         if(document.getElementById('wantsMiniMe').checked)addonList.push('Mini-Me AI Avatar — we\'ll email your script and recording instructions within 24 hours');
         else if(document.getElementById('wantsFreeVideo').checked)addonList.push('Free 60-second promo video — we\'ll email your custom script and recording instructions within 24 hours');
@@ -711,6 +719,9 @@
     });
 
     function showCashAppInfo(){document.getElementById('cashAppInfo').style.display='block';}
+
+    // FIX 3: Partner info function
+    function showPartnerInfo(){document.getElementById('partnerInfo').style.display='block';}
 
     function handlePhotoUpload(input,fieldName){
         if(!input.files||!input.files[0])return;
@@ -735,7 +746,7 @@
                 document.getElementById('photoValidationMsg').style.display='none';
             };
             img.src=e.target.result;
-               };
+        };
         reader.readAsDataURL(file);
     }
 
@@ -747,7 +758,6 @@
         if(!ownerPhoto||!workPhoto1){document.getElementById('photoValidationMsg').style.display='block';return false;}
         return true;
     }
-
     </script>
 </body>
 </html>
