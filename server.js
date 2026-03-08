@@ -602,8 +602,37 @@ app.post('/api/submission-created', async (req, res) => {
 
     if ((data.paymentMethod || '').toLowerCase() === 'partner') {
       console.log(`[partner bypass] Auto-deploying ${data.businessName}...`);
-      res.json({ success: true, id, preview: `${BASE_URL}/preview/${previewToken}`, partner: true });
-      (async () => { try { await runDeploy(clients[id]); } catch(e) { console.error('[partner bypass]', e.message); } })();
+      const partnerPreviewUrl = `${BASE_URL}/preview/${previewToken}`;
+      const partnerApproveUrl = `${BASE_URL}/api/approve/${id}?adminKey=${ADMIN_KEY}`;
+      res.json({ success: true, id, preview: partnerPreviewUrl, partner: true });
+      (async () => {
+        try { await runDeploy(clients[id]); }
+        catch(e) {
+          console.error('[partner bypass deploy]', e.message);
+          // Deploy failed — set active with preview URL as fallback
+          const c = clients[id];
+          c.status = 'active';
+          c.dashToken = c.dashToken || makeToken();
+          c.dashPassword = c.dashPassword || makePassword();
+          c.liveUrl = c.liveUrl || partnerPreviewUrl;
+          c.approvedAt = new Date().toISOString();
+          saveClients();
+          await sendCredentialsEmail(c).catch(e2 => console.error('[partner bypass credentials email]', e2.message));
+        }
+        // Always send admin notification
+        const c = clients[id];
+        await sendEmail({
+          to: ADMIN_EMAIL,
+          subject: `✅ Partner Client: ${data.businessName}`,
+          html: `<p><strong>${data.businessName}</strong> submitted via Partner bypass.</p><p>Owner: ${data.ownerName} — ${data.email} — ${data.phone}</p><p>Live URL: <a href="${c.liveUrl}">${c.liveUrl}</a></p><p>Dashboard password: <strong>${c.dashPassword}</strong></p><p><a href="${partnerApproveUrl}" style="background:#00D68F;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;">Re-Approve & Redeploy →</a></p>`
+        }).catch(e => console.error('[partner bypass admin email]', e.message));
+        // Send mini-me or free video email if selected
+        if (data.wants_mini_me === 'yes') {
+          sendMiniMeEmail(clients[id]).catch(e => console.error('[partner bypass miniMe email]', e.message));
+        } else if (data.wants_free_video === 'yes') {
+          sendFreeVideoEmail(clients[id]).catch(e => console.error('[partner bypass video email]', e.message));
+        }
+      })();
       return;
     }
 
