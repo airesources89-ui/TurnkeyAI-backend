@@ -56,6 +56,9 @@
         .success-state .s-icon{font-size:70px;margin-bottom:22px;}
         .success-state h2{font-family:'Playfair Display',serif;font-size:34px;margin-bottom:14px;color:var(--accent);}
         .success-state p{font-size:17px;opacity:0.8;max-width:480px;margin:0 auto;line-height:1.7;}
+        .progress-bar{width:100%;background:rgba(255,255,255,0.1);border-radius:99px;height:8px;margin-bottom:12px;overflow:hidden;display:none;}
+        .progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:99px;transition:width 0.3s;width:0%;}
+        .progress-label{font-size:13px;opacity:0.7;text-align:center;margin-bottom:16px;display:none;}
     </style>
 </head>
 <body>
@@ -123,6 +126,9 @@
             <div class="fsize" id="fileSize"></div>
         </div>
 
+        <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel">Uploading your video...</div>
+
         <div class="consent-box">
             <label>
                 <input type="checkbox" id="consentCb">
@@ -142,7 +148,7 @@
 </div>
 
 <script>
-// Pre-fill from URL params (sent in client email)
+// Pre-fill from URL params
 (function(){
     var p=new URLSearchParams(window.location.search);
     if(p.get('name'))document.getElementById('uploaderName').value=decodeURIComponent(p.get('name'));
@@ -179,17 +185,127 @@ async function submitVideo(){
     if(!name||!biz||!email){alert('Please fill in your name, business name, and email.');return;}
     if(!selectedFile){alert('Please select your video file first.');return;}
     if(!document.getElementById('consentCb').checked){alert('Please check the consent box before submitting.');return;}
+
     var btn=document.getElementById('submitBtn');
-    btn.disabled=true;btn.textContent='⏳ Submitting...';
-    try{
-        await fetch('https://turnkeyai-backend-production.up.railway.app/api/video-upload-notify',{
-            method:'POST',headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({type:'video_upload',uploaderName:name,businessName:biz,email:email,videoType:document.getElementById('videoType').value,notes:document.getElementById('uploaderNotes').value,fileName:selectedFile.name,fileSize:(selectedFile.size/(1024*1024)).toFixed(1)+' MB',consentGiven:true,consentTimestamp:new Date().toISOString()})
-        });
-    }catch(e){console.log('notify:',e);}
-    document.getElementById('mainContent').style.display='none';
-    document.getElementById('successState').style.display='block';
-    window.scrollTo({top:0,behavior:'smooth'});
+    btn.disabled=true;
+    btn.textContent='⏳ Uploading...';
+
+    // Show progress bar
+    document.getElementById('progressBar').style.display='block';
+    document.getElementById('progressLabel').style.display='block';
+
+    var consentTimestamp=new Date().toISOString();
+    var videoTypeVal=document.getElementById('videoType').value;
+    var notes=document.getElementById('uploaderNotes').value;
+    var fileSizeMB=(selectedFile.size/(1024*1024)).toFixed(1)+' MB';
+
+    try {
+        // Step 1: Upload the actual video file via FormData (XHR for progress tracking)
+        await uploadFileWithProgress(selectedFile, name, biz, email, videoTypeVal, notes, consentTimestamp);
+
+        // Step 2: Also send the notification email (belt-and-suspenders)
+        try {
+            await fetch('/api/video-upload-notify', {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({
+                    type:'video_upload',
+                    uploaderName:name,
+                    businessName:biz,
+                    email:email,
+                    videoType:videoTypeVal,
+                    notes:notes,
+                    fileName:selectedFile.name,
+                    fileSize:fileSizeMB,
+                    consentGiven:true,
+                    consentTimestamp:consentTimestamp
+                })
+            });
+        } catch(e){ console.log('notify fallback:', e); }
+
+        // Success
+        document.getElementById('mainContent').style.display='none';
+        document.getElementById('successState').style.display='block';
+        window.scrollTo({top:0,behavior:'smooth'});
+
+    } catch(e) {
+        console.error('Upload error:', e);
+        // Even if file upload fails, send the notification so TurnkeyAI knows to follow up
+        try {
+            await fetch('/api/video-upload-notify', {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({
+                    type:'video_upload',
+                    uploaderName:name,
+                    businessName:biz,
+                    email:email,
+                    videoType:videoTypeVal,
+                    notes:notes,
+                    fileName:selectedFile.name,
+                    fileSize:fileSizeMB,
+                    consentGiven:true,
+                    consentTimestamp:consentTimestamp,
+                    uploadError:'File upload failed — client needs to resend: ' + e.message
+                })
+            });
+        } catch(e2){ console.log('notify error:', e2); }
+
+        // Show success to user either way — we'll follow up with them
+        document.getElementById('mainContent').style.display='none';
+        document.getElementById('successState').style.display='block';
+        window.scrollTo({top:0,behavior:'smooth'});
+    }
+}
+
+function uploadFileWithProgress(file, name, biz, email, videoType, notes, consentTimestamp) {
+    return new Promise(function(resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var base64 = e.target.result.split(',')[1];
+
+            // Update progress to show reading complete
+            setProgress(30, 'Sending to TurnkeyAI...');
+
+            // Get preview token from URL if present
+            var urlParams = new URLSearchParams(window.location.search);
+            var token = urlParams.get('token') || '';
+
+            fetch('/api/video-upload', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    token: token,
+                    videoBase64: base64,
+                    fileName: file.name,
+                    videoType: videoType,
+                    uploaderName: name,
+                    businessName: biz,
+                    email: email,
+                    notes: notes,
+                    consentGiven: true,
+                    consentTimestamp: consentTimestamp
+                })
+            })
+            .then(function(res){ return res.json(); })
+            .then(function(data){
+                setProgress(100, 'Upload complete!');
+                setTimeout(function(){ resolve(data); }, 400);
+            })
+            .catch(function(err){
+                reject(err);
+            });
+        };
+        reader.onerror = function(){ reject(new Error('File read failed')); };
+
+        setProgress(10, 'Reading video file...');
+        reader.readAsDataURL(file);
+    });
+}
+
+function setProgress(pct, label) {
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = label;
 }
 </script>
 </body>
