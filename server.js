@@ -267,8 +267,9 @@ async function runDeploy(client) {
   return client;
 }
 
+
 // ─────────────────────────────────────────────────────────────────────────────
-// PROFESSIONAL SITE HTML GENERATOR — rebuilt to Henderson/Smith quality
+// PROFESSIONAL SITE HTML GENERATOR
 // ─────────────────────────────────────────────────────────────────────────────
 function generateSiteHTML(data, isPreview) {
   const biz = data.businessName || 'Your Business';
@@ -291,7 +292,6 @@ function generateSiteHTML(data, isPreview) {
   const miniMeVideo = data.miniMeVideoUrl || '';
   const chatEndpoint = `${BASE_URL}/api/chat`;
 
-  // Colors — pick a palette from industry
   const palettes = {
     cleaning: { primary: '#2563eb', accent: '#06b6d4', dark: '#0f172a' },
     agriculture: { primary: '#16a34a', accent: '#84cc16', dark: '#14532d' },
@@ -306,7 +306,6 @@ function generateSiteHTML(data, isPreview) {
   };
   const pal = palettes[data.industry] || { primary: '#0066FF', accent: '#00D68F', dark: '#1a1a2e' };
 
-  // Services
   const serviceItems = [];
   Object.keys(data).forEach(k => {
     if (k.startsWith('service_') && data[k] === 'on') {
@@ -319,18 +318,89 @@ function generateSiteHTML(data, isPreview) {
     data.additionalServices.split('\n').forEach(s => s.trim() && serviceItems.push({ name: s.trim(), price: '' }));
   }
 
-  // Hours
   const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
   const dayLabels = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const hoursData = days.map((d, i) => data['day_' + d] ? { label: dayLabels[i], hours: data['hours_' + d] || 'Open' } : null).filter(Boolean);
 
-  // Payment methods
   const payKeys = ['cash','card','check','venmo','cashapp','zelle'];
   const payLabels = { cash:'Cash', card:'Credit/Debit Card', check:'Check', venmo:'Venmo', cashapp:'CashApp', zelle:'Zelle' };
   const payMethods = payKeys.filter(k => data['pay_' + k]).map(k => payLabels[k]).join(' · ');
 
+  // PATCH 1: Inject clientId and previewToken into banner, add full approve/change UI
+  const clientId = data.id || '';
+  const previewToken = data._previewToken || '';
+  const clientApproveUrl = clientId && previewToken ? `${BASE_URL}/api/client-approve/${clientId}?token=${previewToken}` : '';
   const previewBanner = isPreview
-    ? `<div style="background:linear-gradient(90deg,#f59e0b,#d97706);color:white;text-align:center;padding:14px 24px;font-weight:600;font-size:14px;letter-spacing:.3px;">🔍 PREVIEW — This site is not yet live. <a href="mailto:${ADMIN_EMAIL}" style="color:white;text-decoration:underline;margin-left:8px;">Contact us to approve →</a></div>`
+    ? `<div style="background:#1a1d24;border-bottom:2px solid #f59e0b;padding:0;">
+        <div style="padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div style="color:#f59e0b;font-weight:700;font-size:14px;">🔍 PREVIEW — This site is not yet live</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            ${clientApproveUrl ? `<a href="${clientApproveUrl}" style="background:#00D68F;color:#071c12;padding:10px 22px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;display:inline-block;">✅ Approve &amp; Go Live →</a>` : ''}
+            <button onclick="document.getElementById('changeModal').style.display='flex'" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.25);color:white;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">✏️ Request Changes</button>
+          </div>
+        </div>
+      </div>
+      <div id="changeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9998;align-items:center;justify-content:center;padding:24px;" onclick="if(event.target===this)this.style.display='none'">
+        <div style="background:#1a1d24;border:1px solid #2e3240;border-radius:20px;padding:36px;width:100%;max-width:500px;color:white;">
+          <h2 style="font-size:20px;font-weight:800;margin:0 0 8px;font-family:sans-serif;">Request Changes</h2>
+          <p style="color:rgba(255,255,255,.6);font-size:14px;margin:0 0 24px;">Choose how you'd like to make changes:</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+            <button onclick="document.getElementById('changeModal').style.display='none';document.getElementById('changeSection').style.display='block';window.scrollTo(0,99999)" style="background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:18px;cursor:pointer;color:white;text-align:left;font-family:inherit;">
+              <div style="font-size:24px;margin-bottom:8px;">✏️</div>
+              <div style="font-weight:700;font-size:14px;">Minor Changes</div>
+              <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:4px;">Edit text, hours, services yourself</div>
+            </button>
+            <button onclick="document.getElementById('changeModal').style.display='none';document.getElementById('majorChangeSection').style.display='block';window.scrollTo(0,99999)" style="background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:18px;cursor:pointer;color:white;text-align:left;font-family:inherit;">
+              <div style="font-size:24px;margin-bottom:8px;">📧</div>
+              <div style="font-weight:700;font-size:14px;">Major Changes</div>
+              <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:4px;">Describe it — we handle everything</div>
+            </button>
+          </div>
+          <button onclick="document.getElementById('changeModal').style.display='none'" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;color:rgba(255,255,255,.6);cursor:pointer;font-family:inherit;font-size:14px;">Cancel</button>
+        </div>
+      </div>
+      <div id="changeSection" style="display:none;background:#f4f6fa;border-top:3px solid #0066FF;padding:40px 24px;">
+        <div style="max-width:700px;margin:0 auto;">
+          <h2 style="font-family:sans-serif;font-size:24px;font-weight:800;color:#1a1d24;margin:0 0 6px;">✏️ Update Your Information</h2>
+          <p style="color:#6b7280;margin:0 0 28px;font-size:15px;">Make changes below — click Submit to send updates to TurnkeyAI for review.</p>
+          <div style="background:white;border:1px solid #e5e7eb;border-radius:16px;padding:28px;margin-bottom:16px;">
+            <div style="margin-bottom:16px;"><label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;color:#374151;">Business Name</label><input id="upd_biz" type="text" value="${(data.businessName||'').replace(/"/g,'&quot;')}" style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:15px;font-family:sans-serif;outline:none;"></div>
+            <div style="margin-bottom:16px;"><label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;color:#374151;">Phone Number</label><input id="upd_phone" type="text" value="${(data.phone||'').replace(/"/g,'&quot;')}" style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:15px;font-family:sans-serif;outline:none;"></div>
+            <div style="margin-bottom:16px;"><label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;color:#374151;">Tagline / Mission Statement</label><input id="upd_tagline" type="text" value="${(data.missionStatement||'').replace(/"/g,'&quot;')}" style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:15px;font-family:sans-serif;outline:none;"></div>
+            <div style="margin-bottom:16px;"><label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;color:#374151;">About Us</label><textarea id="upd_about" rows="4" style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:15px;font-family:sans-serif;outline:none;resize:vertical;">${(data.aboutUs||'').replace(/<[^>]*>/g,'')}</textarea></div>
+            <div><label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;color:#374151;">Additional Notes for TurnkeyAI</label><textarea id="upd_notes" rows="3" placeholder="Anything else you want changed..." style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:15px;font-family:sans-serif;outline:none;resize:vertical;"></textarea></div>
+          </div>
+          <button onclick="submitMinorChanges()" style="background:#0066FF;color:white;border:none;border-radius:10px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;font-family:sans-serif;">Submit Changes to TurnkeyAI →</button>
+          <button onclick="document.getElementById('changeSection').style.display='none'" style="margin-left:12px;background:none;border:none;color:#6b7280;font-size:14px;cursor:pointer;font-family:sans-serif;">Cancel</button>
+        </div>
+      </div>
+      <div id="majorChangeSection" style="display:none;background:#f4f6fa;border-top:3px solid #00D68F;padding:40px 24px;">
+        <div style="max-width:700px;margin:0 auto;">
+          <h2 style="font-family:sans-serif;font-size:24px;font-weight:800;color:#1a1d24;margin:0 0 6px;">📧 Tell Us What You Need</h2>
+          <p style="color:#6b7280;margin:0 0 28px;font-size:15px;">Describe the changes and we'll handle everything within 24–48 hours.</p>
+          <div style="background:white;border:1px solid #e5e7eb;border-radius:16px;padding:28px;margin-bottom:16px;">
+            <div style="margin-bottom:16px;"><label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;color:#374151;">Your Name</label><input id="maj_name" type="text" value="${(data.ownerName||'').replace(/"/g,'&quot;')}" style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:15px;font-family:sans-serif;outline:none;"></div>
+            <div style="margin-bottom:16px;"><label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;color:#374151;">Your Email</label><input id="maj_email" type="email" value="${(data.email||'').replace(/"/g,'&quot;')}" style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:15px;font-family:sans-serif;outline:none;"></div>
+            <div><label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;color:#374151;">Describe What You Want Changed</label><textarea id="maj_details" rows="6" placeholder="Be as specific as possible..." style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:15px;font-family:sans-serif;outline:none;resize:vertical;"></textarea></div>
+          </div>
+          <button onclick="submitMajorChanges()" style="background:#00D68F;color:#071c12;border:none;border-radius:10px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;font-family:sans-serif;">Send to TurnkeyAI →</button>
+          <button onclick="document.getElementById('majorChangeSection').style.display='none'" style="margin-left:12px;background:none;border:none;color:#6b7280;font-size:14px;cursor:pointer;font-family:sans-serif;">Cancel</button>
+        </div>
+      </div>
+      <script>
+      function submitMinorChanges(){
+        var changes={businessName:document.getElementById('upd_biz').value,phone:document.getElementById('upd_phone').value,missionStatement:document.getElementById('upd_tagline').value,aboutUs:document.getElementById('upd_about').value,notes:document.getElementById('upd_notes').value};
+        fetch('${BASE_URL}/api/preview-change-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'minor',clientId:'${clientId}',token:'${previewToken}',changes:changes})})
+        .then(function(){document.getElementById('changeSection').style.display='none';var b=document.createElement('div');b.style='position:fixed;bottom:24px;right:24px;background:#00D68F;color:#071c12;padding:16px 24px;border-radius:12px;font-weight:700;font-size:14px;z-index:9999;font-family:sans-serif;';b.textContent='✅ Changes sent! We will update your site within 24 hours.';document.body.appendChild(b);setTimeout(function(){b.remove();},5000);})
+        .catch(function(){alert('Send failed. Please email george@turnkeyaiservices.com');});
+      }
+      function submitMajorChanges(){
+        var details={name:document.getElementById('maj_name').value,email:document.getElementById('maj_email').value,details:document.getElementById('maj_details').value};
+        fetch('${BASE_URL}/api/preview-change-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'major',clientId:'${clientId}',token:'${previewToken}',changes:details})})
+        .then(function(){document.getElementById('majorChangeSection').style.display='none';var b=document.createElement('div');b.style='position:fixed;bottom:24px;right:24px;background:#00D68F;color:#071c12;padding:16px 24px;border-radius:12px;font-weight:700;font-size:14px;z-index:9999;font-family:sans-serif;';b.textContent='✅ Message sent! We will be in touch within 24 hours.';document.body.appendChild(b);setTimeout(function(){b.remove();},5000);})
+        .catch(function(){alert('Send failed. Please email george@turnkeyaiservices.com');});
+      }
+      <\/script>`
     : `<div style="background:${pal.dark};color:rgba(255,255,255,.7);text-align:center;padding:10px 24px;font-size:13px;">⚡ Powered by <a href="https://turnkeyaiservices.com" style="color:${pal.accent};font-weight:700;text-decoration:none;">TurnkeyAI Services</a> — AI-Powered Websites for Local Business</div>`;
 
   const navPhone = phone ? `<a href="tel:${phone.replace(/\D/g,'')}" style="background:${pal.accent};color:${pal.dark};padding:10px 22px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:6px;">📞 ${phone}</a>` : '';
@@ -400,12 +470,9 @@ function generateSiteHTML(data, isPreview) {
       .hero-ctas a { text-align: center !important; }
       .about-grid { grid-template-columns: 1fr !important; }
       .services-grid-inner { grid-template-columns: 1fr !important; }
-      .contact-cards { grid-template-columns: 1fr 1fr !important; }
       .hours-contact-grid { grid-template-columns: 1fr !important; }
       .nav-phone { display: none !important; }
-      .photos-grid { grid-template-columns: 1fr !important; }
     }
-    /* CHAT WIDGET */
     #chatWidget { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
     #chatToggleBtn { background: linear-gradient(135deg, ${pal.primary}, ${pal.dark}); color: white; border: none; border-radius: 50px; padding: 14px 22px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 24px ${pal.primary}55; font-family: inherit; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
     #chatBox { display: none; flex-direction: column; background: white; border-radius: 20px; box-shadow: 0 12px 48px rgba(0,0,0,.2); width: 340px; max-height: 480px; overflow: hidden; border: 1px solid #e5e7eb; }
@@ -421,20 +488,17 @@ function generateSiteHTML(data, isPreview) {
 
 ${previewBanner}
 
-<!-- NAV -->
 <nav style="background:white;border-bottom:1px solid #e5e7eb;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.06);">
   <div style="font-size:20px;font-weight:700;color:${pal.dark};">${biz}</div>
   <div style="display:flex;align-items:center;gap:16px;">
-    <a href="#services" style="color:#6b7280;text-decoration:none;font-size:14px;font-weight:500;" class="nav-link-hide">Services</a>
-    <a href="#about" style="color:#6b7280;text-decoration:none;font-size:14px;font-weight:500;" class="nav-link-hide">About</a>
-    <a href="#contact" style="color:#6b7280;text-decoration:none;font-size:14px;font-weight:500;" class="nav-link-hide">Contact</a>
+    <a href="#services" style="color:#6b7280;text-decoration:none;font-size:14px;font-weight:500;">Services</a>
+    <a href="#about" style="color:#6b7280;text-decoration:none;font-size:14px;font-weight:500;">About</a>
+    <a href="#contact" style="color:#6b7280;text-decoration:none;font-size:14px;font-weight:500;">Contact</a>
     ${navPhone}
   </div>
 </nav>
 
-<!-- HERO -->
 <section style="background:linear-gradient(135deg, ${pal.dark} 0%, ${pal.primary}cc 60%, ${pal.accent}44 100%);padding:100px 24px 90px;text-align:center;position:relative;overflow:hidden;">
-  <div style="position:absolute;inset:0;background:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2280%22 cy=%2220%22 r=%2240%22 fill=%22rgba(255,255,255,.04)%22/><circle cx=%2220%22 cy=%2280%22 r=%2260%22 fill=%22rgba(255,255,255,.03)%22/></svg>');background-size:cover;pointer-events:none;"></div>
   <div style="position:relative;max-width:720px;margin:0 auto;">
     <div style="display:inline-block;background:${pal.accent}22;border:1px solid ${pal.accent}55;color:${pal.accent};padding:6px 18px;border-radius:20px;font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px;">${industry || 'Local Business'} · ${city}${state ? ', ' + state : ''}</div>
     <h1 style="font-family:'Playfair Display',Georgia,serif;font-size:clamp(36px,6vw,64px);font-weight:700;color:white;margin:0 0 20px;line-height:1.15;">${biz}</h1>
@@ -449,7 +513,6 @@ ${previewBanner}
 
 ${miniMeSection}
 
-<!-- SERVICES -->
 ${serviceItems.length ? `
 <section id="services" style="padding:80px 24px;background:white;">
   <div style="max-width:1000px;margin:0 auto;">
@@ -465,7 +528,6 @@ ${serviceItems.length ? `
   </div>
 </section>` : ''}
 
-<!-- ABOUT -->
 ${(about || ownerPhoto || advantage) ? `
 <section id="about" style="padding:80px 24px;background:#f8fafc;">
   <div style="max-width:1000px;margin:0 auto;">
@@ -484,7 +546,6 @@ ${(about || ownerPhoto || advantage) ? `
 
 ${photosSection}
 
-<!-- HOURS + CONTACT -->
 ${(hoursData.length || phone || email || address) ? `
 <section style="padding:80px 24px;background:${pal.dark};" id="contact">
   <div style="max-width:1000px;margin:0 auto;">
@@ -502,7 +563,7 @@ ${(hoursData.length || phone || email || address) ? `
       <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:32px;">
         <h3 style="font-family:'Playfair Display',Georgia,serif;font-size:24px;color:white;margin:0 0 24px;">Contact Information</h3>
         <div style="display:flex;flex-direction:column;gap:16px;">
-          ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" style="display:flex;align-items:center;gap:14px;color:white;text-decoration:none;padding:16px;background:rgba(255,255,255,.07);border-radius:12px;transition:background .2s;"><span style="font-size:24px;background:${pal.accent}22;width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;">📞</span><div><div style="font-size:12px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Phone / Text</div><div style="font-size:17px;font-weight:600;">${phone}</div></div></a>` : ''}
+          ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" style="display:flex;align-items:center;gap:14px;color:white;text-decoration:none;padding:16px;background:rgba(255,255,255,.07);border-radius:12px;"><span style="font-size:24px;background:${pal.accent}22;width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;">📞</span><div><div style="font-size:12px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Phone / Text</div><div style="font-size:17px;font-weight:600;">${phone}</div></div></a>` : ''}
           ${email ? `<a href="mailto:${email}" style="display:flex;align-items:center;gap:14px;color:white;text-decoration:none;padding:16px;background:rgba(255,255,255,.07);border-radius:12px;"><span style="font-size:24px;background:${pal.accent}22;width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;">✉️</span><div><div style="font-size:12px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Email</div><div style="font-size:15px;font-weight:500;word-break:break-all;">${email}</div></div></a>` : ''}
           ${address.length > 5 ? `<div style="display:flex;align-items:flex-start;gap:14px;padding:16px;background:rgba(255,255,255,.07);border-radius:12px;"><span style="font-size:24px;background:${pal.accent}22;width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">📍</span><div><div style="font-size:12px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Location</div><div style="font-size:15px;font-weight:500;color:rgba(255,255,255,.9);">${address}</div></div></div>` : ''}
         </div>
@@ -512,13 +573,11 @@ ${(hoursData.length || phone || email || address) ? `
   </div>
 </section>` : ''}
 
-<!-- FOOTER -->
 <footer style="background:#0a0a14;color:rgba(255,255,255,.5);padding:28px 24px;text-align:center;font-size:13px;">
   <p style="margin-bottom:8px;color:rgba(255,255,255,.7);font-weight:500;">${biz} · ${city}${state ? ', ' + state : ''}</p>
-  <p>Built by <a href="https://turnkeyaiservices.com" target="_blank" rel="noopener" style="color:${pal.accent};text-decoration:none;font-weight:600;">TurnkeyAI Services</a> — AI-Powered Websites for Local Business${phone ? ` · <a href="tel:${phone.replace(/\D/g,'')}" style="color:rgba(255,255,255,.5);text-decoration:none;">${phone}</a>` : ''}</p>
+  <p>Built by <a href="https://turnkeyaiservices.com" target="_blank" rel="noopener" style="color:${pal.accent};text-decoration:none;font-weight:600;">TurnkeyAI Services</a>${phone ? ` · <a href="tel:${phone.replace(/\D/g,'')}" style="color:rgba(255,255,255,.5);text-decoration:none;">${phone}</a>` : ''}</p>
 </footer>
 
-<!-- CHAT WIDGET -->
 <div id="chatWidget">
   <button id="chatToggleBtn" onclick="openChat()">💬 ${chatName}</button>
   <div id="chatBox">
@@ -548,7 +607,6 @@ ${(hoursData.length || phone || email || address) ? `
   var SYS='${chatSystem.replace(/'/g,"\\'")}';
   var msgs=[{r:'a',t:'Hi! How can I help you today with ${biz.replace(/'/g,"\\'")}?'}];
   var open=false;
-
   function render(){
     var c=document.getElementById('chatMessages');
     if(!c)return;
@@ -559,7 +617,6 @@ ${(hoursData.length || phone || email || address) ? `
     }).join('');
     c.scrollTop=c.scrollHeight;
   }
-
   window.openChat=function(){
     open=true;
     document.getElementById('chatToggleBtn').style.display='none';
@@ -599,11 +656,11 @@ ${(hoursData.length || phone || email || address) ? `
 </html>`;
 }
 
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 app.get('/health', (req, res) => res.json({ status: 'TurnkeyAI Backend Running', clients: Object.keys(clients).length, time: new Date().toISOString() }));
 
-// ── /api/submission-created ──────────────────────────────────────────────────
 app.post('/api/submission-created', async (req, res) => {
   try {
     const data = req.body;
@@ -619,7 +676,6 @@ app.post('/api/submission-created', async (req, res) => {
     };
     saveClients();
 
-    // Partner bypass — instant deploy, no payment needed
     if ((data.paymentMethod || '').toLowerCase() === 'partner') {
       console.log(`[partner bypass] Auto-deploying ${data.businessName}...`);
       res.json({ success: true, id, preview: `${BASE_URL}/preview/${previewToken}`, partner: true });
@@ -654,7 +710,6 @@ app.post('/api/submission-created', async (req, res) => {
 
     const payMethods = ['cash','card','check','venmo','cashapp','zelle'].filter(p => d['pay_'+p]).join(', ');
 
-    // ── ADMIN EMAIL ──────────────────────────────────────────────────────────
     await sendEmail({
       to: ADMIN_EMAIL,
       subject: `🆕 New Client: ${d.businessName||'Unknown'} — ${d.city||''}, ${d.state||''} — ${(d.industry||'').replace(/_/g,' ')}`,
@@ -664,7 +719,6 @@ app.post('/api/submission-created', async (req, res) => {
   <p style="color:rgba(255,255,255,0.82);margin:6px 0 0;font-size:14px;">${new Date().toLocaleString('en-US',{timeZone:'America/Chicago',dateStyle:'full',timeStyle:'short'})}</p>
 </div>
 <div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:28px 32px;">
-
 ${h2('Business Information')}
 ${table(`
   ${row('Business Name', d.businessName)}
@@ -676,7 +730,6 @@ ${table(`
   ${row('Address', [d.address,d.city,d.state,d.zip].filter(Boolean).join(', '))}
   ${row('Years in Business', d.yearsInBusiness)}
 `)}
-
 ${h2('Online Presence')}
 ${table(`
   ${row('Current Website', d.currentWebsite)}
@@ -686,12 +739,9 @@ ${table(`
   ${row('Other Social', d.otherSocial)}
   ${row('Logo', d.hasLogo==='yes'?'✅ Will email':'❌ Needs one')}
 `)}
-
 ${servicesList.length ? `${h2('Services & Pricing')}<ul style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 14px 14px 30px;margin:0 0 22px;line-height:1.9;">${servicesList.map(s=>'<li>'+s+'</li>').join('')}</ul>` : ''}
 ${d.additionalServices ? `<p style="margin:0 0 20px;"><strong>Additional Services:</strong> ${d.additionalServices}</p>` : ''}
-
 ${hoursLines.length ? `${h2('Business Hours')}<ul style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 14px 14px 30px;margin:0 0 22px;line-height:1.9;">${hoursLines.join('')}</ul>` : ''}
-
 ${h2('AI Chat Setup')}
 ${table(`
   ${row('Chat Personality', d.chatPersonality)}
@@ -699,7 +749,6 @@ ${table(`
   ${row('Pricing Display', d.pricingDisplay)}
   ${row('Frequent Questions', d.faqQuestions)}
 `)}
-
 ${h2('About the Business')}
 ${table(`
   ${row('Business Story', d.aboutUs)}
@@ -709,7 +758,6 @@ ${table(`
   ${row('Community', d.communityInvolvement)}
   ${row('Awards / Certs', d.awards)}
 `)}
-
 ${h2('Target Market & Payment')}
 ${table(`
   ${row('Target City', d.targetCity)}
@@ -719,22 +767,18 @@ ${table(`
   ${row('Referral Source', d.referralSource)}
   ${row('Additional Notes', d.additionalNotes)}
 `)}
-
 ${addons.length ? `
 <div style="background:#f0fff4;border:2px solid #00D68F;border-radius:10px;padding:18px 22px;margin-bottom:22px;">
   <p style="font-weight:700;color:#065f46;margin:0 0 10px;font-size:15px;">🎯 Add-Ons Selected</p>
   <ul style="margin:0;padding-left:20px;line-height:2;font-size:14px;">${addons.map(a=>'<li><strong>'+a+'</strong></li>').join('')}</ul>
 </div>` : `<p style="background:#f9fafb;padding:12px;border-radius:8px;color:#6B7280;margin-bottom:22px;">No add-ons selected.</p>`}
-
 <div style="border-top:1px solid #e5e7eb;padding-top:22px;display:flex;gap:12px;flex-wrap:wrap;">
   <a href="${approveUrl}" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">✅ Approve & Go Live</a>
   <a href="${previewUrl}" style="display:inline-block;background:#0066FF;color:white;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">👁️ Preview Site</a>
 </div>
-
 </div></div>`
     });
 
-    // ── CLIENT EMAIL — includes preview link + approve button immediately ────
     if (d.email) {
       const clientAddons = [];
       if (d.wants_mini_me === 'yes') clientAddons.push('<li>🤖 <strong>Mini-Me AI Avatar</strong> — recording instructions coming in a separate email momentarily</li>');
@@ -752,15 +796,11 @@ ${addons.length ? `
   <p style="color:rgba(255,255,255,0.85);margin:10px 0 0;font-size:16px;">Hi ${d.ownerName||'there'} — your website preview is ready to review.</p>
 </div>
 <div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:32px;">
-
-  <p style="font-size:16px;line-height:1.75;margin:0 0 24px;">We've built a preview of your new <strong>${d.businessName||'business'}</strong> website using the information you provided. Take a look and let us know what you think!</p>
-
-  <!-- PREVIEW BUTTON -->
+  <p style="font-size:16px;line-height:1.75;margin:0 0 24px;">We've built a preview of your new <strong>${d.businessName||'business'}</strong> website. Take a look and let us know what you think!</p>
   <div style="text-align:center;margin:0 0 28px;">
     <a href="${previewUrl}" style="display:inline-block;background:linear-gradient(135deg,#0066FF,#0052CC);color:white;padding:20px 44px;border-radius:12px;text-decoration:none;font-weight:700;font-size:18px;box-shadow:0 6px 24px rgba(0,102,255,.35);">👁️ View My Website Preview</a>
     <p style="font-size:13px;color:#9CA3AF;margin-top:10px;">Preview link: <a href="${previewUrl}" style="color:#0066FF;">${previewUrl}</a></p>
   </div>
-
   <div style="background:#f0f9ff;border:2px solid #0066FF;border-radius:12px;padding:22px;margin:0 0 24px;">
     <p style="font-weight:700;margin:0 0 12px;color:#0066FF;font-size:15px;">✅ What's included in your website:</p>
     <ul style="margin:0;padding-left:20px;line-height:2.2;font-size:14px;">
@@ -770,14 +810,11 @@ ${addons.length ? `
       ${clientAddons.join('')}
     </ul>
   </div>
-
-  <!-- APPROVE BUTTON -->
   <div style="background:#f0fff4;border:2px solid #00D68F;border-radius:12px;padding:24px;margin:0 0 24px;text-align:center;">
     <p style="font-weight:700;color:#065f46;margin:0 0 6px;font-size:15px;">Happy with the preview?</p>
     <p style="font-size:14px;color:#374151;margin:0 0 18px;">Click below to approve and go live. Your site activates when payment is received.</p>
     <a href="${clientApproveUrl}" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:18px 40px;border-radius:12px;text-decoration:none;font-weight:700;font-size:17px;box-shadow:0 6px 24px rgba(0,214,143,.35);">✅ Approve My Website →</a>
   </div>
-
   <div style="background:#f9fafb;border-radius:12px;padding:20px;margin:0 0 24px;">
     <p style="font-weight:700;margin:0 0 10px;">💳 Activate your site for $99/month (no setup fee):</p>
     <div style="display:flex;flex-direction:column;gap:10px;">
@@ -786,7 +823,6 @@ ${addons.length ? `
     </div>
     <p style="font-size:13px;color:#6B7280;margin-top:12px;text-align:center;">Or send $99 via CashApp to <strong>$AIResources89</strong> (include your business name)</p>
   </div>
-
   <p style="font-size:14px;color:#6B7280;margin:0 0 6px;">Have a logo or photos? Email them to <a href="mailto:george@turnkeyaiservices.com" style="color:#0066FF;">george@turnkeyaiservices.com</a></p>
   <p style="font-size:14px;color:#6B7280;margin:0 0 24px;">Questions? Call <strong>(228) 604-3200</strong> or reply to this email.</p>
   <div style="border-top:1px solid #e5e7eb;padding-top:20px;text-align:center;">
@@ -795,7 +831,6 @@ ${addons.length ? `
 </div></div>`
       });
 
-      // ── SEND MINI-ME / FREE VIDEO EMAILS AT SUBMISSION (not just at approval) ──
       if (d.wants_mini_me === 'yes') {
         sendMiniMeEmail(clients[id]).catch(e => console.error('[submission miniMe email]', e.message));
       } else if (d.wants_free_video === 'yes') {
@@ -807,10 +842,12 @@ ${addons.length ? `
   } catch (err) { console.error('[/api/submission-created]', err); res.status(500).json({ error: 'Submission failed' }); }
 });
 
+// PATCH 2: inject _previewToken and id into preview data
 app.get('/preview/:token', (req, res) => {
   const client = Object.values(clients).find(c => c.previewToken === req.params.token);
   if (!client) return res.status(404).send('<h2 style="font-family:sans-serif;padding:40px;">Preview not found.</h2>');
-  res.send(generateSiteHTML(client.data, true));
+  const previewData = { ...client.data, _previewToken: client.previewToken, id: client.id };
+  res.send(generateSiteHTML(previewData, true));
 });
 
 app.get('/api/approve/:id', async (req, res) => {
@@ -1041,7 +1078,7 @@ app.post('/api/client-auth', (req, res) => {
   const client = Object.values(clients).find(c => c.dashToken === token);
   if (!client) return res.status(404).json({ error: 'Not found' });
   if (client.dashPassword !== password.toUpperCase()) return res.status(401).json({ error: 'Wrong password' });
-  res.json({ success: true, businessName: client.data.businessName, ownerName: client.data.ownerName, status: client.status, liveUrl: client.liveUrl, miniMeConsent: client.miniMeConsent, miniMeSubscribed: client.miniMeSubscribed, miniMeVideoUrl: client.data.miniMeVideoUrl||null, freeVideoRequested: client.freeVideoRequested||false, data: { hours: extractHours(client.data), services: extractServices(client.data), phone: client.data.phone, email: client.data.email, address: client.data.address, city: client.data.city, state: client.data.state }, previewToken: client.previewToken });
+  res.json({ success: true, businessName: client.data.businessName, ownerName: client.data.ownerName, status: client.status, liveUrl: client.liveUrl, miniMeConsent: client.miniMeConsent, miniMeSubscribed: client.miniMeSubscribed, miniMeVideoUrl: client.data.miniMeVideoUrl||null, freeVideoRequested: client.freeVideoRequested||false, data: { hours: extractHours(client.data), services: extractServices(client.data), phone: client.data.phone, email: client.data.email, address: client.data.address, city: client.data.city, state: client.data.state, miniMe: client.data.wants_mini_me, wantsAfterHours: client.data.addon_after_hours, wantsMissedCall: client.data.addon_missed_call }, previewToken: client.previewToken });
 });
 
 app.post('/api/client-update', async (req, res) => {
@@ -1081,12 +1118,38 @@ app.get('/api/admin/clients', (req, res) => {
   const adminKey = req.query.adminKey || req.headers['x-admin-key'];
   if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
   res.json(Object.values(clients).map(c => ({
-    id: c.id, businessName: c.data.businessName, ownerName: c.data.ownerName, email: c.data.email, phone: c.data.phone, industry: c.data.industry, city: c.data.city, status: c.status, liveUrl: c.liveUrl, createdAt: c.createdAt, previewToken: c.previewToken,
-    wantsMiniMe: c.data.wants_mini_me, miniMeConsent: c.miniMeConsent, miniMeSubscribed: c.miniMeSubscribed, miniMeVideoFile: c.miniMeVideoFile||null, promoVideoFile: c.promoVideoFile||null, wantsFreeVideo: c.freeVideoRequested, wantsAfterHours: c.data.addon_after_hours, wantsMissedCall: c.data.addon_missed_call, wantsVoicemailDrop: c.data.addon_voicemail_drop
+    id: c.id, businessName: c.data.businessName, ownerName: c.data.ownerName, email: c.data.email, phone: c.data.phone, industry: c.data.industry, city: c.data.city, status: c.status, liveUrl: c.liveUrl, createdAt: c.createdAt, previewToken: c.previewToken, dashPassword: c.dashPassword, approvedAt: c.approvedAt,
+    wantsMiniMe: c.data.wants_mini_me, miniMeConsent: c.miniMeConsent, miniMeConsentAt: c.miniMeConsentAt, miniMeSubscribed: c.miniMeSubscribed, miniMeVideoFile: c.miniMeVideoFile||null, promoVideoFile: c.promoVideoFile||null, wantsFreeVideo: c.freeVideoRequested, wantsAfterHours: c.data.addon_after_hours, wantsMissedCall: c.data.addon_missed_call, wantsVoicemailDrop: c.data.addon_voicemail_drop
   })));
 });
 
-// ── /api/intake — legacy endpoint ──────────────────────────────────────────
+// PATCH 3: new /api/preview-change-request route
+app.post('/api/preview-change-request', async (req, res) => {
+  try {
+    const { type, clientId, token, changes } = req.body;
+    const client = clients[clientId];
+    if (!client || client.previewToken !== token) return res.status(403).json({ error: 'Invalid' });
+    const label = type === 'minor' ? '✏️ Minor Changes (self-edit form)' : '📧 Major Changes (message to us)';
+    await sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `${label}: ${client.data.businessName}`,
+      html: `<h2 style="color:#0066FF;">${label}</h2>
+        <p><strong>Business:</strong> ${client.data.businessName}</p>
+        <p><strong>Owner:</strong> ${client.data.ownerName} — ${client.data.email}</p>
+        <pre style="background:#f9fafb;padding:16px;border-radius:8px;font-size:13px;">${JSON.stringify(changes, null, 2)}</pre>
+        <p><a href="${BASE_URL}/preview/${token}" style="color:#0066FF;">View Preview →</a></p>`
+    });
+    if (client.data.email) {
+      await sendEmail({
+        to: client.data.email,
+        subject: `We got your change request — ${client.data.businessName}`,
+        html: `<p>Hi ${client.data.ownerName || 'there'},</p><p>We received your change request and will have it updated within 24–48 hours.</p><p>Questions? Call <strong>(228) 604-3200</strong></p><p>— TurnkeyAI Services</p>`
+      });
+    }
+    res.json({ success: true });
+  } catch(err) { console.error('[preview-change-request]', err); res.status(500).json({ error: 'Failed' }); }
+});
+
 app.post('/api/intake', async (req, res) => {
   try {
     const data = req.body;
@@ -1120,7 +1183,6 @@ app.post('/api/intake', async (req, res) => {
     if (d.addon_missed_call === 'yes' || d.wantsMissedCall === 'yes') addons.push('📱 Missed Call Text Return');
     if (d.addon_voicemail_drop === 'yes' || d.wantsVoicemailDrop === 'yes') addons.push('🎙️ Custom Voicemail Greeting');
 
-    // Admin email
     await sendEmail({
       to: ADMIN_EMAIL,
       subject: `🆕 New Client: ${d.businessName||'Unknown'} — ${d.city||d.location||''} — ${(d.industry||'').replace(/_/g,' ')}`,
@@ -1130,20 +1192,8 @@ app.post('/api/intake', async (req, res) => {
 </div>
 <div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:28px 32px;">
 ${h2('Business Information')}
-${table(`
-  ${row('Business Name', d.businessName)}
-  ${row('Owner', d.ownerName)}
-  ${row('Industry', (d.industry||'').replace(/_/g,' '))}
-  ${row('Phone', d.phone)}
-  ${row('Email', d.email)}
-  ${row('City', d.city||d.location)}
-  ${row('State', d.state)}
-`)}
-${addons.length ? `
-<div style="background:#f0fff4;border:2px solid #00D68F;border-radius:10px;padding:18px 22px;margin-bottom:22px;">
-  <p style="font-weight:700;color:#065f46;margin:0 0 10px;font-size:15px;">🎯 Add-Ons Selected</p>
-  <ul style="margin:0;padding-left:20px;line-height:2;font-size:14px;">${addons.map(a=>'<li><strong>'+a+'</strong></li>').join('')}</ul>
-</div>` : ''}
+${table(`${row('Business Name', d.businessName)}${row('Owner', d.ownerName)}${row('Industry', (d.industry||'').replace(/_/g,' '))}${row('Phone', d.phone)}${row('Email', d.email)}${row('City', d.city||d.location)}${row('State', d.state)}`)}
+${addons.length ? `<div style="background:#f0fff4;border:2px solid #00D68F;border-radius:10px;padding:18px 22px;margin-bottom:22px;"><p style="font-weight:700;color:#065f46;margin:0 0 10px;font-size:15px;">🎯 Add-Ons Selected</p><ul style="margin:0;padding-left:20px;line-height:2;font-size:14px;">${addons.map(a=>'<li><strong>'+a+'</strong></li>').join('')}</ul></div>` : ''}
 <details style="margin-bottom:22px;"><summary style="cursor:pointer;font-weight:600;color:#0066FF;padding:10px;background:#f9fafb;border-radius:8px;">📋 View All Submitted Data</summary><pre style="font-size:12px;background:#f9fafb;padding:14px;border-radius:8px;overflow:auto;margin-top:8px;">${JSON.stringify(d,null,2)}</pre></details>
 <div style="display:flex;gap:12px;flex-wrap:wrap;">
   <a href="${approveUrl}" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">✅ Approve & Go Live</a>
@@ -1152,7 +1202,6 @@ ${addons.length ? `
 </div></div>`
     });
 
-    // Client email with preview link
     if (d.email) {
       const clientAddons = [];
       if (d.wants_mini_me === 'yes' || d.wantsMiniMe === 'yes') clientAddons.push('<li>🤖 <strong>Mini-Me AI Avatar</strong> — recording instructions coming in a separate email</li>');
@@ -1168,22 +1217,17 @@ ${addons.length ? `
 </div>
 <div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:32px;">
   <p style="font-size:16px;line-height:1.75;margin:0 0 24px;">We built a preview of your new website. Take a look and click Approve when you're ready to go live!</p>
-  <div style="text-align:center;margin:0 0 28px;">
-    <a href="${previewUrl}" style="display:inline-block;background:linear-gradient(135deg,#0066FF,#0052CC);color:white;padding:20px 44px;border-radius:12px;text-decoration:none;font-weight:700;font-size:18px;box-shadow:0 6px 24px rgba(0,102,255,.35);">👁️ View My Website Preview</a>
-  </div>
+  <div style="text-align:center;margin:0 0 28px;"><a href="${previewUrl}" style="display:inline-block;background:linear-gradient(135deg,#0066FF,#0052CC);color:white;padding:20px 44px;border-radius:12px;text-decoration:none;font-weight:700;font-size:18px;">👁️ View My Website Preview</a></div>
   <div style="background:#f0fff4;border:2px solid #00D68F;border-radius:12px;padding:24px;margin:0 0 24px;text-align:center;">
     <p style="font-weight:700;color:#065f46;margin:0 0 16px;">Happy with it? Go live now:</p>
     <a href="${clientApproveUrl}" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:18px 40px;border-radius:12px;text-decoration:none;font-weight:700;font-size:17px;">✅ Approve & Go Live →</a>
   </div>
   ${clientAddons.length ? `<ul style="margin:0 0 20px;padding-left:20px;line-height:2.2;font-size:14px;">${clientAddons.join('')}</ul>` : ''}
   <p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(228) 604-3200</strong> or email <a href="mailto:george@turnkeyaiservices.com" style="color:#0066FF;">george@turnkeyaiservices.com</a></p>
-  <div style="border-top:1px solid #e5e7eb;padding-top:20px;text-align:center;margin-top:24px;">
-    <p style="font-size:12px;color:#9CA3AF;margin:0;">TurnkeyAI Services · 300 Blakemore Ave, Bay St. Louis, MS 39520</p>
-  </div>
+  <div style="border-top:1px solid #e5e7eb;padding-top:20px;text-align:center;margin-top:24px;"><p style="font-size:12px;color:#9CA3AF;margin:0;">TurnkeyAI Services · 300 Blakemore Ave, Bay St. Louis, MS 39520</p></div>
 </div></div>`
       });
 
-      // Fire mini-me / video emails at submission
       if (d.wants_mini_me === 'yes' || d.wantsMiniMe === 'yes') {
         sendMiniMeEmail(clients[id]).catch(e => console.error('[intake miniMe email]', e.message));
       } else if (d.wants_free_video === 'yes' || d.wantsFreeVideo === 'yes') {
@@ -1212,6 +1256,31 @@ app.post('/api/chat', async (req, res) => {
   } catch(err) { console.error('[/api/chat]', err); res.status(500).json({ reply: 'Chat temporarily unavailable.' }); }
 });
 
+app.post('/api/video-upload-notify', async (req, res) => {
+  try {
+    const d = req.body;
+    const typeLabel = d.videoType === 'mini_me' ? 'Mini-Me AI Avatar Clip' : d.videoType === 'both' ? 'Promo Video + Mini-Me Clip' : 'Free 60-Second Promo Video';
+    await sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `🎬 Video Clip Uploaded: ${d.businessName || 'Unknown'}`,
+      html: `<h2 style="color:#0066FF;">New Client Video Clip Submitted</h2>
+        <table style="border-collapse:collapse;width:100%;max-width:500px;">
+          <tr><td style="padding:8px;font-weight:700;">Client</td><td style="padding:8px;">${d.uploaderName||''}</td></tr>
+          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;">Business</td><td style="padding:8px;">${d.businessName||''}</td></tr>
+          <tr><td style="padding:8px;font-weight:700;">Email</td><td style="padding:8px;">${d.email||''}</td></tr>
+          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;">Video Type</td><td style="padding:8px;">${typeLabel}</td></tr>
+          <tr><td style="padding:8px;font-weight:700;">File</td><td style="padding:8px;">${d.fileName||''} (${d.fileSize||''})</td></tr>
+          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;">Consent</td><td style="padding:8px;">${d.consentGiven?'✅ Yes — '+(d.consentTimestamp||''):'❌ No'}</td></tr>
+          ${d.notes?`<tr><td style="padding:8px;font-weight:700;">Notes</td><td style="padding:8px;">${d.notes}</td></tr>`:''}
+        </table>`
+    });
+    if (d.email) {
+      await sendEmail({ to: d.email, subject: `✅ Video Received — ${d.businessName||'Your Business'}`, html: `<h2 style="color:#0066FF;">We Got Your Video Clip!</h2><p>Hi ${d.uploaderName||'there'},</p><p>Production begins within 48 hours. You'll receive a preview before anything goes live.</p><p><strong>Important:</strong> Please also email your video file to <a href="mailto:george@turnkeyaiservices.com">george@turnkeyaiservices.com</a></p><p>Questions? Call (228) 604-3200</p><p>— TurnkeyAI Services Team</p>` });
+    }
+    res.json({ success: true });
+  } catch(err) { console.error('[/api/video-upload-notify]', err); res.status(500).json({ error: 'Failed' }); }
+});
+
 function extractHours(data) {
   const r={};
   ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].forEach(d=>{ r[d]={open:!!data['day_'+d],hours:data['hours_'+d]||''}; });
@@ -1222,42 +1291,6 @@ function extractServices(data) {
   Object.keys(data).forEach(k=>{ if(k.startsWith('service_')&&data[k]==='on'){const n=k.replace('service_','');s.push({key:n,label:n.replace(/_/g,' '),price:data['price_'+n]||''});} });
   return s;
 }
-
-app.post('/api/video-upload-notify', async (req, res) => {
-  try {
-    const d = req.body;
-    const typeLabel = d.videoType === 'mini_me' ? 'Mini-Me AI Avatar Clip' : d.videoType === 'both' ? 'Promo Video + Mini-Me Clip' : 'Free 60-Second Promo Video';
-    await sendEmail({
-      to: ADMIN_EMAIL,
-      subject: `🎬 Video Clip Uploaded: ${d.businessName || 'Unknown'}`,
-      html: `<h2 style="color:#0066FF;">New Client Video Clip Submitted</h2>
-        <table style="border-collapse:collapse;width:100%;max-width:500px;">
-          <tr><td style="padding:8px;font-weight:700;color:#374151;">Client</td><td style="padding:8px;">${d.uploaderName||''}</td></tr>
-          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;color:#374151;">Business</td><td style="padding:8px;">${d.businessName||''}</td></tr>
-          <tr><td style="padding:8px;font-weight:700;color:#374151;">Email</td><td style="padding:8px;">${d.email||''}</td></tr>
-          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;color:#374151;">Video Type</td><td style="padding:8px;">${typeLabel}</td></tr>
-          <tr><td style="padding:8px;font-weight:700;color:#374151;">File</td><td style="padding:8px;">${d.fileName||''} (${d.fileSize||''})</td></tr>
-          <tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;color:#374151;">Consent</td><td style="padding:8px;">${d.consentGiven?'✅ Yes — '+(d.consentTimestamp||''):'❌ No'}</td></tr>
-          ${d.notes?`<tr><td style="padding:8px;font-weight:700;color:#374151;">Notes</td><td style="padding:8px;">${d.notes}</td></tr>`:''}
-        </table>
-        <p style="margin-top:20px;color:#6B7280;font-size:13px;">The client will also email the video file to george@turnkeyaiservices.com.</p>`
-    });
-    if (d.email) {
-      await sendEmail({
-        to: d.email,
-        subject: `✅ Video Received — ${d.businessName||'Your Business'}`,
-        html: `<h2 style="color:#0066FF;">We Got Your Video Clip!</h2>
-          <p>Hi ${d.uploaderName||'there'},</p>
-          <p>We've received your submission for <strong>${typeLabel}</strong>. Production begins within 48 hours.</p>
-          <p>You'll receive a preview by email before anything goes live on your site.</p>
-          <p style="margin-top:20px;"><strong>Important:</strong> Please also email your video file to <a href="mailto:george@turnkeyaiservices.com">george@turnkeyaiservices.com</a> so we can begin production.</p>
-          <p>Questions? Call us at (228) 604-3200</p>
-          <p>— TurnkeyAI Services Team</p>`
-      });
-    }
-    res.json({ success: true });
-  } catch(err) { console.error('[/api/video-upload-notify]', err); res.status(500).json({ error: 'Failed' }); }
-});
 
 app.get('*', (req, res) => {
   const filePath = path.join(__dirname, 'public', req.path);
