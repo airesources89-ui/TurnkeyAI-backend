@@ -267,10 +267,6 @@ async function runDeploy(client) {
   return client;
 }
 
-
-// ─────────────────────────────────────────────────────────────────────────────
-// PROFESSIONAL SITE HTML GENERATOR
-// ─────────────────────────────────────────────────────────────────────────────
 function generateSiteHTML(data, isPreview) {
   const biz = data.businessName || 'Your Business';
   const owner = data.ownerName || '';
@@ -326,7 +322,6 @@ function generateSiteHTML(data, isPreview) {
   const payLabels = { cash:'Cash', card:'Credit/Debit Card', check:'Check', venmo:'Venmo', cashapp:'CashApp', zelle:'Zelle' };
   const payMethods = payKeys.filter(k => data['pay_' + k]).map(k => payLabels[k]).join(' · ');
 
-  // PATCH 1: Inject clientId and previewToken into banner, add full approve/change UI
   const clientId = data.id || '';
   const previewToken = data._previewToken || '';
   const clientApproveUrl = clientId && previewToken ? `${BASE_URL}/api/client-approve/${clientId}?token=${previewToken}` : '';
@@ -656,9 +651,6 @@ ${(hoursData.length || phone || email || address) ? `
 </html>`;
 }
 
-
-// ─────────────────────────────────────────────────────────────────────────────
-
 app.get('/health', (req, res) => res.json({ status: 'TurnkeyAI Backend Running', clients: Object.keys(clients).length, time: new Date().toISOString() }));
 
 app.post('/api/submission-created', async (req, res) => {
@@ -702,11 +694,10 @@ app.post('/api/submission-created', async (req, res) => {
     const hoursLines = days.filter(dy => d['day_'+dy]).map(dy => `<li>${dy.charAt(0).toUpperCase()+dy.slice(1)}: ${d['hours_'+dy]||'Open'}</li>`);
 
     const addons = [];
-    if (d.wants_mini_me === 'yes') addons.push(`🤖 Mini-Me AI Avatar ($59/mo) — consent given at ${d.mini_me_consent_timestamp||'submission'}`);
+    if (d.wants_mini_me === 'yes') addons.push(`🤖 Mini-Me AI Avatar ($59/mo)`);
     if (d.wants_free_video === 'yes' && d.wants_mini_me !== 'yes') addons.push('🎬 Free 60-Second Promo Video');
     if (d.addon_after_hours === 'yes') addons.push('📞 After Hours Answering');
     if (d.addon_missed_call === 'yes') addons.push('📱 Missed Call Text Return');
-    if (d.addon_voicemail_drop === 'yes') addons.push('🎙️ Custom Voicemail Greeting');
 
     const payMethods = ['cash','card','check','venmo','cashapp','zelle'].filter(p => d['pay_'+p]).join(', ');
 
@@ -724,7 +715,6 @@ ${table(`
   ${row('Business Name', d.businessName)}
   ${row('Owner', d.ownerName)}
   ${row('Industry', (d.industry||'').replace(/_/g,' '))}
-  ${row('Business Type', d.businessType)}
   ${row('Phone', d.phone)}
   ${row('Email', d.email)}
   ${row('Address', [d.address,d.city,d.state,d.zip].filter(Boolean).join(', '))}
@@ -736,31 +726,19 @@ ${table(`
   ${row('Facebook', d.facebook)}
   ${row('Instagram', d.instagram)}
   ${row('Google Business', d.googleBusiness)}
-  ${row('Other Social', d.otherSocial)}
   ${row('Logo', d.hasLogo==='yes'?'✅ Will email':'❌ Needs one')}
 `)}
 ${servicesList.length ? `${h2('Services & Pricing')}<ul style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 14px 14px 30px;margin:0 0 22px;line-height:1.9;">${servicesList.map(s=>'<li>'+s+'</li>').join('')}</ul>` : ''}
-${d.additionalServices ? `<p style="margin:0 0 20px;"><strong>Additional Services:</strong> ${d.additionalServices}</p>` : ''}
 ${hoursLines.length ? `${h2('Business Hours')}<ul style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 14px 14px 30px;margin:0 0 22px;line-height:1.9;">${hoursLines.join('')}</ul>` : ''}
-${h2('AI Chat Setup')}
-${table(`
-  ${row('Chat Personality', d.chatPersonality)}
-  ${row('Chat Name', d.chatName)}
-  ${row('Pricing Display', d.pricingDisplay)}
-  ${row('Frequent Questions', d.faqQuestions)}
-`)}
 ${h2('About the Business')}
 ${table(`
   ${row('Business Story', d.aboutUs)}
   ${row('Owner Background', d.ownerBackground)}
-  ${row('Milestones', d.milestones)}
   ${row('Mission / Tagline', d.missionStatement)}
-  ${row('Community', d.communityInvolvement)}
   ${row('Awards / Certs', d.awards)}
 `)}
-${h2('Target Market & Payment')}
+${h2('Payment & Other')}
 ${table(`
-  ${row('Target City', d.targetCity)}
   ${row('Service Radius', d.targetRadius)}
   ${row('Competitive Advantage', d.competitiveAdvantage)}
   ${row('Payment Methods', payMethods)}
@@ -771,7 +749,7 @@ ${addons.length ? `
 <div style="background:#f0fff4;border:2px solid #00D68F;border-radius:10px;padding:18px 22px;margin-bottom:22px;">
   <p style="font-weight:700;color:#065f46;margin:0 0 10px;font-size:15px;">🎯 Add-Ons Selected</p>
   <ul style="margin:0;padding-left:20px;line-height:2;font-size:14px;">${addons.map(a=>'<li><strong>'+a+'</strong></li>').join('')}</ul>
-</div>` : `<p style="background:#f9fafb;padding:12px;border-radius:8px;color:#6B7280;margin-bottom:22px;">No add-ons selected.</p>`}
+</div>` : ''}
 <div style="border-top:1px solid #e5e7eb;padding-top:22px;display:flex;gap:12px;flex-wrap:wrap;">
   <a href="${approveUrl}" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">✅ Approve & Go Live</a>
   <a href="${previewUrl}" style="display:inline-block;background:#0066FF;color:white;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">👁️ Preview Site</a>
@@ -785,7 +763,6 @@ ${addons.length ? `
       else if (d.wants_free_video === 'yes') clientAddons.push('<li>🎬 <strong>Free 60-Second Promo Video</strong> — recording instructions coming in a separate email momentarily</li>');
       if (d.addon_after_hours === 'yes') clientAddons.push('<li>📞 <strong>After Hours Answering</strong> — activated automatically when your site goes live</li>');
       if (d.addon_missed_call === 'yes') clientAddons.push('<li>📱 <strong>Missed Call Text Return</strong> — activated automatically when your site goes live</li>');
-      if (d.addon_voicemail_drop === 'yes') clientAddons.push('<li>🎙️ <strong>Custom Voicemail Greeting</strong> — we\'ll write it and send it for your approval</li>');
 
       await sendEmail({
         to: d.email,
@@ -799,34 +776,17 @@ ${addons.length ? `
   <p style="font-size:16px;line-height:1.75;margin:0 0 24px;">We've built a preview of your new <strong>${d.businessName||'business'}</strong> website. Take a look and let us know what you think!</p>
   <div style="text-align:center;margin:0 0 28px;">
     <a href="${previewUrl}" style="display:inline-block;background:linear-gradient(135deg,#0066FF,#0052CC);color:white;padding:20px 44px;border-radius:12px;text-decoration:none;font-weight:700;font-size:18px;box-shadow:0 6px 24px rgba(0,102,255,.35);">👁️ View My Website Preview</a>
-    <p style="font-size:13px;color:#9CA3AF;margin-top:10px;">Preview link: <a href="${previewUrl}" style="color:#0066FF;">${previewUrl}</a></p>
-  </div>
-  <div style="background:#f0f9ff;border:2px solid #0066FF;border-radius:12px;padding:22px;margin:0 0 24px;">
-    <p style="font-weight:700;margin:0 0 12px;color:#0066FF;font-size:15px;">✅ What's included in your website:</p>
-    <ul style="margin:0;padding-left:20px;line-height:2.2;font-size:14px;">
-      <li>✅ AI-powered business website for <strong>${d.businessName||'your business'}</strong></li>
-      <li>✅ 24/7 AI chat assistant — captures leads while you sleep</li>
-      <li>✅ Client dashboard — update hours and request changes anytime</li>
-      ${clientAddons.join('')}
-    </ul>
   </div>
   <div style="background:#f0fff4;border:2px solid #00D68F;border-radius:12px;padding:24px;margin:0 0 24px;text-align:center;">
     <p style="font-weight:700;color:#065f46;margin:0 0 6px;font-size:15px;">Happy with the preview?</p>
-    <p style="font-size:14px;color:#374151;margin:0 0 18px;">Click below to approve and go live. Your site activates when payment is received.</p>
-    <a href="${clientApproveUrl}" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:18px 40px;border-radius:12px;text-decoration:none;font-weight:700;font-size:17px;box-shadow:0 6px 24px rgba(0,214,143,.35);">✅ Approve My Website →</a>
+    <p style="font-size:14px;color:#374151;margin:0 0 18px;">Click below to approve and go live.</p>
+    <a href="${clientApproveUrl}" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:18px 40px;border-radius:12px;text-decoration:none;font-weight:700;font-size:17px;">✅ Approve My Website →</a>
   </div>
-  <div style="background:#f9fafb;border-radius:12px;padding:20px;margin:0 0 24px;">
-    <p style="font-weight:700;margin:0 0 10px;">💳 Activate your site for $99/month (no setup fee):</p>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <a href="https://buy.stripe.com/dRm3cx0PY13J6Wu4DrfnO05" style="display:block;background:#0066FF;color:white;padding:14px;border-radius:10px;text-decoration:none;font-weight:700;text-align:center;">Credit/Debit Card →</a>
-      <a href="https://www.paypal.com/paypalme/airesources89" style="display:block;background:#FFC439;color:#003087;padding:14px;border-radius:10px;text-decoration:none;font-weight:700;text-align:center;">PayPal →</a>
-    </div>
-    <p style="font-size:13px;color:#6B7280;margin-top:12px;text-align:center;">Or send $99 via CashApp to <strong>$AIResources89</strong> (include your business name)</p>
-  </div>
+  ${clientAddons.length ? `<ul style="margin:0 0 20px;padding-left:20px;line-height:2.2;font-size:14px;">${clientAddons.join('')}</ul>` : ''}
   <p style="font-size:14px;color:#6B7280;margin:0 0 6px;">Have a logo or photos? Email them to <a href="mailto:george@turnkeyaiservices.com" style="color:#0066FF;">george@turnkeyaiservices.com</a></p>
   <p style="font-size:14px;color:#6B7280;margin:0 0 24px;">Questions? Call <strong>(228) 604-3200</strong> or reply to this email.</p>
   <div style="border-top:1px solid #e5e7eb;padding-top:20px;text-align:center;">
-    <p style="font-size:12px;color:#9CA3AF;margin:0;">TurnkeyAI Services — AI-Powered Websites for Local Business<br>300 Blakemore Ave, Bay St. Louis, MS 39520</p>
+    <p style="font-size:12px;color:#9CA3AF;margin:0;">TurnkeyAI Services — AI-Powered Websites for Local Business<br>Bay St. Louis, MS 39520</p>
   </div>
 </div></div>`
       });
@@ -842,7 +802,6 @@ ${addons.length ? `
   } catch (err) { console.error('[/api/submission-created]', err); res.status(500).json({ error: 'Submission failed' }); }
 });
 
-// PATCH 2: inject _previewToken and id into preview data
 app.get('/preview/:token', (req, res) => {
   const client = Object.values(clients).find(c => c.previewToken === req.params.token);
   if (!client) return res.status(404).send('<h2 style="font-family:sans-serif;padding:40px;">Preview not found.</h2>');
@@ -979,13 +938,12 @@ app.post('/api/client-update-intake/:id', async (req, res) => {
 app.post('/api/stripe-webhook', async (req, res) => {
   try {
     const sig = req.headers['stripe-signature'];
-    let event;
     if (STRIPE_WEBHOOK_SECRET && sig) {
       const hmac = crypto.createHmac('sha256', STRIPE_WEBHOOK_SECRET);
       hmac.update(req.body);
       if ('sha256='+hmac.digest('hex') !== sig) return res.status(400).send('Invalid signature');
     }
-    event = JSON.parse(req.body);
+    const event = JSON.parse(req.body);
     if (event.type !== 'checkout.session.completed' && event.type !== 'payment_intent.succeeded') return res.json({ received: true });
     res.json({ received: true });
     (async () => {
@@ -1119,17 +1077,16 @@ app.get('/api/admin/clients', (req, res) => {
   if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
   res.json(Object.values(clients).map(c => ({
     id: c.id, businessName: c.data.businessName, ownerName: c.data.ownerName, email: c.data.email, phone: c.data.phone, industry: c.data.industry, city: c.data.city, status: c.status, liveUrl: c.liveUrl, createdAt: c.createdAt, previewToken: c.previewToken, dashPassword: c.dashPassword, approvedAt: c.approvedAt,
-    wantsMiniMe: c.data.wants_mini_me, miniMeConsent: c.miniMeConsent, miniMeConsentAt: c.miniMeConsentAt, miniMeSubscribed: c.miniMeSubscribed, miniMeVideoFile: c.miniMeVideoFile||null, promoVideoFile: c.promoVideoFile||null, wantsFreeVideo: c.freeVideoRequested, wantsAfterHours: c.data.addon_after_hours, wantsMissedCall: c.data.addon_missed_call, wantsVoicemailDrop: c.data.addon_voicemail_drop
+    wantsMiniMe: c.data.wants_mini_me, miniMeConsent: c.miniMeConsent, miniMeConsentAt: c.miniMeConsentAt, miniMeSubscribed: c.miniMeSubscribed, miniMeVideoFile: c.miniMeVideoFile||null, promoVideoFile: c.promoVideoFile||null, wantsFreeVideo: c.freeVideoRequested, wantsAfterHours: c.data.addon_after_hours, wantsMissedCall: c.data.addon_missed_call
   })));
 });
 
-// PATCH 3: new /api/preview-change-request route
 app.post('/api/preview-change-request', async (req, res) => {
   try {
     const { type, clientId, token, changes } = req.body;
     const client = clients[clientId];
     if (!client || client.previewToken !== token) return res.status(403).json({ error: 'Invalid' });
-    const label = type === 'minor' ? '✏️ Minor Changes (self-edit form)' : '📧 Major Changes (message to us)';
+    const label = type === 'minor' ? '✏️ Minor Changes' : '📧 Major Changes';
     await sendEmail({
       to: ADMIN_EMAIL,
       subject: `${label}: ${client.data.businessName}`,
@@ -1148,95 +1105,6 @@ app.post('/api/preview-change-request', async (req, res) => {
     }
     res.json({ success: true });
   } catch(err) { console.error('[preview-change-request]', err); res.status(500).json({ error: 'Failed' }); }
-});
-
-app.post('/api/intake', async (req, res) => {
-  try {
-    const data = req.body;
-    const id = data.id || ('client_' + Date.now());
-    const previewToken = makeToken();
-    clients[id] = {
-      id, status: 'pending', data, previewToken,
-      dashToken: null, dashPassword: null, liveUrl: null, cfProjectName: null,
-      miniMeConsent: null, miniMeConsentAt: null, miniMeVideoUrl: null,
-      miniMeSubscribed: false,
-      freeVideoRequested: data.wants_free_video === 'yes' || data.wantsFreeVideo === 'yes',
-      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
-    };
-    saveClients();
-
-    const previewUrl = `${BASE_URL}/preview/${previewToken}`;
-    const approveUrl = `${BASE_URL}/api/approve/${id}?adminKey=${ADMIN_KEY}`;
-    const clientApproveUrl = `${BASE_URL}/api/client-approve/${id}?token=${previewToken}`;
-    const d = data;
-
-    const row = (label, val) => val
-      ? `<tr><td style="padding:9px 14px;font-weight:600;color:#374151;background:#f9fafb;width:170px;border-bottom:1px solid #e5e7eb;vertical-align:top;">${label}</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;vertical-align:top;">${val}</td></tr>`
-      : '';
-    const table = (rows) => `<table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:22px;">${rows}</table>`;
-    const h2 = (txt) => `<h2 style="color:#0066FF;font-size:17px;margin:0 0 12px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">${txt}</h2>`;
-
-    const addons = [];
-    if (d.wants_mini_me === 'yes' || d.wantsMiniMe === 'yes') addons.push('🤖 Mini-Me AI Avatar ($59/mo)');
-    if ((d.wants_free_video === 'yes' || d.wantsFreeVideo === 'yes') && d.wants_mini_me !== 'yes') addons.push('🎬 Free 60-Second Promo Video');
-    if (d.addon_after_hours === 'yes' || d.wantsAfterHours === 'yes') addons.push('📞 After Hours Answering');
-    if (d.addon_missed_call === 'yes' || d.wantsMissedCall === 'yes') addons.push('📱 Missed Call Text Return');
-    if (d.addon_voicemail_drop === 'yes' || d.wantsVoicemailDrop === 'yes') addons.push('🎙️ Custom Voicemail Greeting');
-
-    await sendEmail({
-      to: ADMIN_EMAIL,
-      subject: `🆕 New Client: ${d.businessName||'Unknown'} — ${d.city||d.location||''} — ${(d.industry||'').replace(/_/g,' ')}`,
-      html: `<div style="font-family:sans-serif;max-width:700px;margin:0 auto;color:#1F2937;">
-<div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:24px 32px;border-radius:12px 12px 0 0;">
-  <h1 style="color:white;margin:0;font-size:22px;">🆕 New Client Submission</h1>
-</div>
-<div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:28px 32px;">
-${h2('Business Information')}
-${table(`${row('Business Name', d.businessName)}${row('Owner', d.ownerName)}${row('Industry', (d.industry||'').replace(/_/g,' '))}${row('Phone', d.phone)}${row('Email', d.email)}${row('City', d.city||d.location)}${row('State', d.state)}`)}
-${addons.length ? `<div style="background:#f0fff4;border:2px solid #00D68F;border-radius:10px;padding:18px 22px;margin-bottom:22px;"><p style="font-weight:700;color:#065f46;margin:0 0 10px;font-size:15px;">🎯 Add-Ons Selected</p><ul style="margin:0;padding-left:20px;line-height:2;font-size:14px;">${addons.map(a=>'<li><strong>'+a+'</strong></li>').join('')}</ul></div>` : ''}
-<details style="margin-bottom:22px;"><summary style="cursor:pointer;font-weight:600;color:#0066FF;padding:10px;background:#f9fafb;border-radius:8px;">📋 View All Submitted Data</summary><pre style="font-size:12px;background:#f9fafb;padding:14px;border-radius:8px;overflow:auto;margin-top:8px;">${JSON.stringify(d,null,2)}</pre></details>
-<div style="display:flex;gap:12px;flex-wrap:wrap;">
-  <a href="${approveUrl}" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">✅ Approve & Go Live</a>
-  <a href="${previewUrl}" style="display:inline-block;background:#0066FF;color:white;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">👁️ Preview Site</a>
-</div>
-</div></div>`
-    });
-
-    if (d.email) {
-      const clientAddons = [];
-      if (d.wants_mini_me === 'yes' || d.wantsMiniMe === 'yes') clientAddons.push('<li>🤖 <strong>Mini-Me AI Avatar</strong> — recording instructions coming in a separate email</li>');
-      else if (d.wants_free_video === 'yes' || d.wantsFreeVideo === 'yes') clientAddons.push('<li>🎬 <strong>Free 60-Second Promo Video</strong> — recording instructions coming in a separate email</li>');
-
-      await sendEmail({
-        to: d.email,
-        subject: `🎉 Your website preview is ready — ${d.businessName||'Your Business'}`,
-        html: `<div style="font-family:sans-serif;max-width:620px;margin:0 auto;color:#1F2937;">
-<div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:32px;border-radius:12px 12px 0 0;text-align:center;">
-  <h1 style="color:white;margin:0;font-size:28px;">We Got It! 🎉</h1>
-  <p style="color:rgba(255,255,255,0.85);margin:10px 0 0;font-size:16px;">Hi ${d.ownerName||'there'} — your website preview is ready.</p>
-</div>
-<div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:32px;">
-  <p style="font-size:16px;line-height:1.75;margin:0 0 24px;">We built a preview of your new website. Take a look and click Approve when you're ready to go live!</p>
-  <div style="text-align:center;margin:0 0 28px;"><a href="${previewUrl}" style="display:inline-block;background:linear-gradient(135deg,#0066FF,#0052CC);color:white;padding:20px 44px;border-radius:12px;text-decoration:none;font-weight:700;font-size:18px;">👁️ View My Website Preview</a></div>
-  <div style="background:#f0fff4;border:2px solid #00D68F;border-radius:12px;padding:24px;margin:0 0 24px;text-align:center;">
-    <p style="font-weight:700;color:#065f46;margin:0 0 16px;">Happy with it? Go live now:</p>
-    <a href="${clientApproveUrl}" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:18px 40px;border-radius:12px;text-decoration:none;font-weight:700;font-size:17px;">✅ Approve & Go Live →</a>
-  </div>
-  ${clientAddons.length ? `<ul style="margin:0 0 20px;padding-left:20px;line-height:2.2;font-size:14px;">${clientAddons.join('')}</ul>` : ''}
-  <p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(228) 604-3200</strong> or email <a href="mailto:george@turnkeyaiservices.com" style="color:#0066FF;">george@turnkeyaiservices.com</a></p>
-  <div style="border-top:1px solid #e5e7eb;padding-top:20px;text-align:center;margin-top:24px;"><p style="font-size:12px;color:#9CA3AF;margin:0;">TurnkeyAI Services · 300 Blakemore Ave, Bay St. Louis, MS 39520</p></div>
-</div></div>`
-      });
-
-      if (d.wants_mini_me === 'yes' || d.wantsMiniMe === 'yes') {
-        sendMiniMeEmail(clients[id]).catch(e => console.error('[intake miniMe email]', e.message));
-      } else if (d.wants_free_video === 'yes' || d.wantsFreeVideo === 'yes') {
-        sendFreeVideoEmail(clients[id]).catch(e => console.error('[intake video email]', e.message));
-      }
-    }
-
-    res.json({ success: true });
-  } catch(err) { console.error('[/api/intake]', err); res.status(500).json({ error: 'Failed' }); }
 });
 
 app.post('/api/territory-partner', async (req, res) => { try { const d=req.body; await sendEmail({to:ADMIN_EMAIL,subject:`New Territory Partner: ${d.name||'Unknown'}`,html:`<h2>Territory Partner Application</h2><pre>${JSON.stringify(d,null,2)}</pre>`}); if(d.email)await sendEmail({to:d.email,subject:'Your TurnkeyAI Territory Partner Application',html:`<h2>Thanks, ${d.name}!</h2><p>We'll review within 24 hours.</p><p>— TurnkeyAI Services Team</p>`}); res.json({success:true}); } catch(err){console.error('[/api/territory-partner]',err);res.status(500).json({error:'Failed'});} });
@@ -1275,10 +1143,54 @@ app.post('/api/video-upload-notify', async (req, res) => {
         </table>`
     });
     if (d.email) {
-      await sendEmail({ to: d.email, subject: `✅ Video Received — ${d.businessName||'Your Business'}`, html: `<h2 style="color:#0066FF;">We Got Your Video Clip!</h2><p>Hi ${d.uploaderName||'there'},</p><p>Production begins within 48 hours. You'll receive a preview before anything goes live.</p><p><strong>Important:</strong> Please also email your video file to <a href="mailto:george@turnkeyaiservices.com">george@turnkeyaiservices.com</a></p><p>Questions? Call (228) 604-3200</p><p>— TurnkeyAI Services Team</p>` });
+      await sendEmail({ to: d.email, subject: `✅ Video Received — ${d.businessName||'Your Business'}`, html: `<h2 style="color:#0066FF;">We Got Your Video Clip!</h2><p>Hi ${d.uploaderName||'there'},</p><p>Production begins within 48 hours.</p><p>Questions? Call (228) 604-3200</p><p>— TurnkeyAI Services Team</p>` });
     }
     res.json({ success: true });
   } catch(err) { console.error('[/api/video-upload-notify]', err); res.status(500).json({ error: 'Failed' }); }
+});
+
+app.post('/api/intake', async (req, res) => {
+  try {
+    const data = req.body;
+    const id = data.id || ('client_' + Date.now());
+    const previewToken = makeToken();
+    clients[id] = {
+      id, status: 'pending', data, previewToken,
+      dashToken: null, dashPassword: null, liveUrl: null, cfProjectName: null,
+      miniMeConsent: null, miniMeConsentAt: null, miniMeVideoUrl: null,
+      miniMeSubscribed: false,
+      freeVideoRequested: data.wants_free_video === 'yes' || data.wantsFreeVideo === 'yes',
+      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+    };
+    saveClients();
+    const previewUrl = `${BASE_URL}/preview/${previewToken}`;
+    const approveUrl = `${BASE_URL}/api/approve/${id}?adminKey=${ADMIN_KEY}`;
+    const clientApproveUrl = `${BASE_URL}/api/client-approve/${id}?token=${previewToken}`;
+    const d = data;
+    const row = (label, val) => val ? `<tr><td style="padding:9px 14px;font-weight:600;color:#374151;background:#f9fafb;width:170px;border-bottom:1px solid #e5e7eb;">${label}</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;">${val}</td></tr>` : '';
+    const table = (rows) => `<table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:22px;">${rows}</table>`;
+    const h2 = (txt) => `<h2 style="color:#0066FF;font-size:17px;margin:0 0 12px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">${txt}</h2>`;
+    const addons = [];
+    if (d.wants_mini_me === 'yes' || d.wantsMiniMe === 'yes') addons.push('🤖 Mini-Me AI Avatar ($59/mo)');
+    if ((d.wants_free_video === 'yes' || d.wantsFreeVideo === 'yes') && d.wants_mini_me !== 'yes') addons.push('🎬 Free 60-Second Promo Video');
+    if (d.addon_after_hours === 'yes' || d.wantsAfterHours === 'yes') addons.push('📞 After Hours Answering');
+    if (d.addon_missed_call === 'yes' || d.wantsMissedCall === 'yes') addons.push('📱 Missed Call Text Return');
+    await sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `🆕 New Client: ${d.businessName||'Unknown'} — ${d.city||d.location||''} — ${(d.industry||'').replace(/_/g,' ')}`,
+      html: `<div style="font-family:sans-serif;max-width:700px;margin:0 auto;"><div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:24px 32px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:22px;">🆕 New Client Submission</h1></div><div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:28px 32px;">${h2('Business Information')}${table(`${row('Business Name', d.businessName)}${row('Owner', d.ownerName)}${row('Industry', (d.industry||'').replace(/_/g,' '))}${row('Phone', d.phone)}${row('Email', d.email)}${row('City', d.city||d.location)}${row('State', d.state)}`)}${addons.length?`<div style="background:#f0fff4;border:2px solid #00D68F;border-radius:10px;padding:18px 22px;margin-bottom:22px;"><p style="font-weight:700;color:#065f46;margin:0 0 10px;">🎯 Add-Ons</p><ul style="margin:0;padding-left:20px;line-height:2;">${addons.map(a=>'<li>'+a+'</li>').join('')}</ul></div>`:''}<details style="margin-bottom:22px;"><summary style="cursor:pointer;font-weight:600;color:#0066FF;padding:10px;background:#f9fafb;border-radius:8px;">📋 All Data</summary><pre style="font-size:12px;background:#f9fafb;padding:14px;border-radius:8px;overflow:auto;">${JSON.stringify(d,null,2)}</pre></details><div style="display:flex;gap:12px;flex-wrap:wrap;"><a href="${approveUrl}" style="background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;">✅ Approve & Go Live</a><a href="${previewUrl}" style="background:#0066FF;color:white;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:700;">👁️ Preview Site</a></div></div></div>`
+    });
+    if (d.email) {
+      await sendEmail({
+        to: d.email,
+        subject: `🎉 Your website preview is ready — ${d.businessName||'Your Business'}`,
+        html: `<div style="font-family:sans-serif;max-width:620px;margin:0 auto;"><div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:32px;border-radius:12px 12px 0 0;text-align:center;"><h1 style="color:white;margin:0;">We Got It! 🎉</h1><p style="color:rgba(255,255,255,0.85);margin:10px 0 0;">Hi ${d.ownerName||'there'} — your website preview is ready.</p></div><div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:32px;"><div style="text-align:center;margin:0 0 28px;"><a href="${previewUrl}" style="display:inline-block;background:linear-gradient(135deg,#0066FF,#0052CC);color:white;padding:20px 44px;border-radius:12px;text-decoration:none;font-weight:700;font-size:18px;">👁️ View My Website Preview</a></div><div style="background:#f0fff4;border:2px solid #00D68F;border-radius:12px;padding:24px;margin:0 0 24px;text-align:center;"><p style="font-weight:700;color:#065f46;margin:0 0 16px;">Happy with it? Go live now:</p><a href="${clientApproveUrl}" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:18px 40px;border-radius:12px;text-decoration:none;font-weight:700;font-size:17px;">✅ Approve & Go Live →</a></div><p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(228) 604-3200</strong> or email <a href="mailto:george@turnkeyaiservices.com" style="color:#0066FF;">george@turnkeyaiservices.com</a></p></div></div>`
+      });
+      if (d.wants_mini_me === 'yes' || d.wantsMiniMe === 'yes') sendMiniMeEmail(clients[id]).catch(e => console.error('[intake miniMe]', e.message));
+      else if (d.wants_free_video === 'yes' || d.wantsFreeVideo === 'yes') sendFreeVideoEmail(clients[id]).catch(e => console.error('[intake video]', e.message));
+    }
+    res.json({ success: true });
+  } catch(err) { console.error('[/api/intake]', err); res.status(500).json({ error: 'Failed' }); }
 });
 
 function extractHours(data) {
@@ -1292,10 +1204,16 @@ function extractServices(data) {
   return s;
 }
 
+// ── CATCH-ALL: serve business.html at root, index.html for everything else ──
 app.get('*', (req, res) => {
   const filePath = path.join(__dirname, 'public', req.path);
-  if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) res.sendFile(filePath);
-  else res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+    res.sendFile(filePath);
+  } else if (req.path === '/' || req.path === '') {
+    res.sendFile(path.join(__dirname, 'public', 'business.html'));
+  } else {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  }
 });
 
 app.listen(PORT, () => console.log(`TurnkeyAI backend running on port ${PORT}`));
