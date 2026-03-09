@@ -25,6 +25,9 @@ const DATA_FILE = path.join(__dirname, 'clients.json');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
+// CHANGE 2: Serve uploaded logos publicly
+app.use('/uploads', express.static(UPLOADS_DIR));
+
 function loadClients() {
   try {
     if (fs.existsSync(DATA_FILE)) return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
@@ -232,7 +235,6 @@ function generateSiteHTML(data, isPreview) {
   const chatName = data.chatName || 'Chat With Us';
   const chatPersonality = data.chatPersonality || 'friendly';
 
-  // Industry hero image map (Unsplash CDN)
   const heroImages = {
     plumbing:    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
     electrician: 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1600&q=80',
@@ -256,7 +258,6 @@ function generateSiteHTML(data, isPreview) {
   const industryKey = (data.industry || '').toLowerCase().replace(/ /g,'_');
   const heroImage = heroImages[industryKey] || heroImages.default;
 
-  // Font Awesome icon sets per industry
   const industryIcons = {
     plumbing:    ['fa-faucet-drip','fa-toilet','fa-fire-flame-curved','fa-pipe-section','fa-house-flood-water','fa-bolt'],
     electrician: ['fa-bolt','fa-plug','fa-lightbulb','fa-solar-panel','fa-screwdriver-wrench','fa-shield-halved'],
@@ -273,7 +274,6 @@ function generateSiteHTML(data, isPreview) {
   };
   const iconSet = industryIcons[industryKey] || industryIcons.default;
 
-  // Color palette — navy/amber standard with industry + colorPreference overrides
   const palettes = {
     plumbing:    { primary: '#0a1628', accent: '#f59e0b', accent2: '#e85d04' },
     electrician: { primary: '#0f172a', accent: '#f59e0b', accent2: '#eab308' },
@@ -300,7 +300,6 @@ function generateSiteHTML(data, isPreview) {
     else if (cp.includes('pink'))   pal = { primary: '#1e1b4b', accent: '#ec4899', accent2: '#a855f7' };
   }
 
-  // Services
   const serviceItems = [];
   Object.keys(data).forEach(k => {
     if (k.startsWith('service_') && data[k] === 'on') {
@@ -313,17 +312,14 @@ function generateSiteHTML(data, isPreview) {
     data.additionalServices.split('\n').forEach(s => s.trim() && serviceItems.push({ name: s.trim(), price: '' }));
   }
 
-  // Hours
   const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
   const dayLabels = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const hoursData = days.map((d,i) => data['day_'+d] ? { label: dayLabels[i], hours: data['hours_'+d] || 'Open' } : null).filter(Boolean);
 
-  // Payment
   const payKeys = ['cash','card','check','venmo','cashapp','zelle'];
   const payLabels = { cash:'Cash', card:'Credit/Debit Card', check:'Check', venmo:'Venmo', cashapp:'CashApp', zelle:'Zelle' };
   const payMethods = payKeys.filter(k => data['pay_'+k]).map(k => payLabels[k]).join(' · ');
 
-  // Preview approval
   const clientId = data.id || '';
   const previewToken = data._previewToken || '';
   const clientApproveUrl = clientId && previewToken ? `${BASE_URL}/api/client-approve/${clientId}?token=${previewToken}` : '';
@@ -401,7 +397,6 @@ function generateSiteHTML(data, isPreview) {
       <\/script>`
     : `<div style="background:${pal.primary};color:rgba(255,255,255,.7);text-align:center;padding:10px 24px;font-size:13px;">⚡ Powered by <a href="https://turnkeyaiservices.com" style="color:${pal.accent};font-weight:700;text-decoration:none;">TurnkeyAI Services</a> — AI-Powered Websites for Local Business</div>`;
 
-  // Service cards
   const serviceCardsHTML = serviceItems.map((s, i) => `
     <div class="svc-card" style="background:white;border-radius:14px;padding:1.8rem;box-shadow:0 4px 24px rgba(10,22,40,.08);border:1px solid rgba(10,22,40,.06);transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden;">
       <div style="width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,${pal.accent},${pal.accent2});display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:white;margin-bottom:1.1rem;">
@@ -411,14 +406,12 @@ function generateSiteHTML(data, isPreview) {
       ${s.price ? `<p style="font-weight:700;color:${pal.accent};font-size:1rem;">${s.price}</p>` : '<p style="font-size:.88rem;color:#64748b;line-height:1.6;">Professional service you can count on.</p>'}
     </div>`).join('');
 
-  // Hours rows
   const hoursRows = hoursData.map(h => `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.08);">
       <span style="color:rgba(255,255,255,.75);font-size:.95rem;">${h.label}</span>
       <span style="color:white;font-weight:600;font-size:.95rem;">${h.hours}</span>
     </div>`).join('');
 
-  // Mini-Me video section
   const miniMeSection = miniMeVideo ? `
     <section style="padding:5rem 1.5rem;background:${pal.primary};text-align:center;">
       <div style="max-width:680px;margin:0 auto;">
@@ -428,7 +421,6 @@ function generateSiteHTML(data, isPreview) {
       </div>
     </section>` : '';
 
-  // Chat system prompt
   const chatSystem = `You work for ${biz}, a ${industry} business in ${city}. Be ${chatPersonality}. Answer questions about services, pricing, hours, and location. Phone: ${phone}. Email: ${email}. ${advantage ? 'What sets us apart: '+advantage : ''}`;
 
   return `<!DOCTYPE html>
@@ -839,6 +831,20 @@ app.post('/api/submission-created', async (req, res) => {
     };
     saveClients();
 
+    // CHANGE 1: Save logo if uploaded
+    if (data.logoBase64 && data.logoFileName) {
+      try {
+        const ext = (data.logoFileName.split('.').pop() || 'png').toLowerCase();
+        const logoFile = `logo_${id}.${ext}`;
+        fs.writeFileSync(path.join(UPLOADS_DIR, logoFile), Buffer.from(data.logoBase64, 'base64'));
+        clients[id].logoFile = logoFile;
+        clients[id].data.logoUrl = `${BASE_URL}/uploads/${logoFile}`;
+        delete clients[id].data.logoBase64; // don't store raw base64 in JSON
+        saveClients();
+        console.log(`[logo] Saved: ${logoFile}`);
+      } catch(e) { console.error('[logo save]', e.message); }
+    }
+
     if ((data.paymentMethod || '').toLowerCase() === 'partner') {
       console.log(`[partner bypass] Auto-deploying ${data.businessName}...`);
       const partnerPreviewUrl = `${BASE_URL}/preview/${previewToken}`;
@@ -899,6 +905,27 @@ app.post('/api/submission-created', async (req, res) => {
     const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
     const hoursLines = days.filter(dy => d['day_'+dy]).map(dy => `<li>${dy.charAt(0).toUpperCase()+dy.slice(1)}: ${d['hours_'+dy]||'Open'}</li>`);
 
+    // CHANGE 3: Domain action block for admin email
+    const domainBlock = (() => {
+      if (d.hasDomain === 'yes') {
+        return `<div style="background:#fff8ed;border:2px solid #f59e0b;border-radius:10px;padding:18px 22px;margin-bottom:22px;">
+          <p style="font-weight:700;color:#92400e;margin:0 0 10px;font-size:15px;">🌐 DNS SETUP NEEDED — Customer Has Domain</p>
+          <p style="margin:0 0 6px;font-size:14px;"><strong>Domain:</strong> ${d.existingDomain||'(not provided)'}</p>
+          <p style="margin:0 0 6px;font-size:14px;"><strong>Registrar:</strong> ${(d.domainRegistrar||'unknown').replace(/_/g,' ')}</p>
+          <p style="margin:0 0 6px;font-size:14px;"><strong>Keep existing email?</strong> ${d.keepExistingEmail==='yes'?'✅ YES — do NOT change MX records':'❌ No existing email'}</p>
+          <p style="margin:0 0 0;font-size:13px;color:#92400e;"><strong>Action:</strong> Send client DNS A record instructions for ${(d.domainRegistrar||'their registrar').replace(/_/g,' ')}. Point A record to Railway IP. ${d.keepExistingEmail==='yes'?'⚠️ Preserve MX records.':''}</p>
+        </div>`;
+      } else if (d.hasDomain === 'no') {
+        return `<div style="background:#f0f0ff;border:2px solid #6366f1;border-radius:10px;padding:18px 22px;margin-bottom:22px;">
+          <p style="font-weight:700;color:#3730a3;margin:0 0 10px;font-size:15px;">🆕 DOMAIN REGISTRATION NEEDED — Free with Package</p>
+          <p style="margin:0 0 6px;font-size:14px;"><strong>Suggested domain:</strong> ${d.suggestedDomain||'(not provided — ask client)'}</p>
+          <p style="margin:0 0 6px;font-size:14px;"><strong>Action:</strong> Register on Namecheap → Transfer DNS to Cloudflare → Set up Zoho free email → Point A record to Railway.</p>
+          <a href="https://www.namecheap.com/domains/registration/results/?domain=${encodeURIComponent((d.suggestedDomain||'').replace(/https?:\/\//,'').trim())}" style="display:inline-block;background:#6366f1;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px;margin-top:8px;">Check Availability on Namecheap →</a>
+        </div>`;
+      }
+      return '';
+    })();
+
     const addons = [];
     if (d.wants_mini_me === 'yes') addons.push(`🤖 Mini-Me AI Avatar ($59/mo)`);
     if (d.wants_free_video === 'yes' && d.wants_mini_me !== 'yes') addons.push('🎬 Free 60-Second Promo Video');
@@ -910,7 +937,7 @@ app.post('/api/submission-created', async (req, res) => {
     await sendEmail({
       to: ADMIN_EMAIL,
       subject: `🆕 New Client: ${d.businessName||'Unknown'} — ${d.city||''}, ${d.state||''} — ${(d.industry||'').replace(/_/g,' ')}`,
-      html: `<div style="font-family:sans-serif;max-width:700px;margin:0 auto;color:#1F2937;"><div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:24px 32px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:22px;">🆕 New Client Submission</h1><p style="color:rgba(255,255,255,0.82);margin:6px 0 0;font-size:14px;">${new Date().toLocaleString('en-US',{timeZone:'America/Chicago',dateStyle:'full',timeStyle:'short'})}</p></div><div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:28px 32px;">${h2('Business Information')}${table(`${row('Business Name', d.businessName)}${row('Owner', d.ownerName)}${row('Industry', (d.industry||'').replace(/_/g,' '))}${row('Phone', d.phone)}${row('Email', d.email)}${row('Address', [d.address,d.city,d.state,d.zip].filter(Boolean).join(', '))}${row('Years in Business', d.yearsInBusiness)}`)}${h2('Online Presence')}${table(`${row('Current Website', d.currentWebsite)}${row('Facebook', d.facebook)}${row('Instagram', d.instagram)}${row('Google Business', d.googleBusiness)}${row('Logo', d.hasLogo==='yes'?'✅ Will email':'❌ Needs one')}`)}${servicesList.length ? `${h2('Services & Pricing')}<ul style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 14px 14px 30px;margin:0 0 22px;line-height:1.9;">${servicesList.map(s=>'<li>'+s+'</li>').join('')}</ul>` : ''}${hoursLines.length ? `${h2('Business Hours')}<ul style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 14px 14px 30px;margin:0 0 22px;line-height:1.9;">${hoursLines.join('')}</ul>` : ''}${h2('About the Business')}${table(`${row('Business Story', d.aboutUs)}${row('Owner Background', d.ownerBackground)}${row('Mission / Tagline', d.missionStatement)}${row('Awards / Certs', d.awards)}`)}${h2('Payment & Other')}${table(`${row('Service Radius', d.targetRadius)}${row('Competitive Advantage', d.competitiveAdvantage)}${row('Payment Methods', payMethods)}${row('Color Preference', d.colorPreference)}${row('Referral Source', d.referralSource)}${row('Additional Notes', d.additionalNotes)}`)}${addons.length ? `<div style="background:#f0fff4;border:2px solid #00D68F;border-radius:10px;padding:18px 22px;margin-bottom:22px;"><p style="font-weight:700;color:#065f46;margin:0 0 10px;font-size:15px;">🎯 Add-Ons Selected</p><ul style="margin:0;padding-left:20px;line-height:2;font-size:14px;">${addons.map(a=>'<li><strong>'+a+'</strong></li>').join('')}</ul></div>` : ''}<div style="border-top:1px solid #e5e7eb;padding-top:22px;display:flex;gap:12px;flex-wrap:wrap;"><a href="${approveUrl}" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">✅ Approve & Go Live</a><a href="${previewUrl}" style="display:inline-block;background:#0066FF;color:white;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">👁️ Preview Site</a></div></div></div>`
+      html: `<div style="font-family:sans-serif;max-width:700px;margin:0 auto;color:#1F2937;"><div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:24px 32px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:22px;">🆕 New Client Submission</h1><p style="color:rgba(255,255,255,0.82);margin:6px 0 0;font-size:14px;">${new Date().toLocaleString('en-US',{timeZone:'America/Chicago',dateStyle:'full',timeStyle:'short'})}</p></div><div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:28px 32px;">${domainBlock}${h2('Business Information')}${table(`${row('Business Name', d.businessName)}${row('Owner', d.ownerName)}${row('Industry', (d.industry||'').replace(/_/g,' '))}${row('Phone', d.phone)}${row('Email', d.email)}${row('Address', [d.address,d.city,d.state,d.zip].filter(Boolean).join(', '))}${row('Years in Business', d.yearsInBusiness)}`)}${d.logoUrl?`<div style="margin-bottom:16px;"><p style="font-weight:700;font-size:14px;color:#374151;margin:0 0 8px;">Logo Uploaded:</p><img src="${d.logoUrl}" style="max-height:80px;border:1px solid #e5e7eb;border-radius:8px;padding:4px;background:white;" alt="Logo"></div>`:''}${h2('Online Presence')}${table(`${row('Current Website', d.currentWebsite)}${row('Domain Status', d.hasDomain==='yes'?`Has domain: ${d.existingDomain||''}`:d.hasDomain==='no'?`Needs domain: ${d.suggestedDomain||'TBD'}`:'Not specified')}${row('Facebook', d.facebook)}${row('Instagram', d.instagram)}${row('Google Business', d.googleBusiness)}${row('Logo', d.hasLogo==='yes'?'✅ Uploaded':d.hasLogo==='email'?'📧 Will email':'❌ Needs one')}`)}${servicesList.length ? `${h2('Services & Pricing')}<ul style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 14px 14px 30px;margin:0 0 22px;line-height:1.9;">${servicesList.map(s=>'<li>'+s+'</li>').join('')}</ul>` : ''}${hoursLines.length ? `${h2('Business Hours')}<ul style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 14px 14px 30px;margin:0 0 22px;line-height:1.9;">${hoursLines.join('')}</ul>` : ''}${h2('About the Business')}${table(`${row('Business Story', d.aboutUs)}${row('Owner Background', d.ownerBackground)}${row('Mission / Tagline', d.missionStatement)}${row('Awards / Certs', d.awards)}`)}${h2('Payment & Other')}${table(`${row('Service Radius', d.targetRadius)}${row('Competitive Advantage', d.competitiveAdvantage)}${row('Payment Methods', payMethods)}${row('Color Preference', d.colorPreference)}${row('Referral Source', d.referralSource)}${row('Additional Notes', d.additionalNotes)}`)}${addons.length ? `<div style="background:#f0fff4;border:2px solid #00D68F;border-radius:10px;padding:18px 22px;margin-bottom:22px;"><p style="font-weight:700;color:#065f46;margin:0 0 10px;font-size:15px;">🎯 Add-Ons Selected</p><ul style="margin:0;padding-left:20px;line-height:2;font-size:14px;">${addons.map(a=>'<li><strong>'+a+'</strong></li>').join('')}</ul></div>` : ''}<div style="border-top:1px solid #e5e7eb;padding-top:22px;display:flex;gap:12px;flex-wrap:wrap;"><a href="${approveUrl}" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">✅ Approve & Go Live</a><a href="${previewUrl}" style="display:inline-block;background:#0066FF;color:white;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">👁️ Preview Site</a></div></div></div>`
     });
 
     if (d.email) {
