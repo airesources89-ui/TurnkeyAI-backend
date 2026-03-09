@@ -148,7 +148,6 @@ async function deployToCloudflarePages(projectName, htmlContent) {
   return { url: liveUrl, deploymentId: deployData.result?.id };
 }
 
-// ── THE FIX: standalone helper so catch blocks can send credentials too ──
 async function sendCredentialsEmail(client) {
   const dashUrl = `${BASE_URL}/client-dashboard.html?token=${client.dashToken}`;
   await sendEmail({
@@ -614,7 +613,6 @@ app.post('/api/submission-created', async (req, res) => {
         try { await runDeploy(clients[id]); }
         catch(e) {
           console.error('[partner bypass deploy]', e.message);
-          // Deploy failed — set active with preview URL as fallback
           const c = clients[id];
           c.status = 'active';
           c.dashToken = c.dashToken || makeToken();
@@ -624,14 +622,12 @@ app.post('/api/submission-created', async (req, res) => {
           saveClients();
           await sendCredentialsEmail(c).catch(e2 => console.error('[partner bypass credentials email]', e2.message));
         }
-        // Always send admin notification
         const c = clients[id];
         await sendEmail({
           to: ADMIN_EMAIL,
           subject: `✅ Partner Client: ${data.businessName}`,
           html: `<p><strong>${data.businessName}</strong> submitted via Partner bypass.</p><p>Owner: ${data.ownerName} — ${data.email} — ${data.phone}</p><p>Live URL: <a href="${c.liveUrl}">${c.liveUrl}</a></p><p>Dashboard password: <strong>${c.dashPassword}</strong></p><p><a href="${partnerApproveUrl}" style="background:#00D68F;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;">Re-Approve & Redeploy →</a></p>`
         }).catch(e => console.error('[partner bypass admin email]', e.message));
-        // Send mini-me or free video email if selected
         if (data.wants_mini_me === 'yes') {
           sendMiniMeEmail(clients[id]).catch(e => console.error('[partner bypass miniMe email]', e.message));
         } else if (data.wants_free_video === 'yes') {
@@ -1037,6 +1033,15 @@ function extractServices(data) {
   Object.keys(data).forEach(k=>{ if(k.startsWith('service_')&&data[k]==='on'){const n=k.replace('service_','');s.push({key:n,label:n.replace(/_/g,' '),price:data['price_'+n]||''});} });
   return s;
 }
+
+// ── ADMIN DASHBOARD ROUTE ──
+app.get('/admin', (req, res) => {
+  const key = req.query.key || req.headers['x-admin-key'];
+  if (key !== ADMIN_KEY) {
+    return res.redirect('/admin-login.html');
+  }
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
 
 app.get('*', (req, res) => {
   const filePath = path.join(__dirname, 'public', req.path);
