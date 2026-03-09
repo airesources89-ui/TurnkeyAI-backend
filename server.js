@@ -1128,10 +1128,8 @@ app.get('*', (req, res) => {
   }
 });
 
-// ── Boot: load clients from Redis, then start server ──
-loadClients().then(() => {
-  app.listen(PORT, () => console.log(`TurnkeyAI backend running on port ${PORT}`));
-}).catch(err => {
-  console.error('[boot] Failed to load clients:', err.message);
-  app.listen(PORT, () => console.log(`TurnkeyAI backend running on port ${PORT} (cold start)`));
+// ── Boot: start server immediately, load Redis in background ──
+app.listen(PORT, () => {
+  console.log(`TurnkeyAI backend running on port ${PORT}`);
+  loadClients().catch(err => console.error('[boot] Redis load failed:', err.message));
 });
