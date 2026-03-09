@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TurnkeyAI Admin Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e5e7eb; min-height: 100vh; }
+    
+    .topbar { background: #1a1d24; border-bottom: 2px solid #0066FF; padding: 16px 28px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .topbar-logo { font-size: 18px; font-weight: 800; color: white; }
+    .topbar-logo span { color: #00D68F; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; font-size: 13px; color: rgba(255,255,255,.5); }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 24px 28px 0; }
+    .stat-card { background: #1a1d24; border: 1px solid #2e3240; border-radius: 12px; padding: 20px 24px; }
+    .stat-label { font-size: 12px; color: rgba(255,255,255,.45); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .stat-value { font-size: 32px; font-weight: 800; }
+    .stat-value.blue { color: #0066FF; }
+    .stat-value.green { color: #00D68F; }
+    .stat-value.yellow { color: #f59e0b; }
+    .stat-value.red { color: #ef4444; }
+
+    .section { padding: 24px 28px; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .section-title { font-size: 16px; font-weight: 700; color: white; }
+    .filter-tabs { display: flex; gap: 8px; }
+    .tab { padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid #2e3240; background: transparent; color: rgba(255,255,255,.5); transition: all .15s; }
+    .tab.active { background: #0066FF; color: white; border-color: #0066FF; }
+    .tab:hover:not(.active) { border-color: #0066FF; color: white; }
+
+    .table-wrap { background: #1a1d24; border: 1px solid #2e3240; border-radius: 14px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #12141a; }
+    th { padding: 13px 16px; text-align: left; font-size: 11px; font-weight: 700; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+    td { padding: 14px 16px; font-size: 14px; border-top: 1px solid #22262f; vertical-align: middle; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+    .badge-pending { background: #f59e0b22; color: #f59e0b; border: 1px solid #f59e0b44; }
+    .badge-active { background: #00D68F22; color: #00D68F; border: 1px solid #00D68F44; }
+    .badge-yes { background: #0066FF22; color: #60a5fa; border: 1px solid #0066FF44; font-size: 10px; }
+
+    .btn { display: inline-block; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; cursor: pointer; border: none; font-family: inherit; transition: opacity .15s; white-space: nowrap; }
+    .btn:hover { opacity: .85; }
+    .btn-approve { background: #00D68F; color: #071c12; }
+    .btn-preview { background: #0066FF22; color: #60a5fa; border: 1px solid #0066FF44; }
+    .btn-live { background: rgba(255,255,255,.07); color: rgba(255,255,255,.6); border: 1px solid rgba(255,255,255,.1); }
+    .btn-sm { padding: 5px 10px; font-size: 11px; }
+
+    .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .biz-name { font-weight: 700; color: white; margin-bottom: 2px; }
+    .biz-sub { font-size: 12px; color: rgba(255,255,255,.4); }
+    .contact-line { font-size: 13px; color: rgba(255,255,255,.6); }
+    .contact-line a { color: #60a5fa; text-decoration: none; }
+
+    .empty { text-align: center; padding: 60px 24px; color: rgba(255,255,255,.3); font-size: 15px; }
+    .loading { text-align: center; padding: 60px 24px; color: rgba(255,255,255,.3); }
+    .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid rgba(255,255,255,.1); border-top-color: #0066FF; border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast { position: fixed; bottom: 24px; right: 24px; padding: 14px 22px; border-radius: 12px; font-weight: 700; font-size: 14px; z-index: 9999; animation: fadeIn .3s ease; }
+    .toast-success { background: #00D68F; color: #071c12; }
+    .toast-error { background: #ef4444; color: white; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .search-input { background: #12141a; border: 1px solid #2e3240; border-radius: 8px; padding: 8px 14px; color: white; font-size: 14px; font-family: inherit; outline: none; width: 220px; }
+    .search-input:focus { border-color: #0066FF; }
+
+    @media (max-width: 900px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+      .section { padding: 16px; }
+      .topbar { padding: 12px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">TurnkeyAI <span>Admin</span></div>
+  <div class="topbar-right">
+    <input class="search-input" type="text" id="searchInput" placeholder="🔍 Search clients..." oninput="filterClients()">
+    <span id="lastRefresh">–</span>
+    <button class="btn btn-live" onclick="loadClients()">↻ Refresh</button>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat-card"><div class="stat-label">Total Clients</div><div class="stat-value blue" id="statTotal">–</div></div>
+  <div class="stat-card"><div class="stat-label">Pending Approval</div><div class="stat-value yellow" id="statPending">–</div></div>
+  <div class="stat-card"><div class="stat-label">Live Sites</div><div class="stat-value green" id="statActive">–</div></div>
+  <div class="stat-card"><div class="stat-label">Mini-Me Requests</div><div class="stat-value blue" id="statMiniMe">–</div></div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <div class="section-title">All Clients</div>
+    <div class="filter-tabs">
+      <button class="tab active" onclick="setFilter('all', this)">All</button>
+      <button class="tab" onclick="setFilter('pending', this)">Pending</button>
+      <button class="tab" onclick="setFilter('active', this)">Live</button>
+      <button class="tab" onclick="setFilter('minime', this)">Mini-Me</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <div class="loading" id="loadingEl">
+      <div class="spinner"></div>
+      <div>Loading clients...</div>
+    </div>
+    <table id="clientTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>Business</th>
+          <th>Contact</th>
+          <th>Industry / City</th>
+          <th>Submitted</th>
+          <th>Status</th>
+          <th>Add-Ons</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div class="empty" id="emptyEl" style="display:none;">No clients found.</div>
+  </div>
+</div>
+
+<script>
+  const ADMIN_KEY = new URLSearchParams(location.search).get('key') || '';
+  let allClients = [];
+  let currentFilter = 'all';
+
+  async function loadClients() {
+    document.getElementById('loadingEl').style.display = 'block';
+    document.getElementById('clientTable').style.display = 'none';
+    document.getElementById('emptyEl').style.display = 'none';
+    try {
+      const res = await fetch(`/api/admin/clients?adminKey=${ADMIN_KEY}`);
+      if (res.status === 403) { location.href = '/admin-login.html'; return; }
+      allClients = await res.json();
+      allClients.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      updateStats();
+      renderTable();
+      document.getElementById('lastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    } catch(e) {
+      document.getElementById('loadingEl').innerHTML = '<div style="color:#ef4444;">Failed to load. Check your connection.</div>';
+    }
+  }
+
+  function updateStats() {
+    const pending = allClients.filter(c => c.status === 'pending').length;
+    const active = allClients.filter(c => c.status === 'active').length;
+    const miniMe = allClients.filter(c => c.wantsMiniMe === 'yes').length;
+    document.getElementById('statTotal').textContent = allClients.length;
+    document.getElementById('statPending').textContent = pending;
+    document.getElementById('statActive').textContent = active;
+    document.getElementById('statMiniMe').textContent = miniMe;
+  }
+
+  function setFilter(f, el) {
+    currentFilter = f;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderTable();
+  }
+
+  function filterClients() { renderTable(); }
+
+  function getFiltered() {
+    const q = (document.getElementById('searchInput').value || '').toLowerCase();
+    return allClients.filter(c => {
+      if (currentFilter === 'pending' && c.status !== 'pending') return false;
+      if (currentFilter === 'active' && c.status !== 'active') return false;
+      if (currentFilter === 'minime' && c.wantsMiniMe !== 'yes') return false;
+      if (q) {
+        const hay = [c.businessName, c.ownerName, c.email, c.city, c.industry].join(' ').toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderTable() {
+    const data = getFiltered();
+    document.getElementById('loadingEl').style.display = 'none';
+    if (!data.length) {
+      document.getElementById('clientTable').style.display = 'none';
+      document.getElementById('emptyEl').style.display = 'block';
+      return;
+    }
+    document.getElementById('emptyEl').style.display = 'none';
+    document.getElementById('clientTable').style.display = 'table';
+    document.getElementById('tableBody').innerHTML = data.map(c => {
+      const date = c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '–';
+      const statusBadge = c.status === 'active'
+        ? `<span class="badge badge-active">✅ Live</span>`
+        : `<span class="badge badge-pending">⏳ Pending</span>`;
+      const previewUrl = `/preview/${c.previewToken}`;
+      const approveUrl = `/api/approve/${c.id}?adminKey=${ADMIN_KEY}`;
+      const addons = [];
+      if (c.wantsMiniMe === 'yes') addons.push('🤖 Mini-Me');
+      if (c.wantsFreeVideo) addons.push('🎬 Video');
+      if (c.wantsAfterHours === 'yes') addons.push('📞 After Hrs');
+      if (c.wantsMissedCall === 'yes') addons.push('📱 Missed Call');
+      const addonHtml = addons.map(a => `<span class="badge badge-yes" style="margin:2px;">${a}</span>`).join('');
+      const actionBtns = c.status === 'pending'
+        ? `<a class="btn btn-preview btn-sm" href="${previewUrl}" target="_blank">👁 Preview</a>
+           <a class="btn btn-approve btn-sm" href="${approveUrl}" onclick="return confirmApprove('${c.businessName}')">✅ Approve</a>`
+        : `<a class="btn btn-preview btn-sm" href="${previewUrl}" target="_blank">👁 Preview</a>
+           <a class="btn btn-live btn-sm" href="${c.liveUrl}" target="_blank">🌐 Live Site</a>`;
+      return `<tr>
+        <td>
+          <div class="biz-name">${c.businessName || '–'}</div>
+          <div class="biz-sub">${c.ownerName || ''}</div>
+        </td>
+        <td class="contact-line">
+          <div><a href="mailto:${c.email}">${c.email || '–'}</a></div>
+          <div>${c.phone || '–'}</div>
+        </td>
+        <td>
+          <div style="text-transform:capitalize;">${(c.industry || '').replace(/_/g,' ')}</div>
+          <div class="biz-sub">${c.city || '–'}</div>
+        </td>
+        <td style="color:rgba(255,255,255,.5);font-size:13px;">${date}</td>
+        <td>${statusBadge}${c.status==='active'&&c.dashPassword?`<div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:4px;">PW: ${c.dashPassword}</div>`:''}</td>
+        <td>${addonHtml || '<span style="color:rgba(255,255,255,.2);font-size:12px;">None</span>'}</td>
+        <td><div class="actions">${actionBtns}</div></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function confirmApprove(name) {
+    return confirm(`Approve and deploy ${name}? This sends the client their live URL and dashboard credentials.`);
+  }
+
+  function showToast(msg, type='success') {
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  // Auto-refresh every 60 seconds
+  loadClients();
+  setInterval(loadClients, 60000);
+</script>
+</body>
+</html>
