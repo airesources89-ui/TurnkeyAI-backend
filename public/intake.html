@@ -249,20 +249,20 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
   <div class="step-page" id="page5">
     <div class="card">
       <div class="sec-title">🎯 Optional Add-Ons (Free First Month)</div>
-      <div class="addon" id="addonMiniMe" onclick="toggleAddon('chk_miniMe','addonMiniMe')">
-        <input type="checkbox" name="wants_mini_me" id="chk_miniMe" value="yes">
+      <div class="addon" id="addonMiniMe" onclick="toggleAddon('chk_miniMe','addonMiniMe',event)">
+        <input type="checkbox" name="wants_mini_me" id="chk_miniMe" value="yes" onchange="syncAddon('chk_miniMe','addonMiniMe')">
         <div><div class="addon-title">🤖 Mini-Me AI Avatar</div><div class="addon-desc">A video avatar of YOU on your website — greets visitors and answers questions in your voice, 24/7. Record a 60-second phone clip and we do the rest.</div><div class="addon-price">$59/month after first month free</div></div>
       </div>
-      <div class="addon" id="addonVideo" onclick="toggleAddon('chk_video','addonVideo')">
-        <input type="checkbox" name="wants_free_video" id="chk_video" value="yes">
+      <div class="addon" id="addonVideo" onclick="toggleAddon('chk_video','addonVideo',event)">
+        <input type="checkbox" name="wants_free_video" id="chk_video" value="yes" onchange="syncAddon('chk_video','addonVideo')">
         <div><div class="addon-title">🎬 Free 60-Second Promo Video</div><div class="addon-desc">Professional promo video from your phone clip — added to your site and ready to share on social. One free video per client.</div><div class="addon-price">FREE with your website</div></div>
       </div>
-      <div class="addon" id="addonAH" onclick="toggleAddon('chk_ah','addonAH')">
-        <input type="checkbox" name="addon_after_hours" id="chk_ah" value="yes">
+      <div class="addon" id="addonAH" onclick="toggleAddon('chk_ah','addonAH',event)">
+        <input type="checkbox" name="addon_after_hours" id="chk_ah" value="yes" onchange="syncAddon('chk_ah','addonAH')">
         <div><div class="addon-title">📞 After Hours Text Response</div><div class="addon-desc">Callers after hours automatically get a friendly text — never lose a lead again.</div><div class="addon-price">Included free</div></div>
       </div>
-      <div class="addon" id="addonMC" onclick="toggleAddon('chk_mc','addonMC')">
-        <input type="checkbox" name="addon_missed_call" id="chk_mc" value="yes">
+      <div class="addon" id="addonMC" onclick="toggleAddon('chk_mc','addonMC',event)">
+        <input type="checkbox" name="addon_missed_call" id="chk_mc" value="yes" onchange="syncAddon('chk_mc','addonMC')">
         <div><div class="addon-title">📱 Missed Call Text Return</div><div class="addon-desc">Miss a call? They get a text from you within seconds — works 24/7.</div><div class="addon-price">Included free</div></div>
       </div>
     </div>
@@ -356,9 +356,14 @@ function buildServices(key){
   }
 }
 
-function toggleAddon(chkId,cardId){
+function toggleAddon(chkId,cardId,event){
+  if(event && event.target && event.target.type==='checkbox') return;
   var chk=document.getElementById(chkId);
   chk.checked=!chk.checked;
+  document.getElementById(cardId).classList.toggle('selected',chk.checked);
+}
+function syncAddon(chkId,cardId){
+  var chk=document.getElementById(chkId);
   document.getElementById(cardId).classList.toggle('selected',chk.checked);
 }
 
