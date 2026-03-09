@@ -25,63 +25,18 @@ const DATA_FILE = path.join(__dirname, 'clients.json');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
-// ── Upstash Redis REST helpers ──
-const UPSTASH_URL   = process.env.UPSTASH_REDIS_REST_URL;
-const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
-const REDIS_KEY     = 'turnkeyai:clients';
-
-async function redisGet(key) {
-  if (!UPSTASH_URL || !UPSTASH_TOKEN) return null;
+function loadClients() {
   try {
-    const r = await fetch(`${UPSTASH_URL}/get/${key}`, {
-      headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
-    });
-    const d = await r.json();
-    return d.result ? JSON.parse(d.result) : null;
-  } catch (e) { console.error('[redisGet]', e.message); return null; }
+    if (fs.existsSync(DATA_FILE)) return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  } catch (e) { console.error('[loadClients]', e.message); }
+  return {};
 }
-
-async function redisSet(key, value) {
-  if (!UPSTASH_URL || !UPSTASH_TOKEN) return;
-  try {
-    await fetch(`${UPSTASH_URL}/set/${key}`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(JSON.stringify(value))
-    });
-  } catch (e) { console.error('[redisSet]', e.message); }
+function saveClients() {
+  try { fs.writeFileSync(DATA_FILE, JSON.stringify(clients, null, 2), 'utf8'); }
+  catch (e) { console.error('[saveClients]', e.message); }
 }
-
-// In-memory clients object — loaded from Redis at startup, written back on every save
-const clients = {};
-
-async function loadClients() {
-  // 1. Try Redis first
-  const redisData = await redisGet(REDIS_KEY);
-  if (redisData && typeof redisData === 'object') {
-    Object.assign(clients, redisData);
-    console.log(`[startup] Loaded ${Object.keys(clients).length} clients from Redis.`);
-    return;
-  }
-  // 2. Fall back to local clients.json (migration path)
-  try {
-    if (fs.existsSync(DATA_FILE)) {
-      const fileData = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-      Object.assign(clients, fileData);
-      console.log(`[startup] Migrated ${Object.keys(clients).length} clients from clients.json → Redis.`);
-      await redisSet(REDIS_KEY, clients);
-      return;
-    }
-  } catch (e) { console.error('[loadClients migration]', e.message); }
-  console.log('[startup] No existing client data found. Starting fresh.');
-}
-
-async function saveClients() {
-  // Write to Redis (primary)
-  await redisSet(REDIS_KEY, clients);
-  // Also write local file as backup (best-effort, will be lost on redeploy but useful for debugging)
-  try { fs.writeFileSync(DATA_FILE, JSON.stringify(clients, null, 2), 'utf8'); } catch (_) {}
-}
+const clients = loadClients();
+console.log(`[startup] Loaded ${Object.keys(clients).length} clients from disk.`);
 
 function makeToken() { return crypto.randomBytes(16).toString('hex'); }
 function makePassword() { return crypto.randomBytes(4).toString('hex').toUpperCase(); }
@@ -237,7 +192,7 @@ async function runDeploy(client) {
   client.cfProjectName = projectName;
   client.approvedAt = new Date().toISOString();
   client.updatedAt = new Date().toISOString();
-  await saveClients();
+  saveClients();
   await sendCredentialsEmail(client);
   await sendEmail({
     to: ADMIN_EMAIL,
@@ -664,7 +619,7 @@ app.post('/api/submission-created', async (req, res) => {
       freeVideoRequested: data.wants_free_video === 'yes',
       createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
     };
-    await saveClients();
+    saveClients();
 
     if ((data.paymentMethod || '').toLowerCase() === 'partner') {
       console.log(`[partner bypass] Auto-deploying ${data.businessName}...`);
@@ -692,7 +647,7 @@ app.post('/api/submission-created', async (req, res) => {
           c.dashPassword = c.dashPassword || makePassword();
           c.liveUrl = c.liveUrl || partnerPreviewUrl;
           c.approvedAt = new Date().toISOString();
-          await saveClients();
+          saveClients();
           await sendCredentialsEmail(c).catch(e2 => console.error('[partner bypass credentials email]', e2.message));
         }
         const c = clients[id];
@@ -790,7 +745,7 @@ app.get('/api/approve/:id', async (req, res) => {
       client.dashPassword = client.dashPassword || makePassword();
       client.liveUrl = `${BASE_URL}/preview/${client.previewToken}`;
       client.approvedAt = new Date().toISOString();
-      await saveClients();
+      saveClients();
       sendCredentialsEmail(client).catch(e => console.error('[approve catch email]', e.message));
     }
   })();
@@ -826,7 +781,7 @@ app.get('/api/client-approve/:id', async (req, res) => {
       client.dashPassword = client.dashPassword || makePassword();
       client.liveUrl = `${BASE_URL}/preview/${client.previewToken}`;
       client.approvedAt = new Date().toISOString();
-      await saveClients();
+      saveClients();
       sendCredentialsEmail(client).catch(e => console.error('[client-approve catch email]', e.message));
     }
   })();
@@ -859,7 +814,7 @@ app.post('/api/client-update-intake/:id', async (req, res) => {
   if (!token || (token !== client.previewToken && token !== client.dashToken)) return res.status(403).json({ error: 'Invalid token' });
   client.data = { ...client.data, ...req.body, _updatedAt: new Date().toISOString() };
   client.updatedAt = new Date().toISOString();
-  await saveClients();
+  saveClients();
   try {
     if (client.status === 'active') {
       await runDeploy(client);
@@ -902,7 +857,7 @@ app.post('/api/stripe-webhook', async (req, res) => {
 app.get('/api/mini-me-consent/:id', (req, res) => {
   const client = clients[req.params.id];
   if (!client || client.previewToken !== req.query.token) return res.status(404).send('<h2>Not found</h2>');
-  client.miniMeConsent = true; client.miniMeConsentAt = new Date().toISOString(); await saveClients();
+  client.miniMeConsent = true; client.miniMeConsentAt = new Date().toISOString(); saveClients();
   sendEmail({ to: ADMIN_EMAIL, subject: `✅ Mini-Me Consent: ${client.data.businessName}`, html: `<p>${client.data.businessName} (${client.data.ownerName}) consented to Mini-Me. Timestamp: ${client.miniMeConsentAt}</p>` }).catch(() => {});
   res.send(`<html><body style="font-family:sans-serif;padding:60px;text-align:center;background:#f0fff4;"><h2 style="color:#00D68F;">✅ Consent Recorded!</h2><p>Thank you, ${client.data.ownerName||'there'}. We have your authorization to create your Mini-Me avatar.</p><p>Now upload your video clip using the link in your email!</p></body></html>`);
 });
@@ -910,7 +865,7 @@ app.get('/api/mini-me-consent/:id', (req, res) => {
 app.get('/api/mini-me-subscribe/:id', (req, res) => {
   const client = clients[req.params.id];
   if (!client || client.previewToken !== req.query.token) return res.status(404).send('<h2>Not found</h2>');
-  client.miniMeSubscribed = true; client.miniMeSubscribedAt = new Date().toISOString(); await saveClients();
+  client.miniMeSubscribed = true; client.miniMeSubscribedAt = new Date().toISOString(); saveClients();
   sendEmail({ to: ADMIN_EMAIL, subject: `💰 Mini-Me Subscription: ${client.data.businessName}`, html: `<p>${client.data.businessName} wants $59/mo Mini-Me subscription. Email: ${client.data.email}. Set up Stripe subscription.</p>` }).catch(() => {});
   res.send(`<html><body style="font-family:sans-serif;padding:60px;text-align:center;background:#f0f9ff;"><h2 style="color:#0066FF;">🎉 You're Signed Up for Mini-Me!</h2><p>Your $59/month subscription has been requested. We'll send a payment link shortly.</p><p>Questions? Call <strong>(228) 604-3200</strong></p></body></html>`);
 });
@@ -926,7 +881,7 @@ app.post('/api/video-upload', async (req, res) => {
     const isPromo = videoType === 'promo';
     if (isPromo) { client.promoVideoFile = videoFileName; client.promoVideoUploadedAt = new Date().toISOString(); }
     else { client.miniMeVideoFile = videoFileName; client.miniMeVideoUploadedAt = new Date().toISOString(); }
-    await saveClients();
+    saveClients();
     const setVideoLink = `${BASE_URL}/api/admin/set-video?adminKey=${ADMIN_KEY}&clientId=${client.id}&videoType=${isPromo?'promo':'miniMe'}&videoUrl=PASTE_URL_HERE`;
     await sendEmail({ to: ADMIN_EMAIL, subject: `🎬 Video Uploaded: ${client.data.businessName} — ${isPromo?'Promo':'Mini-Me'}`, html: `<div style="font-family:sans-serif;max-width:600px;"><h2 style="color:#0066FF;">${isPromo?'🎬 Promo Video':'🤖 Mini-Me Clip'} Received</h2><table style="width:100%;border-collapse:collapse;margin-bottom:20px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;"><tr style="background:#f9fafb;"><td style="padding:9px 14px;font-weight:700;">Business</td><td style="padding:9px 14px;">${client.data.businessName}</td></tr><tr><td style="padding:9px 14px;font-weight:700;">Owner</td><td style="padding:9px 14px;">${client.data.ownerName}</td></tr><tr style="background:#f9fafb;"><td style="padding:9px 14px;font-weight:700;">Email</td><td style="padding:9px 14px;">${client.data.email}</td></tr><tr><td style="padding:9px 14px;font-weight:700;">Phone</td><td style="padding:9px 14px;">${client.data.phone}</td></tr><tr style="background:#f9fafb;"><td style="padding:9px 14px;font-weight:700;">File</td><td style="padding:9px 14px;">${videoFileName}</td></tr><tr><td style="padding:9px 14px;font-weight:700;">Mini-Me Consent</td><td style="padding:9px 14px;">${client.miniMeConsent?'✅ '+client.miniMeConsentAt:'⏳ Pending'}</td></tr></table><div style="background:#f0f9ff;border:2px solid #0066FF;border-radius:12px;padding:20px;"><p style="font-weight:700;color:#0066FF;margin:0 0 10px;">📋 After producing the video:</p><p style="margin:0 0 10px;font-size:14px;color:#374151;">1. Host the finished video (YouTube, Vimeo, or direct URL)<br>2. Copy the URL<br>3. Replace PASTE_URL_HERE in the link below and open it in your browser to publish it to their site:</p><p style="font-family:monospace;font-size:12px;word-break:break-all;background:#fff;padding:12px;border-radius:6px;border:1px solid #e5e7eb;color:#374151;">${setVideoLink}</p></div></div>` });
     res.json({ success: true, message: "Video uploaded! We'll have your video ready within 48 hours." });
@@ -941,7 +896,7 @@ app.post('/api/admin/set-video', async (req, res) => {
   if (!client) return res.status(404).json({ error: 'Not found' });
   if (videoType === 'miniMe') client.data.miniMeVideoUrl = videoUrl;
   else client.data.promoVideoUrl = videoUrl;
-  client.updatedAt = new Date().toISOString(); await saveClients();
+  client.updatedAt = new Date().toISOString(); saveClients();
   if (client.cfProjectName) {
     (async () => { try { await deployToCloudflarePages(client.cfProjectName, generateSiteHTML(client.data, false)); } catch(e) { console.error('[set-video]', e.message); } })();
   }
@@ -990,18 +945,18 @@ app.post('/api/client-update', async (req, res) => {
       if (updateData['day_'+d] !== undefined) client.data['day_'+d] = updateData['day_'+d];
       if (updateData['hours_'+d] !== undefined) client.data['hours_'+d] = updateData['hours_'+d];
     });
-    client.updatedAt = new Date().toISOString(); await saveClients();
+    client.updatedAt = new Date().toISOString(); saveClients();
     if (client.cfProjectName) { (async()=>{ try{ await deployToCloudflarePages(client.cfProjectName, generateSiteHTML(client.data,false)); }catch(e){console.error('[hours re-deploy]',e.message);} })(); }
     sendEmail({ to: ADMIN_EMAIL, subject: `🕒 Hours Updated: ${client.data.businessName}`, html: `<p>${client.data.businessName} updated hours.</p>` }).catch(()=>{});
     return res.json({ success: true, message: 'Hours updated! Live site refreshing — changes appear within 30 seconds.' });
   }
   if (updateType === 'request_minime') {
-    client.data.wants_mini_me = 'yes'; await saveClients();
+    client.data.wants_mini_me = 'yes'; saveClients();
     await sendMiniMeEmail(client).catch(e=>console.error('[dashboard miniMe]',e.message));
     return res.json({ success: true, message: 'Mini-Me request received! Check your email for next steps.' });
   }
   if (updateType === 'request_free_video') {
-    client.freeVideoRequested = true; await saveClients();
+    client.freeVideoRequested = true; saveClients();
     await sendFreeVideoEmail(client).catch(e=>console.error('[dashboard video]',e.message));
     return res.json({ success: true, message: 'Free video request received! Check your email for next steps.' });
   }
@@ -1075,7 +1030,7 @@ app.post('/api/intake', async (req, res) => {
       freeVideoRequested: data.wants_free_video === 'yes' || data.wantsFreeVideo === 'yes',
       createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
     };
-    await saveClients();
+    saveClients();
     const previewUrl = `${BASE_URL}/preview/${previewToken}`;
     const approveUrl = `${BASE_URL}/api/approve/${id}?adminKey=${ADMIN_KEY}`;
     const d = data;
@@ -1128,8 +1083,4 @@ app.get('*', (req, res) => {
   }
 });
 
-// ── Boot: start server immediately, load Redis in background ──
-app.listen(PORT, () => {
-  console.log(`TurnkeyAI backend running on port ${PORT}`);
-  loadClients().catch(err => console.error('[boot] Redis load failed:', err.message));
-});
+app.listen(PORT, () => console.log(`TurnkeyAI backend running on port ${PORT}`));
