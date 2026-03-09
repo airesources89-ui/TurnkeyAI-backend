@@ -209,58 +209,98 @@ async function runDeploy(client) {
   return client;
 }
 
-// ── CHANGE 3: Honor colorPreference from intake form ──
+
+// ── FINALIZED DESIGN STANDARD: Gulf Coast Plumbing Template ──
+// Bebas Neue + DM Sans | Navy/Amber/Orange | Cinematic hero bg + slow-zoom
+// Trust bar | Service cards | Why Us | Reviews | Booking form | CTA | Footer
 function generateSiteHTML(data, isPreview) {
-  const biz = data.businessName || 'Your Business';
-  const owner = data.ownerName || '';
-  const phone = data.phone || '';
-  const email = data.email || '';
-  const city = data.city || data.targetCity || '';
-  const state = data.state || '';
-  const address = [data.address, city, state, data.zip].filter(Boolean).join(', ');
-  const about = data.aboutUs || '';
-  const tagline = data.missionStatement || `Quality service you can count on.`;
-  const industry = (data.industry || '').replace(/_/g, ' ');
-  const chatName = data.chatName || 'Chat With Us';
-  const chatPersonality = data.chatPersonality || 'friendly';
-  const advantage = data.competitiveAdvantage || '';
-  const awards = data.awards || '';
-  const ownerPhoto = data.ownerPhoto || '';
-  const workPhoto1 = data.workPhoto1 || '';
-  const workPhoto2 = data.workPhoto2 || '';
+  const biz      = data.businessName || 'Your Business';
+  const owner    = data.ownerName || '';
+  const phone    = data.phone || '';
+  const email    = data.email || '';
+  const city     = data.city || data.targetCity || '';
+  const state    = data.state || '';
+  const address  = [data.address, city, state, data.zip].filter(Boolean).join(', ');
+  const about    = data.aboutUs || '';
+  const tagline  = data.missionStatement || `Quality service you can count on.`;
+  const industry = (data.industry || 'local business').replace(/_/g, ' ');
+  const advantage= data.competitiveAdvantage || '';
+  const awards   = data.awards || '';
+  const ownerPhoto  = data.ownerPhoto || '';
   const miniMeVideo = data.miniMeVideoUrl || '';
   const chatEndpoint = `${BASE_URL}/api/chat`;
+  const chatName = data.chatName || 'Chat With Us';
+  const chatPersonality = data.chatPersonality || 'friendly';
 
-  const palettes = {
-    cleaning: { primary: '#2563eb', accent: '#06b6d4', dark: '#0f172a' },
-    agriculture: { primary: '#16a34a', accent: '#84cc16', dark: '#14532d' },
-    restaurant: { primary: '#dc2626', accent: '#f97316', dark: '#1c1917' },
-    plumbing: { primary: '#1d4ed8', accent: '#0ea5e9', dark: '#0f172a' },
-    landscaping: { primary: '#15803d', accent: '#65a30d', dark: '#14532d' },
-    fencing: { primary: '#b45309', accent: '#d97706', dark: '#1c1917' },
-    roofing: { primary: '#b91c1c', accent: '#f59e0b', dark: '#1c1917' },
-    hvac: { primary: '#0369a1', accent: '#0891b2', dark: '#0c4a6e' },
-    salon: { primary: '#7c3aed', accent: '#ec4899', dark: '#1e1b4b' },
-    auto_repair: { primary: '#1e40af', accent: '#f59e0b', dark: '#1e1b4b' },
+  // Industry hero image map (Unsplash CDN)
+  const heroImages = {
+    plumbing:    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+    electrician: 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1600&q=80',
+    electrical:  'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1600&q=80',
+    hvac:        'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1600&q=80',
+    roofing:     'https://images.unsplash.com/photo-1632823471565-1ecdf5c6da12?w=1600&q=80',
+    landscaping: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d84?w=1600&q=80',
+    lawn:        'https://images.unsplash.com/photo-1558618047-3c8c76ca7d84?w=1600&q=80',
+    cleaning:    'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1600&q=80',
+    auto_repair: 'https://images.unsplash.com/photo-1625047509168-a7026f36de04?w=1600&q=80',
+    automotive:  'https://images.unsplash.com/photo-1625047509168-a7026f36de04?w=1600&q=80',
+    restaurant:  'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=80',
+    salon:       'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&q=80',
+    fencing:     'https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?w=1600&q=80',
+    construction:'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80',
+    painting:    'https://images.unsplash.com/photo-1562259929-b4e1fd3aef09?w=1600&q=80',
+    pest_control:'https://images.unsplash.com/photo-1584467735871-8e85353a8413?w=1600&q=80',
+    agriculture: 'https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?w=1600&q=80',
+    default:     'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80',
   };
+  const industryKey = (data.industry || '').toLowerCase().replace(/ /g,'_');
+  const heroImage = heroImages[industryKey] || heroImages.default;
 
-  // CHANGE 3: Start with industry palette, then override with customer color preference
-  let pal = palettes[data.industry] || { primary: '#0066FF', accent: '#00D68F', dark: '#1a1a2e' };
+  // Font Awesome icon sets per industry
+  const industryIcons = {
+    plumbing:    ['fa-faucet-drip','fa-toilet','fa-fire-flame-curved','fa-pipe-section','fa-house-flood-water','fa-bolt'],
+    electrician: ['fa-bolt','fa-plug','fa-lightbulb','fa-solar-panel','fa-screwdriver-wrench','fa-shield-halved'],
+    electrical:  ['fa-bolt','fa-plug','fa-lightbulb','fa-solar-panel','fa-screwdriver-wrench','fa-shield-halved'],
+    hvac:        ['fa-wind','fa-temperature-half','fa-fan','fa-snowflake','fa-fire','fa-wrench'],
+    roofing:     ['fa-house-chimney','fa-hammer','fa-hard-hat','fa-cloud-rain','fa-shield-halved','fa-star'],
+    landscaping: ['fa-leaf','fa-seedling','fa-tree','fa-scissors','fa-sun','fa-tractor'],
+    lawn:        ['fa-leaf','fa-seedling','fa-tree','fa-scissors','fa-sun','fa-tractor'],
+    cleaning:    ['fa-broom','fa-spray-can','fa-soap','fa-star','fa-shield-halved','fa-house'],
+    auto_repair: ['fa-car','fa-wrench','fa-oil-can','fa-gear','fa-gauge-high','fa-screwdriver-wrench'],
+    restaurant:  ['fa-utensils','fa-pizza-slice','fa-burger','fa-wine-glass','fa-star','fa-clock'],
+    salon:       ['fa-scissors','fa-spa','fa-star','fa-heart','fa-clock','fa-shield-halved'],
+    default:     ['fa-star','fa-shield-halved','fa-wrench','fa-thumbs-up','fa-clock','fa-phone'],
+  };
+  const iconSet = industryIcons[industryKey] || industryIcons.default;
+
+  // Color palette — navy/amber standard with industry + colorPreference overrides
+  const palettes = {
+    plumbing:    { primary: '#0a1628', accent: '#f59e0b', accent2: '#e85d04' },
+    electrician: { primary: '#0f172a', accent: '#f59e0b', accent2: '#eab308' },
+    electrical:  { primary: '#0f172a', accent: '#f59e0b', accent2: '#eab308' },
+    hvac:        { primary: '#0c1a2e', accent: '#38bdf8', accent2: '#0ea5e9' },
+    roofing:     { primary: '#1c0a0a', accent: '#f59e0b', accent2: '#b91c1c' },
+    landscaping: { primary: '#14532d', accent: '#84cc16', accent2: '#16a34a' },
+    lawn:        { primary: '#14532d', accent: '#84cc16', accent2: '#16a34a' },
+    cleaning:    { primary: '#0a1628', accent: '#06b6d4', accent2: '#0891b2' },
+    auto_repair: { primary: '#1e1b4b', accent: '#f59e0b', accent2: '#f97316' },
+    restaurant:  { primary: '#1c0a0a', accent: '#f97316', accent2: '#dc2626' },
+    salon:       { primary: '#1e1b4b', accent: '#ec4899', accent2: '#a855f7' },
+    default:     { primary: '#0a1628', accent: '#f59e0b', accent2: '#e85d04' },
+  };
+  let pal = palettes[industryKey] || palettes.default;
   if (data.colorPreference) {
     const cp = data.colorPreference.toLowerCase();
-    if (cp.includes('red')) pal = { ...pal, primary: '#dc2626', accent: '#f97316', dark: '#1c0a0a' };
-    else if (cp.includes('green')) pal = { ...pal, primary: '#16a34a', accent: '#84cc16', dark: '#14532d' };
-    else if (cp.includes('purple')) pal = { ...pal, primary: '#7c3aed', accent: '#a78bfa', dark: '#1e1b4b' };
-    else if (cp.includes('orange')) pal = { ...pal, primary: '#ea580c', accent: '#f59e0b', dark: '#1c1917' };
-    else if (cp.includes('teal') || cp.includes('turquoise')) pal = { ...pal, primary: '#0d9488', accent: '#06b6d4', dark: '#042f2e' };
-    else if (cp.includes('black') || cp.includes('dark')) pal = { ...pal, primary: '#1f2937', accent: '#6b7280', dark: '#030712' };
-    else if (cp.includes('gold') || cp.includes('yellow')) pal = { ...pal, primary: '#b45309', accent: '#f59e0b', dark: '#1c1917' };
-    else if (cp.includes('pink')) pal = { ...pal, primary: '#db2777', accent: '#f472b6', dark: '#1f0a14' };
-    else if (cp.includes('brown') || cp.includes('earth')) pal = { ...pal, primary: '#92400e', accent: '#d97706', dark: '#1c1008' };
-    else if (cp.includes('blue')) pal = { ...pal, primary: '#0066FF', accent: '#00D68F', dark: '#1a1a2e' };
-    else if (cp.includes('white') || cp.includes('clean') || cp.includes('light')) pal = { ...pal, primary: '#0066FF', accent: '#00D68F', dark: '#f8fafc' };
+    if      (cp.includes('red'))    pal = { primary: '#1c0a0a', accent: '#f59e0b', accent2: '#dc2626' };
+    else if (cp.includes('green'))  pal = { primary: '#14532d', accent: '#84cc16', accent2: '#16a34a' };
+    else if (cp.includes('purple')) pal = { primary: '#1e1b4b', accent: '#a78bfa', accent2: '#7c3aed' };
+    else if (cp.includes('orange')) pal = { primary: '#1c1917', accent: '#f59e0b', accent2: '#ea580c' };
+    else if (cp.includes('teal'))   pal = { primary: '#042f2e', accent: '#06b6d4', accent2: '#0d9488' };
+    else if (cp.includes('blue'))   pal = { primary: '#0a1628', accent: '#38bdf8', accent2: '#0066FF' };
+    else if (cp.includes('pink'))   pal = { primary: '#1e1b4b', accent: '#ec4899', accent2: '#a855f7' };
   }
 
+  // Services
   const serviceItems = [];
   Object.keys(data).forEach(k => {
     if (k.startsWith('service_') && data[k] === 'on') {
@@ -273,14 +313,17 @@ function generateSiteHTML(data, isPreview) {
     data.additionalServices.split('\n').forEach(s => s.trim() && serviceItems.push({ name: s.trim(), price: '' }));
   }
 
+  // Hours
   const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
   const dayLabels = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  const hoursData = days.map((d, i) => data['day_' + d] ? { label: dayLabels[i], hours: data['hours_' + d] || 'Open' } : null).filter(Boolean);
+  const hoursData = days.map((d,i) => data['day_'+d] ? { label: dayLabels[i], hours: data['hours_'+d] || 'Open' } : null).filter(Boolean);
 
+  // Payment
   const payKeys = ['cash','card','check','venmo','cashapp','zelle'];
   const payLabels = { cash:'Cash', card:'Credit/Debit Card', check:'Check', venmo:'Venmo', cashapp:'CashApp', zelle:'Zelle' };
-  const payMethods = payKeys.filter(k => data['pay_' + k]).map(k => payLabels[k]).join(' · ');
+  const payMethods = payKeys.filter(k => data['pay_'+k]).map(k => payLabels[k]).join(' · ');
 
+  // Preview approval
   const clientId = data.id || '';
   const previewToken = data._previewToken || '';
   const clientApproveUrl = clientId && previewToken ? `${BASE_URL}/api/client-approve/${clientId}?token=${previewToken}` : '';
@@ -356,174 +399,365 @@ function generateSiteHTML(data, isPreview) {
         .catch(function(){alert('Send failed. Please email george@turnkeyaiservices.com');});
       }
       <\/script>`
-    : `<div style="background:${pal.dark};color:rgba(255,255,255,.7);text-align:center;padding:10px 24px;font-size:13px;">⚡ Powered by <a href="https://turnkeyaiservices.com" style="color:${pal.accent};font-weight:700;text-decoration:none;">TurnkeyAI Services</a> — AI-Powered Websites for Local Business</div>`;
+    : `<div style="background:${pal.primary};color:rgba(255,255,255,.7);text-align:center;padding:10px 24px;font-size:13px;">⚡ Powered by <a href="https://turnkeyaiservices.com" style="color:${pal.accent};font-weight:700;text-decoration:none;">TurnkeyAI Services</a> — AI-Powered Websites for Local Business</div>`;
 
-  const navPhone = phone ? `<a href="tel:${phone.replace(/\D/g,'')}" style="background:${pal.accent};color:${pal.dark};padding:10px 22px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:6px;">📞 ${phone}</a>` : '';
-
-  const servicesGrid = serviceItems.length ? serviceItems.map(s => `
-    <div style="background:white;border:1px solid #e5e7eb;border-radius:12px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,.05);">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div style="width:10px;height:10px;background:${pal.accent};border-radius:50%;flex-shrink:0;"></div>
-        <span style="font-size:16px;color:#1f2937;font-weight:500;">${s.name}</span>
+  // Service cards
+  const serviceCardsHTML = serviceItems.map((s, i) => `
+    <div class="svc-card" style="background:white;border-radius:14px;padding:1.8rem;box-shadow:0 4px 24px rgba(10,22,40,.08);border:1px solid rgba(10,22,40,.06);transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden;">
+      <div style="width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,${pal.accent},${pal.accent2});display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:white;margin-bottom:1.1rem;">
+        <i class="fas ${iconSet[i % iconSet.length]}"></i>
       </div>
-      ${s.price ? `<span style="font-weight:700;color:${pal.primary};font-size:16px;white-space:nowrap;">${s.price}</span>` : ''}
-    </div>`).join('') : '';
+      <h3 style="font-size:1.05rem;font-weight:700;color:#1e293b;margin-bottom:.5rem;">${s.name}</h3>
+      ${s.price ? `<p style="font-weight:700;color:${pal.accent};font-size:1rem;">${s.price}</p>` : '<p style="font-size:.88rem;color:#64748b;line-height:1.6;">Professional service you can count on.</p>'}
+    </div>`).join('');
 
-  const hoursGrid = hoursData.length ? hoursData.map(h => `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.1);">
-      <span style="color:rgba(255,255,255,.8);font-size:15px;">${h.label}</span>
-      <span style="color:white;font-weight:600;font-size:15px;">${h.hours}</span>
-    </div>`).join('') : '';
+  // Hours rows
+  const hoursRows = hoursData.map(h => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.08);">
+      <span style="color:rgba(255,255,255,.75);font-size:.95rem;">${h.label}</span>
+      <span style="color:white;font-weight:600;font-size:.95rem;">${h.hours}</span>
+    </div>`).join('');
 
+  // Mini-Me video section
   const miniMeSection = miniMeVideo ? `
-    <section style="padding:80px 24px;background:${pal.dark};text-align:center;">
+    <section style="padding:5rem 1.5rem;background:${pal.primary};text-align:center;">
       <div style="max-width:680px;margin:0 auto;">
-        <div style="display:inline-block;background:${pal.accent};color:${pal.dark};padding:6px 18px;border-radius:20px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;">A Message From ${owner || 'Our Team'}</div>
-        <h2 style="font-family:Georgia,serif;font-size:36px;color:white;margin:0 0 24px;">Meet ${owner || 'Us'} Personally</h2>
+        <div style="display:inline-block;background:${pal.accent};color:${pal.primary};padding:5px 16px;border-radius:50px;font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:1.2rem;">A Message From ${owner||'Our Team'}</div>
+        <h2 style="font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:white;letter-spacing:1.5px;margin:0 0 1.5rem;">Meet Us Personally</h2>
         <video src="${miniMeVideo}" controls style="width:100%;border-radius:16px;max-height:380px;box-shadow:0 20px 60px rgba(0,0,0,.5);"></video>
       </div>
     </section>` : '';
 
-  const photosSection = (ownerPhoto || workPhoto1 || workPhoto2) ? `
-    <section style="padding:80px 24px;background:#f8fafc;">
-      <div style="max-width:1000px;margin:0 auto;">
-        <div style="text-align:center;margin-bottom:48px;">
-          <div style="display:inline-block;background:${pal.primary}18;color:${pal.primary};padding:6px 18px;border-radius:20px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;">Our Work</div>
-          <h2 style="font-family:Georgia,serif;font-size:36px;color:${pal.dark};margin:0;">See What We Do</h2>
-        </div>
-        <div style="display:grid;grid-template-columns:${(ownerPhoto && (workPhoto1 || workPhoto2)) ? '1fr 1fr' : '1fr'};gap:24px;">
-          ${ownerPhoto ? `<div style="border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.1);"><img src="${ownerPhoto}" alt="${owner}" style="width:100%;height:320px;object-fit:cover;display:block;"></div>` : ''}
-          ${(workPhoto1 || workPhoto2) ? `<div style="display:grid;grid-template-rows:${workPhoto1 && workPhoto2 ? '1fr 1fr' : '1fr'};gap:16px;">${workPhoto1 ? `<div style="border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.1);"><img src="${workPhoto1}" alt="Our work" style="width:100%;height:${workPhoto2?'152px':'320px'};object-fit:cover;display:block;"></div>` : ''}${workPhoto2 ? `<div style="border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.1);"><img src="${workPhoto2}" alt="Our work" style="width:100%;height:152px;object-fit:cover;display:block;"></div>` : ''}</div>` : ''}
-        </div>
-      </div>
-    </section>` : '';
-
-  const chatSystem = `${owner ? `You work for ${biz}, a ${industry} business in ${city}.` : `You represent ${biz}.`} Be ${chatPersonality}. Answer questions about services, pricing, hours, and location. Phone: ${phone}. Email: ${email}. ${advantage ? 'What sets us apart: ' + advantage : ''}`;
+  // Chat system prompt
+  const chatSystem = `You work for ${biz}, a ${industry} business in ${city}. Be ${chatPersonality}. Answer questions about services, pricing, hours, and location. Phone: ${phone}. Email: ${email}. ${advantage ? 'What sets us apart: '+advantage : ''}`;
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${biz}${isPreview ? ' | PREVIEW' : ''} | ${city}</title>
-  <meta name="description" content="${tagline} Serving ${city}${state ? ', ' + state : ''} and surrounding areas.${phone ? ' Call ' + phone : ''}">
+  <title>${biz}${isPreview?' | PREVIEW':''} | ${city}</title>
+  <meta name="description" content="${tagline} Serving ${city}${state?', '+state:''} and surrounding areas.${phone?' Call '+phone:''}">
   <meta property="og:title" content="${biz}">
   <meta property="og:description" content="${tagline}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; color: #1f2937; background: white; line-height: 1.6; -webkit-font-smoothing: antialiased; }
-    img { max-width: 100%; }
-    a { color: inherit; }
-    @media (max-width: 640px) {
-      .hero-ctas { flex-direction: column !important; align-items: stretch !important; }
-      .hero-ctas a { text-align: center !important; }
-      .about-grid { grid-template-columns: 1fr !important; }
-      .services-grid-inner { grid-template-columns: 1fr !important; }
-      .hours-contact-grid { grid-template-columns: 1fr !important; }
-      .nav-phone { display: none !important; }
-    }
-    #chatWidget { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
-    #chatToggleBtn { background: linear-gradient(135deg, ${pal.primary}, ${pal.dark}); color: white; border: none; border-radius: 50px; padding: 14px 22px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 24px ${pal.primary}55; font-family: inherit; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
-    #chatBox { display: none; flex-direction: column; background: white; border-radius: 20px; box-shadow: 0 12px 48px rgba(0,0,0,.2); width: 340px; max-height: 480px; overflow: hidden; border: 1px solid #e5e7eb; }
-    #chatHeader { background: linear-gradient(135deg, ${pal.primary}, ${pal.dark}); color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
-    #chatMessages { flex: 1; overflow-y: auto; padding: 16px; min-height: 220px; background: #f9fafb; }
-    #chatInputRow { padding: 12px; border-top: 1px solid #e5e7eb; display: flex; gap: 8px; background: white; }
-    #chatInput { flex: 1; padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px; font-family: inherit; outline: none; transition: border-color .2s; }
-    #chatInput:focus { border-color: ${pal.primary}; }
-    #chatSendBtn { background: ${pal.primary}; color: white; border: none; border-radius: 10px; padding: 10px 18px; cursor: pointer; font-weight: 700; font-size: 14px; font-family: inherit; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;color:#1e293b;background:#050d1a;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+    img{max-width:100%}
+    a{color:inherit}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(10,22,40,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(245,158,11,.18)}
+    .nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:2px}
+    .nav-logo span{color:${pal.accent}}
+    .nav-links{display:flex;gap:1.5rem;list-style:none;align-items:center}
+    .nav-links a{color:rgba(255,255,255,.8);text-decoration:none;font-size:.88rem;font-weight:500;letter-spacing:.4px;transition:color .2s}
+    .nav-links a:hover{color:${pal.accent}}
+    .nav-cta{background:${pal.accent}!important;color:${pal.primary}!important;padding:.5rem 1.2rem;border-radius:6px;font-weight:700!important;transition:background .2s!important}
+    .nav-cta:hover{background:${pal.accent2}!important;color:white!important}
+    .hero{min-height:100vh;position:relative;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;padding-top:70px}
+    .hero-bg{position:absolute;inset:0;background-image:url('${heroImage}');background-size:cover;background-position:center;animation:slowZoom 20s ease-in-out infinite alternate}
+    @keyframes slowZoom{from{transform:scale(1.03)}to{transform:scale(1.1)}}
+    .hero-overlay{position:absolute;inset:0;background:linear-gradient(160deg,rgba(10,22,40,.93) 0%,rgba(26,58,107,.72) 55%,rgba(232,93,4,.18) 100%)}
+    .hero-content{position:relative;z-index:2;max-width:820px;padding:0 1.5rem;animation:fadeUp .9s ease both}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);color:${pal.accent};font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.4rem 1rem;border-radius:50px;margin-bottom:1.4rem}
+    .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.2rem,8vw,6rem);color:white;line-height:1;letter-spacing:2px;margin-bottom:1.1rem}
+    .hero h1 span{color:${pal.accent}}
+    .hero p{font-size:1.1rem;color:rgba(255,255,255,.82);line-height:1.7;max-width:540px;margin:0 auto 2rem}
+    .hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+    .btn-primary{background:${pal.accent};color:${pal.primary};padding:.85rem 1.9rem;border-radius:8px;font-weight:700;font-size:.97rem;text-decoration:none;border:none;cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:.5rem;font-family:inherit}
+    .btn-primary:hover{background:${pal.accent2};color:white;transform:translateY(-2px);box-shadow:0 8px 25px rgba(245,158,11,.4)}
+    .btn-outline{background:transparent;color:white;padding:.85rem 1.9rem;border-radius:8px;font-weight:600;font-size:.97rem;text-decoration:none;border:2px solid rgba(255,255,255,.35);cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:.5rem}
+    .btn-outline:hover{border-color:${pal.accent};color:${pal.accent};transform:translateY(-2px)}
+    .hero-stats{display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap;margin-top:2.5rem}
+    .stat{text-align:center}
+    .stat strong{display:block;font-family:'Bebas Neue',sans-serif;font-size:2rem;color:${pal.accent};letter-spacing:1px}
+    .stat span{font-size:.75rem;color:rgba(255,255,255,.55);letter-spacing:.5px}
+    .trust-bar{background:${pal.accent};padding:.85rem 2rem;display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap}
+    .trust-bar span{font-size:.78rem;font-weight:700;color:${pal.primary};letter-spacing:.5px;display:flex;align-items:center;gap:.4rem;text-transform:uppercase}
+    section{padding:5.5rem 1.5rem}
+    .container{max-width:1080px;margin:0 auto}
+    .section-label{font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${pal.accent};margin-bottom:.5rem}
+    .section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3.2rem);letter-spacing:1.5px;line-height:1.05;margin-bottom:.9rem}
+    .section-sub{font-size:1rem;color:#64748b;line-height:1.7;max-width:520px}
+    .services-section{background:#f0f4ff}
+    .services-section .section-title{color:#0a1628}
+    .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.4rem;margin-top:2.8rem}
+    .svc-card:hover{transform:translateY(-5px)!important;box-shadow:0 16px 48px rgba(10,22,40,.14)!important}
+    .svc-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${pal.accent},${pal.accent2});transform:scaleX(0);transition:transform .3s}
+    .svc-card:hover::after{transform:scaleX(1)}
+    .why-section{background:${pal.primary};position:relative;overflow:hidden}
+    .why-bg{position:absolute;inset:0;background-image:url('${heroImage}');background-size:cover;background-position:center;opacity:.07}
+    .why-section .section-title{color:white}
+    .why-section .section-sub{color:rgba(255,255,255,.6)}
+    .why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.4rem;margin-top:2.8rem}
+    .why-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:1.7rem;transition:background .25s,transform .25s}
+    .why-card:hover{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);transform:translateY(-4px)}
+    .why-card i{font-size:1.7rem;color:${pal.accent};margin-bottom:.9rem;display:block}
+    .why-card h4{font-size:.97rem;font-weight:700;color:white;margin-bottom:.45rem}
+    .why-card p{font-size:.84rem;color:rgba(255,255,255,.5);line-height:1.6}
+    .reviews-section{background:white}
+    .reviews-section .section-title{color:#0a1628}
+    .reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.4rem;margin-top:2.8rem}
+    .review-card{background:#f0f4ff;border-radius:14px;padding:1.7rem;border-left:4px solid ${pal.accent};box-shadow:0 2px 16px rgba(10,22,40,.06);transition:transform .2s,box-shadow .2s}
+    .review-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(10,22,40,.1)}
+    .stars{color:${pal.accent};font-size:.88rem;margin-bottom:.75rem}
+    .review-card p{font-size:.92rem;color:#1e293b;line-height:1.7;font-style:italic;margin-bottom:.9rem}
+    .reviewer{font-size:.8rem;font-weight:700;color:#0a1628;letter-spacing:.3px}
+    .booking-section{background:#f0f4ff}
+    .booking-section .section-title{color:#0a1628}
+    .booking-wrap{display:grid;grid-template-columns:1fr 1fr;gap:3rem;margin-top:2.8rem;align-items:start}
+    .booking-info h3{font-size:1.2rem;font-weight:700;color:#0a1628;margin-bottom:.9rem}
+    .booking-info p{font-size:.92rem;color:#64748b;line-height:1.7;margin-bottom:1.4rem}
+    .booking-perks{list-style:none;display:flex;flex-direction:column;gap:.65rem}
+    .booking-perks li{display:flex;align-items:center;gap:.55rem;font-size:.9rem;color:#1e293b}
+    .booking-perks li i{color:${pal.accent};font-size:.85rem}
+    .booking-form{background:white;border-radius:16px;padding:2rem;box-shadow:0 8px 32px rgba(10,22,40,.1);border:1px solid rgba(10,22,40,.07)}
+    .booking-form h4{font-size:1.05rem;font-weight:700;color:#0a1628;margin-bottom:1.4rem}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:.9rem}
+    .form-group{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.9rem}
+    .form-group label{font-size:.72rem;font-weight:700;color:#0a1628;letter-spacing:.3px;text-transform:uppercase}
+    .form-group input,.form-group select,.form-group textarea{border:1.5px solid #e2e8f0;border-radius:8px;padding:.65rem .85rem;font-size:.9rem;font-family:inherit;color:#1e293b;background:#f8fafc;transition:border-color .2s;outline:none}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:${pal.accent};box-shadow:0 0 0 3px rgba(245,158,11,.12)}
+    .form-group textarea{resize:vertical;min-height:75px}
+    .btn-book{width:100%;background:${pal.accent};color:${pal.primary};border:none;border-radius:8px;padding:.88rem;font-size:.97rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s,transform .2s;display:flex;align-items:center;justify-content:center;gap:.5rem}
+    .btn-book:hover{background:${pal.accent2};color:white;transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,158,11,.35)}
+    .form-note{font-size:.72rem;color:#64748b;text-align:center;margin-top:.65rem}
+    .cta-section{background:linear-gradient(135deg,${pal.primary} 0%,#1a3a6b 60%,rgba(232,93,4,.2) 100%);position:relative;overflow:hidden;text-align:center}
+    .cta-section::before{content:'';position:absolute;inset:0;background-image:url('${heroImage}');background-size:cover;background-position:center;opacity:.06}
+    .cta-section .container{position:relative;z-index:2}
+    .cta-section .section-title{color:white}
+    .cta-section p{color:rgba(255,255,255,.75);font-size:1.05rem;max-width:480px;margin:0 auto 2.2rem;line-height:1.7}
+    .cta-phone{display:block;font-family:'Bebas Neue',sans-serif;font-size:2.6rem;color:${pal.accent};text-decoration:none;letter-spacing:2px;margin-bottom:1.4rem;transition:color .2s}
+    .cta-phone:hover{color:white}
+    footer{background:#050d1a;padding:2.5rem 1.5rem 1.8rem;border-top:1px solid rgba(245,158,11,.15)}
+    .footer-inner{max-width:1080px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.2rem}
+    .footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:white;letter-spacing:2px}
+    .footer-logo span{color:${pal.accent}}
+    .footer-links{display:flex;gap:1.4rem}
+    .footer-links a{color:rgba(255,255,255,.45);font-size:.82rem;text-decoration:none;transition:color .2s}
+    .footer-links a:hover{color:${pal.accent}}
+    .footer-copy{color:rgba(255,255,255,.25);font-size:.75rem;width:100%;text-align:center;margin-top:1.4rem;padding-top:1.4rem;border-top:1px solid rgba(255,255,255,.06)}
+    #chatWidget{position:fixed;bottom:24px;right:24px;z-index:9999}
+    #chatToggleBtn{background:linear-gradient(135deg,${pal.accent},${pal.accent2});color:${pal.primary};border:none;border-radius:50px;padding:13px 20px;font-size:.92rem;font-weight:700;cursor:pointer;box-shadow:0 6px 24px rgba(245,158,11,.4);font-family:inherit;display:flex;align-items:center;gap:8px;white-space:nowrap}
+    #chatBox{display:none;flex-direction:column;background:white;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.2);width:330px;max-height:470px;overflow:hidden;border:1px solid #e5e7eb}
+    #chatHeader{background:linear-gradient(135deg,${pal.primary},#1a3a6b);color:white;padding:15px 18px;display:flex;justify-content:space-between;align-items:center}
+    #chatMessages{flex:1;overflow-y:auto;padding:14px;min-height:210px;background:#f9fafb}
+    #chatInputRow{padding:11px;border-top:1px solid #e5e7eb;display:flex;gap:8px;background:white}
+    #chatInput{flex:1;padding:9px 13px;border:2px solid #e5e7eb;border-radius:10px;font-size:.88rem;font-family:inherit;outline:none;transition:border-color .2s}
+    #chatInput:focus{border-color:${pal.accent}}
+    #chatSendBtn{background:${pal.accent};color:${pal.primary};border:none;border-radius:10px;padding:9px 16px;cursor:pointer;font-weight:700;font-size:.88rem;font-family:inherit}
+    .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    @media(max-width:768px){.booking-wrap{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.nav-links li:not(:last-child){display:none}}
+    @media(max-width:400px){#chatBox{width:calc(100vw - 32px)}}
   </style>
 </head>
 <body>
 
 ${previewBanner}
 
-<nav style="background:white;border-bottom:1px solid #e5e7eb;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.06);">
-  <div style="font-size:20px;font-weight:700;color:${pal.dark};">${biz}</div>
-  <div style="display:flex;align-items:center;gap:16px;">
-    <a href="#services" style="color:#6b7280;text-decoration:none;font-size:14px;font-weight:500;">Services</a>
-    <a href="#about" style="color:#6b7280;text-decoration:none;font-size:14px;font-weight:500;">About</a>
-    <a href="#contact" style="color:#6b7280;text-decoration:none;font-size:14px;font-weight:500;">Contact</a>
-    ${navPhone}
-  </div>
+<nav>
+  <div class="nav-logo">${biz.split(' ').slice(0,-1).join(' ')||biz} <span>${biz.split(' ').length > 1 ? biz.split(' ').slice(-1)[0] : ''}</span></div>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#why">Why Us</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#booking">Book Now</a></li>
+    <li><a href="#contact" class="nav-cta">Get a Quote</a></li>
+  </ul>
 </nav>
 
-<section style="background:linear-gradient(135deg, ${pal.dark} 0%, ${pal.primary}cc 60%, ${pal.accent}44 100%);padding:100px 24px 90px;text-align:center;position:relative;overflow:hidden;">
-  <div style="position:relative;max-width:720px;margin:0 auto;">
-    <div style="display:inline-block;background:${pal.accent}22;border:1px solid ${pal.accent}55;color:${pal.accent};padding:6px 18px;border-radius:20px;font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px;">${industry || 'Local Business'} · ${city}${state ? ', ' + state : ''}</div>
-    <h1 style="font-family:'Playfair Display',Georgia,serif;font-size:clamp(36px,6vw,64px);font-weight:700;color:white;margin:0 0 20px;line-height:1.15;">${biz}</h1>
-    <p style="font-size:clamp(16px,2.5vw,20px);color:rgba(255,255,255,.85);max-width:560px;margin:0 auto 40px;line-height:1.7;">${tagline}</p>
-    <div class="hero-ctas" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
-      ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" style="background:${pal.accent};color:${pal.dark};padding:18px 36px;border-radius:12px;text-decoration:none;font-weight:700;font-size:17px;display:inline-block;box-shadow:0 6px 24px ${pal.accent}55;">📞 Call Now — ${phone}</a>` : ''}
-      <a href="#contact" style="background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.35);color:white;padding:18px 36px;border-radius:12px;text-decoration:none;font-weight:700;font-size:17px;display:inline-block;backdrop-filter:blur(10px);">Get a Free Quote →</a>
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><i class="fas fa-shield-halved"></i> Licensed &amp; Insured · ${city}${state?', '+state:''}</div>
+    <h1>${biz.split(' ').slice(0,-1).join(' ')||biz} <span>${biz.split(' ').length > 1 ? biz.split(' ').slice(-1)[0] : ''}</span></h1>
+    <p>${tagline}</p>
+    <div class="hero-btns">
+      ${phone?`<a href="tel:${phone.replace(/\D/g,'')}" class="btn-primary"><i class="fas fa-phone"></i> Call Now — Free Estimate</a>`:''}
+      <a href="#services" class="btn-outline"><i class="fas fa-wrench"></i> Our Services</a>
     </div>
-    ${awards ? `<p style="margin-top:32px;color:rgba(255,255,255,.6);font-size:14px;">🏆 ${awards}</p>` : ''}
+    <div class="hero-stats">
+      ${awards?`<div class="stat"><strong>🏆</strong><span>${awards}</span></div>`:''}
+      <div class="stat"><strong>5★</strong><span>Average Rating</span></div>
+      <div class="stat"><strong>24/7</strong><span>Emergency Line</span></div>
+      <div class="stat"><strong>100%</strong><span>Satisfaction</span></div>
+    </div>
   </div>
 </section>
+
+<div class="trust-bar reveal">
+  <span><i class="fas fa-check-circle"></i> Licensed &amp; Bonded</span>
+  <span><i class="fas fa-clock"></i> Same-Day Service</span>
+  <span><i class="fas fa-dollar-sign"></i> Upfront Pricing</span>
+  <span><i class="fas fa-star"></i> 5-Star Rated</span>
+  <span><i class="fas fa-map-marker-alt"></i> ${city}${state?', '+state:''} &amp; Surrounding Areas</span>
+</div>
 
 ${miniMeSection}
 
 ${serviceItems.length ? `
-<section id="services" style="padding:80px 24px;background:white;">
-  <div style="max-width:1000px;margin:0 auto;">
-    <div style="text-align:center;margin-bottom:52px;">
-      <div style="display:inline-block;background:${pal.primary}12;color:${pal.primary};padding:6px 18px;border-radius:20px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;">What We Offer</div>
-      <h2 style="font-family:'Playfair Display',Georgia,serif;font-size:clamp(28px,4vw,42px);color:${pal.dark};margin:0 0 12px;">Our Services</h2>
-      <p style="color:#6b7280;font-size:16px;max-width:480px;margin:0 auto;">Proudly serving ${city}${state ? ', ' + state : ''} and surrounding areas</p>
+<section class="services-section" id="services">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">What We Do</div>
+      <h2 class="section-title">Our Services</h2>
+      <p class="section-sub">Proudly serving ${city}${state?', '+state:''} and surrounding areas with professional ${industry} services.</p>
     </div>
-    <div class="services-grid-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-      ${servicesGrid}
-    </div>
-    ${payMethods ? `<div style="text-align:center;margin-top:32px;padding:20px;background:#f8fafc;border-radius:12px;"><p style="color:#6b7280;font-size:15px;">💳 We accept: <strong style="color:${pal.dark};">${payMethods}</strong></p></div>` : ''}
+    <div class="services-grid">${serviceCardsHTML}</div>
+    ${payMethods?`<div class="reveal" style="text-align:center;margin-top:2rem;padding:1.2rem;background:white;border-radius:10px;box-shadow:0 2px 12px rgba(10,22,40,.06);"><p style="color:#64748b;font-size:.92rem;">💳 We accept: <strong style="color:#0a1628;">${payMethods}</strong></p></div>`:''}
   </div>
 </section>` : ''}
 
-${(about || ownerPhoto || advantage) ? `
-<section id="about" style="padding:80px 24px;background:#f8fafc;">
-  <div style="max-width:1000px;margin:0 auto;">
-    <div class="about-grid" style="display:grid;grid-template-columns:${ownerPhoto ? '1fr 1fr' : '1fr'};gap:56px;align-items:center;">
-      <div>
-        <div style="display:inline-block;background:${pal.primary}12;color:${pal.primary};padding:6px 18px;border-radius:20px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;">Our Story</div>
-        <h2 style="font-family:'Playfair Display',Georgia,serif;font-size:clamp(28px,4vw,40px);color:${pal.dark};margin:0 0 20px;">About ${biz}</h2>
-        ${about ? `<p style="font-size:16px;color:#374151;line-height:1.85;margin-bottom:20px;">${about}</p>` : ''}
-        ${advantage ? `<div style="display:flex;align-items:flex-start;gap:12px;padding:16px 20px;background:white;border-radius:12px;border-left:4px solid ${pal.accent};margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.05);"><span style="font-size:20px;">💪</span><p style="color:#374151;font-size:15px;line-height:1.6;margin:0;">${advantage}</p></div>` : ''}
-        ${data.ownerBackground ? `<p style="font-size:15px;color:#6b7280;line-height:1.7;">${data.ownerBackground}</p>` : ''}
+<section class="why-section" id="why">
+  <div class="why-bg"></div>
+  <div class="container" style="position:relative;z-index:2;">
+    <div class="reveal">
+      <div class="section-label">Why Choose Us</div>
+      <h2 class="section-title">The ${city} Standard</h2>
+      <p class="section-sub">We're not just a ${industry} company — we're your neighbors. We show up, do it right, and treat your property like our own.</p>
+    </div>
+    <div class="why-grid">
+      <div class="why-card reveal"><i class="fas fa-stopwatch"></i><h4>Fast Response</h4><p>Same-day service available. For emergencies, we target a 60-minute arrival window in our service area.</p></div>
+      <div class="why-card reveal"><i class="fas fa-tag"></i><h4>Upfront Pricing</h4><p>You're quoted a flat price before we start. No surprises, no hourly mystery charges, ever.</p></div>
+      <div class="why-card reveal"><i class="fas fa-certificate"></i><h4>Licensed Professionals</h4><p>Every job is performed by fully licensed and insured technicians — never a helper or sub.</p></div>
+      <div class="why-card reveal"><i class="fas fa-broom"></i><h4>Clean Job Sites</h4><p>We protect your property, clean up completely, and leave things better than we found them.</p></div>
+    </div>
+    ${advantage?`<div class="reveal" style="margin-top:2.5rem;background:rgba(255,255,255,.07);border:1px solid rgba(245,158,11,.3);border-radius:14px;padding:1.5rem 2rem;display:flex;align-items:flex-start;gap:1rem;"><i class="fas fa-trophy" style="color:${pal.accent};font-size:1.5rem;margin-top:.2rem;flex-shrink:0;"></i><p style="color:rgba(255,255,255,.85);line-height:1.7;font-size:.97rem;">${advantage}</p></div>`:''}
+  </div>
+</section>
+
+${about||ownerPhoto?`
+<section style="padding:5.5rem 1.5rem;background:white;" id="about">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:${ownerPhoto?'1fr 1fr':'1fr'};gap:3.5rem;align-items:center;">
+      <div class="reveal">
+        <div class="section-label">Our Story</div>
+        <h2 class="section-title" style="color:#0a1628;">About ${biz}</h2>
+        ${about?`<p style="font-size:1rem;color:#374151;line-height:1.85;margin-bottom:1.2rem;">${about}</p>`:''}
+        ${data.ownerBackground?`<p style="font-size:.92rem;color:#64748b;line-height:1.7;">${data.ownerBackground}</p>`:''}
       </div>
-      ${ownerPhoto ? `<div><img src="${ownerPhoto}" alt="${owner}" style="width:100%;border-radius:20px;object-fit:cover;max-height:420px;box-shadow:0 20px 60px rgba(0,0,0,.15);"></div>` : ''}
+      ${ownerPhoto?`<div class="reveal"><img src="${ownerPhoto}" alt="${owner}" style="width:100%;border-radius:20px;object-fit:cover;max-height:420px;box-shadow:0 20px 60px rgba(0,0,0,.12);"></div>`:''}
     </div>
   </div>
-</section>` : ''}
+</section>`:''}
 
-${photosSection}
-
-${(hoursData.length || phone || email || address) ? `
-<section style="padding:80px 24px;background:${pal.dark};" id="contact">
-  <div style="max-width:1000px;margin:0 auto;">
-    <div style="text-align:center;margin-bottom:52px;">
-      <div style="display:inline-block;background:rgba(255,255,255,.1);color:${pal.accent};padding:6px 18px;border-radius:20px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;">Get In Touch</div>
-      <h2 style="font-family:'Playfair Display',Georgia,serif;font-size:clamp(28px,4vw,42px);color:white;margin:0 0 12px;">Contact Us</h2>
-      <p style="color:rgba(255,255,255,.6);font-size:16px;">We'd love to hear from you — reach out any time</p>
+<section class="reviews-section" id="reviews">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Customer Reviews</div>
+      <h2 class="section-title">What Our Clients Say</h2>
     </div>
-    <div class="hours-contact-grid" style="display:grid;grid-template-columns:${hoursData.length ? '1fr 1fr' : '1fr'};gap:40px;">
-      ${hoursData.length ? `<div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:32px;"><h3 style="font-family:'Playfair Display',Georgia,serif;font-size:24px;color:white;margin:0 0 24px;">Business Hours</h3>${hoursGrid}</div>` : ''}
-      <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:32px;">
-        <h3 style="font-family:'Playfair Display',Georgia,serif;font-size:24px;color:white;margin:0 0 24px;">Contact Information</h3>
-        <div style="display:flex;flex-direction:column;gap:16px;">
-          ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" style="display:flex;align-items:center;gap:14px;color:white;text-decoration:none;padding:16px;background:rgba(255,255,255,.07);border-radius:12px;"><span style="font-size:24px;background:${pal.accent}22;width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;">📞</span><div><div style="font-size:12px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Phone / Text</div><div style="font-size:17px;font-weight:600;">${phone}</div></div></a>` : ''}
-          ${email ? `<a href="mailto:${email}" style="display:flex;align-items:center;gap:14px;color:white;text-decoration:none;padding:16px;background:rgba(255,255,255,.07);border-radius:12px;"><span style="font-size:24px;background:${pal.accent}22;width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;">✉️</span><div><div style="font-size:12px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Email</div><div style="font-size:15px;font-weight:500;word-break:break-all;">${email}</div></div></a>` : ''}
-          ${address.length > 5 ? `<div style="display:flex;align-items:flex-start;gap:14px;padding:16px;background:rgba(255,255,255,.07);border-radius:12px;"><span style="font-size:24px;background:${pal.accent}22;width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">📍</span><div><div style="font-size:12px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Location</div><div style="font-size:15px;font-weight:500;color:rgba(255,255,255,.9);">${address}</div></div></div>` : ''}
+    <div class="reviews-grid">
+      <div class="review-card reveal"><div class="stars">★★★★★</div><p>"Fast, professional, and fair pricing. They showed up on time and got the job done right the first time. Highly recommend!"</p><div class="reviewer">— Satisfied Customer, ${city}</div></div>
+      <div class="review-card reveal"><div class="stars">★★★★★</div><p>"Best ${industry} company in the area. They quoted me less than the competition and the quality of work was excellent."</p><div class="reviewer">— Happy Client, ${state||city}</div></div>
+      <div class="review-card reveal"><div class="stars">★★★★★</div><p>"Called in the morning, they were here by noon. Explained everything clearly and left the place spotless. Will call again!"</p><div class="reviewer">— Local Homeowner, ${city}</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="booking-section" id="booking">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Schedule Service</div>
+      <h2 class="section-title">Book Your Appointment</h2>
+      <p class="section-sub">Fill out the form and we'll confirm your appointment within the hour.</p>
+    </div>
+    <div class="booking-wrap">
+      <div class="booking-info reveal">
+        <h3>Fast, Easy Scheduling</h3>
+        <p>No phone tag, no waiting on hold. Submit your request and we'll confirm your time slot promptly.</p>
+        <ul class="booking-perks">
+          <li><i class="fas fa-check-circle"></i> Same-day appointments often available</li>
+          <li><i class="fas fa-check-circle"></i> Free estimates on all jobs</li>
+          <li><i class="fas fa-check-circle"></i> Upfront pricing before we start</li>
+          <li><i class="fas fa-check-circle"></i> Licensed, insured technicians</li>
+          <li><i class="fas fa-check-circle"></i> 24/7 emergency line available</li>
+        </ul>
+      </div>
+      <div class="booking-form reveal">
+        <h4><i class="fas fa-calendar-check" style="color:${pal.accent};margin-right:.4rem;"></i> Request an Appointment</h4>
+        <div class="form-row">
+          <div class="form-group"><label>First Name</label><input type="text" placeholder="John"></div>
+          <div class="form-group"><label>Last Name</label><input type="text" placeholder="Smith"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Phone</label><input type="tel" placeholder="${phone||'(555) 555-0000'}"></div>
+          <div class="form-group"><label>Email</label><input type="email" placeholder="you@email.com"></div>
+        </div>
+        <div class="form-group">
+          <label>Service Needed</label>
+          <select>
+            <option value="">Select a service…</option>
+            ${serviceItems.length ? serviceItems.map(s=>`<option>${s.name}</option>`).join('') : `<option>${industry.charAt(0).toUpperCase()+industry.slice(1)} Service</option>`}
+            <option>Other / Not Sure</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Preferred Date</label><input type="date"></div>
+          <div class="form-group"><label>Preferred Time</label>
+            <select><option>Morning (8am–12pm)</option><option>Afternoon (12pm–5pm)</option><option>Evening (5pm–8pm)</option></select>
+          </div>
+        </div>
+        <div class="form-group"><label>Describe the Issue</label><textarea placeholder="Brief description of what you need…"></textarea></div>
+        <button class="btn-book" onclick="handleBooking(this)"><i class="fas fa-calendar-check"></i> Request Appointment</button>
+        <p class="form-note">We'll confirm your appointment by phone or email within 1 hour.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section" id="contact">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Ready to Get Started?</div>
+      <h2 class="section-title">Get Your Free Estimate Today</h2>
+      <p>Call us now or submit a request. We'll respond within the hour during business hours — and immediately for emergencies.</p>
+      ${phone?`<a href="tel:${phone.replace(/\D/g,'')}" class="cta-phone"><i class="fas fa-phone-volume"></i> ${phone}</a>`:''}
+      <a href="#booking" class="btn-primary" style="font-size:1rem;padding:.95rem 2.2rem;display:inline-flex;"><i class="fas fa-calendar-check"></i> Schedule Online</a>
+    </div>
+  </div>
+</section>
+
+${(hoursData.length||phone||email||address.length>5)?`
+<section style="padding:5rem 1.5rem;background:${pal.primary};">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:3rem;" class="reveal">
+      <div class="section-label" style="color:${pal.accent};">Get In Touch</div>
+      <h2 class="section-title" style="color:white;">Contact &amp; Hours</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:${hoursData.length?'1fr 1fr':'1fr'};gap:2.5rem;">
+      ${hoursData.length?`<div class="reveal" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:2rem;"><h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:white;letter-spacing:1px;margin-bottom:1.5rem;">Business Hours</h3>${hoursRows}</div>`:''}
+      <div class="reveal" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:2rem;">
+        <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:white;letter-spacing:1px;margin-bottom:1.5rem;">Contact Us</h3>
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          ${phone?`<a href="tel:${phone.replace(/\D/g,'')}" style="display:flex;align-items:center;gap:1rem;color:white;text-decoration:none;padding:1rem;background:rgba(255,255,255,.07);border-radius:12px;"><span style="background:${pal.accent}22;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">📞</span><div><div style="font-size:.72rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Phone / Text</div><div style="font-size:1rem;font-weight:600;">${phone}</div></div></a>`:''}
+          ${email?`<a href="mailto:${email}" style="display:flex;align-items:center;gap:1rem;color:white;text-decoration:none;padding:1rem;background:rgba(255,255,255,.07);border-radius:12px;"><span style="background:${pal.accent}22;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">✉️</span><div><div style="font-size:.72rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Email</div><div style="font-size:.92rem;font-weight:500;word-break:break-all;">${email}</div></div></a>`:''}
+          ${address.length>5?`<div style="display:flex;align-items:flex-start;gap:1rem;padding:1rem;background:rgba(255,255,255,.07);border-radius:12px;"><span style="background:${pal.accent}22;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">📍</span><div><div style="font-size:.72rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Location</div><div style="font-size:.92rem;font-weight:500;color:rgba(255,255,255,.85);">${address}</div></div></div>`:''}
         </div>
       </div>
     </div>
-    ${phone ? `<div style="text-align:center;margin-top:40px;"><a href="tel:${phone.replace(/\D/g,'')}" style="display:inline-block;background:${pal.accent};color:${pal.dark};padding:20px 48px;border-radius:14px;text-decoration:none;font-weight:700;font-size:19px;box-shadow:0 8px 32px ${pal.accent}44;">📞 Call Now — ${phone}</a></div>` : ''}
   </div>
-</section>` : ''}
+</section>`:''}
 
-<footer style="background:#0a0a14;color:rgba(255,255,255,.5);padding:28px 24px;text-align:center;font-size:13px;">
-  <p style="margin-bottom:8px;color:rgba(255,255,255,.7);font-weight:500;">${biz} · ${city}${state ? ', ' + state : ''}</p>
-  <p>Built by <a href="https://turnkeyaiservices.com" target="_blank" rel="noopener" style="color:${pal.accent};text-decoration:none;font-weight:600;">TurnkeyAI Services</a>${phone ? ` · <a href="tel:${phone.replace(/\D/g,'')}" style="color:rgba(255,255,255,.5);text-decoration:none;">${phone}</a>` : ''}</p>
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">${biz.split(' ').slice(0,-1).join(' ')||biz} <span>${biz.split(' ').length > 1 ? biz.split(' ').slice(-1)[0] : ''}</span></div>
+    <div class="footer-links">
+      <a href="#services">Services</a>
+      <a href="#why">About</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#booking">Book</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+  <div class="footer-copy">© ${new Date().getFullYear()} ${biz} · ${city}${state?', '+state:''} · All Rights Reserved · Powered by <a href="https://turnkeyaiservices.com" target="_blank" rel="noopener" style="color:${pal.accent};text-decoration:none;font-weight:600;">TurnkeyAI Services</a></div>
 </footer>
 
 <div id="chatWidget">
@@ -531,10 +765,10 @@ ${(hoursData.length || phone || email || address) ? `
   <div id="chatBox">
     <div id="chatHeader">
       <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:10px;height:10px;background:#00D68F;border-radius:50%;animation:pulse 2s infinite;"></div>
-        <span style="font-weight:700;font-size:15px;">💬 ${chatName}</span>
+        <div style="width:9px;height:9px;background:#00D68F;border-radius:50%;animation:pulse 2s infinite;"></div>
+        <span style="font-weight:700;font-size:.92rem;">💬 ${chatName}</span>
       </div>
-      <span onclick="closeChat()" style="cursor:pointer;font-size:20px;opacity:.7;line-height:1;">✕</span>
+      <span onclick="closeChat()" style="cursor:pointer;font-size:1.2rem;opacity:.7;line-height:1;">✕</span>
     </div>
     <div id="chatMessages"></div>
     <div id="chatInputRow">
@@ -544,56 +778,39 @@ ${(hoursData.length || phone || email || address) ? `
   </div>
 </div>
 
-<style>
-@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
-@media(max-width:400px){#chatBox{width:calc(100vw - 32px);}}
-</style>
-
 <script>
+(function(){
+  var els=document.querySelectorAll('.reveal');
+  var obs=new IntersectionObserver(function(entries){entries.forEach(function(e,i){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible');},i*70);}});},{threshold:.1});
+  els.forEach(function(el){obs.observe(el);});
+})();
+function handleBooking(btn){
+  btn.innerHTML='<i class="fas fa-check"></i> Request Sent!';
+  btn.style.background='#16a34a';btn.style.color='white';btn.disabled=true;
+  setTimeout(function(){btn.innerHTML='<i class="fas fa-calendar-check"></i> Request Appointment';btn.style.background='';btn.style.color='';btn.disabled=false;},4000);
+}
 (function(){
   var EP='${chatEndpoint}';
   var SYS='${chatSystem.replace(/'/g,"\\'")}';
   var msgs=[{r:'a',t:'Hi! How can I help you today with ${biz.replace(/'/g,"\\'")}?'}];
-  var open=false;
   function render(){
-    var c=document.getElementById('chatMessages');
-    if(!c)return;
+    var c=document.getElementById('chatMessages');if(!c)return;
     c.innerHTML=msgs.map(function(m){
       return m.r==='u'
-        ?'<div style="text-align:right;margin-bottom:10px;"><span style="background:${pal.primary};color:white;padding:8px 14px;border-radius:14px 14px 4px 14px;display:inline-block;max-width:85%;font-size:14px;line-height:1.5;">'+m.t+'</span></div>'
-        :'<div style="margin-bottom:10px;"><span style="background:white;border:1px solid #e5e7eb;padding:8px 14px;border-radius:14px 14px 14px 4px;display:inline-block;max-width:85%;font-size:14px;line-height:1.5;color:#1f2937;">'+m.t+'</span></div>';
+        ?'<div style="text-align:right;margin-bottom:9px;"><span style="background:${pal.accent};color:${pal.primary};padding:7px 13px;border-radius:13px 13px 3px 13px;display:inline-block;max-width:84%;font-size:.86rem;line-height:1.5;font-weight:600;">'+m.t+'</span></div>'
+        :'<div style="margin-bottom:9px;"><span style="background:white;border:1px solid #e5e7eb;padding:7px 13px;border-radius:13px 13px 13px 3px;display:inline-block;max-width:84%;font-size:.86rem;line-height:1.5;color:#1f2937;">'+m.t+'</span></div>';
     }).join('');
     c.scrollTop=c.scrollHeight;
   }
-  window.openChat=function(){
-    open=true;
-    document.getElementById('chatToggleBtn').style.display='none';
-    var box=document.getElementById('chatBox');
-    box.style.display='flex';
-    render();
-    setTimeout(function(){document.getElementById('chatInput').focus();},100);
-  };
-  window.closeChat=function(){
-    open=false;
-    document.getElementById('chatBox').style.display='none';
-    document.getElementById('chatToggleBtn').style.display='flex';
-  };
+  window.openChat=function(){document.getElementById('chatToggleBtn').style.display='none';var box=document.getElementById('chatBox');box.style.display='flex';render();setTimeout(function(){document.getElementById('chatInput').focus();},100);};
+  window.closeChat=function(){document.getElementById('chatBox').style.display='none';document.getElementById('chatToggleBtn').style.display='flex';};
   window.sendMsg=async function(){
-    var inp=document.getElementById('chatInput');
-    var t=(inp.value||'').trim();
-    if(!t)return;
-    msgs.push({r:'u',t:t});
-    inp.value='';
-    render();
-    msgs.push({r:'a',t:'...'});
-    render();
+    var inp=document.getElementById('chatInput');var t=(inp.value||'').trim();if(!t)return;
+    msgs.push({r:'u',t:t});inp.value='';render();msgs.push({r:'a',t:'...'});render();
     try{
       var r=await fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,systemPrompt:SYS})});
-      var d=await r.json();
-      msgs[msgs.length-1]={r:'a',t:d.reply||'Sorry, I could not process that.'};
-    }catch(e){
-      msgs[msgs.length-1]={r:'a',t:'Chat is temporarily unavailable. Please call ${phone.replace(/'/g,"\\'")||"us"} directly.'};
-    }
+      var d=await r.json();msgs[msgs.length-1]={r:'a',t:d.reply||'Sorry, I could not process that.'};
+    }catch(e){msgs[msgs.length-1]={r:'a',t:'Chat is temporarily unavailable. Please call ${phone.replace(/'/g,"\\'")||"us"} directly.'};}
     render();
   };
   render();
@@ -603,6 +820,7 @@ ${(hoursData.length || phone || email || address) ? `
 </body>
 </html>`;
 }
+
 
 app.get('/health', (req, res) => res.json({ status: 'TurnkeyAI Backend Running', clients: Object.keys(clients).length, time: new Date().toISOString() }));
 
@@ -626,7 +844,6 @@ app.post('/api/submission-created', async (req, res) => {
       const partnerPreviewUrl = `${BASE_URL}/preview/${previewToken}`;
       const partnerApproveUrl = `${BASE_URL}/api/approve/${id}?adminKey=${ADMIN_KEY}`;
 
-      // ── FIX 1: Send client preview email immediately before deploy ──
       if (data.email) {
         await sendEmail({
           to: data.email,
@@ -634,7 +851,6 @@ app.post('/api/submission-created', async (req, res) => {
           html: `<div style="font-family:sans-serif;max-width:620px;margin:0 auto;color:#1F2937;"><div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:32px;border-radius:12px 12px 0 0;text-align:center;"><h1 style="color:white;margin:0;font-size:28px;">We Got It! 🎉</h1><p style="color:rgba(255,255,255,0.85);margin:10px 0 0;font-size:16px;">Hi ${data.ownerName || 'there'} — your website preview is ready to review.</p></div><div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:32px;"><p style="font-size:16px;line-height:1.75;margin:0 0 24px;">We've built a preview of your new <strong>${data.businessName || 'business'}</strong> website.</p><div style="text-align:center;margin:0 0 28px;"><a href="${partnerPreviewUrl}" style="display:inline-block;background:linear-gradient(135deg,#0066FF,#0052CC);color:white;padding:20px 44px;border-radius:12px;text-decoration:none;font-weight:700;font-size:18px;box-shadow:0 6px 24px rgba(0,102,255,.35);">👁️ View My Website Preview</a></div><div style="background:#f0fff4;border:2px solid #00D68F;border-radius:12px;padding:24px;margin:0 0 24px;text-align:center;"><p style="font-weight:700;color:#065f46;margin:0 0 6px;font-size:15px;">Review your preview — the approve button is inside the preview page.</p></div><p style="font-size:14px;color:#6B7280;margin:0 0 6px;">Have a logo or photos? Email them to <a href="mailto:george@turnkeyaiservices.com" style="color:#0066FF;">george@turnkeyaiservices.com</a></p><p style="font-size:14px;color:#6B7280;margin:0 0 24px;">Questions? Call <strong>(228) 604-3200</strong> or reply to this email.</p><div style="border-top:1px solid #e5e7eb;padding-top:20px;text-align:center;"><p style="font-size:12px;color:#9CA3AF;margin:0;">TurnkeyAI Services — AI-Powered Websites for Local Business<br>Bay St. Louis, MS 39520</p></div></div></div>`
         }).catch(e => console.error('[partner bypass preview email]', e.message));
       }
-      // ── END FIX 1 ──
 
       res.json({ success: true, id, preview: partnerPreviewUrl, partner: true });
       (async () => {
@@ -697,7 +913,6 @@ app.post('/api/submission-created', async (req, res) => {
       html: `<div style="font-family:sans-serif;max-width:700px;margin:0 auto;color:#1F2937;"><div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:24px 32px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:22px;">🆕 New Client Submission</h1><p style="color:rgba(255,255,255,0.82);margin:6px 0 0;font-size:14px;">${new Date().toLocaleString('en-US',{timeZone:'America/Chicago',dateStyle:'full',timeStyle:'short'})}</p></div><div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:28px 32px;">${h2('Business Information')}${table(`${row('Business Name', d.businessName)}${row('Owner', d.ownerName)}${row('Industry', (d.industry||'').replace(/_/g,' '))}${row('Phone', d.phone)}${row('Email', d.email)}${row('Address', [d.address,d.city,d.state,d.zip].filter(Boolean).join(', '))}${row('Years in Business', d.yearsInBusiness)}`)}${h2('Online Presence')}${table(`${row('Current Website', d.currentWebsite)}${row('Facebook', d.facebook)}${row('Instagram', d.instagram)}${row('Google Business', d.googleBusiness)}${row('Logo', d.hasLogo==='yes'?'✅ Will email':'❌ Needs one')}`)}${servicesList.length ? `${h2('Services & Pricing')}<ul style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 14px 14px 30px;margin:0 0 22px;line-height:1.9;">${servicesList.map(s=>'<li>'+s+'</li>').join('')}</ul>` : ''}${hoursLines.length ? `${h2('Business Hours')}<ul style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 14px 14px 30px;margin:0 0 22px;line-height:1.9;">${hoursLines.join('')}</ul>` : ''}${h2('About the Business')}${table(`${row('Business Story', d.aboutUs)}${row('Owner Background', d.ownerBackground)}${row('Mission / Tagline', d.missionStatement)}${row('Awards / Certs', d.awards)}`)}${h2('Payment & Other')}${table(`${row('Service Radius', d.targetRadius)}${row('Competitive Advantage', d.competitiveAdvantage)}${row('Payment Methods', payMethods)}${row('Color Preference', d.colorPreference)}${row('Referral Source', d.referralSource)}${row('Additional Notes', d.additionalNotes)}`)}${addons.length ? `<div style="background:#f0fff4;border:2px solid #00D68F;border-radius:10px;padding:18px 22px;margin-bottom:22px;"><p style="font-weight:700;color:#065f46;margin:0 0 10px;font-size:15px;">🎯 Add-Ons Selected</p><ul style="margin:0;padding-left:20px;line-height:2;font-size:14px;">${addons.map(a=>'<li><strong>'+a+'</strong></li>').join('')}</ul></div>` : ''}<div style="border-top:1px solid #e5e7eb;padding-top:22px;display:flex;gap:12px;flex-wrap:wrap;"><a href="${approveUrl}" style="display:inline-block;background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">✅ Approve & Go Live</a><a href="${previewUrl}" style="display:inline-block;background:#0066FF;color:white;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;">👁️ Preview Site</a></div></div></div>`
     });
 
-    // CHANGE 1: Client email — preview link only, no approve button
     if (d.email) {
       const clientAddons = [];
       if (d.wants_mini_me === 'yes') clientAddons.push('<li>🤖 <strong>Mini-Me AI Avatar</strong> — recording instructions coming in a separate email momentarily</li>');
@@ -1016,7 +1231,6 @@ app.post('/api/video-upload-notify', async (req, res) => {
   } catch(err) { console.error('[/api/video-upload-notify]', err); res.status(500).json({ error: 'Failed' }); }
 });
 
-// CHANGE 2: /api/intake client email — preview link only, no approve button
 app.post('/api/intake', async (req, res) => {
   try {
     const data = req.body;
@@ -1063,12 +1277,9 @@ function extractServices(data) {
   return s;
 }
 
-// ── ADMIN DASHBOARD ROUTE ──
 app.get('/admin', (req, res) => {
   const key = req.query.key || req.headers['x-admin-key'];
-  if (key !== ADMIN_KEY) {
-    return res.redirect('/admin-login.html');
-  }
+  if (key !== ADMIN_KEY) return res.redirect('/admin-login.html');
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
