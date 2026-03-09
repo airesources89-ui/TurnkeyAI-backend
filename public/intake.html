@@ -231,7 +231,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
       <div class="row2">
         <div class="field"><label>Do you have a logo?</label>
           <select name="hasLogo">
-            <option value="yes">Yes — I will email it to george@turnkeyaiservices.com</option>
+            <option value="yes">Yes — I will email it to turnkeyaiservices@gmail.com</option>
             <option value="no">No — please create one</option>
           </select>
         </div>
@@ -398,12 +398,12 @@ async function submitForm(){
     var result=await res.json();
     document.getElementById('overlay').classList.remove('show');
     if(result.success){
-      document.querySelector('.container').innerHTML='<div class="card" style="text-align:center;padding:60px 40px"><div style="font-size:64px;margin-bottom:20px">🎉</div><h2 style="font-size:28px;color:#00D68F;margin-bottom:12px">We Are Building Your Website!</h2><p style="font-size:16px;color:#374151;line-height:1.8;max-width:480px;margin:0 auto 24px">Check your email at <strong>'+(data.email||'the address you entered')+'</strong> — your preview link will arrive within a few minutes.</p><p style="font-size:14px;color:#6B7280">Questions? Call <strong>(228) 604-3200</strong> or email <a href="mailto:george@turnkeyaiservices.com" style="color:#0066FF">george@turnkeyaiservices.com</a></p></div>';
+      document.querySelector('.container').innerHTML='<div class="card" style="text-align:center;padding:60px 40px"><div style="font-size:64px;margin-bottom:20px">🎉</div><h2 style="font-size:28px;color:#00D68F;margin-bottom:12px">We Are Building Your Website!</h2><p style="font-size:16px;color:#374151;line-height:1.8;max-width:480px;margin:0 auto 24px">Check your email at <strong>'+(data.email||'the address you entered')+'</strong> — your preview link will arrive within a few minutes.</p><p style="font-size:14px;color:#6B7280">Questions? Call <strong>(603) 922-2004</strong> or email <a href="mailto:turnkeyaiservices@gmail.com" style="color:#0066FF">turnkeyaiservices@gmail.com</a></p></div>';
     } else {throw new Error(result.error||'Submission failed');}
   } catch(e){
     document.getElementById('overlay').classList.remove('show');
     btn.disabled=false;
-    alert('Something went wrong: '+e.message+'\n\nPlease call (228) 604-3200 or email george@turnkeyaiservices.com');
+    alert('Something went wrong: '+e.message+'\n\nPlease call (603) 922-2004 or email turnkeyaiservices@gmail.com');
   }
 }
 </script>
