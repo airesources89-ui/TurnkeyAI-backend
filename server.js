@@ -1419,6 +1419,7 @@ app.get('/health', (req, res) => { res.json({ status: 'ok', clients: Object.keys
 // ── Catch-all SPA ──
 app.get('*', (req, res) => {
   const indexPath = path.join(__dirname, 'public', 'index.html');
+  
   if (fs.existsSync(indexPath)) res.sendFile(indexPath);
   else res.status(404).send('Not found');
 });
