@@ -243,7 +243,7 @@
       const addonHtml = addons.map(a => `<span class="badge badge-yes" style="margin:2px;">${a}</span>`).join('');
       const actionBtns = c.status === 'pending'
         ? `<a class="btn btn-preview btn-sm" href="${previewUrl}" target="_blank">👁 Preview</a>
-           <a class="btn btn-approve btn-sm" href="${approveUrl}" onclick="return confirmApprove('${(c.businessName||'').replace(/'/g, &quot;\\\'&quot;)}')">✅ Approve</a>`
+           <a class="btn btn-approve btn-sm" href="${approveUrl}" onclick="return confirmApprove(this.dataset.name)" data-name="${(c.businessName||'').replace(/"/g,'&quot;')}">✅ Approve</a>`
         : `<a class="btn btn-preview btn-sm" href="${previewUrl}" target="_blank">👁 Preview</a>
            <a class="btn btn-live btn-sm" href="${c.liveUrl}" target="_blank">🌐 Live Site</a>`;
       return `<tr>
