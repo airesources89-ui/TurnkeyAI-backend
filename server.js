@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const FormData = require('form-data');
+const { Pool } = require('pg');
 const app = express();
 
 app.use('/api/stripe-webhook', express.raw({ type: 'application/json' }));
@@ -10,36 +11,154 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const ADMIN_EMAIL = 'turnkeyaiservices@gmail.com';
+const ADMIN_EMAIL = 'george@turnkeyaiservices.com';
 const PORT = process.env.PORT || 8080;
 const BASE_URL = process.env.BASE_URL || 'https://turnkeyaiservices.com';
 const CF_ACCOUNT_ID = process.env.CF_ACCOUNT_ID;
 const CF_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
-const ADMIN_KEY = process.env.ADMIN_KEY || 'turnkey2024';
+const ADMIN_KEY = process.env.ADMIN_KEY;
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_PHONE = process.env.TWILIO_PHONE;
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
-const DATA_FILE = path.join(__dirname, 'clients.json');
+// ── Startup validation ──
+if (!ADMIN_KEY) { console.error('[FATAL] ADMIN_KEY env var is not set. Exiting.'); process.exit(1); }
+if (!process.env.DATABASE_URL) { console.error('[FATAL] DATABASE_URL env var is not set. Exiting.'); process.exit(1); }
+
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-
-// CHANGE 2: Serve uploaded logos publicly
 app.use('/uploads', express.static(UPLOADS_DIR));
 
-function loadClients() {
+// ── PostgreSQL setup ──
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false }
+});
+
+async function initDB() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS clients (
+      id TEXT PRIMARY KEY,
+      status TEXT NOT NULL DEFAULT 'pending',
+      data JSONB NOT NULL DEFAULT '{}',
+      preview_token TEXT,
+      dash_token TEXT,
+      dash_password TEXT,
+      live_url TEXT,
+      cf_project_name TEXT,
+      mini_me_consent BOOLEAN DEFAULT FALSE,
+      mini_me_consent_at TIMESTAMPTZ,
+      mini_me_subscribed BOOLEAN DEFAULT FALSE,
+      mini_me_subscribed_at TIMESTAMPTZ,
+      mini_me_video_file TEXT,
+      promo_video_file TEXT,
+      free_video_requested BOOLEAN DEFAULT FALSE,
+      logo_file TEXT,
+      approved_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
+  console.log('[DB] Table ready.');
+}
+
+// In-memory cache (same pattern as before — fast reads, DB is source of truth)
+let clients = {};
+
+async function loadClientsFromDB() {
+  const result = await pool.query('SELECT * FROM clients');
+  clients = {};
+  for (const row of result.rows) {
+    clients[row.id] = rowToClient(row);
+  }
+  console.log(`[DB] Loaded ${result.rows.length} clients into memory.`);
+}
+
+function rowToClient(row) {
+  const data = row.data || {};
+  if (row.mini_me_video_file) data.miniMeVideoUrl = data.miniMeVideoUrl || null;
+  return {
+    id: row.id,
+    status: row.status,
+    data: data,
+    previewToken: row.preview_token,
+    dashToken: row.dash_token,
+    dashPassword: row.dash_password,
+    liveUrl: row.live_url,
+    cfProjectName: row.cf_project_name,
+    miniMeConsent: row.mini_me_consent,
+    miniMeConsentAt: row.mini_me_consent_at ? row.mini_me_consent_at.toISOString() : null,
+    miniMeSubscribed: row.mini_me_subscribed,
+    miniMeSubscribedAt: row.mini_me_subscribed_at ? row.mini_me_subscribed_at.toISOString() : null,
+    miniMeVideoFile: row.mini_me_video_file,
+    promoVideoFile: row.promo_video_file,
+    freeVideoRequested: row.free_video_requested,
+    logoFile: row.logo_file,
+    approvedAt: row.approved_at ? row.approved_at.toISOString() : null,
+    createdAt: row.created_at ? row.created_at.toISOString() : null,
+    updatedAt: row.updated_at ? row.updated_at.toISOString() : null,
+  };
+}
+
+async function saveClient(client) {
+  // Update in-memory immediately
+  clients[client.id] = client;
+  // Persist to DB
   try {
-    if (fs.existsSync(DATA_FILE)) return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-  } catch (e) { console.error('[loadClients]', e.message); }
-  return {};
+    await pool.query(`
+      INSERT INTO clients (
+        id, status, data, preview_token, dash_token, dash_password,
+        live_url, cf_project_name, mini_me_consent, mini_me_consent_at,
+        mini_me_subscribed, mini_me_subscribed_at, mini_me_video_file,
+        promo_video_file, free_video_requested, logo_file, approved_at, updated_at
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,NOW())
+      ON CONFLICT (id) DO UPDATE SET
+        status = EXCLUDED.status,
+        data = EXCLUDED.data,
+        preview_token = EXCLUDED.preview_token,
+        dash_token = EXCLUDED.dash_token,
+        dash_password = EXCLUDED.dash_password,
+        live_url = EXCLUDED.live_url,
+        cf_project_name = EXCLUDED.cf_project_name,
+        mini_me_consent = EXCLUDED.mini_me_consent,
+        mini_me_consent_at = EXCLUDED.mini_me_consent_at,
+        mini_me_subscribed = EXCLUDED.mini_me_subscribed,
+        mini_me_subscribed_at = EXCLUDED.mini_me_subscribed_at,
+        mini_me_video_file = EXCLUDED.mini_me_video_file,
+        promo_video_file = EXCLUDED.promo_video_file,
+        free_video_requested = EXCLUDED.free_video_requested,
+        logo_file = EXCLUDED.logo_file,
+        approved_at = EXCLUDED.approved_at,
+        updated_at = NOW()
+    `, [
+      client.id,
+      client.status,
+      JSON.stringify(client.data),
+      client.previewToken,
+      client.dashToken,
+      client.dashPassword,
+      client.liveUrl,
+      client.cfProjectName,
+      client.miniMeConsent || false,
+      client.miniMeConsentAt || null,
+      client.miniMeSubscribed || false,
+      client.miniMeSubscribedAt || null,
+      client.miniMeVideoFile || null,
+      client.promoVideoFile || null,
+      client.freeVideoRequested || false,
+      client.logoFile || null,
+      client.approvedAt || null,
+    ]);
+  } catch (e) {
+    console.error('[saveClient DB error]', e.message);
+  }
 }
+
+// Legacy shim — any old saveClients() calls now flush all dirty clients
 function saveClients() {
-  try { fs.writeFileSync(DATA_FILE, JSON.stringify(clients, null, 2), 'utf8'); }
-  catch (e) { console.error('[saveClients]', e.message); }
+  Object.values(clients).forEach(c => saveClient(c).catch(e => console.error('[saveClients shim]', e.message)));
 }
-const clients = loadClients();
-console.log(`[startup] Loaded ${Object.keys(clients).length} clients from disk.`);
 
 function makeToken() { return crypto.randomBytes(16).toString('hex'); }
 function makePassword() { return crypto.randomBytes(4).toString('hex').toUpperCase(); }
@@ -195,7 +314,7 @@ async function runDeploy(client) {
   client.cfProjectName = projectName;
   client.approvedAt = new Date().toISOString();
   client.updatedAt = new Date().toISOString();
-  saveClients();
+  await saveClient(client);
   await sendCredentialsEmail(client);
   await sendEmail({
     to: ADMIN_EMAIL,
@@ -676,28 +795,28 @@ ${about||ownerPhoto?`
       <div class="booking-form reveal">
         <h4><i class="fas fa-calendar-check" style="color:${pal.accent};margin-right:.4rem;"></i> Request an Appointment</h4>
         <div class="form-row">
-          <div class="form-group"><label>First Name</label><input type="text" placeholder="John"></div>
-          <div class="form-group"><label>Last Name</label><input type="text" placeholder="Smith"></div>
+          <div class="form-group"><label>First Name</label><input type="text" id="book_fname" placeholder="John"></div>
+          <div class="form-group"><label>Last Name</label><input type="text" id="book_lname" placeholder="Smith"></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Phone</label><input type="tel" placeholder="${phone||'(555) 555-0000'}"></div>
-          <div class="form-group"><label>Email</label><input type="email" placeholder="you@email.com"></div>
+          <div class="form-group"><label>Phone</label><input type="tel" id="book_phone" placeholder="${phone||'(555) 555-0000'}"></div>
+          <div class="form-group"><label>Email</label><input type="email" id="book_email" placeholder="you@email.com"></div>
         </div>
         <div class="form-group">
           <label>Service Needed</label>
-          <select>
+          <select id="book_service">
             <option value="">Select a service…</option>
             ${serviceItems.length ? serviceItems.map(s=>`<option>${s.name}</option>`).join('') : `<option>${industry.charAt(0).toUpperCase()+industry.slice(1)} Service</option>`}
             <option>Other / Not Sure</option>
           </select>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Preferred Date</label><input type="date"></div>
+          <div class="form-group"><label>Preferred Date</label><input type="date" id="book_date"></div>
           <div class="form-group"><label>Preferred Time</label>
-            <select><option>Morning (8am–12pm)</option><option>Afternoon (12pm–5pm)</option><option>Evening (5pm–8pm)</option></select>
+            <select id="book_time"><option>Morning (8am–12pm)</option><option>Afternoon (12pm–5pm)</option><option>Evening (5pm–8pm)</option></select>
           </div>
         </div>
-        <div class="form-group"><label>Describe the Issue</label><textarea placeholder="Brief description of what you need…"></textarea></div>
+        <div class="form-group"><label>Describe the Issue</label><textarea id="book_notes" placeholder="Brief description of what you need…"></textarea></div>
         <button class="btn-book" onclick="handleBooking(this)"><i class="fas fa-calendar-check"></i> Request Appointment</button>
         <p class="form-note">We'll confirm your appointment by phone or email within 1 hour.</p>
       </div>
@@ -777,9 +896,29 @@ ${(hoursData.length||phone||email||address.length>5)?`
   els.forEach(function(el){obs.observe(el);});
 })();
 function handleBooking(btn){
-  btn.innerHTML='<i class="fas fa-check"></i> Request Sent!';
-  btn.style.background='#16a34a';btn.style.color='white';btn.disabled=true;
-  setTimeout(function(){btn.innerHTML='<i class="fas fa-calendar-check"></i> Request Appointment';btn.style.background='';btn.style.color='';btn.disabled=false;},4000);
+  var fname=document.getElementById('book_fname').value.trim();
+  var lname=document.getElementById('book_lname').value.trim();
+  var phone=document.getElementById('book_phone').value.trim();
+  var email=document.getElementById('book_email').value.trim();
+  var service=document.getElementById('book_service').value.trim();
+  var date=document.getElementById('book_date').value.trim();
+  var time=document.getElementById('book_time').value.trim();
+  var notes=document.getElementById('book_notes').value.trim();
+  if(!phone&&!email){alert('Please enter a phone number or email so we can confirm your appointment.');return;}
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';btn.disabled=true;
+  fetch('${BASE_URL}/api/booking-lead',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({firstName:fname,lastName:lname,phone:phone,email:email,service:service,preferredDate:date,preferredTime:time,notes:notes,businessName:'${biz.replace(/'/g,"\\'")}',businessEmail:'${email.replace(/'/g,"\\'")}',businessPhone:'${phone.replace(/'/g,"\\'")}',city:'${city.replace(/'/g,"\\'")}',industry:'${industry.replace(/'/g,"\\'")}' })
+  })
+  .then(function(r){return r.json();})
+  .then(function(){
+    btn.innerHTML='<i class="fas fa-check"></i> Request Sent!';btn.style.background='#16a34a';btn.style.color='white';
+    setTimeout(function(){btn.innerHTML='<i class="fas fa-calendar-check"></i> Request Appointment';btn.style.background='';btn.style.color='';btn.disabled=false;},5000);
+  })
+  .catch(function(){
+    btn.innerHTML='<i class="fas fa-calendar-check"></i> Request Appointment';btn.disabled=false;
+    alert('Something went wrong. Please call ${phone.replace(/'/g,"\\'")||'us'} directly to book.');
+  });
 }
 (function(){
   var EP='${chatEndpoint}';
@@ -816,6 +955,64 @@ function handleBooking(btn){
 
 app.get('/health', (req, res) => res.json({ status: 'TurnkeyAI Backend Running', clients: Object.keys(clients).length, time: new Date().toISOString() }));
 
+// ── NEW: Booking lead capture ──
+app.post('/api/booking-lead', async (req, res) => {
+  try {
+    const d = req.body;
+    const { firstName, lastName, phone, email, service, preferredDate, preferredTime, notes, businessName, businessEmail, businessPhone, city, industry } = d;
+    // Notify business owner
+    await sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `📅 New Booking Request: ${businessName} — ${firstName} ${lastName}`,
+      html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
+        <div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:24px 32px;border-radius:12px 12px 0 0;">
+          <h1 style="color:white;margin:0;font-size:20px;">📅 New Booking Request</h1>
+          <p style="color:rgba(255,255,255,.8);margin:6px 0 0;font-size:14px;">${businessName} — ${city}</p>
+        </div>
+        <div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:28px 32px;">
+          <table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:20px;">
+            <tr style="background:#f9fafb;"><td style="padding:10px 14px;font-weight:700;width:140px;">Name</td><td style="padding:10px 14px;">${firstName} ${lastName}</td></tr>
+            <tr><td style="padding:10px 14px;font-weight:700;">Phone</td><td style="padding:10px 14px;">${phone||'—'}</td></tr>
+            <tr style="background:#f9fafb;"><td style="padding:10px 14px;font-weight:700;">Email</td><td style="padding:10px 14px;">${email||'—'}</td></tr>
+            <tr><td style="padding:10px 14px;font-weight:700;">Service</td><td style="padding:10px 14px;">${service||'—'}</td></tr>
+            <tr style="background:#f9fafb;"><td style="padding:10px 14px;font-weight:700;">Date</td><td style="padding:10px 14px;">${preferredDate||'—'}</td></tr>
+            <tr><td style="padding:10px 14px;font-weight:700;">Time</td><td style="padding:10px 14px;">${preferredTime||'—'}</td></tr>
+            ${notes?`<tr style="background:#f9fafb;"><td style="padding:10px 14px;font-weight:700;">Notes</td><td style="padding:10px 14px;">${notes}</td></tr>`:''}
+          </table>
+          ${phone?`<a href="tel:${phone.replace(/\D/g,'')}" style="display:inline-block;background:#00D68F;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;">📞 Call Back Now</a>`:''}
+          ${email?`<a href="mailto:${email}" style="display:inline-block;background:#0066FF;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;">✉️ Reply by Email</a>`:''}
+        </div>
+      </div>`
+    });
+    // Auto-reply to customer if they gave email
+    if (email) {
+      await sendEmail({
+        to: email,
+        subject: `✅ Appointment Request Received — ${businessName}`,
+        html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
+          <div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:32px;border-radius:12px 12px 0 0;text-align:center;">
+            <h1 style="color:white;margin:0;font-size:24px;">✅ Request Received!</h1>
+          </div>
+          <div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:32px;">
+            <p>Hi ${firstName||'there'},</p>
+            <p><strong>${businessName}</strong> received your appointment request and will confirm your time slot within 1 hour.</p>
+            <div style="background:#f0f4ff;border-radius:10px;padding:18px;margin:20px 0;">
+              <p style="margin:0 0 8px;font-weight:700;">Your Request Summary</p>
+              <p style="margin:0;font-size:14px;color:#374151;">Service: ${service||'General'}<br>Date: ${preferredDate||'TBD'}<br>Time: ${preferredTime||'TBD'}</p>
+            </div>
+            <p style="font-size:14px;color:#6B7280;">Questions? Call <strong>${businessPhone||'(228) 604-3200'}</strong></p>
+            <p>— ${businessName} Team</p>
+          </div>
+        </div>`
+      }).catch(() => {});
+    }
+    res.json({ success: true });
+  } catch(err) {
+    console.error('[/api/booking-lead]', err);
+    res.status(500).json({ error: 'Failed to send booking request' });
+  }
+});
+
 app.post('/api/submission-created', async (req, res) => {
   try {
     const data = req.body;
@@ -829,9 +1026,8 @@ app.post('/api/submission-created', async (req, res) => {
       freeVideoRequested: data.wants_free_video === 'yes',
       createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
     };
-    saveClients();
+    await saveClient(clients[id]);
 
-    // CHANGE 1: Save logo if uploaded
     if (data.logoBase64 && data.logoFileName) {
       try {
         const ext = (data.logoFileName.split('.').pop() || 'png').toLowerCase();
@@ -839,8 +1035,8 @@ app.post('/api/submission-created', async (req, res) => {
         fs.writeFileSync(path.join(UPLOADS_DIR, logoFile), Buffer.from(data.logoBase64, 'base64'));
         clients[id].logoFile = logoFile;
         clients[id].data.logoUrl = `${BASE_URL}/uploads/${logoFile}`;
-        delete clients[id].data.logoBase64; // don't store raw base64 in JSON
-        saveClients();
+        delete clients[id].data.logoBase64;
+        await saveClient(clients[id]);
         console.log(`[logo] Saved: ${logoFile}`);
       } catch(e) { console.error('[logo save]', e.message); }
     }
@@ -869,7 +1065,7 @@ app.post('/api/submission-created', async (req, res) => {
           c.dashPassword = c.dashPassword || makePassword();
           c.liveUrl = c.liveUrl || partnerPreviewUrl;
           c.approvedAt = new Date().toISOString();
-          saveClients();
+          await saveClient(c);
           await sendCredentialsEmail(c).catch(e2 => console.error('[partner bypass credentials email]', e2.message));
         }
         const c = clients[id];
@@ -889,7 +1085,6 @@ app.post('/api/submission-created', async (req, res) => {
 
     const previewUrl = `${BASE_URL}/preview/${previewToken}`;
     const approveUrl = `${BASE_URL}/api/approve/${id}?adminKey=${ADMIN_KEY}`;
-    const clientApproveUrl = `${BASE_URL}/api/client-approve/${id}?token=${previewToken}`;
     const d = data;
 
     const row = (label, val) => val
@@ -905,7 +1100,6 @@ app.post('/api/submission-created', async (req, res) => {
     const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
     const hoursLines = days.filter(dy => d['day_'+dy]).map(dy => `<li>${dy.charAt(0).toUpperCase()+dy.slice(1)}: ${d['hours_'+dy]||'Open'}</li>`);
 
-    // CHANGE 3: Domain action block for admin email
     const domainBlock = (() => {
       if (d.hasDomain === 'yes') {
         return `<div style="background:#fff8ed;border:2px solid #f59e0b;border-radius:10px;padding:18px 22px;margin-bottom:22px;">
@@ -987,7 +1181,7 @@ app.get('/api/approve/:id', async (req, res) => {
       client.dashPassword = client.dashPassword || makePassword();
       client.liveUrl = `${BASE_URL}/preview/${client.previewToken}`;
       client.approvedAt = new Date().toISOString();
-      saveClients();
+      await saveClient(client);
       sendCredentialsEmail(client).catch(e => console.error('[approve catch email]', e.message));
     }
   })();
@@ -1023,7 +1217,7 @@ app.get('/api/client-approve/:id', async (req, res) => {
       client.dashPassword = client.dashPassword || makePassword();
       client.liveUrl = `${BASE_URL}/preview/${client.previewToken}`;
       client.approvedAt = new Date().toISOString();
-      saveClients();
+      await saveClient(client);
       sendCredentialsEmail(client).catch(e => console.error('[client-approve catch email]', e.message));
     }
   })();
@@ -1056,7 +1250,7 @@ app.post('/api/client-update-intake/:id', async (req, res) => {
   if (!token || (token !== client.previewToken && token !== client.dashToken)) return res.status(403).json({ error: 'Invalid token' });
   client.data = { ...client.data, ...req.body, _updatedAt: new Date().toISOString() };
   client.updatedAt = new Date().toISOString();
-  saveClients();
+  await saveClient(client);
   try {
     if (client.status === 'active') {
       await runDeploy(client);
@@ -1075,7 +1269,11 @@ app.post('/api/client-update-intake/:id', async (req, res) => {
 app.post('/api/stripe-webhook', async (req, res) => {
   try {
     const sig = req.headers['stripe-signature'];
-    if (STRIPE_WEBHOOK_SECRET && sig) {
+    if (!STRIPE_WEBHOOK_SECRET) {
+      console.error('[stripe-webhook] STRIPE_WEBHOOK_SECRET not set — rejecting request');
+      return res.status(400).send('Webhook secret not configured');
+    }
+    if (sig) {
       const hmac = crypto.createHmac('sha256', STRIPE_WEBHOOK_SECRET);
       hmac.update(req.body);
       if ('sha256='+hmac.digest('hex') !== sig) return res.status(400).send('Invalid signature');
@@ -1096,18 +1294,20 @@ app.post('/api/stripe-webhook', async (req, res) => {
   } catch(err) { console.error('[stripe-webhook]', err.message); res.status(400).send('Error'); }
 });
 
-app.get('/api/mini-me-consent/:id', (req, res) => {
+app.get('/api/mini-me-consent/:id', async (req, res) => {
   const client = clients[req.params.id];
   if (!client || client.previewToken !== req.query.token) return res.status(404).send('<h2>Not found</h2>');
-  client.miniMeConsent = true; client.miniMeConsentAt = new Date().toISOString(); saveClients();
+  client.miniMeConsent = true; client.miniMeConsentAt = new Date().toISOString();
+  await saveClient(client);
   sendEmail({ to: ADMIN_EMAIL, subject: `✅ Mini-Me Consent: ${client.data.businessName}`, html: `<p>${client.data.businessName} (${client.data.ownerName}) consented to Mini-Me. Timestamp: ${client.miniMeConsentAt}</p>` }).catch(() => {});
   res.send(`<html><body style="font-family:sans-serif;padding:60px;text-align:center;background:#f0fff4;"><h2 style="color:#00D68F;">✅ Consent Recorded!</h2><p>Thank you, ${client.data.ownerName||'there'}. We have your authorization to create your Mini-Me avatar.</p><p>Now upload your video clip using the link in your email!</p></body></html>`);
 });
 
-app.get('/api/mini-me-subscribe/:id', (req, res) => {
+app.get('/api/mini-me-subscribe/:id', async (req, res) => {
   const client = clients[req.params.id];
   if (!client || client.previewToken !== req.query.token) return res.status(404).send('<h2>Not found</h2>');
-  client.miniMeSubscribed = true; client.miniMeSubscribedAt = new Date().toISOString(); saveClients();
+  client.miniMeSubscribed = true; client.miniMeSubscribedAt = new Date().toISOString();
+  await saveClient(client);
   sendEmail({ to: ADMIN_EMAIL, subject: `💰 Mini-Me Subscription: ${client.data.businessName}`, html: `<p>${client.data.businessName} wants $59/mo Mini-Me subscription. Email: ${client.data.email}. Set up Stripe subscription.</p>` }).catch(() => {});
   res.send(`<html><body style="font-family:sans-serif;padding:60px;text-align:center;background:#f0f9ff;"><h2 style="color:#0066FF;">🎉 You're Signed Up for Mini-Me!</h2><p>Your $59/month subscription has been requested. We'll send a payment link shortly.</p><p>Questions? Call <strong>(228) 604-3200</strong></p></body></html>`);
 });
@@ -1123,7 +1323,7 @@ app.post('/api/video-upload', async (req, res) => {
     const isPromo = videoType === 'promo';
     if (isPromo) { client.promoVideoFile = videoFileName; client.promoVideoUploadedAt = new Date().toISOString(); }
     else { client.miniMeVideoFile = videoFileName; client.miniMeVideoUploadedAt = new Date().toISOString(); }
-    saveClients();
+    await saveClient(client);
     const setVideoLink = `${BASE_URL}/api/admin/set-video?adminKey=${ADMIN_KEY}&clientId=${client.id}&videoType=${isPromo?'promo':'miniMe'}&videoUrl=PASTE_URL_HERE`;
     await sendEmail({ to: ADMIN_EMAIL, subject: `🎬 Video Uploaded: ${client.data.businessName} — ${isPromo?'Promo':'Mini-Me'}`, html: `<div style="font-family:sans-serif;max-width:600px;"><h2 style="color:#0066FF;">${isPromo?'🎬 Promo Video':'🤖 Mini-Me Clip'} Received</h2><table style="width:100%;border-collapse:collapse;margin-bottom:20px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;"><tr style="background:#f9fafb;"><td style="padding:9px 14px;font-weight:700;">Business</td><td style="padding:9px 14px;">${client.data.businessName}</td></tr><tr><td style="padding:9px 14px;font-weight:700;">Owner</td><td style="padding:9px 14px;">${client.data.ownerName}</td></tr><tr style="background:#f9fafb;"><td style="padding:9px 14px;font-weight:700;">Email</td><td style="padding:9px 14px;">${client.data.email}</td></tr><tr><td style="padding:9px 14px;font-weight:700;">Phone</td><td style="padding:9px 14px;">${client.data.phone}</td></tr><tr style="background:#f9fafb;"><td style="padding:9px 14px;font-weight:700;">File</td><td style="padding:9px 14px;">${videoFileName}</td></tr><tr><td style="padding:9px 14px;font-weight:700;">Mini-Me Consent</td><td style="padding:9px 14px;">${client.miniMeConsent?'✅ '+client.miniMeConsentAt:'⏳ Pending'}</td></tr></table><div style="background:#f0f9ff;border:2px solid #0066FF;border-radius:12px;padding:20px;"><p style="font-weight:700;color:#0066FF;margin:0 0 10px;">📋 After producing the video:</p><p style="margin:0 0 10px;font-size:14px;color:#374151;">1. Host the finished video (YouTube, Vimeo, or direct URL)<br>2. Copy the URL<br>3. Replace PASTE_URL_HERE in the link below and open it in your browser to publish it to their site:</p><p style="font-family:monospace;font-size:12px;word-break:break-all;background:#fff;padding:12px;border-radius:6px;border:1px solid #e5e7eb;color:#374151;">${setVideoLink}</p></div></div>` });
     res.json({ success: true, message: "Video uploaded! We'll have your video ready within 48 hours." });
@@ -1136,11 +1336,35 @@ app.post('/api/admin/set-video', async (req, res) => {
   const { clientId, videoUrl, videoType } = req.body;
   const client = clients[clientId];
   if (!client) return res.status(404).json({ error: 'Not found' });
-  if (videoType === 'miniMe') client.data.miniMeVideoUrl = videoUrl;
-  else client.data.promoVideoUrl = videoUrl;
-  client.updatedAt = new Date().toISOString(); saveClients();
+  if (videoType === 'miniMe') {
+    client.data.miniMeVideoUrl = videoUrl;
+    client.miniMeVideoFile = client.miniMeVideoFile || null;
+  } else {
+    client.data.promoVideoUrl = videoUrl;
+  }
+  client.updatedAt = new Date().toISOString();
+  await saveClient(client);
   if (client.cfProjectName) {
-    (async () => { try { await deployToCloudflarePages(client.cfProjectName, generateSiteHTML(client.data, false)); } catch(e) { console.error('[set-video]', e.message); } })();
+    (async () => { try { await deployToCloudflarePages(client.cfProjectName, generateSiteHTML(client.data, false)); } catch(e) { console.error('[set-video redeploy]', e.message); } })();
+  }
+  // Notify client their video is live
+  if (client.data.email) {
+    sendEmail({
+      to: client.data.email,
+      subject: `🎬 Your video is live on your website — ${client.data.businessName}`,
+      html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
+        <div style="background:linear-gradient(135deg,#0066FF,#1a1a2e);padding:32px;text-align:center;border-radius:12px 12px 0 0;">
+          <h1 style="color:#00D68F;margin:0;font-size:26px;">🎬 Your Video is Live!</h1>
+        </div>
+        <div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:32px;">
+          <p>Hi ${client.data.ownerName||'there'},</p>
+          <p>Your ${videoType==='miniMe'?'Mini-Me AI Avatar':'promotional video'} is now live on your website.</p>
+          ${client.liveUrl?`<div style="text-align:center;margin:24px 0;"><a href="${client.liveUrl}" style="display:inline-block;background:#0066FF;color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;">View My Website →</a></div>`:''}
+          <p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(228) 604-3200</strong></p>
+          <p>— The TurnkeyAI Services Team</p>
+        </div>
+      </div>`
+    }).catch(e => console.error('[set-video client notification]', e.message));
   }
   res.json({ success: true });
 });
@@ -1187,18 +1411,21 @@ app.post('/api/client-update', async (req, res) => {
       if (updateData['day_'+d] !== undefined) client.data['day_'+d] = updateData['day_'+d];
       if (updateData['hours_'+d] !== undefined) client.data['hours_'+d] = updateData['hours_'+d];
     });
-    client.updatedAt = new Date().toISOString(); saveClients();
+    client.updatedAt = new Date().toISOString();
+    await saveClient(client);
     if (client.cfProjectName) { (async()=>{ try{ await deployToCloudflarePages(client.cfProjectName, generateSiteHTML(client.data,false)); }catch(e){console.error('[hours re-deploy]',e.message);} })(); }
     sendEmail({ to: ADMIN_EMAIL, subject: `🕒 Hours Updated: ${client.data.businessName}`, html: `<p>${client.data.businessName} updated hours.</p>` }).catch(()=>{});
     return res.json({ success: true, message: 'Hours updated! Live site refreshing — changes appear within 30 seconds.' });
   }
   if (updateType === 'request_minime') {
-    client.data.wants_mini_me = 'yes'; saveClients();
+    client.data.wants_mini_me = 'yes';
+    await saveClient(client);
     await sendMiniMeEmail(client).catch(e=>console.error('[dashboard miniMe]',e.message));
     return res.json({ success: true, message: 'Mini-Me request received! Check your email for next steps.' });
   }
   if (updateType === 'request_free_video') {
-    client.freeVideoRequested = true; saveClients();
+    client.freeVideoRequested = true;
+    await saveClient(client);
     await sendFreeVideoEmail(client).catch(e=>console.error('[dashboard video]',e.message));
     return res.json({ success: true, message: 'Free video request received! Check your email for next steps.' });
   }
@@ -1248,6 +1475,7 @@ app.post('/api/chat', async (req, res) => {
   } catch(err) { console.error('[/api/chat]', err); res.status(500).json({ reply: 'Chat temporarily unavailable.' }); }
 });
 
+// Legacy endpoint — kept for backward compatibility with old video-upload.html
 app.post('/api/video-upload-notify', async (req, res) => {
   try {
     const d = req.body;
@@ -1263,7 +1491,7 @@ app.post('/api/intake', async (req, res) => {
     const data = req.body;
     const id = data.id || ('client_' + Date.now());
     const previewToken = makeToken();
-    clients[id] = {
+    const newClient = {
       id, status: 'pending', data, previewToken,
       dashToken: null, dashPassword: null, liveUrl: null, cfProjectName: null,
       miniMeConsent: null, miniMeConsentAt: null, miniMeVideoUrl: null,
@@ -1271,7 +1499,8 @@ app.post('/api/intake', async (req, res) => {
       freeVideoRequested: data.wants_free_video === 'yes' || data.wantsFreeVideo === 'yes',
       createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
     };
-    saveClients();
+    clients[id] = newClient;
+    await saveClient(newClient);
     const previewUrl = `${BASE_URL}/preview/${previewToken}`;
     const approveUrl = `${BASE_URL}/api/approve/${id}?adminKey=${ADMIN_KEY}`;
     const d = data;
@@ -1321,4 +1550,13 @@ app.get('*', (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`TurnkeyAI backend running on port ${PORT}`));
+// ── Startup ──
+initDB()
+  .then(() => loadClientsFromDB())
+  .then(() => {
+    app.listen(PORT, () => console.log(`TurnkeyAI backend running on port ${PORT}`));
+  })
+  .catch(err => {
+    console.error('[FATAL] DB init failed:', err.message);
+    process.exit(1);
+  });
