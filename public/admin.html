@@ -70,6 +70,7 @@
 
     @media (max-width: 900px) {
       .stats { grid-template-columns: 1fr 1fr; }
+      .mrr-panel { flex-direction: column; }
       .section { padding: 16px; }
       .topbar { padding: 12px 16px; }
     }
@@ -91,6 +92,28 @@
   <div class="stat-card"><div class="stat-label">Pending Approval</div><div class="stat-value yellow" id="statPending">–</div></div>
   <div class="stat-card"><div class="stat-label">Live Sites</div><div class="stat-value green" id="statActive">–</div></div>
   <div class="stat-card"><div class="stat-label">Mini-Me Requests</div><div class="stat-value blue" id="statMiniMe">–</div></div>
+</div>
+
+<!-- T-12: MRR Panel -->
+<div class="mrr-panel" style="display:flex;gap:16px;flex-wrap:wrap;padding:16px 28px 0;">
+  <div class="stat-card" style="min-width:140px;">
+    <div class="stat-label">Monthly MRR</div>
+    <div class="stat-value green" id="mrrTotal">$–</div>
+  </div>
+  <div class="stat-card" style="min-width:140px;">
+    <div class="stat-label">Active Sites</div>
+    <div class="stat-value blue" id="mrrCount">–</div>
+  </div>
+  <div class="stat-card" style="min-width:140px;">
+    <div class="stat-label">Avg Per Client</div>
+    <div class="stat-value yellow" id="mrrAvg">$–</div>
+  </div>
+</div>
+
+<!-- T-11: DNS Pending Panel -->
+<div class="section" style="padding-bottom:0;">
+  <div class="section-title" style="margin-bottom:12px;">🌐 DNS Pending Tasks</div>
+  <div id="dnsPendingPanel" style="font-size:14px;"></div>
 </div>
 
 <div class="section">
@@ -131,19 +154,33 @@
   let allClients = [];
   let currentFilter = 'all';
 
-  async function loadClients() {
-    document.getElementById('loadingEl').style.display = 'block';
-    document.getElementById('clientTable').style.display = 'none';
-    document.getElementById('emptyEl').style.display = 'none';
+  async function loadClients(silent = false) {
+    if (!silent) {
+      document.getElementById('loadingEl').style.display = 'block';
+      document.getElementById('loadingEl').innerHTML = '<div class="spinner"></div><div>Loading clients...</div>';
+      document.getElementById('clientTable').style.display = 'none';
+      document.getElementById('emptyEl').style.display = 'none';
+    }
     try {
       const res = await fetch(`/api/admin/clients?adminKey=${ADMIN_KEY}`);
       if (res.status === 403) { location.href = '/admin-login.html'; return; }
-      allClients = await res.json();
+      const data = await res.json();
+      // T-12: response shape changed to { mrr, clients }
+      const mrr = data.mrr;
+      allClients = data.clients || [];
       allClients.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      // T-12: populate MRR panel
+      if (mrr) {
+        document.getElementById('mrrTotal').textContent = '$' + mrr.total.toLocaleString();
+        document.getElementById('mrrCount').textContent = mrr.activeCount;
+        document.getElementById('mrrAvg').textContent = '$' + mrr.perClient;
+      }
       updateStats();
       renderTable();
+      renderDnsPanel(allClients);
       document.getElementById('lastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
     } catch(e) {
+      document.getElementById('loadingEl').style.display = 'block';
       document.getElementById('loadingEl').innerHTML = '<div style="color:#ef4444;">Failed to load. Check your connection.</div>';
     }
   }
@@ -206,7 +243,7 @@
       const addonHtml = addons.map(a => `<span class="badge badge-yes" style="margin:2px;">${a}</span>`).join('');
       const actionBtns = c.status === 'pending'
         ? `<a class="btn btn-preview btn-sm" href="${previewUrl}" target="_blank">👁 Preview</a>
-           <a class="btn btn-approve btn-sm" href="${approveUrl}" onclick="return confirmApprove('${c.businessName}')">✅ Approve</a>`
+           <a class="btn btn-approve btn-sm" href="${approveUrl}" onclick="return confirmApprove('${(c.businessName||'').replace(/'/g, &quot;\\\'&quot;)}')">✅ Approve</a>`
         : `<a class="btn btn-preview btn-sm" href="${previewUrl}" target="_blank">👁 Preview</a>
            <a class="btn btn-live btn-sm" href="${c.liveUrl}" target="_blank">🌐 Live Site</a>`;
       return `<tr>
@@ -242,9 +279,54 @@
     setTimeout(() => t.remove(), 4000);
   }
 
+  // T-11: DNS pending tasks panel
+  function renderDnsPanel(clients) {
+    const dnsPending = clients.filter(c => c.domainStatus && c.domainStatus.needsDnsAction);
+    const panel = document.getElementById('dnsPendingPanel');
+    if (!panel) return;
+    if (!dnsPending.length) {
+      panel.innerHTML = '<p style="color:rgba(255,255,255,.3);font-size:14px;">✅ No pending DNS tasks.</p>';
+      return;
+    }
+    panel.innerHTML = dnsPending.map(c => {
+      const ds = c.domainStatus;
+      const isExisting = ds.hasDomain === 'yes';
+      const bg = isExisting ? '#2a1f00' : '#0f0f2a';
+      const border = isExisting ? '#f59e0b' : '#6366f1';
+      const bindBtn = c.status === 'active' && ds.existingDomain
+        ? `<button onclick="bindDomain('${c.id}','${ds.existingDomain}')" class="btn btn-sm" style="margin-top:8px;background:#0066FF;color:white;">🔗 Bind Custom Domain to CF Pages</button>`
+        : '';
+      return `<div style="background:${bg};border:1px solid ${border};border-radius:10px;padding:14px 18px;margin-bottom:10px;">
+        <strong style="font-size:14px;color:white;">${c.businessName}</strong> — ${c.ownerName} — <a href="mailto:${c.email}" style="color:#60a5fa;">${c.email}</a><br>
+        <span style="font-size:13px;color:rgba(255,255,255,.6);">
+          ${isExisting
+            ? `🌐 Has domain: <strong>${ds.existingDomain||'—'}</strong> @ ${(ds.domainRegistrar||'unknown').replace(/_/g,' ')} ${ds.keepExistingEmail==='yes'?'⚠️ Keep MX records':''}`
+            : `🆕 Needs domain: <strong>${ds.suggestedDomain||'ask client'}</strong>`}
+        </span>
+        ${bindBtn}
+      </div>`;
+    }).join('');
+  }
+
+  async function bindDomain(clientId, customDomain) {
+    if (!confirm(`Bind ${customDomain} to CF Pages for this client?`)) return;
+    const key = ADMIN_KEY;
+    if (!key) { showToast('❌ No admin key in URL — add ?key=YOUR_KEY', 'error'); return; }
+    try {
+      const res = await fetch('/api/admin/bind-domain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+        body: JSON.stringify({ clientId, customDomain })
+      });
+      const d = await res.json();
+      if (d.success) { showToast('✅ Domain bound! ' + d.liveUrl); loadClients(); }
+      else showToast('❌ ' + (d.error || JSON.stringify(d.details)), 'error');
+    } catch(e) { showToast('❌ Request failed', 'error'); }
+  }
+
   // Auto-refresh every 60 seconds
   loadClients();
-  setInterval(loadClients, 60000);
+  setInterval(() => loadClients(true), 60000);
 </script>
 </body>
 </html>
