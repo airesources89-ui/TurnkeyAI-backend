@@ -1,6 +1,6 @@
 {
   "name": "turnkeyai-backend",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "TurnkeyAI Services Backend",
   "main": "server.js",
   "scripts": {
