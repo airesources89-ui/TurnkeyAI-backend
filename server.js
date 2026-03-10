@@ -26,7 +26,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const BREVO_API_KEY      = process.env.BREVO_API_KEY;
-const ADMIN_EMAIL        = 'george@turnkeyaiservices.com';
+const ADMIN_EMAIL        = 'turnkeyaiservices@gmail.com';
 const PORT               = process.env.PORT || 8080;
 const BASE_URL           = process.env.BASE_URL || 'https://turnkeyaiservices.com';
 const CF_ACCOUNT_ID      = process.env.CF_ACCOUNT_ID;
@@ -190,7 +190,7 @@ async function sendEmail({ to, subject, html }) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'api-key': BREVO_API_KEY },
     body: JSON.stringify({
-      sender: { name: 'TurnkeyAI Services', email: 'noreply@turnkeyaiservices.com' },
+      sender: { name: 'TurnkeyAI Services', email: 'turnkeyaiservices@gmail.com' },
       to: [{ email: to }], subject, htmlContent: html
     })
   });
@@ -263,7 +263,7 @@ async function sendMiniMeEmail(client) {
         <div style="background:#fff8ed;border:1px solid #fbbf24;border-radius:8px;padding:16px;margin-top:24px;">
           <p style="margin:0;font-size:14px;color:#92400e;"><strong>Continue Mini-Me after your free avatar?</strong> Just $59/month. <a href="${subscribeUrl}" style="color:#0066FF;font-weight:700;">✅ Yes, sign me up →</a></p>
         </div>
-        <p style="margin-top:32px;">Questions? Call <strong>(228) 604-3200</strong></p>
+        <p style="margin-top:32px;">Questions? Call <strong>(603) 922-2004</strong></p>
         <p>— The TurnkeyAI Services Team</p>
       </div>
     </div>`
@@ -293,7 +293,7 @@ async function sendFreeVideoEmail(client) {
           <a href="${uploadUrl}" style="background:#0066FF;color:white;padding:16px 36px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;display:inline-block;">📤 Upload My Video Clip</a>
         </div>
         <p>We'll have your finished video back to you within 48 hours.</p>
-        <p style="margin-top:24px;">Questions? Call <strong>(228) 604-3200</strong></p>
+        <p style="margin-top:24px;">Questions? Call <strong>(603) 922-2004</strong></p>
         <p>— The TurnkeyAI Services Team</p>
       </div>
     </div>`
@@ -358,7 +358,7 @@ async function sendCredentialsEmail(client) {
           <p style="margin:16px 0 0;"><strong>Password:</strong></p>
           <div style="background:#1a1a2e;color:#00D68F;font-size:32px;font-weight:700;letter-spacing:8px;text-align:center;padding:16px;border-radius:8px;margin-top:8px;">${client.dashPassword}</div>
         </div>
-        <p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(228) 604-3200</strong></p>
+        <p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(603) 922-2004</strong></p>
         <p>— The TurnkeyAI Services Team</p>
       </div>
     </div>`
@@ -563,13 +563,13 @@ function generateSiteHTML(data, isPreview) {
         var changes={businessName:document.getElementById('upd_biz').value,phone:document.getElementById('upd_phone').value,missionStatement:document.getElementById('upd_tagline').value,aboutUs:document.getElementById('upd_about').value,notes:document.getElementById('upd_notes').value};
         fetch('${BASE_URL}/api/preview-change-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'minor',clientId:'${clientId}',token:'${previewToken}',changes:changes})})
         .then(function(){document.getElementById('changeSection').style.display='none';var b=document.createElement('div');b.style='position:fixed;bottom:24px;right:24px;background:#00D68F;color:#071c12;padding:16px 24px;border-radius:12px;font-weight:700;font-size:14px;z-index:9999;font-family:sans-serif;';b.textContent='✅ Changes sent! We will update your site within 24 hours.';document.body.appendChild(b);setTimeout(function(){b.remove();},5000);})
-        .catch(function(){alert('Send failed. Please email george@turnkeyaiservices.com');});
+        .catch(function(){alert('Send failed. Please email turnkeyaiservices@gmail.com');});
       }
       function submitMajorChanges(){
         var details={name:document.getElementById('maj_name').value,email:document.getElementById('maj_email').value,details:document.getElementById('maj_details').value};
         fetch('${BASE_URL}/api/preview-change-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'major',clientId:'${clientId}',token:'${previewToken}',changes:details})})
         .then(function(){document.getElementById('majorChangeSection').style.display='none';var b=document.createElement('div');b.style='position:fixed;bottom:24px;right:24px;background:#00D68F;color:#071c12;padding:16px 24px;border-radius:12px;font-weight:700;font-size:14px;z-index:9999;font-family:sans-serif;';b.textContent='✅ Message sent! We will be in touch within 24 hours.';document.body.appendChild(b);setTimeout(function(){b.remove();},5000);})
-        .catch(function(){alert('Send failed. Please email george@turnkeyaiservices.com');});
+        .catch(function(){alert('Send failed. Please email turnkeyaiservices@gmail.com');});
       }
       <\/script>`
     : `<div style="background:${pal.primary};color:rgba(255,255,255,.7);text-align:center;padding:10px 24px;font-size:13px;">⚡ Powered by <a href="https://turnkeyaiservices.com" style="color:${pal.accent};font-weight:700;text-decoration:none;">TurnkeyAI Services</a></div>`;
@@ -1032,7 +1032,7 @@ async function handleIntakeSubmission(data, res) {
       await sendEmail({
         to: data.email,
         subject: `🎉 Your website preview is ready — ${data.businessName || 'Your Business'}`,
-        html: `<div style="font-family:sans-serif;max-width:620px;margin:0 auto;"><div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:32px;border-radius:12px 12px 0 0;text-align:center;"><h1 style="color:white;margin:0;">We Got It! 🎉</h1><p style="color:rgba(255,255,255,0.85);margin:10px 0 0;">Hi ${data.ownerName||'there'} — your preview is ready.</p></div><div style="padding:32px;"><div style="text-align:center;margin-bottom:24px;"><a href="${partnerPreviewUrl}" style="background:#0066FF;color:white;padding:20px 44px;border-radius:12px;text-decoration:none;font-weight:700;font-size:18px;display:inline-block;">👁️ View My Website Preview</a></div><p style="font-size:14px;color:#6B7280;">Questions? Call (228) 604-3200</p></div></div>`
+        html: `<div style="font-family:sans-serif;max-width:620px;margin:0 auto;"><div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:32px;border-radius:12px 12px 0 0;text-align:center;"><h1 style="color:white;margin:0;">We Got It! 🎉</h1><p style="color:rgba(255,255,255,0.85);margin:10px 0 0;">Hi ${data.ownerName||'there'} — your preview is ready.</p></div><div style="padding:32px;"><div style="text-align:center;margin-bottom:24px;"><a href="${partnerPreviewUrl}" style="background:#0066FF;color:white;padding:20px 44px;border-radius:12px;text-decoration:none;font-weight:700;font-size:18px;display:inline-block;">👁️ View My Website Preview</a></div><p style="font-size:14px;color:#6B7280;">Questions? Call (603) 922-2004</p></div></div>`
       }).catch(e => console.error('[partner preview email]', e.message));
     }
     res.json({ success: true, id, preview: partnerPreviewUrl, partner: true });
@@ -1131,8 +1131,8 @@ async function handleIntakeSubmission(data, res) {
             <p style="font-weight:700;color:#065f46;margin:0;font-size:15px;">Review your preview — the approve button is inside the preview page.</p>
           </div>
           ${clientAddons.length?`<ul style="margin:0 0 20px;padding-left:20px;line-height:2.2;font-size:14px;">${clientAddons.join('')}</ul>`:''}
-          <p style="font-size:14px;color:#6B7280;margin:0 0 6px;">Have a logo or photos? Email <a href="mailto:george@turnkeyaiservices.com" style="color:#0066FF;">george@turnkeyaiservices.com</a></p>
-          <p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(228) 604-3200</strong></p>
+          <p style="font-size:14px;color:#6B7280;margin:0 0 6px;">Have a logo or photos? Email <a href="mailto:turnkeyaiservices@gmail.com" style="color:#0066FF;">turnkeyaiservices@gmail.com</a></p>
+          <p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(603) 922-2004</strong></p>
         </div>
       </div>`
     });
@@ -1242,7 +1242,7 @@ app.post('/api/video-upload', postLimiter, async (req, res) => {
       await sendEmail({
         to: uploaderEmail || client.data.email,
         subject: `✅ Video Received — ${businessName||client.data.businessName}`,
-        html: `<h2 style="color:#0066FF;font-family:sans-serif;">We Got Your Video Clip!</h2><p style="font-family:sans-serif;">Hi ${uploaderName||'there'},</p><p style="font-family:sans-serif;">Your ${typeLabel.toLowerCase()} has been received. Production begins within 48 hours.</p><p style="font-family:sans-serif;">Questions? Call <strong>(228) 604-3200</strong></p><p style="font-family:sans-serif;">— TurnkeyAI Services Team</p>`
+        html: `<h2 style="color:#0066FF;font-family:sans-serif;">We Got Your Video Clip!</h2><p style="font-family:sans-serif;">Hi ${uploaderName||'there'},</p><p style="font-family:sans-serif;">Your ${typeLabel.toLowerCase()} has been received. Production begins within 48 hours.</p><p style="font-family:sans-serif;">Questions? Call <strong>(603) 922-2004</strong></p><p style="font-family:sans-serif;">— TurnkeyAI Services Team</p>`
       });
     }
     res.json({ success: true, videoUrl });
@@ -1259,7 +1259,7 @@ app.post('/api/video-upload-notify', async (req, res) => {
       subject: `⚠️ Video Upload Fallback Notification: ${d.businessName||'Unknown'}`,
       html: `<h2 style="color:#f59e0b;font-family:sans-serif;">Video Upload Fallback</h2><p style="font-family:sans-serif;">This notification was sent because the primary video upload may have failed or the client used an older upload link.</p><table style="border-collapse:collapse;width:100%;max-width:500px;font-family:sans-serif;"><tr><td style="padding:8px;font-weight:700;">Client</td><td style="padding:8px;">${d.uploaderName||''}</td></tr><tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;">Business</td><td style="padding:8px;">${d.businessName||''}</td></tr><tr><td style="padding:8px;font-weight:700;">Email</td><td style="padding:8px;">${d.email||''}</td></tr><tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;">Video Type</td><td style="padding:8px;">${typeLabel}</td></tr><tr><td style="padding:8px;font-weight:700;">File</td><td style="padding:8px;">${d.fileName||''} (${d.fileSize||''})</td></tr>${d.uploadError?`<tr style="background:#fff8f0;"><td style="padding:8px;font-weight:700;color:#dc2626;">Upload Error</td><td style="padding:8px;color:#dc2626;">${d.uploadError}</td></tr>`:''}</table><p style="font-family:sans-serif;"><strong>Action:</strong> Follow up with client to arrange resubmission if needed.</p>`
     });
-    if (d.email) await sendEmail({ to: d.email, subject: `✅ Video Received — ${d.businessName||'Your Business'}`, html: `<h2 style="color:#0066FF;font-family:sans-serif;">We Got Your Video Clip!</h2><p style="font-family:sans-serif;">Hi ${d.uploaderName||'there'}, production begins within 48 hours.</p><p style="font-family:sans-serif;">Questions? Call (228) 604-3200</p>` });
+    if (d.email) await sendEmail({ to: d.email, subject: `✅ Video Received — ${d.businessName||'Your Business'}`, html: `<h2 style="color:#0066FF;font-family:sans-serif;">We Got Your Video Clip!</h2><p style="font-family:sans-serif;">Hi ${d.uploaderName||'there'}, production begins within 48 hours.</p><p style="font-family:sans-serif;">Questions? Call (603) 922-2004</p>` });
     res.json({ success: true });
   } catch(err) { console.error('[/api/video-upload-notify]', err); res.status(500).json({ error: 'Failed' }); }
 });
