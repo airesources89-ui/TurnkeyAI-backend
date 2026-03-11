@@ -1047,6 +1047,26 @@ async function handleIntakeSubmission(data, res) {
     }
     res.json({ success: true, id, preview: partnerPreviewUrl, partner: true });
     (async () => {
+      // Admin notification
+      await sendEmail({
+        to: ADMIN_EMAIL,
+        subject: `🤝 Partner Submission: ${data.businessName || 'New Client'} — Preview Ready`,
+        html: `<div style="font-family:sans-serif;max-width:680px;margin:0 auto;">
+          <div style="background:linear-gradient(135deg,#0066FF,#1a1a2e);padding:28px 32px;border-radius:12px 12px 0 0;">
+            <h1 style="color:white;margin:0;font-size:22px;">🤝 Partner Bypass Submission</h1>
+            <p style="color:rgba(255,255,255,.8);margin:8px 0 0;">${data.businessName || ''} — preview sent to client</p>
+          </div>
+          <div style="padding:28px 32px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;">
+            <p><strong>Business:</strong> ${data.businessName || '—'}</p>
+            <p><strong>Owner:</strong> ${data.ownerName || '—'}</p>
+            <p><strong>Email:</strong> ${data.email || '—'}</p>
+            <p><strong>Phone:</strong> ${data.phone || '—'}</p>
+            <p><strong>Industry:</strong> ${data.industry || '—'}</p>
+            <p><strong>City:</strong> ${data.city || '—'}</p>
+            <p style="margin-top:20px;"><a href="${partnerPreviewUrl}" style="background:#0066FF;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;">👁️ View Preview</a></p>
+          </div>
+        </div>`
+      }).catch(e => console.error('[partner admin email]', e.message));
       if (data.wants_mini_me === 'yes' || data.wantsMiniMe === 'yes') {
         sendMiniMeEmail(clients[id]).catch(()=>{});
       } else if (data.wants_free_video === 'yes' || data.wantsFreeVideo === 'yes') {
@@ -1376,6 +1396,67 @@ app.post('/api/preview-change-request', async (req, res) => {
     });
     res.json({ success: true });
   } catch(err) { console.error('[change-request]', err); res.status(500).json({ error: 'Failed' }); }
+});
+
+// ── POST /api/client-update ──
+app.post('/api/client-update', async (req, res) => {
+  const { token, password, updateType, updateData } = req.body;
+  if (!token || !password) return res.status(400).json({ error: 'Missing credentials' });
+  const client = Object.values(clients).find(c => c.dashToken === token);
+  if (!client) return res.status(404).json({ error: 'Not found' });
+  if (client.dashPassword !== password.trim().toUpperCase()) return res.status(401).json({ error: 'Wrong password' });
+
+  try {
+    if (updateType === 'hours') {
+      const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+      const hours = {};
+      days.forEach(d => {
+        hours[d] = { open: !!updateData['day_'+d], hours: updateData['hours_'+d] || '9:00 AM – 5:00 PM' };
+      });
+      client.data.hours = hours;
+      await saveClient(client);
+      // Redeploy live site with updated hours
+      if (client.status === 'active') {
+        const projectName = client.cfProjectName || `turnkeyai-${makeSlug(client.data.businessName)}`;
+        const liveHTML = generateSiteHTML(client.data, false);
+        deployToCloudflarePages(projectName, liveHTML).catch(e => console.error('[hours redeploy]', e.message));
+      }
+      return res.json({ success: true, message: 'Hours saved and site updating.' });
+    }
+
+    if (updateType === 'change_request') {
+      await sendEmail({
+        to: ADMIN_EMAIL,
+        subject: `✏️ Change Request: ${client.data.businessName}`,
+        html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
+          <h2 style="color:#0066FF;">Change Request — ${updateData.requestType || 'General'}</h2>
+          <p><strong>Client:</strong> ${client.data.businessName}</p>
+          <p><strong>Email:</strong> ${client.data.email}</p>
+          <p><strong>Phone:</strong> ${client.data.phone}</p>
+          <p><strong>Request:</strong></p>
+          <div style="background:#f4f6fa;padding:16px;border-radius:8px;">${updateData.details}</div>
+        </div>`
+      });
+      return res.json({ success: true, message: 'Request sent! We\'ll handle it within 24–48 hours.' });
+    }
+
+    if (updateType === 'request_minime') {
+      await sendMiniMeEmail(client);
+      return res.json({ success: true, message: 'Mini-Me requested! Check your email.' });
+    }
+
+    if (updateType === 'request_free_video') {
+      client.freeVideoRequested = true;
+      await saveClient(client);
+      await sendFreeVideoEmail(client);
+      return res.json({ success: true, message: 'Check your email for recording instructions!' });
+    }
+
+    return res.status(400).json({ error: 'Unknown updateType' });
+  } catch(err) {
+    console.error('[client-update]', err);
+    res.status(500).json({ error: 'Update failed. Please try again.' });
+  }
 });
 
 // ── POST /api/client-auth ──
