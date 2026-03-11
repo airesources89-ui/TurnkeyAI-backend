@@ -305,6 +305,22 @@ async function deployToCloudflarePages(projectName, htmlContent) {
   if (!CF_ACCOUNT_ID || !CF_API_TOKEN) {
     console.warn('[CF Pages] Missing credentials — skipping'); return { url: null, skipped: true };
   }
+  // Ensure project exists — create if not
+  const checkRes = await fetch(
+    `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/pages/projects/${projectName}`,
+    { headers: { 'Authorization': `Bearer ${CF_API_TOKEN}` } }
+  );
+  if (!checkRes.ok) {
+    const createRes = await fetch(`https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/pages/projects`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${CF_API_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: projectName, production_branch: 'main' })
+    });
+    const createData = await createRes.json();
+    if (!createRes.ok) throw new Error('CF Pages create failed: ' + JSON.stringify(createData.errors));
+    await new Promise(r => setTimeout(r, 3000));
+  }
+  // Deploy with wrangler
   const { execSync } = require('child_process');
   const os = require('os');
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tkai-'));
