@@ -310,7 +310,7 @@ async function deployToCloudflarePages(projectName, htmlContent) {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tkai-'));
   try {
     fs.writeFileSync(path.join(tmpDir, 'index.html'), htmlContent, 'utf8');
-    const cmd = `npx wrangler pages deploy "${tmpDir}" --project-name="${projectName}" --branch=main --commit-dirty=true`;
+    const cmd = `npx wrangler@3 pages deploy "${tmpDir}" --project-name="${projectName}" --branch=main --commit-dirty=true`;
     try {
       execSync(cmd, {
         env: { ...process.env, CLOUDFLARE_ACCOUNT_ID: CF_ACCOUNT_ID, CLOUDFLARE_API_TOKEN: CF_API_TOKEN },
