@@ -216,7 +216,7 @@ a { text-decoration: none; color: inherit; }
     <input class="form-input" type="password" id="dashPassword" placeholder="8-character code from email" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="btn-primary" onclick="doLogin()">Access My Dashboard →</button>
     <div class="form-err" id="loginErr">Wrong password or link. Check your welcome email.</div>
-    <div class="login-note">Your login link and password were in your welcome email.<br>Questions? Call <strong>(228) 604-3200</strong></div>
+    <div class="login-note">Your login link and password were in your welcome email.<br>Questions? Call <strong>(603) 922-2004</strong></div>
   </div>
 </div>
 
@@ -403,11 +403,17 @@ async function saveHours() {
 }
 
 function buildPlan() {
+  const p = (clientData.data?.plan || clientData.data?.tier || clientData.data?.packageType || '').toLowerCase();
+  let planName = 'Website + AI Chat';
+  let planRate = '$99/mo';
+  if (p.includes('social') || p.includes('full') || p === '159') { planName = 'Website + Blog + Social'; planRate = '$159/mo'; }
+  else if (p.includes('blog') || p === '129') { planName = 'Website + Blog'; planRate = '$129/mo'; }
+  else if (p === '218') { planName = 'Full Package'; planRate = '$218/mo'; }
   document.getElementById('planBody').innerHTML = `
-    <div class="plan-row"><span class="plan-key">Plan</span><span class="plan-val">Website + AI Chat</span></div>
-    <div class="plan-row"><span class="plan-key">Monthly Rate</span><span class="plan-val" style="color:var(--primary);">$99/mo</span></div>
+    <div class="plan-row"><span class="plan-key">Plan</span><span class="plan-val">${planName}</span></div>
+    <div class="plan-row"><span class="plan-key">Monthly Rate</span><span class="plan-val" style="color:var(--primary);">${planRate}</span></div>
     <div class="plan-row"><span class="plan-key">Status</span><span class="plan-val" style="color:${clientData.status==='active'?'var(--accent)':'var(--warn)'};">${clientData.status==='active'?'✅ Active':'⏳ Pending'}</span></div>
-    <div class="plan-row"><span class="plan-key">Support</span><span class="plan-val">(228) 604-3200</span></div>
+    <div class="plan-row"><span class="plan-key">Support</span><span class="plan-val">(603) 922-2004</span></div>
   `;
 }
 
