@@ -195,13 +195,65 @@ a { text-decoration: none; color: inherit; }
   position: fixed; bottom: 24px; right: 24px;
   background: var(--dark); color: white; padding: 14px 22px; border-radius: 12px;
   font-size: 14px; font-weight: 600; box-shadow: 0 8px 32px rgba(0,0,0,.2);
-  transform: translateY(80px); transition: transform .3s; z-index: 999;
+  transform: translateY(80px); transition: transform .3s; z-index: 9999;
 }
 .toast.show { transform: translateY(0); }
 .toast.success { background: var(--accent); color: var(--dark); }
+
+/* INTAKE MODAL */
+#intakeModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(0,0,0,.7);
+  flex-direction: column;
+}
+#intakeModal.open { display: flex; }
+#intakeModalBar {
+  background: var(--dark);
+  border-bottom: 2px solid var(--primary);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+#intakeModalBar span {
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+}
+#intakeModalClose {
+  background: rgba(255,255,255,.1);
+  border: 1.5px solid rgba(255,255,255,.25);
+  color: white;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--head);
+}
+#intakeModalClose:hover { background: rgba(255,255,255,.2); }
+#intakeFrame {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: white;
+}
 </style>
 </head>
 <body>
+
+<!-- INTAKE MODAL -->
+<div id="intakeModal">
+  <div id="intakeModalBar">
+    <span>📝 Update Your Website Content</span>
+    <button id="intakeModalClose" onclick="closeIntakeModal()">✕ Cancel</button>
+  </div>
+  <iframe id="intakeFrame" src="" title="Content Update Form"></iframe>
+</div>
 
 <!-- LOGIN -->
 <div id="loginScreen">
@@ -283,8 +335,10 @@ a { text-decoration: none; color: inherit; }
                 <div class="change-type-desc">Describe your need</div>
               </div>
             </div>
-            <textarea class="change-textarea" id="changeDetails" placeholder="Describe what you'd like changed..."></textarea>
-            <button class="change-submit-btn" onclick="submitChangeRequest()">Submit Request →</button>
+            <div id="changeNonContentArea">
+              <textarea class="change-textarea" id="changeDetails" placeholder="Describe what you'd like changed..."></textarea>
+              <button class="change-submit-btn" id="changeSubmitBtn" onclick="submitChangeRequest()">Submit Request →</button>
+            </div>
           </div>
         </div>
       </div>
@@ -310,6 +364,18 @@ window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const t = params.get('token');
   if (t) document.getElementById('dashToken').value = t;
+
+  // Listen for postMessage from intake iframe
+  window.addEventListener('message', (e) => {
+    if (e.origin !== window.location.origin) return;
+    if (!e.data || e.data.type !== 'content_update_result') return;
+    closeIntakeModal();
+    if (e.data.success) {
+      showToast('✅ ' + (e.data.message || 'Your site has been updated.'), true);
+    } else {
+      showToast('❌ ' + (e.data.error || 'Update failed. Please contact support.'));
+    }
+  });
 });
 
 async function doLogin() {
@@ -459,30 +525,42 @@ function selectChangeType(type, el) {
   selectedChangeType = type;
   document.querySelectorAll('.change-type-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
-  const ta = document.getElementById('changeDetails');
-  if (type === 'content') {
-    const d = clientData.data || {};
-    const services = Object.keys(d).filter(k => k.startsWith('service_') && d[k]==='on')
-      .map(k => k.replace('service_','').replace(/_/g,' ')).join(', ');
-    ta.value = `Business Name: ${d.businessName || ''}
-Phone: ${d.phone || ''}
-Tagline: ${d.missionStatement || ''}
-About Us: ${d.aboutUs || ''}
-Services: ${services || ''}
 
-What I want changed:
-`;
-    ta.focus();
-    ta.setSelectionRange(ta.value.length, ta.value.length);
-  } else {
-    ta.value = '';
-    const hints = {
-      design: 'Example: "I want to add a photo gallery" or "Can we change the color to blue?"',
-      photo: 'Please describe the photos you want added. You can also email them to turnkeyaiservices@gmail.com',
-      other: 'Describe what you need and we\'ll take care of it within 24–48 hours.'
-    };
-    ta.placeholder = hints[type] || 'Describe your request...';
+  if (type === 'content') {
+    // Hide textarea/submit — open the full intake form in modal instead
+    document.getElementById('changeNonContentArea').style.display = 'none';
+    openIntakeModal();
+    return;
   }
+
+  // Show textarea/submit for all other types
+  document.getElementById('changeNonContentArea').style.display = 'block';
+  const ta = document.getElementById('changeDetails');
+  ta.value = '';
+  const hints = {
+    design: 'Example: "I want to add a photo gallery" or "Can we change the color to blue?"',
+    photo: 'Please describe the photos you want added. You can also email them to turnkeyaiservices@gmail.com',
+    other: 'Describe what you need and we\'ll take care of it within 24–48 hours.'
+  };
+  ta.placeholder = hints[type] || 'Describe your request...';
+  ta.focus();
+}
+
+function openIntakeModal() {
+  const pass = encodeURIComponent(PASS);
+  document.getElementById('intakeFrame').src =
+    `${BASE_URL}/intake.html?token=${TOKEN}&mode=update#${pass}`;
+  document.getElementById('intakeModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeIntakeModal() {
+  document.getElementById('intakeModal').classList.remove('open');
+  document.getElementById('intakeFrame').src = '';
+  document.body.style.overflow = '';
+  // Deselect content button so it can be re-opened
+  document.querySelectorAll('.change-type-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('changeNonContentArea').style.display = 'block';
 }
 
 async function submitChangeRequest() {
