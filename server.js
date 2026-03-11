@@ -1040,13 +1040,12 @@ async function handleIntakeSubmission(data, res) {
     (async () => {
       try { await runDeploy(clients[id]); }
       catch(e) {
-        const c = clients[id];
-        c.status = 'active'; c.dashToken = c.dashToken || makeToken();
-        c.dashPassword = c.dashPassword || makePassword();
-        c.liveUrl = c.liveUrl || partnerPreviewUrl;
-        c.approvedAt = new Date().toISOString();
-        await saveClient(c);
-        await sendCredentialsEmail(c).catch(()=>{});
+        console.error('[partner-deploy-failed]', e.message);
+        await sendEmail({
+          to: ADMIN_EMAIL,
+          subject: `🚨 Deploy FAILED: ${clients[id]?.data?.businessName || id}`,
+          html: `<p>Partner bypass deploy failed for client <strong>${id}</strong>.</p><p>Error: ${e.message}</p><p>No credentials were sent to the client. Manual intervention required.</p>`
+        }).catch(()=>{});
       }
       if (data.wants_mini_me === 'yes' || data.wantsMiniMe === 'yes') {
         sendMiniMeEmail(clients[id]).catch(()=>{});
@@ -1306,6 +1305,20 @@ app.get('/api/approve/:id', async (req, res) => {
     await runDeploy(client);
     res.send(`<html><body style="font-family:sans-serif;text-align:center;padding:60px;"><h1 style="color:#00D68F;">✅ ${client.data.businessName} is LIVE!</h1><p><a href="${client.liveUrl}" target="_blank">${client.liveUrl}</a></p><p>Dashboard password: <strong>${client.dashPassword}</strong></p></body></html>`);
   } catch(err) { console.error('[approve]', err); res.status(500).send('Deploy failed: ' + err.message); }
+});
+
+// ── GET /api/redeploy/:id (admin force re-deploy for stuck clients) ──
+app.get('/api/redeploy/:id', async (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).send('Unauthorized');
+  const client = clients[req.params.id];
+  if (!client) return res.status(404).send('Client not found');
+  if (!client.data.businessName) return res.status(400).send('Client has no businessName — cannot deploy.');
+  client.status = 'pending';
+  try {
+    await runDeploy(client);
+    res.send(`<html><body style="font-family:sans-serif;text-align:center;padding:60px;background:#0f1117;color:white;"><h1 style="color:#00D68F;">✅ ${client.data.businessName} Re-Deployed!</h1><p>Live at: <a href="${client.liveUrl}" style="color:#0066FF;">${client.liveUrl}</a></p><p>New dashboard password: <strong>${client.dashPassword}</strong></p><p style="color:rgba(255,255,255,.6);">Credentials email sent to client.</p></body></html>`);
+  } catch(err) { client.status = 'active'; console.error('[redeploy]', err); res.status(500).send('Re-deploy failed: ' + err.message); }
 });
 
 // ── GET /api/client-approve/:id (client self-approve from preview) ──
