@@ -1047,15 +1047,6 @@ async function handleIntakeSubmission(data, res) {
     }
     res.json({ success: true, id, preview: partnerPreviewUrl, partner: true });
     (async () => {
-      try { await runDeploy(clients[id]); }
-      catch(e) {
-        console.error('[partner-deploy-failed]', e.message);
-        await sendEmail({
-          to: ADMIN_EMAIL,
-          subject: `🚨 Deploy FAILED: ${clients[id]?.data?.businessName || id}`,
-          html: `<p>Partner bypass deploy failed for client <strong>${id}</strong>.</p><p>Error: ${e.message}</p><p>No credentials were sent to the client. Manual intervention required.</p>`
-        }).catch(()=>{});
-      }
       if (data.wants_mini_me === 'yes' || data.wantsMiniMe === 'yes') {
         sendMiniMeEmail(clients[id]).catch(()=>{});
       } else if (data.wants_free_video === 'yes' || data.wantsFreeVideo === 'yes') {
