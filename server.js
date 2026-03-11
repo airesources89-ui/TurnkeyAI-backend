@@ -1371,6 +1371,24 @@ app.post('/api/preview-change-request', async (req, res) => {
   } catch(err) { console.error('[change-request]', err); res.status(500).json({ error: 'Failed' }); }
 });
 
+// ── POST /api/client-auth ──
+app.post('/api/client-auth', async (req, res) => {
+  const { token, password } = req.body;
+  if (!token || !password) return res.status(400).json({ error: 'Missing token or password' });
+  const client = Object.values(clients).find(c => c.dashToken === token);
+  if (!client) return res.status(404).json({ error: 'Not found' });
+  if (client.dashPassword !== password.trim().toUpperCase()) return res.status(401).json({ error: 'Wrong password' });
+  res.json({
+    businessName: client.data.businessName,
+    status: client.status,
+    liveUrl: client.liveUrl,
+    data: client.data,
+    miniMeConsent: client.miniMeConsent || false,
+    miniMeVideoUrl: client.miniMeVideoFile || null,
+    freeVideoRequested: client.freeVideoRequested || false
+  });
+});
+
 // ── POST /api/admin/bind-domain (T-14) ──
 app.post('/api/admin/bind-domain', async (req, res) => {
   const adminKey = req.query.adminKey || req.headers['x-admin-key'];
