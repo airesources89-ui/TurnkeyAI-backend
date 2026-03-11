@@ -323,7 +323,7 @@ async function deployToCloudflarePages(projectName, htmlContent) {
   const htmlHash = crypto.createHash('sha256').update(htmlBuffer).digest('hex');
   const manifest = { '/index.html': htmlHash };
   const form = new FormData();
-  form.append('manifest', JSON.stringify(manifest), { filename: 'manifest', contentType: 'application/json' });
+  form.append('manifest', Buffer.from(JSON.stringify(manifest)), { filename: 'manifest', contentType: 'application/json' });
   form.append('/index.html', htmlBuffer, { filename: 'index.html', contentType: 'text/html; charset=utf-8' });
   const deployRes = await fetch(
     `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/pages/projects/${projectName}/deployments`,
