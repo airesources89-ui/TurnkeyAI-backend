@@ -82,10 +82,10 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
 </head>
 <body>
 <div class="header">
-  <h1>🚀 Get Your AI-Powered Website</h1>
-  <p>Fill this out once — we build your site and send you a preview within minutes</p>
+  <h1 id="pageTitle">🚀 Get Your AI-Powered Website</h1>
+  <p id="pageSubtitle">Fill this out once — we build your site and send you a preview within minutes</p>
 </div>
-<div id="overlay"><div class="spin-box"><div class="spin"></div><p>Building your preview...</p></div></div>
+<div id="overlay"><div class="spin-box"><div class="spin"></div><p id="overlayMsg">Building your preview...</p></div></div>
 <div class="container">
   <div class="steps">
     <div class="dot active" id="dot0"></div>
@@ -271,15 +271,15 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
       <div class="field"><label>Preferred colors or style (optional)</label><input type="text" name="colorPreference" placeholder="e.g. Blue and white, dark professional, bright and friendly"></div>
       <div class="field"><label>Anything else you want on your site?</label><textarea name="additionalNotes" placeholder="Special requests, things to include or avoid, questions..."></textarea></div>
     </div>
-    <div class="card" style="background:linear-gradient(135deg,#f0fff9,#f0f9ff);border:2px solid #00D68F">
-      <p style="font-weight:700;font-size:16px;margin-bottom:10px;color:#065f46">What happens next:</p>
-      <ol style="padding-left:20px;line-height:2.3;font-size:14px;color:#374151">
+    <div class="card" id="submitCard" style="background:linear-gradient(135deg,#f0fff9,#f0f9ff);border:2px solid #00D68F">
+      <p id="submitIntroText" style="font-weight:700;font-size:16px;margin-bottom:10px;color:#065f46">What happens next:</p>
+      <ol id="submitStepsList" style="padding-left:20px;line-height:2.3;font-size:14px;color:#374151">
         <li>We build your website preview using your answers</li>
         <li>You get an email with a preview link (usually within minutes)</li>
         <li>Review it — click Approve in the preview or in your email</li>
         <li>Your site goes live — you get your URL and dashboard login</li>
       </ol>
-      <div style="margin-top:24px;margin-bottom:4px">
+      <div id="paymentMethodSection" style="margin-top:24px;margin-bottom:4px">
         <p style="font-weight:700;font-size:15px;color:#065f46;margin-bottom:12px">💳 How will you be paying?</p>
         <div style="display:flex;flex-direction:column;gap:10px">
           <label id="pay_cc_label" style="display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border:2px solid #e5e7eb;border-radius:12px;cursor:pointer;transition:border-color .15s;background:white">
@@ -301,7 +301,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
       <div style="margin-top:20px">
         <button type="button" class="btn-submit" id="submitBtn" onclick="submitForm()">🚀 Build My Website Preview →</button>
       </div>
-      <p style="font-size:12px;color:#9CA3AF;margin-top:10px;text-align:center">No payment required now. Preview is 100% free.</p>
+      <p id="submitNote" style="font-size:12px;color:#9CA3AF;margin-top:10px;text-align:center">No payment required now. Preview is 100% free.</p>
     </div>
     <div style="padding:0 8px;margin-top:4px">
       <button type="button" class="btn-back" onclick="goStep(4)">← Back</button>
@@ -391,11 +391,16 @@ function highlightPayLabel(){
 }
 
 var cur=0;
+var _origGoStep = null;
 function goStep(n){
   document.querySelectorAll('.step-page').forEach(function(p,i){p.classList.toggle('active',i===n);});
   for(var i=0;i<6;i++){var dot=document.getElementById('dot'+i);if(dot)dot.className='dot'+(i<n?' done':i===n?' active':'');}
   cur=n;
   window.scrollTo({top:0,behavior:'smooth'});
+  // If in update mode and navigating to step 2, trigger services prefill
+  if(window._updateMode && n===2){
+    setTimeout(function(){prefillServices();},80);
+  }
 }
 
 function validateStep1(){
@@ -434,6 +439,211 @@ async function submitForm(){
     document.getElementById('overlay').classList.remove('show');
     btn.disabled=false;
     alert('Something went wrong: '+e.message+'\n\nPlease call (603) 922-2004 or email turnkeyaiservices@gmail.com');
+  }
+}
+
+// ═══════════════════════════════════════════
+// UPDATE MODE — activated when ?mode=update
+// ═══════════════════════════════════════════
+(function initUpdateMode(){
+  var params = new URLSearchParams(window.location.search);
+  if(params.get('mode') !== 'update') return;
+
+  window._updateMode = true;
+  var dashToken = params.get('token') || '';
+  var dashPass  = decodeURIComponent(window.location.hash.replace(/^#/,''));
+
+  if(!dashToken || !dashPass){ console.warn('[UpdateMode] Missing token or password'); return; }
+
+  // Fetch client data via /api/client-auth
+  fetch('/api/client-auth',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({token: dashToken, password: dashPass})
+  }).then(function(r){ return r.json(); }).then(function(cd){
+    if(!cd || cd.error){ console.warn('[UpdateMode] Auth failed:', cd && cd.error); return; }
+    window._updateData = cd;
+    prefillAllFields(cd, dashToken, dashPass);
+  }).catch(function(e){ console.error('[UpdateMode] fetch error',e); });
+})();
+
+function prefillAllFields(cd, dashToken, dashPass){
+  var d = cd.data || {};
+
+  // Update page header
+  document.getElementById('pageTitle').textContent = '✏️ Update Your Website';
+  document.getElementById('pageSubtitle').textContent = 'Review and update your information — changes will redeploy your live site';
+
+  // Swap overlay message
+  document.getElementById('overlayMsg').textContent = 'Saving and redeploying your site...';
+
+  // Step 1 — business info
+  var fields = ['businessName','ownerName','phone','email','city'];
+  fields.forEach(function(f){
+    var el = document.querySelector('[name="'+f+'"]') || document.getElementById(f);
+    if(el && d[f]) el.value = d[f];
+  });
+  // Other step-1 fields without IDs
+  ['address','state','zip','yearsInBusiness','targetRadius'].forEach(function(f){
+    var el = document.querySelector('[name="'+f+'"]');
+    if(el && d[f]) el.value = d[f];
+  });
+
+  // Industry tile
+  if(d.industry && IND[d.industry]){
+    selectedIndustry = d.industry;
+    buildGrid('');
+    document.getElementById('btnInd').disabled = false;
+  }
+
+  // Step 3 — about/hours/payment
+  ['aboutUs','competitiveAdvantage','ownerBackground','missionStatement','awards','communityInvolvement'].forEach(function(f){
+    var el = document.querySelector('[name="'+f+'"]');
+    if(el && d[f]) el.value = d[f];
+  });
+  // Hours
+  var days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  days.forEach(function(day){
+    var chk = document.querySelector('[name="day_'+day+'"]');
+    var hrs = document.querySelector('[name="hours_'+day+'"]');
+    if(chk){ chk.checked = !!(d['day_'+day]); toggleDay(day); }
+    if(hrs && d['hours_'+day]) hrs.value = d['hours_'+day];
+  });
+  // Payment checkboxes
+  ['cash','card','check','venmo','cashapp','zelle','financing','insurance'].forEach(function(p){
+    var el = document.querySelector('[name="pay_'+p+'"]');
+    if(el) el.checked = !!(d['pay_'+p]);
+  });
+
+  // Step 4 — chat + online presence
+  ['chatName','faqQuestions','currentWebsite','googleBusiness','facebook','instagram','referralSource'].forEach(function(f){
+    var el = document.querySelector('[name="'+f+'"]');
+    if(el && d[f]) el.value = d[f];
+  });
+  var chatP = document.querySelector('[name="chatPersonality"]');
+  if(chatP && d.chatPersonality) chatP.value = d.chatPersonality;
+  var pricingD = document.querySelector('[name="pricingDisplay"]');
+  if(pricingD && d.pricingDisplay) pricingD.value = d.pricingDisplay;
+  var hasLogo = document.querySelector('[name="hasLogo"]');
+  if(hasLogo && d.hasLogo) hasLogo.value = d.hasLogo;
+
+  // Step 5 — addons
+  if(d.wants_mini_me==='yes'||d.wantsMiniMe==='yes'){ var mm=document.getElementById('chk_miniMe'); if(mm){mm.checked=true; syncAddon('chk_miniMe','addonMiniMe');} }
+  if(d.wants_free_video==='yes'||d.wantsFreeVideo==='yes'){ var fv=document.getElementById('chk_video'); if(fv){fv.checked=true; syncAddon('chk_video','addonVideo');} }
+  if(d.addon_after_hours==='yes'){ var ah=document.getElementById('chk_ah'); if(ah){ah.checked=true; syncAddon('chk_ah','addonAH');} }
+  if(d.addon_missed_call==='yes'){ var mc=document.getElementById('chk_mc'); if(mc){mc.checked=true; syncAddon('chk_mc','addonMC');} }
+
+  // Step 5 — final details
+  ['colorPreference','additionalNotes'].forEach(function(f){
+    var el = document.querySelector('[name="'+f+'"]');
+    if(el && d[f]) el.value = d[f];
+  });
+
+  // Hide payment method section — not needed for updates
+  var paySection = document.getElementById('paymentMethodSection');
+  if(paySection) paySection.style.display = 'none';
+
+  // Update submit card text
+  var intro = document.getElementById('submitIntroText');
+  if(intro) intro.textContent = 'What happens when you save:';
+  var stepsList = document.getElementById('submitStepsList');
+  if(stepsList) stepsList.innerHTML = '<li>Your updated information is saved</li><li>Your live site is rebuilt with the new content</li><li>Changes appear on your site within 1–2 minutes</li>';
+  var note = document.getElementById('submitNote');
+  if(note) note.textContent = 'Your dashboard login stays the same.';
+
+  // Swap submit button label and action
+  var btn = document.getElementById('submitBtn');
+  if(btn){
+    btn.textContent = '💾 Save & Redeploy My Site →';
+    btn.onclick = function(){ submitUpdateForm(dashToken, dashPass); };
+  }
+
+  // Store for services prefill when step 2 is visited
+  window._updatePrefillData = d;
+}
+
+function prefillServices(){
+  var d = window._updatePrefillData;
+  if(!d || !selectedIndustry) return;
+  // Check all service checkboxes that match saved data
+  Object.keys(d).forEach(function(k){
+    if(k.startsWith('service_') && d[k]==='on'){
+      var el = document.querySelector('[name="'+k+'"]');
+      if(el) el.checked = true;
+    }
+  });
+  // Fill prices
+  Object.keys(d).forEach(function(k){
+    if(k.startsWith('price_')){
+      var el = document.querySelector('[name="'+k+'"]');
+      if(el && d[k]) el.value = d[k];
+    }
+  });
+  // Additional services textarea
+  var addlSvc = document.querySelector('[name="additionalServices"]');
+  if(addlSvc && d.additionalServices) addlSvc.value = d.additionalServices;
+  // Industry-specific questions
+  Object.keys(d).forEach(function(k){
+    var el = document.querySelector('[name="'+k+'"]');
+    if(el && el.type === 'radio' && el.value === d[k]) el.checked = true;
+    else if(el && el.type !== 'radio' && el.type !== 'checkbox' && d[k]) el.value = d[k];
+  });
+}
+
+async function submitUpdateForm(dashToken, dashPass){
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  document.getElementById('overlay').classList.add('show');
+
+  // Collect all form data (same as submitForm but without paymentMethod requirement)
+  var data = {};
+  document.querySelectorAll('[name]').forEach(function(el){
+    if(el.type==='checkbox'){ if(el.checked) data[el.name]=el.value||'on'; }
+    else if(el.type==='radio'){ if(el.checked) data[el.name]=el.value; }
+    else if(el.tagName==='SELECT'||el.tagName==='TEXTAREA'||el.type==='text'||el.type==='tel'||el.type==='email'){
+      if(el.value.trim()) data[el.name]=el.value.trim();
+    }
+  });
+  data.industry = selectedIndustry;
+  if(selectedIndustry==='other') data.industryOther = document.getElementById('otherInput').value.trim();
+
+  try {
+    var res = await fetch('/api/client-update',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        token: dashToken,
+        password: dashPass,
+        updateType: 'content_update',
+        updateData: data
+      })
+    });
+    var result = await res.json();
+    document.getElementById('overlay').classList.remove('show');
+    btn.disabled = false;
+
+    var success = result.success;
+    var msg = success ? (result.message || 'Your site has been updated!') : (result.error || 'Update failed.');
+
+    // Send result back to parent dashboard (if in iframe)
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({
+        type: 'content_update_result',
+        success: success,
+        message: success ? msg : null,
+        error: success ? null : msg
+      }, window.location.origin);
+    } else {
+      // Standalone mode fallback
+      alert(success ? '✅ ' + msg : '❌ ' + msg);
+    }
+  } catch(e){
+    document.getElementById('overlay').classList.remove('show');
+    btn.disabled = false;
+    var errMsg = 'Connection error: ' + e.message;
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({ type:'content_update_result', success:false, error: errMsg }, window.location.origin);
+    } else {
+      alert('❌ ' + errMsg);
+    }
   }
 }
 </script>
