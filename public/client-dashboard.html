@@ -459,13 +459,29 @@ function selectChangeType(type, el) {
   document.querySelectorAll('.change-type-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
   const ta = document.getElementById('changeDetails');
-  const hints = {
-    content: 'Example: "Change my business hours to Mon–Sat 8am–6pm" or "Update my services list to include..."',
-    design: 'Example: "I want to add a photo gallery" or "Can we change the color to blue?"',
-    photo: 'Please describe the photos you want added. You can also email them to turnkeyaiservices@gmail.com',
-    other: 'Describe what you need and we\'ll take care of it within 24–48 hours.'
-  };
-  ta.placeholder = hints[type] || 'Describe your request...';
+  if (type === 'content') {
+    const d = clientData.data || {};
+    const services = Object.keys(d).filter(k => k.startsWith('service_') && d[k]==='on')
+      .map(k => k.replace('service_','').replace(/_/g,' ')).join(', ');
+    ta.value = `Business Name: ${d.businessName || ''}
+Phone: ${d.phone || ''}
+Tagline: ${d.missionStatement || ''}
+About Us: ${d.aboutUs || ''}
+Services: ${services || ''}
+
+What I want changed:
+`;
+    ta.focus();
+    ta.setSelectionRange(ta.value.length, ta.value.length);
+  } else {
+    ta.value = '';
+    const hints = {
+      design: 'Example: "I want to add a photo gallery" or "Can we change the color to blue?"',
+      photo: 'Please describe the photos you want added. You can also email them to turnkeyaiservices@gmail.com',
+      other: 'Describe what you need and we\'ll take care of it within 24–48 hours.'
+    };
+    ta.placeholder = hints[type] || 'Describe your request...';
+  }
 }
 
 async function submitChangeRequest() {
