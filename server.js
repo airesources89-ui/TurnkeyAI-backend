@@ -1324,7 +1324,7 @@ app.get('/api/client-approve/:id', async (req, res) => {
 app.get('/preview/:token', (req, res) => {
   const client = Object.values(clients).find(c => c.previewToken === req.params.token);
   if (!client) return res.status(404).send('<h2>Preview not found or expired.</h2>');
-  const data = { ...client.data, id: client.id, _previewToken: client.previewToken };
+  const data = { ...client.data, _previewToken: client.previewToken, id: client.id };
   res.send(generateSiteHTML(data, true));
 });
 
