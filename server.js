@@ -502,7 +502,7 @@ function generateSiteHTML(data, isPreview) {
   const clientApproveUrl = clientId && previewToken ? `${BASE_URL}/api/client-approve/${clientId}?token=${previewToken}` : '';
 
   const previewBanner = isPreview
-    ? `<div style="background:#1a1d24;border-bottom:2px solid #f59e0b;padding:0;">
+    ? `<div style="background:#1a1d24;border-bottom:2px solid #f59e0b;padding:0;position:relative;z-index:101;">
         <div style="padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
           <div style="color:#f59e0b;font-weight:700;font-size:14px;">🔍 PREVIEW — This site is not yet live</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
