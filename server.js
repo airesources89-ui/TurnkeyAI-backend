@@ -1004,8 +1004,9 @@ async function sendMsg(){
 async function handleIntakeSubmission(data, res) {
   const id = data.id || ('client_' + Date.now());
   const previewToken = makeToken();
+  // ── FIX: mirror id into data so generateSiteHTML can build clientApproveUrl ──
   clients[id] = {
-    id, status: 'pending', data, previewToken,
+    id, status: 'pending', data: { ...data, id }, previewToken,
     dashToken: null, dashPassword: null, liveUrl: null, cfProjectName: null,
     miniMeConsent: null, miniMeConsentAt: null,
     miniMeSubscribed: false,
@@ -1419,7 +1420,6 @@ app.get('/health', (req, res) => { res.json({ status: 'ok', clients: Object.keys
 // ── Catch-all SPA ──
 app.get('*', (req, res) => {
   const indexPath = path.join(__dirname, 'public', 'index.html');
-  
   if (fs.existsSync(indexPath)) res.sendFile(indexPath);
   else res.status(404).send('Not found');
 });
