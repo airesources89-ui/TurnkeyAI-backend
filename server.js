@@ -42,7 +42,6 @@ const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 if (!ADMIN_KEY) { console.error('[FATAL] ADMIN_KEY env var is not set. Exiting.'); process.exit(1); }
 if (!process.env.DATABASE_URL) { console.error('[FATAL] DATABASE_URL env var is not set. Exiting.'); process.exit(1); }
 
-// Stripe initialized after env validation to avoid crash on missing key
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
@@ -263,7 +262,7 @@ async function sendMiniMeEmail(client) {
         <div style="background:#fff8ed;border:1px solid #fbbf24;border-radius:8px;padding:16px;margin-top:24px;">
           <p style="margin:0;font-size:14px;color:#92400e;"><strong>Continue Mini-Me after your free avatar?</strong> Just $59/month. <a href="${subscribeUrl}" style="color:#0066FF;font-weight:700;">✅ Yes, sign me up →</a></p>
         </div>
-        <p style="margin-top:32px;">Questions? Call <strong>(603) 922-2004</strong></p>
+        <p style="margin-top:32px;">Questions? Call <strong>(228) 604-3200</strong></p>
         <p>— The TurnkeyAI Services Team</p>
       </div>
     </div>`
@@ -293,7 +292,7 @@ async function sendFreeVideoEmail(client) {
           <a href="${uploadUrl}" style="background:#0066FF;color:white;padding:16px 36px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;display:inline-block;">📤 Upload My Video Clip</a>
         </div>
         <p>We'll have your finished video back to you within 48 hours.</p>
-        <p style="margin-top:24px;">Questions? Call <strong>(603) 922-2004</strong></p>
+        <p style="margin-top:24px;">Questions? Call <strong>(228) 604-3200</strong></p>
         <p>— The TurnkeyAI Services Team</p>
       </div>
     </div>`
@@ -305,7 +304,6 @@ async function deployToCloudflarePages(projectName, htmlContent) {
   if (!CF_ACCOUNT_ID || !CF_API_TOKEN) {
     console.warn('[CF Pages] Missing credentials — skipping'); return { url: null, skipped: true };
   }
-  // Ensure project exists — create if not
   const checkRes = await fetch(
     `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/pages/projects/${projectName}`,
     { headers: { 'Authorization': `Bearer ${CF_API_TOKEN}` } }
@@ -320,7 +318,6 @@ async function deployToCloudflarePages(projectName, htmlContent) {
     if (!createRes.ok) throw new Error('CF Pages create failed: ' + JSON.stringify(createData.errors));
     await new Promise(r => setTimeout(r, 3000));
   }
-  // Deploy with wrangler
   const { execSync } = require('child_process');
   const os = require('os');
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tkai-'));
@@ -367,14 +364,14 @@ async function sendCredentialsEmail(client) {
           <p style="margin:16px 0 0;"><strong>Password:</strong></p>
           <div style="background:#1a1a2e;color:#00D68F;font-size:32px;font-weight:700;letter-spacing:8px;text-align:center;padding:16px;border-radius:8px;margin-top:8px;">${client.dashPassword}</div>
         </div>
-        <p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(603) 922-2004</strong></p>
+        <p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(228) 604-3200</strong></p>
         <p>— The TurnkeyAI Services Team</p>
       </div>
     </div>`
   });
 }
 
-// ── Run deploy ──
+// ── Run deploy (first-time: generates tokens, sends credentials email) ──
 async function runDeploy(client) {
   const dashToken   = makeToken();
   const dashPassword= makePassword();
@@ -403,6 +400,15 @@ async function runDeploy(client) {
     }).catch(()=>{});
   }
   return client;
+}
+
+// ── Redeploy live site only (no token/password reset, no credentials email) ──
+async function redeployLive(client) {
+  if (!client.cfProjectName) throw new Error('No CF project name — site has not been deployed yet.');
+  const liveHTML = generateSiteHTML(client.data, false);
+  await deployToCloudflarePages(client.cfProjectName, liveHTML);
+  client.updatedAt = new Date().toISOString();
+  await saveClient(client);
 }
 
 // ── FINALIZED DESIGN STANDARD: Gulf Coast Template ──
@@ -1009,11 +1015,10 @@ async function sendMsg(){
 // ── API ROUTES ──
 // ════════════════════════════════════════════════
 
-// ── Shared intake handler (T-08) ──
+// ── Shared intake handler ──
 async function handleIntakeSubmission(data, res) {
   const id = data.id || ('client_' + Date.now());
   const previewToken = makeToken();
-  // ── FIX: mirror id into data so generateSiteHTML can build clientApproveUrl ──
   clients[id] = {
     id, status: 'pending', data: { ...data, id }, previewToken,
     dashToken: null, dashPassword: null, liveUrl: null, cfProjectName: null,
@@ -1042,30 +1047,15 @@ async function handleIntakeSubmission(data, res) {
       await sendEmail({
         to: data.email,
         subject: `🎉 Your website preview is ready — ${data.businessName || 'Your Business'}`,
-        html: `<div style="font-family:sans-serif;max-width:620px;margin:0 auto;"><div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:32px;border-radius:12px 12px 0 0;text-align:center;"><h1 style="color:white;margin:0;">We Got It! 🎉</h1><p style="color:rgba(255,255,255,0.85);margin:10px 0 0;">Hi ${data.ownerName||'there'} — your preview is ready.</p></div><div style="padding:32px;"><div style="text-align:center;margin-bottom:24px;"><a href="${partnerPreviewUrl}" style="background:#0066FF;color:white;padding:20px 44px;border-radius:12px;text-decoration:none;font-weight:700;font-size:18px;display:inline-block;">👁️ View My Website Preview</a></div><p style="font-size:14px;color:#6B7280;">Questions? Call (603) 922-2004</p></div></div>`
+        html: `<div style="font-family:sans-serif;max-width:620px;margin:0 auto;"><div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:32px;border-radius:12px 12px 0 0;text-align:center;"><h1 style="color:white;margin:0;">We Got It! 🎉</h1><p style="color:rgba(255,255,255,0.85);margin:10px 0 0;">Hi ${data.ownerName||'there'} — your preview is ready.</p></div><div style="padding:32px;"><div style="text-align:center;margin-bottom:24px;"><a href="${partnerPreviewUrl}" style="background:#0066FF;color:white;padding:20px 44px;border-radius:12px;text-decoration:none;font-weight:700;font-size:18px;display:inline-block;">👁️ View My Website Preview</a></div><p style="font-size:14px;color:#6B7280;">Questions? Call (228) 604-3200 or email <a href="mailto:turnkeyaiservices@gmail.com">turnkeyaiservices@gmail.com</a></p></div></div>`
       }).catch(e => console.error('[partner preview email]', e.message));
     }
     res.json({ success: true, id, preview: partnerPreviewUrl, partner: true });
     (async () => {
-      // Admin notification
       await sendEmail({
         to: ADMIN_EMAIL,
         subject: `🤝 Partner Submission: ${data.businessName || 'New Client'} — Preview Ready`,
-        html: `<div style="font-family:sans-serif;max-width:680px;margin:0 auto;">
-          <div style="background:linear-gradient(135deg,#0066FF,#1a1a2e);padding:28px 32px;border-radius:12px 12px 0 0;">
-            <h1 style="color:white;margin:0;font-size:22px;">🤝 Partner Bypass Submission</h1>
-            <p style="color:rgba(255,255,255,.8);margin:8px 0 0;">${data.businessName || ''} — preview sent to client</p>
-          </div>
-          <div style="padding:28px 32px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;">
-            <p><strong>Business:</strong> ${data.businessName || '—'}</p>
-            <p><strong>Owner:</strong> ${data.ownerName || '—'}</p>
-            <p><strong>Email:</strong> ${data.email || '—'}</p>
-            <p><strong>Phone:</strong> ${data.phone || '—'}</p>
-            <p><strong>Industry:</strong> ${data.industry || '—'}</p>
-            <p><strong>City:</strong> ${data.city || '—'}</p>
-            <p style="margin-top:20px;"><a href="${partnerPreviewUrl}" style="background:#0066FF;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;">👁️ View Preview</a></p>
-          </div>
-        </div>`
+        html: `<div style="font-family:sans-serif;max-width:680px;margin:0 auto;"><div style="background:linear-gradient(135deg,#0066FF,#1a1a2e);padding:28px 32px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:22px;">🤝 Partner Bypass Submission</h1><p style="color:rgba(255,255,255,.8);margin:8px 0 0;">${data.businessName || ''} — preview sent to client</p></div><div style="padding:28px 32px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;"><p><strong>Business:</strong> ${data.businessName || '—'}</p><p><strong>Owner:</strong> ${data.ownerName || '—'}</p><p><strong>Email:</strong> ${data.email || '—'}</p><p><strong>Phone:</strong> ${data.phone || '—'}</p><p><strong>Industry:</strong> ${data.industry || '—'}</p><p><strong>City:</strong> ${data.city || '—'}</p><p style="margin-top:20px;"><a href="${partnerPreviewUrl}" style="background:#0066FF;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;">👁️ View Preview</a></p></div></div>`
       }).catch(e => console.error('[partner admin email]', e.message));
       if (data.wants_mini_me === 'yes' || data.wantsMiniMe === 'yes') {
         sendMiniMeEmail(clients[id]).catch(()=>{});
@@ -1106,25 +1096,7 @@ async function handleIntakeSubmission(data, res) {
   await sendEmail({
     to: ADMIN_EMAIL,
     subject: `🆕 New Client: ${d.businessName||'Unknown'} — ${d.city||''}, ${d.state||''} — ${(d.industry||'').replace(/_/g,' ')}`,
-    html: `<div style="font-family:sans-serif;max-width:700px;margin:0 auto;">
-      <div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:24px 32px;border-radius:12px 12px 0 0;">
-        <h1 style="color:white;margin:0;font-size:22px;">🆕 New Client Submission</h1>
-        <p style="color:rgba(255,255,255,0.82);margin:6px 0 0;font-size:14px;">${new Date().toLocaleString('en-US',{timeZone:'America/Chicago',dateStyle:'full',timeStyle:'short'})}</p>
-      </div>
-      <div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:28px 32px;">
-        ${domainBlock}
-        ${h2('Business Information')}${tableWrap(`${row('Business Name',d.businessName)}${row('Owner',d.ownerName)}${row('Industry',(d.industry||'').replace(/_/g,' '))}${row('Phone',d.phone)}${row('Email',d.email)}${row('Address',[d.address,d.city||d.location,d.state,d.zip].filter(Boolean).join(', '))}${row('Years in Business',d.yearsInBusiness)}`)}
-        ${servicesList.length?`${h2('Services & Pricing')}<ul style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 14px 14px 30px;margin:0 0 22px;line-height:1.9;">${servicesList.map(s=>'<li>'+s+'</li>').join('')}</ul>`:''}
-        ${hoursLines.length?`${h2('Business Hours')}<ul style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 14px 14px 30px;margin:0 0 22px;line-height:1.9;">${hoursLines.join('')}</ul>`:''}
-        ${h2('About the Business')}${tableWrap(`${row('Business Story',d.aboutUs)}${row('Mission',d.missionStatement)}${row('Awards',d.awards)}`)}
-        ${h2('Other')}${tableWrap(`${row('Competitive Advantage',d.competitiveAdvantage)}${row('Payment Methods',payMethodsStr)}${row('Color Preference',d.colorPreference)}${row('Referral Source',d.referralSource)}`)}
-        ${addons.length?`<div style="background:#f0fff4;border:2px solid #00D68F;border-radius:10px;padding:18px 22px;margin-bottom:22px;"><p style="font-weight:700;color:#065f46;margin:0 0 10px;">🎯 Add-Ons Selected</p><ul style="margin:0;padding-left:20px;line-height:2;">${addons.map(a=>'<li><strong>'+a+'</strong></li>').join('')}</ul></div>`:''}
-        <div style="border-top:1px solid #e5e7eb;padding-top:22px;display:flex;gap:12px;flex-wrap:wrap;">
-          <a href="${approveUrl}" style="background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;">✅ Approve & Go Live</a>
-          <a href="${previewUrl}" style="background:#0066FF;color:white;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:700;">👁️ Preview Site</a>
-        </div>
-      </div>
-    </div>`
+    html: `<div style="font-family:sans-serif;max-width:700px;margin:0 auto;"><div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:24px 32px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:22px;">🆕 New Client Submission</h1><p style="color:rgba(255,255,255,0.82);margin:6px 0 0;font-size:14px;">${new Date().toLocaleString('en-US',{timeZone:'America/Chicago',dateStyle:'full',timeStyle:'short'})}</p></div><div style="background:white;border:1px solid #e5e7eb;border-top:none;padding:28px 32px;">${domainBlock}${h2('Business Information')}${tableWrap(`${row('Business Name',d.businessName)}${row('Owner',d.ownerName)}${row('Industry',(d.industry||'').replace(/_/g,' '))}${row('Phone',d.phone)}${row('Email',d.email)}${row('Address',[d.address,d.city||d.location,d.state,d.zip].filter(Boolean).join(', '))}${row('Years in Business',d.yearsInBusiness)}`)}${servicesList.length?`${h2('Services & Pricing')}<ul style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 14px 14px 30px;margin:0 0 22px;line-height:1.9;">${servicesList.map(s=>'<li>'+s+'</li>').join('')}</ul>`:''}${hoursLines.length?`${h2('Business Hours')}<ul style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px 14px 14px 30px;margin:0 0 22px;line-height:1.9;">${hoursLines.join('')}</ul>`:''}${h2('About the Business')}${tableWrap(`${row('Business Story',d.aboutUs)}${row('Mission',d.missionStatement)}${row('Awards',d.awards)}`)}${h2('Other')}${tableWrap(`${row('Competitive Advantage',d.competitiveAdvantage)}${row('Payment Methods',payMethodsStr)}${row('Color Preference',d.colorPreference)}${row('Referral Source',d.referralSource)}`)}${addons.length?`<div style="background:#f0fff4;border:2px solid #00D68F;border-radius:10px;padding:18px 22px;margin-bottom:22px;"><p style="font-weight:700;color:#065f46;margin:0 0 10px;">🎯 Add-Ons Selected</p><ul style="margin:0;padding-left:20px;line-height:2;">${addons.map(a=>'<li><strong>'+a+'</strong></li>').join('')}</ul></div>`:''}<div style="border-top:1px solid #e5e7eb;padding-top:22px;display:flex;gap:12px;flex-wrap:wrap;"><a href="${approveUrl}" style="background:linear-gradient(135deg,#00D68F,#00b377);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;">✅ Approve & Go Live</a><a href="${previewUrl}" style="background:#0066FF;color:white;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:700;">👁️ Preview Site</a></div></div></div>`
   });
 
   if (d.email) {
@@ -1137,24 +1109,7 @@ async function handleIntakeSubmission(data, res) {
     await sendEmail({
       to: d.email,
       subject: `🎉 Your website preview is ready — ${d.businessName||'Your Business'}`,
-      html: `<div style="font-family:sans-serif;max-width:620px;margin:0 auto;">
-        <div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:32px;border-radius:12px 12px 0 0;text-align:center;">
-          <h1 style="color:white;margin:0;font-size:28px;">We Got It! 🎉</h1>
-          <p style="color:rgba(255,255,255,0.85);margin:10px 0 0;">Hi ${d.ownerName||'there'} — your website preview is ready.</p>
-        </div>
-        <div style="padding:32px;">
-          <p style="font-size:16px;line-height:1.75;margin:0 0 24px;">We've built a preview of your new <strong>${d.businessName||'business'}</strong> website.</p>
-          <div style="text-align:center;margin:0 0 28px;">
-            <a href="${previewUrl}" style="background:linear-gradient(135deg,#0066FF,#0052CC);color:white;padding:20px 44px;border-radius:12px;text-decoration:none;font-weight:700;font-size:18px;display:inline-block;">👁️ View My Website Preview</a>
-          </div>
-          <div style="background:#f0fff4;border:2px solid #00D68F;border-radius:12px;padding:24px;margin:0 0 24px;text-align:center;">
-            <p style="font-weight:700;color:#065f46;margin:0;font-size:15px;">Review your preview — the approve button is inside the preview page.</p>
-          </div>
-          ${clientAddons.length?`<ul style="margin:0 0 20px;padding-left:20px;line-height:2.2;font-size:14px;">${clientAddons.join('')}</ul>`:''}
-          <p style="font-size:14px;color:#6B7280;margin:0 0 6px;">Have a logo or photos? Email <a href="mailto:turnkeyaiservices@gmail.com" style="color:#0066FF;">turnkeyaiservices@gmail.com</a></p>
-          <p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(603) 922-2004</strong></p>
-        </div>
-      </div>`
+      html: `<div style="font-family:sans-serif;max-width:620px;margin:0 auto;"><div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:32px;border-radius:12px 12px 0 0;text-align:center;"><h1 style="color:white;margin:0;font-size:28px;">We Got It! 🎉</h1><p style="color:rgba(255,255,255,0.85);margin:10px 0 0;">Hi ${d.ownerName||'there'} — your website preview is ready.</p></div><div style="padding:32px;"><p style="font-size:16px;line-height:1.75;margin:0 0 24px;">We've built a preview of your new <strong>${d.businessName||'business'}</strong> website.</p><div style="text-align:center;margin:0 0 28px;"><a href="${previewUrl}" style="background:linear-gradient(135deg,#0066FF,#0052CC);color:white;padding:20px 44px;border-radius:12px;text-decoration:none;font-weight:700;font-size:18px;display:inline-block;">👁️ View My Website Preview</a></div><div style="background:#f0fff4;border:2px solid #00D68F;border-radius:12px;padding:24px;margin:0 0 24px;text-align:center;"><p style="font-weight:700;color:#065f46;margin:0;font-size:15px;">Review your preview — the approve button is inside the preview page.</p></div>${clientAddons.length?`<ul style="margin:0 0 20px;padding-left:20px;line-height:2.2;font-size:14px;">${clientAddons.join('')}</ul>`:''}<p style="font-size:14px;color:#6B7280;margin:0 0 6px;">Have a logo or photos? Email <a href="mailto:turnkeyaiservices@gmail.com" style="color:#0066FF;">turnkeyaiservices@gmail.com</a></p><p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(228) 604-3200</strong></p></div></div>`
     });
 
     if (d.wants_mini_me==='yes'||d.wantsMiniMe==='yes') {
@@ -1167,7 +1122,7 @@ async function handleIntakeSubmission(data, res) {
   res.json({ success: true, id, preview: previewUrl });
 }
 
-// ── POST /api/submission-created (primary intake) ──
+// ── POST /api/submission-created ──
 app.post('/api/submission-created', postLimiter, async (req, res) => {
   try {
     const validErr = validate(req.body, [['businessName','Business Name'],['email','Email'],['phone','Phone']]);
@@ -1176,7 +1131,7 @@ app.post('/api/submission-created', postLimiter, async (req, res) => {
   } catch(err) { console.error('[/api/submission-created]', err); res.status(500).json({ error: 'Submission failed' }); }
 });
 
-// ── POST /api/intake (legacy — passes through to shared handler) ──
+// ── POST /api/intake (legacy) ──
 app.post('/api/intake', postLimiter, async (req, res) => {
   try {
     const validErr = validate(req.body, [['businessName','Business Name'],['email','Email']]);
@@ -1218,11 +1173,7 @@ app.post('/api/chat', postLimiter, async (req, res) => {
     messages.push({ role: 'user', content: message });
     const cfRes = await fetch(
       `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/ai/run/@cf/meta/llama-3-8b-instruct`,
-      {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${CF_AI_TOKEN}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [{ role: 'system', content: system || `You are a helpful assistant for ${businessName||'this business'}.` }, ...messages] })
-      }
+      { method: 'POST', headers: { 'Authorization': `Bearer ${CF_AI_TOKEN}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'system', content: system || `You are a helpful assistant for ${businessName||'this business'}.` }, ...messages] }) }
     );
     const cfData = await cfRes.json();
     const reply = cfData?.result?.response || `Thanks for your question! Please call us directly for the best assistance.`;
@@ -1243,48 +1194,31 @@ app.post('/api/video-upload', postLimiter, async (req, res) => {
     const videoFile = `video_${videoType||'promo'}_${client.id}.${ext}`;
     fs.writeFileSync(path.join(UPLOADS_DIR, videoFile), Buffer.from(videoBase64, 'base64'));
     const videoUrl = `${BASE_URL}/uploads/${videoFile}`;
-    if (videoType === 'mini_me') {
-      client.miniMeVideoFile = videoFile;
-      client.data.miniMeVideoUrl = videoUrl;
-    } else {
-      client.promoVideoFile = videoFile;
-      client.data.promoVideoUrl = videoUrl;
-    }
+    if (videoType === 'mini_me') { client.miniMeVideoFile = videoFile; client.data.miniMeVideoUrl = videoUrl; }
+    else { client.promoVideoFile = videoFile; client.data.promoVideoUrl = videoUrl; }
     client.updatedAt = new Date().toISOString();
     await saveClient(client);
     const typeLabel = videoType === 'mini_me' ? 'Mini-Me AI Avatar Clip' : 'Free 60-Second Promo Video';
-    await sendEmail({
-      to: ADMIN_EMAIL,
-      subject: `🎬 Video Upload Ready: ${businessName||client.data.businessName||'Client'} — ${typeLabel}`,
-      html: `<div style="font-family:sans-serif;max-width:600px;"><div style="background:linear-gradient(135deg,#0066FF,#1a1a2e);padding:20px 28px;border-radius:12px 12px 0 0;"><h2 style="color:#00D68F;margin:0;">🎬 Video Upload Ready</h2></div><div style="padding:24px;background:white;border:1px solid #e5e7eb;border-top:none;"><table style="width:100%;border-collapse:collapse;"><tr><td style="padding:8px;font-weight:700;width:140px;">Business</td><td style="padding:8px;">${businessName||client.data.businessName}</td></tr><tr style="background:#f9fafb;"><td style="padding:8px;font-weight:700;">Uploader</td><td style="padding:8px;">${uploaderName||'—'}</td></tr><tr><td style="padding:8px;font-weight:700;">Email</td><td style="padding:8px;">${uploaderEmail||client.data.email||'—'}</td></tr><tr style="background:#f9fafb;"><td style="padding:8px;font-weight:700;">Video Type</td><td style="padding:8px;">${typeLabel}</td></tr><tr><td style="padding:8px;font-weight:700;">File</td><td style="padding:8px;">${videoFile} (${fileSize||'—'})</td></tr></table><p style="margin-top:16px;"><strong>Action:</strong> Download and process this video: <a href="${videoUrl}" style="color:#0066FF;">${videoUrl}</a></p></div></div>`
-    });
+    await sendEmail({ to: ADMIN_EMAIL, subject: `🎬 Video Upload Ready: ${businessName||client.data.businessName||'Client'} — ${typeLabel}`, html: `<div style="font-family:sans-serif;max-width:600px;"><div style="background:linear-gradient(135deg,#0066FF,#1a1a2e);padding:20px 28px;border-radius:12px 12px 0 0;"><h2 style="color:#00D68F;margin:0;">🎬 Video Upload Ready</h2></div><div style="padding:24px;background:white;border:1px solid #e5e7eb;border-top:none;"><table style="width:100%;border-collapse:collapse;"><tr><td style="padding:8px;font-weight:700;width:140px;">Business</td><td style="padding:8px;">${businessName||client.data.businessName}</td></tr><tr style="background:#f9fafb;"><td style="padding:8px;font-weight:700;">Uploader</td><td style="padding:8px;">${uploaderName||'—'}</td></tr><tr><td style="padding:8px;font-weight:700;">Email</td><td style="padding:8px;">${uploaderEmail||client.data.email||'—'}</td></tr><tr style="background:#f9fafb;"><td style="padding:8px;font-weight:700;">Video Type</td><td style="padding:8px;">${typeLabel}</td></tr><tr><td style="padding:8px;font-weight:700;">File</td><td style="padding:8px;">${videoFile} (${fileSize||'—'})</td></tr></table><p style="margin-top:16px;"><strong>Action:</strong> Download and process: <a href="${videoUrl}" style="color:#0066FF;">${videoUrl}</a></p></div></div>` });
     if (uploaderEmail || client.data.email) {
-      await sendEmail({
-        to: uploaderEmail || client.data.email,
-        subject: `✅ Video Received — ${businessName||client.data.businessName}`,
-        html: `<h2 style="color:#0066FF;font-family:sans-serif;">We Got Your Video Clip!</h2><p style="font-family:sans-serif;">Hi ${uploaderName||'there'},</p><p style="font-family:sans-serif;">Your ${typeLabel.toLowerCase()} has been received. Production begins within 48 hours.</p><p style="font-family:sans-serif;">Questions? Call <strong>(603) 922-2004</strong></p><p style="font-family:sans-serif;">— TurnkeyAI Services Team</p>`
-      });
+      await sendEmail({ to: uploaderEmail || client.data.email, subject: `✅ Video Received — ${businessName||client.data.businessName}`, html: `<h2 style="color:#0066FF;font-family:sans-serif;">We Got Your Video Clip!</h2><p style="font-family:sans-serif;">Hi ${uploaderName||'there'},</p><p style="font-family:sans-serif;">Your ${typeLabel.toLowerCase()} has been received. Production begins within 48 hours.</p><p style="font-family:sans-serif;">Questions? Call <strong>(228) 604-3200</strong></p><p style="font-family:sans-serif;">— TurnkeyAI Services Team</p>` });
     }
     res.json({ success: true, videoUrl });
   } catch(err) { console.error('[/api/video-upload]', err); res.status(500).json({ error: 'Upload failed: ' + err.message }); }
 });
 
-// ── POST /api/video-upload-notify (T-10: legacy fallback only) ──
+// ── POST /api/video-upload-notify (legacy fallback) ──
 app.post('/api/video-upload-notify', async (req, res) => {
   try {
     const d = req.body;
     const typeLabel = d.videoType === 'mini_me' ? 'Mini-Me AI Avatar Clip' : d.videoType === 'both' ? 'Promo Video + Mini-Me Clip' : 'Free 60-Second Promo Video';
-    await sendEmail({
-      to: ADMIN_EMAIL,
-      subject: `⚠️ Video Upload Fallback Notification: ${d.businessName||'Unknown'}`,
-      html: `<h2 style="color:#f59e0b;font-family:sans-serif;">Video Upload Fallback</h2><p style="font-family:sans-serif;">This notification was sent because the primary video upload may have failed or the client used an older upload link.</p><table style="border-collapse:collapse;width:100%;max-width:500px;font-family:sans-serif;"><tr><td style="padding:8px;font-weight:700;">Client</td><td style="padding:8px;">${d.uploaderName||''}</td></tr><tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;">Business</td><td style="padding:8px;">${d.businessName||''}</td></tr><tr><td style="padding:8px;font-weight:700;">Email</td><td style="padding:8px;">${d.email||''}</td></tr><tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;">Video Type</td><td style="padding:8px;">${typeLabel}</td></tr><tr><td style="padding:8px;font-weight:700;">File</td><td style="padding:8px;">${d.fileName||''} (${d.fileSize||''})</td></tr>${d.uploadError?`<tr style="background:#fff8f0;"><td style="padding:8px;font-weight:700;color:#dc2626;">Upload Error</td><td style="padding:8px;color:#dc2626;">${d.uploadError}</td></tr>`:''}</table><p style="font-family:sans-serif;"><strong>Action:</strong> Follow up with client to arrange resubmission if needed.</p>`
-    });
-    if (d.email) await sendEmail({ to: d.email, subject: `✅ Video Received — ${d.businessName||'Your Business'}`, html: `<h2 style="color:#0066FF;font-family:sans-serif;">We Got Your Video Clip!</h2><p style="font-family:sans-serif;">Hi ${d.uploaderName||'there'}, production begins within 48 hours.</p><p style="font-family:sans-serif;">Questions? Call (603) 922-2004</p>` });
+    await sendEmail({ to: ADMIN_EMAIL, subject: `⚠️ Video Upload Fallback: ${d.businessName||'Unknown'}`, html: `<h2 style="color:#f59e0b;font-family:sans-serif;">Video Upload Fallback</h2><table style="border-collapse:collapse;width:100%;max-width:500px;font-family:sans-serif;"><tr><td style="padding:8px;font-weight:700;">Client</td><td style="padding:8px;">${d.uploaderName||''}</td></tr><tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;">Business</td><td style="padding:8px;">${d.businessName||''}</td></tr><tr><td style="padding:8px;font-weight:700;">Email</td><td style="padding:8px;">${d.email||''}</td></tr><tr style="background:#f9f9f9;"><td style="padding:8px;font-weight:700;">Video Type</td><td style="padding:8px;">${typeLabel}</td></tr><tr><td style="padding:8px;font-weight:700;">File</td><td style="padding:8px;">${d.fileName||''} (${d.fileSize||''})</td></tr>${d.uploadError?`<tr style="background:#fff8f0;"><td style="padding:8px;font-weight:700;color:#dc2626;">Upload Error</td><td style="padding:8px;color:#dc2626;">${d.uploadError}</td></tr>`:''}</table>` });
+    if (d.email) await sendEmail({ to: d.email, subject: `✅ Video Received — ${d.businessName||'Your Business'}`, html: `<h2 style="color:#0066FF;font-family:sans-serif;">We Got Your Video Clip!</h2><p style="font-family:sans-serif;">Hi ${d.uploaderName||'there'}, production begins within 48 hours.</p><p style="font-family:sans-serif;">Questions? Call (228) 604-3200</p>` });
     res.json({ success: true });
   } catch(err) { console.error('[/api/video-upload-notify]', err); res.status(500).json({ error: 'Failed' }); }
 });
 
-// ── GET /api/admin/clients (T-11 + T-12) ──
+// ── GET /api/admin/clients ──
 app.get('/api/admin/clients', (req, res) => {
   const adminKey = req.query.adminKey || req.headers['x-admin-key'];
   if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
@@ -1302,19 +1236,16 @@ app.get('/api/admin/clients', (req, res) => {
     wantsFreeVideo: c.freeVideoRequested,
     wantsAfterHours: c.data.addon_after_hours, wantsMissedCall: c.data.addon_missed_call,
     domainStatus: {
-      hasDomain: c.data.hasDomain || null,
-      existingDomain: c.data.existingDomain || null,
-      domainRegistrar: c.data.domainRegistrar || null,
-      keepExistingEmail: c.data.keepExistingEmail || null,
-      suggestedDomain: c.data.suggestedDomain || null,
-      cfProjectName: c.cfProjectName || null,
+      hasDomain: c.data.hasDomain || null, existingDomain: c.data.existingDomain || null,
+      domainRegistrar: c.data.domainRegistrar || null, keepExistingEmail: c.data.keepExistingEmail || null,
+      suggestedDomain: c.data.suggestedDomain || null, cfProjectName: c.cfProjectName || null,
       needsDnsAction: (c.data.hasDomain === 'yes' || c.data.hasDomain === 'no') && c.status !== 'active'
     }
   }));
   res.json({ mrr: mrrSummary, clients: clientList });
 });
 
-// ── GET /api/approve/:id (admin approve) ──
+// ── GET /api/approve/:id ──
 app.get('/api/approve/:id', async (req, res) => {
   const adminKey = req.query.adminKey || req.headers['x-admin-key'];
   if (adminKey !== ADMIN_KEY) return res.status(403).send('Unauthorized');
@@ -1327,7 +1258,7 @@ app.get('/api/approve/:id', async (req, res) => {
   } catch(err) { console.error('[approve]', err); res.status(500).send('Deploy failed: ' + err.message); }
 });
 
-// ── GET /api/redeploy/:id (admin force re-deploy for stuck clients) ──
+// ── GET /api/redeploy/:id ──
 app.get('/api/redeploy/:id', async (req, res) => {
   const adminKey = req.query.adminKey || req.headers['x-admin-key'];
   if (adminKey !== ADMIN_KEY) return res.status(403).send('Unauthorized');
@@ -1337,11 +1268,11 @@ app.get('/api/redeploy/:id', async (req, res) => {
   client.status = 'pending';
   try {
     await runDeploy(client);
-    res.send(`<html><body style="font-family:sans-serif;text-align:center;padding:60px;background:#0f1117;color:white;"><h1 style="color:#00D68F;">✅ ${client.data.businessName} Re-Deployed!</h1><p>Live at: <a href="${client.liveUrl}" style="color:#0066FF;">${client.liveUrl}</a></p><p>New dashboard password: <strong>${client.dashPassword}</strong></p><p style="color:rgba(255,255,255,.6);">Credentials email sent to client.</p></body></html>`);
+    res.send(`<html><body style="font-family:sans-serif;text-align:center;padding:60px;background:#0f1117;color:white;"><h1 style="color:#00D68F;">✅ ${client.data.businessName} Re-Deployed!</h1><p>Live at: <a href="${client.liveUrl}" style="color:#0066FF;">${client.liveUrl}</a></p><p>New dashboard password: <strong>${client.dashPassword}</strong></p></body></html>`);
   } catch(err) { client.status = 'active'; console.error('[redeploy]', err); res.status(500).send('Re-deploy failed: ' + err.message); }
 });
 
-// ── GET /api/client-approve/:id (client self-approve from preview) ──
+// ── GET /api/client-approve/:id ──
 app.get('/api/client-approve/:id', async (req, res) => {
   const client = clients[req.params.id];
   if (!client) return res.status(404).send('Not found');
@@ -1361,7 +1292,7 @@ app.get('/preview/:token', (req, res) => {
   res.send(generateSiteHTML(data, true));
 });
 
-// ── GET /api/mini-me-consent/:id (email link — must be GET) ──
+// ── GET /api/mini-me-consent/:id ──
 app.get('/api/mini-me-consent/:id', async (req, res) => {
   const client = clients[req.params.id];
   if (!client || client.previewToken !== req.query.token) return res.status(403).send('Invalid token');
@@ -1379,7 +1310,7 @@ app.get('/api/mini-me-subscribe/:id', async (req, res) => {
   client.miniMeSubscribed = true;
   client.miniMeSubscribedAt = new Date().toISOString();
   await saveClient(client);
-  await sendEmail({ to: ADMIN_EMAIL, subject: `💰 Mini-Me Subscription: ${client.data.businessName}`, html: `<p><strong>${client.data.businessName}</strong> subscribed to Mini-Me at $59/mo.</p><p>Set up recurring billing for ${client.data.email}.</p>` });
+  await sendEmail({ to: ADMIN_EMAIL, subject: `💰 Mini-Me Subscription: ${client.data.businessName}`, html: `<p><strong>${client.data.businessName}</strong> subscribed to Mini-Me at $59/mo. Set up recurring billing for ${client.data.email}.</p>` });
   res.send('<html><body style="font-family:sans-serif;text-align:center;padding:60px;"><h2 style="color:#00D68F;">✅ Subscribed!</h2><p>Your Mini-Me subscription is active at $59/month.</p></body></html>');
 });
 
@@ -1389,11 +1320,7 @@ app.post('/api/preview-change-request', async (req, res) => {
     const { type, clientId, token, changes } = req.body;
     const client = clients[clientId];
     if (!client || client.previewToken !== token) return res.status(403).json({ error: 'Invalid token' });
-    await sendEmail({
-      to: ADMIN_EMAIL,
-      subject: `✏️ ${type === 'major' ? 'Major' : 'Minor'} Change Request: ${client.data.businessName}`,
-      html: `<h2 style="font-family:sans-serif;">Change Request — ${type}</h2><p style="font-family:sans-serif;"><strong>Client:</strong> ${client.data.businessName} (${client.data.email})</p><pre style="background:#f4f6fa;padding:16px;border-radius:8px;overflow:auto;">${JSON.stringify(changes, null, 2)}</pre>`
-    });
+    await sendEmail({ to: ADMIN_EMAIL, subject: `✏️ ${type === 'major' ? 'Major' : 'Minor'} Change Request: ${client.data.businessName}`, html: `<h2 style="font-family:sans-serif;">Change Request — ${type}</h2><p style="font-family:sans-serif;"><strong>Client:</strong> ${client.data.businessName} (${client.data.email})</p><pre style="background:#f4f6fa;padding:16px;border-radius:8px;overflow:auto;">${JSON.stringify(changes, null, 2)}</pre>` });
     res.json({ success: true });
   } catch(err) { console.error('[change-request]', err); res.status(500).json({ error: 'Failed' }); }
 });
@@ -1407,6 +1334,26 @@ app.post('/api/client-update', async (req, res) => {
   if (client.dashPassword !== password.trim().toUpperCase()) return res.status(401).json({ error: 'Wrong password' });
 
   try {
+    if (updateType === 'content_update') {
+      // Merge full intake payload — block credential fields only
+      const BLOCKED = ['id','dashToken','dashPassword','previewToken','_previewToken'];
+      const incoming = updateData || {};
+      Object.keys(incoming).forEach(k => {
+        if (!BLOCKED.includes(k)) client.data[k] = incoming[k];
+      });
+      await saveClient(client);
+      if (client.status !== 'active' || !client.cfProjectName) {
+        return res.json({ success: true, message: 'Your information has been saved. Your site will reflect the changes on next deployment.' });
+      }
+      try {
+        await redeployLive(client);
+        return res.json({ success: true, message: 'Your site has been updated and redeployed. Changes will be live within 1–2 minutes.' });
+      } catch(deployErr) {
+        console.error('[content_update redeploy]', deployErr.message);
+        return res.status(500).json({ error: 'Your information was saved, but the redeploy failed: ' + deployErr.message + '. Please contact support at (228) 604-3200.' });
+      }
+    }
+
     if (updateType === 'hours') {
       const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
       const hours = {};
@@ -1415,7 +1362,6 @@ app.post('/api/client-update', async (req, res) => {
       });
       client.data.hours = hours;
       await saveClient(client);
-      // Redeploy live site with updated hours
       if (client.status === 'active') {
         const projectName = client.cfProjectName || `turnkeyai-${makeSlug(client.data.businessName)}`;
         const liveHTML = generateSiteHTML(client.data, false);
@@ -1428,14 +1374,7 @@ app.post('/api/client-update', async (req, res) => {
       await sendEmail({
         to: ADMIN_EMAIL,
         subject: `✏️ Change Request: ${client.data.businessName}`,
-        html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
-          <h2 style="color:#0066FF;">Change Request — ${updateData.requestType || 'General'}</h2>
-          <p><strong>Client:</strong> ${client.data.businessName}</p>
-          <p><strong>Email:</strong> ${client.data.email}</p>
-          <p><strong>Phone:</strong> ${client.data.phone}</p>
-          <p><strong>Request:</strong></p>
-          <div style="background:#f4f6fa;padding:16px;border-radius:8px;">${updateData.details}</div>
-        </div>`
+        html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;"><h2 style="color:#0066FF;">Change Request — ${updateData.requestType || 'General'}</h2><p><strong>Client:</strong> ${client.data.businessName}</p><p><strong>Email:</strong> ${client.data.email}</p><p><strong>Phone:</strong> ${client.data.phone}</p><p><strong>Request:</strong></p><div style="background:#f4f6fa;padding:16px;border-radius:8px;">${updateData.details}</div></div>`
       });
       return res.json({ success: true, message: 'Request sent! We\'ll handle it within 24–48 hours.' });
     }
@@ -1477,7 +1416,7 @@ app.post('/api/client-auth', async (req, res) => {
   });
 });
 
-// ── POST /api/admin/bind-domain (T-14) ──
+// ── POST /api/admin/bind-domain ──
 app.post('/api/admin/bind-domain', async (req, res) => {
   const adminKey = req.query.adminKey || req.headers['x-admin-key'];
   if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
