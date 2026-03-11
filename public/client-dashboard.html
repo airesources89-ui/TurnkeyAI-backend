@@ -365,9 +365,10 @@ const DAY_LABELS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday
 
 function buildHoursEditor() {
   const hours = clientData.data?.hours || {};
+  const raw = clientData.data || {};
   document.getElementById('hoursEditor').innerHTML = DAYS.map((d, i) => {
-    const isOpen = hours[d]?.open || false;
-    const h = hours[d]?.hours || '9:00 AM – 5:00 PM';
+    const isOpen = hours[d]?.open !== undefined ? hours[d].open : !!raw['day_'+d];
+    const h = hours[d]?.hours || raw['hours_'+d] || '9:00 AM – 5:00 PM';
     return `<div class="day-row">
       <label class="day-toggle">
         <input type="checkbox" id="tog_${d}" ${isOpen?'checked':''} onchange="toggleDay('${d}')">
