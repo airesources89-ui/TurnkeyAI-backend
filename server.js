@@ -305,33 +305,26 @@ async function deployToCloudflarePages(projectName, htmlContent) {
   if (!CF_ACCOUNT_ID || !CF_API_TOKEN) {
     console.warn('[CF Pages] Missing credentials — skipping'); return { url: null, skipped: true };
   }
-  const checkRes = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/pages/projects/${projectName}`,
-    { headers: { 'Authorization': `Bearer ${CF_API_TOKEN}` } }
-  );
-  if (!checkRes.ok) {
-    const createRes = await fetch(`https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/pages/projects`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${CF_API_TOKEN}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: projectName, production_branch: 'main' })
-    });
-    const createData = await createRes.json();
-    if (!createRes.ok) throw new Error('CF Pages create failed: ' + JSON.stringify(createData.errors));
-    await new Promise(r => setTimeout(r, 2000));
+  const { execSync } = require('child_process');
+  const os = require('os');
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tkai-'));
+  try {
+    fs.writeFileSync(path.join(tmpDir, 'index.html'), htmlContent, 'utf8');
+    const cmd = `npx wrangler pages deploy "${tmpDir}" --project-name="${projectName}" --branch=main --commit-dirty=true`;
+    try {
+      execSync(cmd, {
+        env: { ...process.env, CLOUDFLARE_ACCOUNT_ID: CF_ACCOUNT_ID, CLOUDFLARE_API_TOKEN: CF_API_TOKEN },
+        stdio: 'pipe',
+        timeout: 60000
+      });
+    } catch(err) {
+      const detail = err.stderr ? err.stderr.toString() : err.message;
+      throw new Error('Wrangler deploy failed: ' + detail);
+    }
+    return { url: `https://${projectName}.pages.dev` };
+  } finally {
+    try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch(_) {}
   }
-  const htmlBuffer = Buffer.from(htmlContent, 'utf8');
-  const htmlHash = crypto.createHash('sha256').update(htmlBuffer).digest('hex');
-  const manifest = { '/index.html': htmlHash };
-  const form = new FormData();
-  form.append('manifest', Buffer.from(JSON.stringify(manifest)), { filename: 'manifest', contentType: 'application/json' });
-  form.append('/index.html', htmlBuffer, { filename: 'index.html', contentType: 'text/html; charset=utf-8' });
-  const deployRes = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/pages/projects/${projectName}/deployments`,
-    { method: 'POST', headers: { 'Authorization': `Bearer ${CF_API_TOKEN}`, ...form.getHeaders() }, body: form }
-  );
-  const deployData = await deployRes.json();
-  if (!deployRes.ok) throw new Error('CF Pages deploy failed: ' + JSON.stringify(deployData.errors));
-  return { url: `https://${projectName}.pages.dev`, deploymentId: deployData.result?.id };
 }
 
 // ── Send credentials email ──
