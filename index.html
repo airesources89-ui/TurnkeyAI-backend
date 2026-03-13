@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="google-site-verification" content="Kmd-h2IhSOqt5GyzDhuNsL66llzrV6MJvnuJwBW65Aw" />
+<title>TurnkeyAI Services — Business & Heritage Made Easy</title>
+<meta name="description" content="AI-powered websites for local businesses and personal heritage sites. Built in 24 hours. No tech skills needed.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--ink:#0c0c14;--gold:#c9952a;--gold-light:#f0c060;--business:#1a3a6b;--business2:#0f2244;--heritage:#2d0a4e;--heritage2:#1a0530;--cream:#fdfcf8;--silver:#c8bfd8;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Outfit',sans-serif;background:var(--ink);color:#fff;}
+.wrapper{height:100vh;display:grid;grid-template-rows:auto auto 1fr;overflow:hidden;}
+header{padding:20px 48px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:10;border-bottom:1px solid rgba(255,255,255,0.06);}
+.logo{display:flex;align-items:baseline;gap:3px;}
+.logo-main{font-family:'Playfair Display',serif;font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px;}
+.logo-tag{font-size:11px;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;margin-left:8px;}
+.header-contact{font-size:13px;color:rgba(255,255,255,.35);font-weight:500;}
+.header-contact a{color:rgba(255,255,255,.5);text-decoration:none;transition:color .2s;}
+.header-contact a:hover{color:#fff;}
+.panels{display:grid;grid-template-columns:1fr 1fr;height:100%;position:relative;}
+.divider{position:absolute;left:50%;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent 0%,rgba(255,255,255,.15) 20%,rgba(255,255,255,.15) 80%,transparent 100%);z-index:5;transform:translateX(-50%);}
+.divider-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:6;width:52px;height:52px;background:var(--ink);border:1px solid rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:rgba(255,255,255,.3);letter-spacing:1px;}
+.panel{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:flex .5s cubic-bezier(.4,0,.2,1);}
+.panel:hover{flex:1.18;}
+.panel-bg{position:absolute;inset:0;transition:transform .6s ease;}
+.panel:hover .panel-bg{transform:scale(1.04);}
+.panel-overlay{position:absolute;inset:0;transition:opacity .4s;}
+.panel-business .panel-bg{background:radial-gradient(ellipse at 30% 40%, rgba(37,99,235,.25) 0%, transparent 55%),radial-gradient(ellipse at 80% 70%, rgba(15,34,68,.8) 0%, transparent 50%),linear-gradient(145deg, #0a1628 0%, #1a3a6b 50%, #0f2244 100%);}
+.panel-business .panel-overlay{background:rgba(10,22,40,0.2);}
+.panel-business:hover .panel-overlay{opacity:0;}
+.panel-heritage .panel-bg{background:radial-gradient(ellipse at 70% 40%, rgba(139,47,192,.2) 0%, transparent 55%),radial-gradient(ellipse at 20% 70%, rgba(26,5,48,.8) 0%, transparent 50%),linear-gradient(145deg, #0d0018 0%, #2d0a4e 50%, #1a0530 100%);}
+.panel-heritage .panel-overlay{background:rgba(13,0,24,0.2);}
+.panel-heritage:hover .panel-overlay{opacity:0;}
+.panel-grid{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .4s;}
+.panel:hover .panel-grid{opacity:1;}
+.panel-business .panel-grid{background-image:linear-gradient(rgba(37,99,235,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,.06) 1px,transparent 1px);background-size:40px 40px;}
+.panel-heritage .panel-grid{background-image:linear-gradient(rgba(139,47,192,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(139,47,192,.06) 1px,transparent 1px);background-size:40px 40px;}
+.panel-content{position:relative;z-index:3;padding:48px;max-width:460px;width:100%;}
+.panel-icon{font-size:52px;margin-bottom:20px;display:block;filter:drop-shadow(0 4px 16px rgba(0,0,0,.4));transition:transform .3s;}
+.panel:hover .panel-icon{transform:translateY(-4px) scale(1.05);}
+.panel-eyebrow{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;}
+.panel-business .panel-eyebrow{color:rgba(96,165,250,.7);}
+.panel-heritage .panel-eyebrow{color:rgba(192,132,252,.7);}
+.panel-title{font-family:'Playfair Display',serif;font-size:clamp(36px,3.5vw,52px);font-weight:800;line-height:1.05;margin-bottom:14px;letter-spacing:-.5px;color:#fff;}
+.panel-desc{font-size:15px;line-height:1.7;font-weight:400;margin-bottom:28px;max-width:360px;color:rgba(255,255,255,.55);}
+.panel-features{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:32px;}
+.panel-features li{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:rgba(255,255,255,.6);}
+.panel-features li::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.panel-business .panel-features li::before{background:#60a5fa;}
+.panel-heritage .panel-features li::before{background:#c084fc;}
+.panel-price{font-size:13px;font-weight:600;margin-bottom:24px;}
+.panel-business .panel-price{color:rgba(96,165,250,.6);}
+.panel-heritage .panel-price{color:rgba(192,132,252,.6);}
+.panel-price strong{font-size:22px;font-weight:800;font-family:'Playfair Display',serif;}
+.panel-business .panel-price strong{color:#93c5fd;}
+.panel-heritage .panel-price strong{color:#d8b4fe;}
+.panel-btn{display:inline-flex;align-items:center;gap:10px;padding:15px 32px;border-radius:6px;font-size:14px;font-weight:700;letter-spacing:.5px;text-decoration:none;transition:all .25s;border:none;cursor:pointer;font-family:'Outfit',sans-serif;}
+.panel-business .panel-btn{background:#2563eb;color:#fff;}
+.panel-business .panel-btn:hover{background:#1d4ed8;transform:translateX(4px);}
+.panel-heritage .panel-btn{background:#7c3aed;color:#fff;}
+.panel-heritage .panel-btn:hover{background:#6d28d9;transform:translateX(4px);}
+.btn-arrow{transition:transform .2s;}
+.panel-btn:hover .btn-arrow{transform:translateX(4px);}
+.blog-bar{background:rgba(192,132,252,0.08);border-bottom:1px solid rgba(192,132,252,0.15);padding:10px 48px;display:flex;align-items:center;justify-content:center;gap:20px;z-index:10;}
+.blog-bar-text{font-size:13px;color:rgba(255,255,255,.5);font-weight:500;}
+.blog-bar-text strong{color:rgba(255,255,255,.8);}
+.blog-bar-link{display:inline-flex;align-items:center;gap:6px;background:rgba(192,132,252,0.15);border:1px solid rgba(192,132,252,0.25);color:#c084fc;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;transition:all .2s;letter-spacing:.5px;}
+.blog-bar-link:hover{background:rgba(192,132,252,0.25);color:#d8b4fe;}
+.headline{text-align:center;padding:16px 48px 0;position:relative;z-index:10;}
+.headline-main{font-family:'Playfair Display',serif;font-size:clamp(24px,3vw,40px);font-weight:800;color:#fff;letter-spacing:-1px;line-height:1.1;}
+.headline-main .gold{color:var(--gold-light);}
+.headline-sub{font-size:14px;color:rgba(255,255,255,.4);margin-top:6px;font-weight:400;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6;}
+header{animation:fadeDown .5s ease both;}
+.blog-bar{animation:fadeDown .5s .05s ease both;}
+.headline{animation:fadeDown .5s .1s ease both;}
+.panel-business .panel-content{animation:fadeRight .6s .2s ease both;}
+.panel-heritage .panel-content{animation:fadeLeft .6s .2s ease both;}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeRight{from{opacity:0;transform:translateX(-20px);}to{opacity:1;transform:translateX(0);}}
+@keyframes fadeLeft{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+@media(max-width:768px){
+  html,body{overflow:auto;}
+  .wrapper{height:auto;grid-template-rows:auto auto auto auto;}
+  .panels{grid-template-columns:1fr;height:auto;}
+  .panel{min-height:85vh;flex:none!important;}
+  .divider{display:none;}
+  .panel-content{padding:48px 28px;}
+  header{padding:20px 24px;}
+  .headline{padding:16px 24px 0;}
+  .blog-bar{padding:10px 24px;flex-direction:column;gap:10px;text-align:center;}
+  .header-contact{display:none;}
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <div class="logo">
+      <span class="logo-main">TurnkeyAI</span>
+      <span class="logo-tag">Services</span>
+    </div>
+    <div class="header-contact">
+      📞 <a href="tel:6039222004">(603) 922-2004</a> &nbsp;·&nbsp; ✉️ <a href="mailto:turnkeyaiservices@gmail.com">turnkeyaiservices@gmail.com</a>
+    </div>
+  </header>
+
+  <!-- BLOG BAR -->
+  <div class="blog-bar">
+    <div class="blog-bar-text"><strong>TurnkeyAI Blog:</strong> Tips, strategies & insights for Gulf Coast businesses</div>
+    <a href="/blog.html" class="blog-bar-link">Read Our Blog →</a>
+  </div>
+
+  <div class="headline">
+    <div class="headline-main">Business & Heritage <span class="gold">Made Easy</span></div>
+    <div class="headline-sub">AI-powered websites built in 24 hours — for the business you run and the story worth remembering. No tech skills. No setup fee.</div>
+  </div>
+
+  <div class="panels">
+    <div class="panel panel-business" onclick="window.location='/business.html'">
+      <div class="panel-bg"></div>
+      <div class="panel-overlay"></div>
+      <div class="panel-grid"></div>
+      <div class="panel-content">
+        <span class="panel-icon">🏢</span>
+        <div class="panel-eyebrow">For Local Businesses</div>
+        <h2 class="panel-title">Grow Your<br>Business Online</h2>
+        <p class="panel-desc">Professional AI-powered websites for restaurants, cleaners, salons, contractors, and every local business in between.</p>
+        <ul class="panel-features">
+          <li>24/7 AI chat assistant</li>
+          <li>After-hours call answering — FREE</li>
+          <li>Online reservations & booking</li>
+          <li>Google Maps SEO optimization</li>
+          <li>Missed call return — FREE</li>
+        </ul>
+        <div class="panel-price">From <strong>$99</strong>/month · $0 setup</div>
+        <a href="/business.html" class="panel-btn" onclick="event.stopPropagation()">Build My Business Site <span class="btn-arrow">→</span></a>
+      </div>
+    </div>
+    <div class="divider"><div class="divider-badge">OR</div></div>
+    <div class="panel panel-heritage" onclick="window.location='/personal.html'">
+      <div class="panel-bg"></div>
+      <div class="panel-overlay"></div>
+      <div class="panel-grid"></div>
+      <div class="panel-content">
+        <span class="panel-icon">🌳</span>
+        <div class="panel-eyebrow">For Families & Creators</div>
+        <h2 class="panel-title">Preserve Your<br>Story Forever</h2>
+        <p class="panel-desc">Beautiful personal websites for family legacies, reunion sites, crafter stores, recipe collections, and every memory worth keeping.</p>
+        <ul class="panel-features">
+          <li>Family history & photo galleries</li>
+          <li>Crafter stores with Stripe checkout</li>
+          <li>Recipe sites with paid downloads</li>
+          <li>Reunion RSVP & memories wall</li>
+          <li>Memorial & tribute pages</li>
+        </ul>
+        <div class="panel-price">From <strong>$29</strong>/month · $0 setup</div>
+        <a href="/personal.html" class="panel-btn" onclick="event.stopPropagation()">Build My Personal Site <span class="btn-arrow">→</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN BUTTON + MODAL -->
+<div style="position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:999;">
+  <button onclick="document.getElementById('adminModal').style.display='flex'" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.25);padding:6px 16px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:1px;text-transform:uppercase;">⚙ Admin</button>
+</div>
+
+<div id="adminModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#1a1d24;border:1px solid #2e3240;border-radius:20px;padding:44px 40px;width:100%;max-width:400px;text-align:center;">
+    <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:800;color:white;margin-bottom:6px;">TurnkeyAI <span style="color:#00D68F;">Admin</span></div>
+    <div style="font-size:13px;color:rgba(255,255,255,.35);margin-bottom:28px;">Authorized access only</div>
+    <input id="adminKeyInput" type="password" placeholder="Enter admin key" onkeydown="if(event.key==='Enter')adminLogin()" style="width:100%;background:#12141a;border:1.5px solid #2e3240;border-radius:10px;padding:13px 16px;color:white;font-size:15px;font-family:'Outfit',sans-serif;outline:none;margin-bottom:14px;">
+    <button onclick="adminLogin()" style="width:100%;background:linear-gradient(135deg,#0066FF,#0052CC);color:white;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;">Sign In →</button>
+    <div id="adminError" style="display:none;background:#ef444422;border:1px solid #ef444444;border-radius:8px;color:#f87171;font-size:13px;padding:10px;margin-top:12px;">Invalid key. Try again.</div>
+  </div>
+</div>
+
+<script>
+function adminLogin() {
+  var key = document.getElementById('adminKeyInput').value.trim();
+  if (!key) return;
+  fetch('/api/admin/clients?adminKey=' + encodeURIComponent(key))
+    .then(function(r) {
+      if (r.ok) {
+        window.location.href = '/admin?key=' + encodeURIComponent(key);
+      } else {
+        document.getElementById('adminError').style.display = 'block';
+        document.getElementById('adminKeyInput').value = '';
+        document.getElementById('adminKeyInput').focus();
+      }
+    })
+    .catch(function() {
+      document.getElementById('adminError').style.display = 'block';
+    });
+}
+</script>
+
+</body>
+</html>
