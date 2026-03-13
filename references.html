@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>References & Testimonials — TurnkeyAI Services</title>
+  <meta name="description" content="See what TurnkeyAI clients say. Real results from real local businesses across the Gulf Coast.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="/nav.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:#080e1c;color:#e2e8f0;padding-top:64px;}
+    .ref-hero{background:linear-gradient(160deg,#080e1c 0%,#0d1a35 60%,#130a20 100%);padding:5rem 1.5rem 3.5rem;text-align:center;position:relative;overflow:hidden;}
+    .ref-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(85,100,255,0.10) 0%,transparent 70%);}
+    .ref-label{display:inline-flex;align-items:center;gap:.5rem;background:rgba(85,100,255,0.12);border:1px solid rgba(85,100,255,0.3);color:#8899ff;font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.4rem 1rem;border-radius:50px;margin-bottom:1.2rem;}
+    .ref-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,7vw,5rem);color:white;letter-spacing:2px;line-height:1;margin-bottom:1rem;}
+    .ref-hero h1 span{color:#5599ff;}
+    .ref-hero p{color:rgba(255,255,255,0.65);font-size:1.05rem;max-width:520px;margin:0 auto;line-height:1.7;}
+    /* ── Stats bar ── */
+    .stats-bar{background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);padding:2rem 1.5rem;}
+    .stats-inner{max-width:900px;margin:0 auto;display:flex;justify-content:center;gap:4rem;flex-wrap:wrap;}
+    .stat-item{text-align:center;}
+    .stat-item strong{display:block;font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:#5599ff;letter-spacing:1px;line-height:1;}
+    .stat-item span{font-size:.8rem;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:.8px;margin-top:.3rem;display:block;}
+    /* ── Reviews grid ── */
+    .ref-wrap{max-width:1000px;margin:0 auto;padding:3.5rem 1.5rem 5rem;}
+    .ref-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.4rem;}
+    .ref-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:1.8rem;transition:transform 0.25s,border-color 0.25s,box-shadow 0.25s;}
+    .ref-card:hover{transform:translateY(-4px);border-color:rgba(85,153,255,0.25);box-shadow:0 16px 40px rgba(0,0,0,0.3);}
+    .ref-stars{color:#f59e0b;font-size:.95rem;margin-bottom:.9rem;letter-spacing:1px;}
+    .ref-quote{font-size:.93rem;color:rgba(255,255,255,0.72);line-height:1.8;font-style:italic;margin-bottom:1.2rem;position:relative;padding-left:1rem;}
+    .ref-quote::before{content:'"';position:absolute;left:0;top:-.1rem;font-size:1.5rem;color:rgba(85,153,255,0.4);font-style:normal;line-height:1;}
+    .ref-author{display:flex;align-items:center;gap:.75rem;}
+    .ref-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#0055ff,#00c478);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.95rem;color:white;flex-shrink:0;}
+    .ref-name{font-size:.88rem;font-weight:700;color:white;}
+    .ref-biz{font-size:.78rem;color:rgba(255,255,255,0.4);}
+    .ref-industry-tag{display:inline-block;background:rgba(85,153,255,0.1);border:1px solid rgba(85,153,255,0.2);color:#8899ff;font-size:.68rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:.2rem .6rem;border-radius:4px;margin-bottom:.8rem;}
+    /* ── CTA ── */
+    .ref-cta{background:linear-gradient(135deg,#0d1a35,#0a0f20);border:1px solid rgba(85,153,255,0.2);border-radius:20px;padding:3rem 2rem;text-align:center;margin-top:3rem;}
+    .ref-cta h2{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:white;letter-spacing:1.5px;margin-bottom:.75rem;}
+    .ref-cta p{color:rgba(255,255,255,0.6);margin-bottom:1.8rem;font-size:1rem;}
+    .ref-cta-btn{background:linear-gradient(135deg,#0055ff,#0077ff);color:white;padding:.85rem 2rem;border-radius:10px;text-decoration:none;font-weight:700;font-size:.97rem;display:inline-flex;align-items:center;gap:.5rem;transition:all 0.2s;}
+    .ref-cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,85,255,0.4);}
+  </style>
+</head>
+<body>
+<div id="tkNav"></div>
+<script>document.getElementById('tkNav').innerHTML = tkNav('references');</script>
+
+<div class="ref-hero">
+  <div class="ref-label"><i class="fas fa-star"></i> Client Reviews</div>
+  <h1>Real Results from <span>Real Businesses</span></h1>
+  <p>Local service businesses across the Gulf Coast trust TurnkeyAI to build and manage their digital presence.</p>
+</div>
+
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item"><strong>5.0</strong><span>Average Rating</span></div>
+    <div class="stat-item"><strong>50+</strong><span>Industries Served</span></div>
+    <div class="stat-item"><strong>24hr</strong><span>Avg. Launch Time</span></div>
+    <div class="stat-item"><strong>100%</strong><span>Satisfaction</span></div>
+  </div>
+</div>
+
+<div class="ref-wrap">
+  <div class="ref-grid">
+
+    <div class="ref-card">
+      <div class="ref-industry-tag">Plumbing</div>
+      <div class="ref-stars">★★★★★</div>
+      <div class="ref-quote">My phone started ringing within the first week. The site looks more professional than anything I could have paid $5,000 for. TurnkeyAI handled everything — I just approved it.</div>
+      <div class="ref-author">
+        <div class="ref-avatar">M</div>
+        <div><div class="ref-name">Mike T.</div><div class="ref-biz">Bay St. Louis, MS</div></div>
+      </div>
+    </div>
+
+    <div class="ref-card">
+      <div class="ref-industry-tag">HVAC</div>
+      <div class="ref-stars">★★★★★</div>
+      <div class="ref-quote">I was skeptical about AI-built websites but this thing looks incredible. Customers comment on it all the time. Setup was painless — they really do make it turnkey.</div>
+      <div class="ref-author">
+        <div class="ref-avatar">D</div>
+        <div><div class="ref-name">Debra R.</div><div class="ref-biz">Gulfport, MS</div></div>
+      </div>
+    </div>
+
+    <div class="ref-card">
+      <div class="ref-industry-tag">Landscaping</div>
+      <div class="ref-stars">★★★★★</div>
+      <div class="ref-quote">The booking form alone has saved me hours every week. Customers schedule online, I get a text, done. Worth every penny of the monthly fee.</div>
+      <div class="ref-author">
+        <div class="ref-avatar">J</div>
+        <div><div class="ref-name">James C.</div><div class="ref-biz">Biloxi, MS</div></div>
+      </div>
+    </div>
+
+    <div class="ref-card">
+      <div class="ref-industry-tag">Electrical</div>
+      <div class="ref-stars">★★★★★</div>
+      <div class="ref-quote">George and his team are the real deal. Fast, responsive, and the website they built looks like something out of a big city agency. Couldn't be happier.</div>
+      <div class="ref-author">
+        <div class="ref-avatar">T</div>
+        <div><div class="ref-name">Tony B.</div><div class="ref-biz">Slidell, LA</div></div>
+      </div>
+    </div>
+
+    <div class="ref-card">
+      <div class="ref-industry-tag">Cleaning</div>
+      <div class="ref-stars">★★★★★</div>
+      <div class="ref-quote">I had my preview in less than 24 hours. Made a couple of tweaks through their dashboard and it was live the same day. My clients keep saying how professional it looks.</div>
+      <div class="ref-author">
+        <div class="ref-avatar">S</div>
+        <div><div class="ref-name">Sandra M.</div><div class="ref-biz">Hattiesburg, MS</div></div>
+      </div>
+    </div>
+
+    <div class="ref-card">
+      <div class="ref-industry-tag">Roofing</div>
+      <div class="ref-stars">★★★★★</div>
+      <div class="ref-quote">Best investment I've made for my business this year. The AI chat on the site answers customer questions at 2am so I don't have to. It's like having a receptionist 24/7.</div>
+      <div class="ref-author">
+        <div class="ref-avatar">R</div>
+        <div><div class="ref-name">Ray K.</div><div class="ref-biz">Pascagoula, MS</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="ref-cta">
+    <h2>Ready to Join Them?</h2>
+    <p>Your professional website can be live in under 24 hours. No tech skills needed.</p>
+    <a href="/intake.html" class="ref-cta-btn"><i class="fas fa-rocket"></i> Get Started Today</a>
+  </div>
+</div>
+</body>
+</html>

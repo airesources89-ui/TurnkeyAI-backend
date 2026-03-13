@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing — TurnkeyAI Services</title>
+  <meta name="description" content="Simple, transparent pricing for AI-powered websites. Starting at $99/month. No setup fees.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="/nav.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:#080e1c;color:#e2e8f0;padding-top:64px;}
+    .price-hero{background:linear-gradient(160deg,#080e1c 0%,#0d1a35 60%,#0a100a 100%);padding:5rem 1.5rem 3rem;text-align:center;position:relative;}
+    .price-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(245,158,11,0.08) 0%,transparent 65%);}
+    .price-label{display:inline-flex;align-items:center;gap:.5rem;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.4rem 1rem;border-radius:50px;margin-bottom:1.2rem;}
+    .price-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,7vw,5rem);color:white;letter-spacing:2px;line-height:1;margin-bottom:1rem;}
+    .price-hero h1 span{color:#f59e0b;}
+    .price-hero p{color:rgba(255,255,255,0.65);font-size:1.05rem;max-width:520px;margin:0 auto;line-height:1.7;}
+    .price-wrap{max-width:1050px;margin:0 auto;padding:3.5rem 1.5rem 5rem;}
+    /* ── Plan cards ── */
+    .plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.4rem;margin-bottom:3.5rem;}
+    .plan-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:20px;padding:2rem;display:flex;flex-direction:column;position:relative;transition:transform 0.25s,box-shadow 0.25s;}
+    .plan-card:hover{transform:translateY(-4px);box-shadow:0 20px 48px rgba(0,0,0,0.35);}
+    .plan-card.featured{border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.04);}
+    .plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#f59e0b,#e85d04);color:#1c0a00;font-size:.7rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:.3rem .9rem;border-radius:50px;white-space:nowrap;}
+    .plan-name{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:white;letter-spacing:1px;margin-bottom:.3rem;}
+    .plan-tagline{font-size:.82rem;color:rgba(255,255,255,0.4);margin-bottom:1.5rem;}
+    .plan-price{margin-bottom:1.5rem;}
+    .plan-price strong{font-family:'Bebas Neue',sans-serif;font-size:3.2rem;color:#f59e0b;letter-spacing:1px;}
+    .plan-price span{font-size:.85rem;color:rgba(255,255,255,0.4);}
+    .plan-features{list-style:none;display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.8rem;flex:1;}
+    .plan-features li{display:flex;align-items:flex-start;gap:.6rem;font-size:.88rem;color:rgba(255,255,255,0.7);}
+    .plan-features li i{color:#00c478;margin-top:.15rem;flex-shrink:0;}
+    .plan-features li.muted{color:rgba(255,255,255,0.28);}
+    .plan-features li.muted i{color:rgba(255,255,255,0.2);}
+    .plan-btn{display:block;text-align:center;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);color:white;padding:.8rem 1.5rem;border-radius:10px;text-decoration:none;font-weight:700;font-size:.9rem;transition:all 0.2s;}
+    .plan-btn:hover{background:rgba(255,255,255,0.14);border-color:rgba(255,255,255,0.3);}
+    .plan-btn.primary{background:linear-gradient(135deg,#f59e0b,#e85d04);border-color:transparent;color:#1c0a00;}
+    .plan-btn.primary:hover{opacity:0.92;transform:translateY(-1px);}
+    /* ── Add-ons ── */
+    .addons-section{margin-bottom:3rem;}
+    .section-eyebrow{font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f59e0b;margin-bottom:.5rem;}
+    .section-heading{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:white;letter-spacing:1.5px;margin-bottom:1.5rem;}
+    .addons-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;}
+    .addon-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:1.3rem;display:flex;gap:.9rem;align-items:flex-start;transition:border-color 0.2s;}
+    .addon-card:hover{border-color:rgba(245,158,11,0.2);}
+    .addon-icon{width:40px;height:40px;border-radius:10px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;font-size:1rem;color:#f59e0b;flex-shrink:0;}
+    .addon-name{font-size:.9rem;font-weight:700;color:white;margin-bottom:.2rem;}
+    .addon-price{font-size:.82rem;color:#f59e0b;font-weight:600;}
+    .addon-desc{font-size:.78rem;color:rgba(255,255,255,0.4);line-height:1.5;margin-top:.3rem;}
+    /* ── FAQ ── */
+    .faq-section{margin-bottom:3rem;}
+    .faq-item{border-bottom:1px solid rgba(255,255,255,0.07);padding:1.2rem 0;}
+    .faq-q{font-size:.95rem;font-weight:700;color:white;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+    .faq-a{font-size:.88rem;color:rgba(255,255,255,0.55);line-height:1.75;margin-top:.75rem;display:none;}
+    .faq-a.open{display:block;}
+    .faq-q i{font-size:.75rem;color:rgba(255,255,255,0.3);transition:transform 0.2s;}
+    .faq-q.open i{transform:rotate(180deg);}
+    .price-cta{background:linear-gradient(135deg,#0d1a35,#0a0f20);border:1px solid rgba(245,158,11,0.2);border-radius:20px;padding:3rem 2rem;text-align:center;}
+    .price-cta h2{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:white;letter-spacing:1.5px;margin-bottom:.75rem;}
+    .price-cta p{color:rgba(255,255,255,0.6);margin-bottom:1.8rem;}
+    .price-cta-btn{background:linear-gradient(135deg,#f59e0b,#e85d04);color:#1c0a00;padding:.9rem 2.2rem;border-radius:10px;text-decoration:none;font-weight:700;font-size:1rem;display:inline-flex;align-items:center;gap:.5rem;transition:all 0.2s;}
+    .price-cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,158,11,0.4);}
+  </style>
+</head>
+<body>
+<div id="tkNav"></div>
+<script>document.getElementById('tkNav').innerHTML = tkNav('pricing');</script>
+
+<div class="price-hero">
+  <div class="price-label"><i class="fas fa-tag"></i> Pricing</div>
+  <h1>Simple, <span>Transparent</span> Pricing</h1>
+  <p>No setup fees. No contracts. No surprises. Just a professional AI-powered website for your business every month.</p>
+</div>
+
+<div class="price-wrap">
+
+  <div class="plans-grid">
+
+    <div class="plan-card">
+      <div class="plan-name">Node</div>
+      <div class="plan-tagline">Professional website, fully managed</div>
+      <div class="plan-price"><strong>$99</strong><span>/mo</span></div>
+      <ul class="plan-features">
+        <li><i class="fas fa-check"></i> AI-generated custom website</li>
+        <li><i class="fas fa-check"></i> Mobile-optimized design</li>
+        <li><i class="fas fa-check"></i> Booking form + lead capture</li>
+        <li><i class="fas fa-check"></i> AI chat assistant</li>
+        <li><i class="fas fa-check"></i> SEO + schema markup</li>
+        <li><i class="fas fa-check"></i> Hosted on Cloudflare (fast)</li>
+        <li><i class="fas fa-check"></i> Client dashboard access</li>
+        <li class="muted"><i class="fas fa-times"></i> Blog posts</li>
+        <li class="muted"><i class="fas fa-times"></i> Social media posting</li>
+      </ul>
+      <a href="/intake.html" class="plan-btn">Get Started →</a>
+    </div>
+
+    <div class="plan-card featured">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-name">Node + Blog</div>
+      <div class="plan-tagline">Website + content marketing</div>
+      <div class="plan-price"><strong>$129</strong><span>/mo</span></div>
+      <ul class="plan-features">
+        <li><i class="fas fa-check"></i> Everything in Node</li>
+        <li><i class="fas fa-check"></i> 8 AI blog posts per month</li>
+        <li><i class="fas fa-check"></i> SEO-optimized content</li>
+        <li><i class="fas fa-check"></i> Auto-published to your site</li>
+        <li><i class="fas fa-check"></i> Google index requests</li>
+        <li><i class="fas fa-check"></i> Builds long-term search traffic</li>
+        <li class="muted"><i class="fas fa-times"></i> Social media posting</li>
+      </ul>
+      <a href="/intake.html" class="plan-btn primary">Get Started →</a>
+    </div>
+
+    <div class="plan-card">
+      <div class="plan-name">Full Package</div>
+      <div class="plan-tagline">Website + Blog + Social</div>
+      <div class="plan-price"><strong>$159</strong><span>/mo</span></div>
+      <ul class="plan-features">
+        <li><i class="fas fa-check"></i> Everything in Node + Blog</li>
+        <li><i class="fas fa-check"></i> Social media post scheduling</li>
+        <li><i class="fas fa-check"></i> Facebook &amp; Instagram</li>
+        <li><i class="fas fa-check"></i> Consistent brand presence</li>
+        <li><i class="fas fa-check"></i> Automated cross-posting</li>
+        <li><i class="fas fa-check"></i> Monthly performance summary</li>
+      </ul>
+      <a href="/intake.html" class="plan-btn">Get Started →</a>
+    </div>
+
+  </div>
+
+  <!-- Free Personal Sites Notice -->
+  <div style="background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(139,47,192,0.08));border:1.5px solid rgba(192,132,252,0.3);border-radius:16px;padding:1.5rem 2rem;margin-bottom:3rem;display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+    <div style="font-size:1.5rem;flex-shrink:0;">🌳</div>
+    <div>
+      <div style="font-size:.95rem;font-weight:700;color:#d8b4fe;margin-bottom:.4rem;">Personal &amp; Heritage Sites — FREE Until Further Notice</div>
+      <div style="font-size:.88rem;color:rgba(255,255,255,.6);line-height:1.7;">Family legacy sites, reunion pages, memorial sites, crafter stores, and recipe collections are currently <strong style="color:#d8b4fe;">FREE</strong> when using your own domain. No monthly fee. <br>Don't have a domain? We'll register one for you for a <strong style="color:#d8b4fe;">one-time $20 fee</strong>.</div>
+    </div>
+  </div>
+
+  <div class="addons-section">
+    <div class="section-eyebrow">Add-Ons</div>
+    <h2 class="section-heading">Enhance Your Package</h2>
+    <div class="addons-grid">
+      <div class="addon-card"><div class="addon-icon"><i class="fas fa-robot"></i></div><div><div class="addon-name">Mini-Me AI Avatar</div><div class="addon-price">$59/mo</div><div class="addon-desc">Your personal AI video avatar represents you on your site 24/7.</div></div></div>
+      <div class="addon-card"><div class="addon-icon"><i class="fas fa-video"></i></div><div><div class="addon-name">Free Promo Video</div><div class="addon-price">Included with any plan</div><div class="addon-desc">One free 60-second promotional video for every new client.</div></div></div>
+      <div class="addon-card"><div class="addon-icon"><i class="fas fa-phone-volume"></i></div><div><div class="addon-name">After Hours Answering</div><div class="addon-price">Ask us</div><div class="addon-desc">AI handles calls after hours so you never miss a lead.</div></div></div>
+      <div class="addon-card"><div class="addon-icon"><i class="fas fa-sms"></i></div><div><div class="addon-name">Missed Call Text-Back</div><div class="addon-price">Ask us</div><div class="addon-desc">Missed call? We automatically text them back in seconds.</div></div></div>
+      <div class="addon-card"><div class="addon-icon"><i class="fas fa-share-nodes"></i></div><div><div class="addon-name">Social Account Setup</div><div class="addon-price">$99 one-time</div><div class="addon-desc">We create and brand your Facebook &amp; Instagram business profiles.</div></div></div>
+    </div>
+  </div>
+
+  <div class="faq-section">
+    <div class="section-eyebrow">FAQ</div>
+    <h2 class="section-heading">Common Questions</h2>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is there a setup fee? <i class="fas fa-chevron-down"></i></div><div class="faq-a">No setup fees, ever. You pay the monthly rate starting when your site goes live.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How long does it take to go live? <i class="fas fa-chevron-down"></i></div><div class="faq-a">Most sites go from intake form to live website in under 24 hours. You'll receive a preview first and can request changes before approving.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can I cancel anytime? <i class="fas fa-chevron-down"></i></div><div class="faq-a">Yes. No contracts, no lock-in. The Node plan has a 12-month minimum but all other plans are month-to-month.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What if I already have a domain? <i class="fas fa-chevron-down"></i></div><div class="faq-a">No problem — we'll connect your existing domain to your new site. Just let us know during signup.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do I need any technical knowledge? <i class="fas fa-chevron-down"></i></div><div class="faq-a">None whatsoever. You fill out a form, review your preview, click approve. That's it. We handle everything else.</div></div>
+  </div>
+
+  <div class="price-cta">
+    <h2>Ready to Get Online?</h2>
+    <p>Your professional website can be live in under 24 hours.</p>
+    <a href="/intake.html" class="price-cta-btn"><i class="fas fa-rocket"></i> Start My Website</a>
+  </div>
+
+</div>
+
+<script>
+function toggleFaq(el){
+  el.classList.toggle('open');
+  el.nextElementSibling.classList.toggle('open');
+}
+</script>
+</body>
+</html>
