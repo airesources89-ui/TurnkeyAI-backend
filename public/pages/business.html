@@ -30,7 +30,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--offwhite);color:var(--nav
 nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(15,30,60,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);padding:0 40px;height:68px;display:flex;align-items:center;justify-content:space-between;}
 .nav-logo{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:#fff;text-decoration:none;letter-spacing:-.5px;}
 .nav-logo span{color:#60a5fa;}
-.nav-links{display:flex;align-items:center;gap:32px;}
+.nav-links{display:flex;align-items:center;gap:24px;}
 .nav-links a{color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s;}
 .nav-links a:hover{color:#fff;}
 .nav-cta{background:var(--gold);color:var(--navy);padding:10px 24px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;transition:all .2s;}
@@ -120,28 +120,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(15,30,60,0.9
 .blog-onetime-price strong{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:800;color:var(--navy);display:block;line-height:1;}
 .blog-onetime-price span{font-size:12px;color:var(--gray);font-weight:600;}
 
-/* PRICING */
-.pricing-section{background:var(--navy);padding:100px 40px;}
-.pricing-section .section-title{color:#fff;}
-.pricing-section .section-sub{color:rgba(255,255,255,0.6);}
-.pricing-section .section-label{color:#60a5fa;}
-.pricing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;max-width:1200px;margin:0 auto;}
-.price-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:36px;transition:all .2s;}
-.price-card.featured{background:rgba(37,99,235,0.15);border-color:rgba(96,165,250,0.3);}
-.price-card:hover{transform:translateY(-4px);}
-.price-plan{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:12px;}
-.price-card.featured .price-plan{color:#93c5fd;}
-.price-amount{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:800;color:#fff;line-height:1;}
-.price-period{font-size:16px;color:rgba(255,255,255,0.4);margin-left:4px;}
-.price-setup{font-size:13px;color:rgba(255,255,255,0.4);margin-top:4px;margin-bottom:24px;}
-.price-features{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:32px;}
-.price-features li{display:flex;align-items:center;gap:10px;font-size:14px;color:rgba(255,255,255,0.7);}
-.price-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;}
-.price-btn{display:block;text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;transition:all .2s;}
-.price-btn-blue{background:var(--blue);color:#fff;}
-.price-btn-blue:hover{background:var(--blue2);}
-.price-btn-outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.2);}
-.price-btn-outline:hover{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.4);}
+/* PRICING TEASER */
+.pricing-teaser{background:var(--navy);padding:80px 40px;text-align:center;}
+.pricing-teaser-inner{max-width:700px;margin:0 auto;}
+.pricing-teaser h2{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4vw,48px);font-weight:800;color:#fff;margin-bottom:16px;letter-spacing:-1px;}
+.pricing-teaser p{font-size:17px;color:rgba(255,255,255,.65);line-height:1.7;margin-bottom:12px;}
+.pricing-teaser-pills{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:28px 0 36px;}
+.pricing-pill{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:50px;padding:10px 24px;font-size:15px;font-weight:700;color:#fff;}
+.pricing-pill strong{color:var(--gold);}
+.btn-pricing{background:var(--gold);color:var(--navy);padding:16px 44px;border-radius:10px;font-size:16px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all .2s;}
+.btn-pricing:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,158,11,.4);}
 
 /* TERRITORY PARTNER */
 .partner-section{background:linear-gradient(135deg,#1a1000 0%,#2a1a00 50%,#1a1000 100%);padding:100px 40px;position:relative;overflow:hidden;}
@@ -215,9 +203,12 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
   <a href="/" class="nav-logo">TurnkeyAI<span>Services</span></a>
   <div class="nav-links">
     <a href="#features">Features</a>
-    <a href="#pricing">Pricing</a>
     <a href="#how">How It Works</a>
     <a href="#partner">Territory Partners</a>
+    <a href="/coming-soon.html">Coming Soon</a>
+    <a href="/references.html">References</a>
+    <a href="/about.html">About Us</a>
+    <a href="/pricing.html">Pricing</a>
     <a href="/pages/intake.html" class="nav-cta">Get My Website →</a>
   </div>
 </nav>
@@ -359,6 +350,21 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
   </div>
 </section>
 
+<!-- PRICING TEASER (replaces full pricing section) -->
+<section class="pricing-teaser" id="pricing">
+  <div class="pricing-teaser-inner fade-up">
+    <div class="section-label" style="color:#60a5fa;">Simple Pricing</div>
+    <h2>No Surprises. Ever.</h2>
+    <p>One flat monthly rate. Everything included. Cancel anytime.</p>
+    <div class="pricing-teaser-pills">
+      <div class="pricing-pill">Website Only — <strong>$99/mo</strong></div>
+      <div class="pricing-pill">Website + Blog — <strong>$129/mo</strong></div>
+      <div class="pricing-pill">Full Package — <strong>$159/mo</strong></div>
+    </div>
+    <a href="/pricing.html" class="btn-pricing">See Full Pricing & Add-Ons →</a>
+  </div>
+</section>
+
 <!-- HOW IT WORKS -->
 <section class="how-section" id="how">
   <div class="section-inner">
@@ -372,65 +378,6 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
       <div class="step fade-up"><div class="step-num">2</div><div class="step-title">We Build Your Site</div><div class="step-desc">Our AI builds a professional, fully-customized website for your industry within 24 hours.</div></div>
       <div class="step fade-up"><div class="step-num">3</div><div class="step-title">You Review & Approve</div><div class="step-desc">We send you a preview link. Request any changes you want before going live.</div></div>
       <div class="step fade-up"><div class="step-num">4</div><div class="step-title">Go Live & Get Found</div><div class="step-desc">Your site goes live with AI chat, call answering, and SEO all running from day one.</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- PRICING -->
-<section class="pricing-section" id="pricing">
-  <div class="section-inner">
-    <div class="fade-up" style="text-align:center;max-width:600px;margin:0 auto 60px;">
-      <div class="section-label">Simple Pricing</div>
-      <h2 class="section-title">No Surprises. Ever.</h2>
-      <p class="section-sub" style="margin-bottom:0;">One flat monthly rate. Everything included. Cancel anytime.</p>
-    </div>
-    <div class="pricing-grid">
-      <div class="price-card fade-up">
-        <div class="price-plan">Node — Client Site</div>
-        <div><span class="price-amount">$99</span><span class="price-period">/mo</span></div>
-        <div class="price-setup">$0 setup fee • 12-month minimum</div>
-        <ul class="price-features">
-          <li>Professional AI-powered website</li>
-          <li>24/7 AI chat assistant</li>
-          <li>After-hours call answering — FREE</li>
-          <li>Missed call return — FREE</li>
-          <li>Online reservations / booking</li>
-          <li>Google Maps SEO optimization</li>
-          <li>Mobile-first responsive design</li>
-          <li>Client dashboard & easy updates</li>
-          <li>Visitor analytics</li>
-        </ul>
-        <a href="/pages/intake.html" class="price-btn price-btn-blue">Get Started →</a>
-      </div>
-      <div class="price-card featured fade-up">
-        <div class="price-plan">Hub — Territory Partner</div>
-        <div><span class="price-amount">$199</span><span class="price-period">/mo</span></div>
-        <div class="price-setup">Protected territory • 60/40 revenue split</div>
-        <ul class="price-features">
-          <li>Everything in Node, plus:</li>
-          <li>Protected geographic territory</li>
-          <li>60% of all client revenue you generate</li>
-          <li>Full platform access to sign clients</li>
-          <li>TurnkeyAI training & onboarding</li>
-          <li>Marketing materials provided</li>
-          <li>Partner dashboard & analytics</li>
-          <li>Direct support line</li>
-        </ul>
-        <a href="#partner" class="price-btn price-btn-blue">Apply for Territory →</a>
-      </div>
-      <div class="price-card fade-up">
-        <div class="price-plan">Lead Discovery</div>
-        <div><span class="price-amount">$1.50</span><span class="price-period">/lead</span></div>
-        <div class="price-setup">No monthly fee • Pay per result</div>
-        <ul class="price-features">
-          <li>Scraped local business leads</li>
-          <li>Phone numbers & emails included</li>
-          <li>Filtered by industry & location</li>
-          <li>Ready-to-contact lists</li>
-          <li>Delivered to your dashboard</li>
-        </ul>
-        <a href="/pages/intake.html" class="price-btn price-btn-outline">Learn More →</a>
-      </div>
     </div>
   </div>
 </section>
@@ -489,7 +436,7 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
     <div class="footer-col">
       <div class="footer-col-title">Product</div>
       <a href="#features">Features</a>
-      <a href="#pricing">Pricing</a>
+      <a href="/pricing.html">Pricing</a>
       <a href="#how">How It Works</a>
       <a href="/pages/intake.html">Get Started</a>
     </div>
@@ -500,9 +447,10 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
     </div>
     <div class="footer-col">
       <div class="footer-col-title">Company</div>
+      <a href="/about.html">About Us</a>
+      <a href="/references.html">References</a>
+      <a href="/coming-soon.html">Coming Soon</a>
       <a href="/pages/blog.html">Blog</a>
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms of Service</a>
     </div>
   </div>
   <div class="footer-bottom">
