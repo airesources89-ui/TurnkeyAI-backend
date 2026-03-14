@@ -14,8 +14,8 @@ body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--ink);ov
 nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(26,10,46,0.96);backdrop-filter:blur(12px);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08);}
 .nav-logo{font-family:'Libre Baskerville',serif;font-size:20px;font-weight:700;color:#fff;text-decoration:none;}
 .nav-logo span{color:#c084fc;}
-.nav-links{display:flex;align-items:center;gap:28px;}
-.nav-links a{color:rgba(255,255,255,.65);text-decoration:none;font-size:14px;font-weight:600;transition:color .2s;}
+.nav-links{display:flex;align-items:center;gap:20px;}
+.nav-links a{color:rgba(255,255,255,.65);text-decoration:none;font-size:13px;font-weight:600;transition:color .2s;}
 .nav-links a:hover{color:#fff;}
 .nav-cta{background:linear-gradient(135deg,var(--plum),var(--plum2));color:#fff;padding:9px 22px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;transition:all .2s;border:1px solid rgba(192,132,252,.3);}
 .nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(91,32,137,.4);}
@@ -27,7 +27,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(26,10,46,0.9
 .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(192,132,252,.1);border:1px solid rgba(192,132,252,.25);padding:8px 20px;border-radius:50px;font-size:12px;font-weight:700;color:#c084fc;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:32px;}
 .hero-title{font-family:'Libre Baskerville',serif;font-size:clamp(40px,6vw,76px);font-weight:700;line-height:1.1;color:#fff;margin-bottom:24px;letter-spacing:-1px;}
 .hero-title em{color:#c084fc;font-style:italic;}
-.hero-sub{font-size:20px;color:rgba(255,255,255,.6);line-height:1.7;max-width:620px;margin:0 auto 48px;font-weight:300;}
+.hero-sub{font-size:20px;color:rgba(255,255,255,.6);line-height:1.7;max-width:620px;margin:0 auto 24px;font-weight:300;}
+.hero-free-note{display:inline-block;background:rgba(192,132,252,.15);border:1px solid rgba(192,132,252,.35);border-radius:50px;padding:10px 24px;font-size:14px;font-weight:700;color:#d8b4fe;margin-bottom:40px;}
+.hero-free-note strong{color:#fff;}
 .hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:64px;}
 .btn-hero{background:linear-gradient(135deg,var(--plum),#8b2fc9);color:#fff;padding:18px 44px;border-radius:12px;font-size:17px;font-weight:800;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:10px;}
 .btn-hero:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(91,32,137,.5);}
@@ -58,6 +60,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(26,10,46,0.9
 .showcase-card-bottom{padding:20px 28px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .showcase-card-price{font-size:13px;color:var(--gray);}
 .showcase-card-price strong{font-size:22px;font-weight:800;color:var(--ink);font-family:'Libre Baskerville',serif;}
+.showcase-card-price .free-label{font-size:22px;font-weight:800;color:#5b2089;font-family:'Libre Baskerville',serif;}
 .showcase-card-btn{background:var(--plum);color:#fff;padding:10px 22px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s;}
 .showcase-card-btn:hover{background:var(--plum2);}
 .card-family .showcase-card-top{background:linear-gradient(135deg,#f8f4ff,#ede0ff);}
@@ -73,6 +76,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(26,10,46,0.9
 .card-recipe .showcase-card-features li::before{color:#059669;}
 .card-recipe .showcase-card-btn{background:#059669;}
 .card-recipe .showcase-card-btn:hover{background:#047857;}
+/* Free notice banner */
+.free-notice{background:linear-gradient(135deg,rgba(91,32,137,.08),rgba(192,132,252,.06));border:1.5px solid rgba(192,132,252,.3);border-radius:14px;padding:1.2rem 1.8rem;margin-bottom:2.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.free-notice-text{font-size:.92rem;color:var(--ink);line-height:1.6;}
+.free-notice-text strong{color:var(--plum);}
 .how{background:var(--light);padding:100px 40px;}
 .how-steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0;max-width:1000px;margin:0 auto;position:relative;}
 .how-steps::before{content:'';position:absolute;top:40px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,var(--plum),#c084fc,var(--plum));opacity:.2;}
@@ -113,9 +120,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(26,10,46,0.9
 .bs-card-social .bs-card-top{background:linear-gradient(135deg,#fff0f8,#ffd6ee);}
 .bs-card-social .bs-card-btn{background:var(--rose);}
 .bs-card-social .bs-card-btn:hover{background:#a0144a;}
-.bs-card-web .bs-card-top{background:linear-gradient(135deg,#f0fff8,#d0f0e0);}
-.bs-card-web .bs-card-btn{background:#059669;}
-.bs-card-web .bs-card-btn:hover{background:#047857;}
 .bs-onetime{background:var(--light);border-radius:16px;padding:32px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:24px;border:1px solid var(--border);}
 .bs-onetime-left{display:flex;align-items:center;gap:20px;}
 .bs-onetime-icon{font-size:40px;}
@@ -160,6 +164,10 @@ footer{background:var(--ink);padding:48px 40px 32px;}
     <a href="#platform">For Sellers</a>
     <a href="#blog-social">Blog & Social</a>
     <a href="https://turnkeyaiservices.com">Business Sites</a>
+    <a href="/coming-soon.html">Coming Soon</a>
+    <a href="/references.html">References</a>
+    <a href="/about.html">About Us</a>
+    <a href="/pricing.html">Pricing</a>
     <a href="#start" class="nav-cta">Get Started →</a>
   </div>
 </nav>
@@ -170,8 +178,9 @@ footer{background:var(--ink);padding:48px 40px 32px;}
     <div class="hero-eyebrow">✨ No Tech Skills Required</div>
     <h1 class="hero-title">Your Story Deserves<br>a Beautiful <em>Home Online</em></h1>
     <p class="hero-sub">Beautiful websites for families, crafters, recipe creators, and anyone with something worth sharing. Fill out a form. We build it in 24 hours.</p>
+    <div class="hero-free-note">✦ Personal sites are <strong>FREE</strong> with your own domain &nbsp;·&nbsp; No domain? We'll register one for <strong>$20 one-time</strong></div>
     <div class="hero-btns">
-      <a href="#start" class="btn-hero">Build My Site →</a>
+      <a href="#start" class="btn-hero">Build My Site — It's Free →</a>
       <a href="#sites" class="btn-hero-ghost">See What We Build</a>
     </div>
     <div class="site-types-hero">
@@ -183,19 +192,23 @@ footer{background:var(--ink);padding:48px 40px 32px;}
 </section>
 <section class="showcase" id="sites">
   <div class="section-inner">
-    <div class="fade-up" style="text-align:center;max-width:600px;margin:0 auto 60px;"><div class="eyebrow">What We Build</div><h2 class="section-title">A Site Built for Your Life</h2><p class="section-sub" style="margin:0 auto;">Not a generic template — a site designed specifically for how you want to use it.</p></div>
+    <div class="fade-up" style="text-align:center;max-width:600px;margin:0 auto 32px;"><div class="eyebrow">What We Build</div><h2 class="section-title">A Site Built for Your Life</h2><p class="section-sub" style="margin:0 auto;">Not a generic template — a site designed specifically for how you want to use it.</p></div>
+    <div class="free-notice fade-up">
+      <span style="font-size:1.4rem;">🌳</span>
+      <div class="free-notice-text"><strong>Personal & Heritage sites are FREE until further notice</strong> when using your own domain. No monthly fee, no setup cost. Don't have a domain? We'll register one for you for a <strong>one-time $20 fee</strong>.</div>
+    </div>
     <div class="showcase-grid">
       <div class="showcase-card card-family fade-up" id="family">
         <div class="showcase-card-top"><span class="showcase-card-icon">👨‍👩‍👧</span><div class="showcase-card-name">Family & Personal Sites</div><div class="showcase-card-desc">A living digital home for your family's story. Share memories, announce milestones, and keep everyone connected — forever.</div><ul class="showcase-card-features"><li>Photo galleries & slideshows</li><li>Family tree & history timeline</li><li>Memories wall & guestbook</li><li>RSVP for reunions & events</li><li>Wedding, memorial & milestone pages</li><li>Password-protected private access</li></ul></div>
-        <div class="showcase-card-bottom"><div class="showcase-card-price"><strong>$99</strong>/mo</div><a href="/family-intake.html" class="showcase-card-btn">Start My Site →</a></div>
+        <div class="showcase-card-bottom"><div class="showcase-card-price"><span class="free-label">FREE</span> <span style="font-size:12px;color:var(--gray);">with your domain</span></div><a href="/family-intake.html" class="showcase-card-btn">Start My Site →</a></div>
       </div>
       <div class="showcase-card card-crafter fade-up" id="crafter">
         <div class="showcase-card-top"><span class="showcase-card-icon">🧶</span><div class="showcase-card-name">Crafter Store</div><div class="showcase-card-desc">Your own online shop for handmade goods. Post your items, set your prices, and start selling — no Etsy fees, no middleman.</div><ul class="showcase-card-features"><li>Product listings with photos & descriptions</li><li>Your own pricing — keep all your sales revenue</li><li>Secure checkout via Stripe</li><li>Add & edit products anytime</li><li>Order notifications by email or text</li><li>Customer reviews & ratings</li></ul></div>
-        <div class="showcase-card-bottom"><div class="showcase-card-price"><strong>$99</strong>/mo</div><a href="/crafter-intake.html" class="showcase-card-btn">Open My Shop →</a></div>
+        <div class="showcase-card-bottom"><div class="showcase-card-price"><span class="free-label">FREE</span> <span style="font-size:12px;color:var(--gray);">with your domain</span></div><a href="/crafter-intake.html" class="showcase-card-btn">Open My Shop →</a></div>
       </div>
       <div class="showcase-card card-recipe fade-up" id="recipe">
         <div class="showcase-card-top"><span class="showcase-card-icon">👩‍🍳</span><div class="showcase-card-name">Recipe Creator</div><div class="showcase-card-desc">Your own recipe website where fans can browse free recipes or pay to download your premium collections.</div><ul class="showcase-card-features"><li>Free & premium recipe tiers</li><li>Paid recipe downloads & collections</li><li>Beautiful recipe cards with photos</li><li>Ingredient scaling & print-ready format</li><li>Subscriber email list built-in</li><li>Keep all your download revenue</li></ul></div>
-        <div class="showcase-card-bottom"><div class="showcase-card-price"><strong>$99</strong>/mo</div><a href="/recipe-intake.html" class="showcase-card-btn">Start My Kitchen →</a></div>
+        <div class="showcase-card-bottom"><div class="showcase-card-price"><span class="free-label">FREE</span> <span style="font-size:12px;color:var(--gray);">with your domain</span></div><a href="/recipe-intake.html" class="showcase-card-btn">Start My Kitchen →</a></div>
       </div>
     </div>
   </div>
@@ -218,7 +231,7 @@ footer{background:var(--ink);padding:48px 40px 32px;}
       <h2 class="platform-title">Your Store.<br>Your Revenue.</h2>
       <p class="platform-sub">No Etsy fees eating your margins. No algorithm deciding who sees your work. Your own site, your own customers, your own brand.</p>
       <ul class="platform-features">
-        <li><span>💰</span>Keep 100% of every sale — flat $99/month, no commission</li>
+        <li><span>💰</span>Keep 100% of every sale — flat monthly fee, no commission</li>
         <li><span>🔒</span>Your customer list is yours, not a marketplace's</li>
         <li><span>📣</span>Listed in the TurnkeyAI Personal directory — free exposure</li>
         <li><span>📊</span>See your sales, traffic, and top products in your dashboard</li>
@@ -229,7 +242,7 @@ footer{background:var(--ink);padding:48px 40px 32px;}
     <div class="fade-up">
       <div class="platform-stat-grid">
         <div class="platform-stat"><div class="platform-stat-num">100%</div><div class="platform-stat-label">Revenue you keep on every sale</div></div>
-        <div class="platform-stat"><div class="platform-stat-num">$0</div><div class="platform-stat-label">Setup fee to open your store</div></div>
+        <div class="platform-stat"><div class="platform-stat-num">$0</div><div class="platform-stat-label">Setup fee to get started</div></div>
         <div class="platform-stat"><div class="platform-stat-num">24hr</div><div class="platform-stat-label">From form to live store</div></div>
         <div class="platform-stat"><div class="platform-stat-num">∞</div><div class="platform-stat-label">Products you can list</div></div>
       </div>
@@ -241,13 +254,9 @@ footer{background:var(--ink);padding:48px 40px 32px;}
     <div class="fade-up" style="text-align:center;max-width:660px;margin:0 auto 60px;">
       <div class="eyebrow">Grow Your Audience</div>
       <h2 class="section-title">Blog & Social Media Add-Ons</h2>
-      <p class="section-sub" style="margin:0 auto;">A beautiful website gets you online — but a blog and active social presence is what keeps people coming back and finding you in the first place. Search engines reward fresh content, and social media turns visitors into loyal followers. We handle all the writing and posting for you.</p>
+      <p class="section-sub" style="margin:0 auto;">A beautiful website gets you online — but a blog and active social presence is what keeps people coming back and finding you in the first place. We handle all the writing and posting for you.</p>
     </div>
     <div class="blog-social-grid">
-      <div class="bs-card bs-card-web fade-up">
-        <div class="bs-card-top"><span class="bs-card-icon">🌐</span><div class="bs-card-name">Website Only</div><div class="bs-card-desc">A beautiful, professionally built site that's hosted, maintained, and always working. Your online home — without any of the tech headaches.</div><ul class="bs-card-features"><li>Custom-designed for your site type</li><li>Mobile-friendly & fast-loading</li><li>Hosting, updates & support included</li><li>Your own domain name</li><li>Upgrade to blog or social anytime</li></ul></div>
-        <div class="bs-card-bottom"><div class="bs-card-price"><strong>$99</strong>/mo</div><a href="#start" class="bs-card-btn">Get Started →</a></div>
-      </div>
       <div class="bs-card bs-card-blog fade-up">
         <div class="bs-card-top"><span class="bs-card-icon">✍️</span><div class="bs-card-name">Website + Blog</div><div class="bs-card-desc">Fresh content posted to your site every month — written by our team, tailored to your voice. Keeps your site active and helps people find you on Google.</div><ul class="bs-card-features"><li>8 professionally written posts per month</li><li>Content matched to your site's theme & voice</li><li>SEO-optimized to help you rank on Google</li><li>Posted directly to your site — nothing to do</li><li>Builds loyal readership over time</li></ul></div>
         <div class="bs-card-bottom"><div class="bs-card-price"><strong>$129</strong>/mo</div><a href="#start" class="bs-card-btn">Add Blog →</a></div>
@@ -266,7 +275,7 @@ footer{background:var(--ink);padding:48px 40px 32px;}
 <section class="cta" id="start">
   <div class="cta-inner fade-up">
     <h2 class="cta-title">Ready to Build<br>Something <em>Beautiful?</em></h2>
-    <p class="cta-sub">Choose your site type and fill out our simple form. Your site will be ready in 24 hours — no tech skills needed.</p>
+    <p class="cta-sub">Personal sites are FREE with your own domain. Choose your site type and we'll have it ready in 24 hours.</p>
     <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
       <a href="/family-intake.html" class="btn-cta">👨‍👩‍👧 Family Site</a>
       <a href="/crafter-intake.html" class="btn-cta" style="background:linear-gradient(135deg,#ea580c,#c2410c);">🧶 Crafter Store</a>
@@ -280,7 +289,7 @@ footer{background:var(--ink);padding:48px 40px 32px;}
     <div><div class="footer-brand">TurnkeyAI<span>Personal</span></div><div class="footer-tagline">Beautiful sites for real life — families, crafters, creators, and everyone in between.</div></div>
     <div class="footer-links">
       <div class="footer-col"><div class="footer-col-title">Site Types</div><a href="/family-intake.html">Family & Personal</a><a href="/crafter-intake.html">Crafter Store</a><a href="/recipe-intake.html">Recipe Creator</a></div>
-      <div class="footer-col"><div class="footer-col-title">Company</div><a href="https://turnkeyaiservices.com">Business Sites</a><a href="https://turnkeyaiservices.com#partner">Territory Partners</a><a href="mailto:turnkeyaiservices@gmail.com">Contact Us</a></div>
+      <div class="footer-col"><div class="footer-col-title">Company</div><a href="https://turnkeyaiservices.com">Business Sites</a><a href="/about.html">About Us</a><a href="/references.html">References</a><a href="/coming-soon.html">Coming Soon</a><a href="/pricing.html">Pricing</a><a href="mailto:turnkeyaiservices@gmail.com">Contact Us</a></div>
     </div>
   </div>
   <div class="footer-bottom">
