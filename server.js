@@ -92,6 +92,22 @@ async function initDB() {
     )
   `);
   console.log('[DB] Tables ready.');
+
+  // ── Seed coming-soon features (idempotent) ──
+  const seedFeatures = [
+    ['google_business', 'Google Business Profile Sync', 'Automatically sync your website info to your Google Business Profile. When you update your site, Google updates too.', 'Google Integration', 1],
+    ['lead_crm', 'Built-In Lead CRM & Pipeline', 'Every booking request, chat inquiry, and form submission captured in one dashboard. No more lost leads.', 'Lead Management', 2],
+    ['review_engine', 'Automated Review Request Engine', 'After every completed job, your customer gets an automatic text or email asking for a Google review.', 'Reputation', 3],
+    ['invoice_payments', 'Online Invoicing & Payment Collection', 'Send professional invoices from your dashboard and let customers pay online with a credit card.', 'Payments', 4],
+    ['domain_auto', 'One-Click Custom Domain Setup', 'Tell us the domain you want and we handle everything — registration, DNS, SSL, email forwarding.', 'Infrastructure', 5],
+  ];
+  for (const [id, name, description, category, sortOrder] of seedFeatures) {
+    await pool.query(
+      `INSERT INTO coming_soon_features (id, name, description, category, sort_order) VALUES ($1,$2,$3,$4,$5) ON CONFLICT (id) DO NOTHING`,
+      [id, name, description, category, sortOrder]
+    );
+  }
+  console.log('[DB] Coming-soon features seeded.');
 }
 
 let clients = {};
