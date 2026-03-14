@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script src="/nav.js"></script>
+
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'DM Sans',sans-serif;background:#080e1c;color:#e2e8f0;padding-top:64px;}
@@ -20,7 +20,7 @@
     .price-hero p{color:rgba(255,255,255,0.65);font-size:1.05rem;max-width:520px;margin:0 auto;line-height:1.7;}
     .price-wrap{max-width:1050px;margin:0 auto;padding:3.5rem 1.5rem 5rem;}
     /* ── Plan cards ── */
-    .plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.4rem;margin-bottom:3.5rem;}
+    .plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.4rem;margin-bottom:3.5rem;}
     .plan-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:20px;padding:2rem;display:flex;flex-direction:column;position:relative;transition:transform 0.25s,box-shadow 0.25s;}
     .plan-card:hover{transform:translateY(-4px);box-shadow:0 20px 48px rgba(0,0,0,0.35);}
     .plan-card.featured{border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.04);}
@@ -66,8 +66,22 @@
   </style>
 </head>
 <body>
-<div id="tkNav"></div>
-<script>document.getElementById('tkNav').innerHTML = tkNav('pricing');</script>
+<nav style="position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,14,28,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;">
+  <div style="display:flex;align-items:center;gap:2rem;">
+    <a href="/" style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:white;text-decoration:none;letter-spacing:2px;">TurnkeyAI <span style="color:#f59e0b;">Services</span></a>
+    <div style="display:flex;align-items:center;gap:0.1rem;">
+      <a href="/" style="color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.82rem;font-weight:500;padding:0.4rem 0.75rem;border-radius:6px;font-family:'DM Sans',sans-serif;">Home</a>
+      <a href="/coming-soon.html" style="color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.82rem;font-weight:500;padding:0.4rem 0.75rem;border-radius:6px;font-family:'DM Sans',sans-serif;">Coming Soon</a>
+      <a href="/references.html" style="color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.82rem;font-weight:500;padding:0.4rem 0.75rem;border-radius:6px;font-family:'DM Sans',sans-serif;">References</a>
+      <a href="/about.html" style="color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.82rem;font-weight:500;padding:0.4rem 0.75rem;border-radius:6px;font-family:'DM Sans',sans-serif;">About Us</a>
+      <a href="/pricing.html" style="color:#f59e0b;text-decoration:none;font-size:0.82rem;font-weight:700;padding:0.4rem 0.75rem;border-radius:6px;font-family:'DM Sans',sans-serif;">Pricing</a>
+    </div>
+  </div>
+  <a href="/pages/intake.html" style="background:#f59e0b;color:#1c0a00;padding:0.5rem 1.2rem;border-radius:8px;font-weight:700;font-size:0.85rem;text-decoration:none;font-family:'DM Sans',sans-serif;">Get Started →</a>
+</nav>
+
+
+
 
 <div class="price-hero">
   <div class="price-label"><i class="fas fa-tag"></i> Pricing</div>
@@ -94,7 +108,7 @@
         <li class="muted"><i class="fas fa-times"></i> Blog posts</li>
         <li class="muted"><i class="fas fa-times"></i> Social media posting</li>
       </ul>
-      <a href="/intake.html" class="plan-btn">Get Started →</a>
+      <a href="/pages/intake.html" class="plan-btn">Get Started →</a>
     </div>
 
     <div class="plan-card featured">
@@ -111,12 +125,12 @@
         <li><i class="fas fa-check"></i> Builds long-term search traffic</li>
         <li class="muted"><i class="fas fa-times"></i> Social media posting</li>
       </ul>
-      <a href="/intake.html" class="plan-btn primary">Get Started →</a>
+      <a href="/pages/intake.html" class="plan-btn primary">Get Started →</a>
     </div>
 
     <div class="plan-card">
-      <div class="plan-name">Full Package</div>
-      <div class="plan-tagline">Website + Blog + Social</div>
+      <div class="plan-name">Website + Blog + Social</div>
+      <div class="plan-tagline">Website + content + social media</div>
       <div class="plan-price"><strong>$159</strong><span>/mo</span></div>
       <ul class="plan-features">
         <li><i class="fas fa-check"></i> Everything in Node + Blog</li>
@@ -126,7 +140,22 @@
         <li><i class="fas fa-check"></i> Automated cross-posting</li>
         <li><i class="fas fa-check"></i> Monthly performance summary</li>
       </ul>
-      <a href="/intake.html" class="plan-btn">Get Started →</a>
+      <a href="/pages/intake.html" class="plan-btn">Get Started →</a>
+    </div>
+
+    <div class="plan-card featured">
+      <div class="plan-badge">Best Value</div>
+      <div class="plan-name">Full Package</div>
+      <div class="plan-tagline">Everything — website, blog, social + Mini-Me</div>
+      <div class="plan-price"><strong>$218</strong><span>/mo</span></div>
+      <ul class="plan-features">
+        <li><i class="fas fa-check"></i> Everything in Blog + Social</li>
+        <li><i class="fas fa-check"></i> Mini-Me AI Avatar ($59/mo value)</li>
+        <li><i class="fas fa-check"></i> Free 60-sec promo video included</li>
+        <li><i class="fas fa-check"></i> Priority support</li>
+        <li><i class="fas fa-check"></i> Full brand presence online</li>
+      </ul>
+      <a href="/pages/intake.html" class="plan-btn primary">Get Started →</a>
     </div>
 
   </div>
@@ -165,7 +194,7 @@
   <div class="price-cta">
     <h2>Ready to Get Online?</h2>
     <p>Your professional website can be live in under 24 hours.</p>
-    <a href="/intake.html" class="price-cta-btn"><i class="fas fa-rocket"></i> Start My Website</a>
+    <a href="/pages/intake.html" class="price-cta-btn"><i class="fas fa-rocket"></i> Start My Website</a>
   </div>
 
 </div>
