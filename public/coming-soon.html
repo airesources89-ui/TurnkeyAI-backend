@@ -4,320 +4,286 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Coming Soon — TurnkeyAI Services</title>
-  <meta name="description" content="See what's coming next to the TurnkeyAI platform. Vote on features you want most.">
+  <meta name="description" content="See what's next for TurnkeyAI Services. Rate the features you want most.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script src="/nav.js"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
-    body{font-family:'DM Sans',sans-serif;background:#080e1c;color:#e2e8f0;min-height:100vh;padding-top:64px;}
-    /* ── Hero ── */
-    .cs-hero{background:linear-gradient(160deg,#080e1c 0%,#0d1a35 60%,#091a10 100%);padding:5rem 1.5rem 3.5rem;text-align:center;position:relative;overflow:hidden;}
-    .cs-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,196,120,0.10) 0%,transparent 70%);}
-    .cs-hero-label{display:inline-flex;align-items:center;gap:.5rem;background:rgba(0,196,120,0.12);border:1px solid rgba(0,196,120,0.3);color:#00c478;font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.4rem 1rem;border-radius:50px;margin-bottom:1.2rem;}
-    .cs-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,7vw,5rem);color:white;letter-spacing:2px;line-height:1;margin-bottom:1rem;}
-    .cs-hero h1 span{color:#00c478;}
-    .cs-hero p{color:rgba(255,255,255,0.65);font-size:1.05rem;max-width:520px;margin:0 auto 1.5rem;line-height:1.7;}
-    /* ── Main layout ── */
-    .cs-wrap{max-width:900px;margin:0 auto;padding:3rem 1.5rem 5rem;}
-    /* ── Feature card ── */
-    .feature-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:20px;padding:2.5rem;margin-bottom:1.5rem;transition:border-color 0.3s;}
-    .feature-card.active-card{border-color:rgba(0,196,120,0.35);background:rgba(0,196,120,0.04);}
-    .fc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;}
-    .fc-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(0,85,255,0.15);border:1px solid rgba(0,85,255,0.3);color:#5599ff;font-size:.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:.3rem .8rem;border-radius:50px;}
-    .fc-nav{display:flex;align-items:center;gap:.5rem;}
-    .fc-nav-btn{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);width:38px;height:38px;border-radius:8px;cursor:pointer;font-size:1rem;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
-    .fc-nav-btn:hover:not(:disabled){background:rgba(0,196,120,0.15);border-color:rgba(0,196,120,0.4);color:#00c478;}
-    .fc-nav-btn:disabled{opacity:0.3;cursor:not-allowed;}
-    .fc-counter{font-size:.82rem;color:rgba(255,255,255,0.4);min-width:48px;text-align:center;}
-    .fc-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:white;letter-spacing:1px;margin-bottom:.6rem;}
-    .fc-desc{color:rgba(255,255,255,0.6);line-height:1.75;font-size:.95rem;margin-bottom:1.8rem;}
-    /* ── Star rating ── */
-    .rating-section{display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;}
-    .stars-wrap{display:flex;gap:.3rem;}
-    .star-btn{background:none;border:none;font-size:1.8rem;cursor:pointer;color:rgba(255,255,255,0.2);transition:color 0.15s,transform 0.15s;line-height:1;padding:0;}
-    .star-btn:hover,.star-btn.hovered,.star-btn.selected{color:#f59e0b;}
-    .star-btn:hover{transform:scale(1.15);}
-    .star-btn.selected{transform:scale(1.1);}
-    .rating-info{font-size:.85rem;color:rgba(255,255,255,0.45);}
-    .rating-info strong{color:rgba(255,255,255,0.8);display:block;font-size:1rem;}
-    .rate-submit-btn{background:linear-gradient(135deg,#0055ff,#00c478);color:white;border:none;border-radius:10px;padding:.65rem 1.5rem;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity 0.2s,transform 0.2s;display:none;}
-    .rate-submit-btn:hover{opacity:0.9;transform:translateY(-1px);}
-    .rate-submit-btn.visible{display:inline-flex;align-items:center;gap:.4rem;}
-    .rate-thanks{font-size:.85rem;color:#00c478;font-weight:600;display:none;align-items:center;gap:.4rem;}
-    .rate-thanks.visible{display:flex;}
-    /* ── Progress dots ── */
-    .progress-dots{display:flex;justify-content:center;gap:.5rem;margin-bottom:2rem;}
-    .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.15);cursor:pointer;transition:all 0.2s;}
-    .dot.active{background:#00c478;width:24px;border-radius:4px;}
-    /* ── Admin panel ── */
-    .admin-toggle{text-align:center;margin-top:3rem;padding-top:2rem;border-top:1px solid rgba(255,255,255,0.07);}
-    .admin-toggle-btn{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.35);padding:.5rem 1.2rem;border-radius:8px;cursor:pointer;font-size:.78rem;font-family:inherit;transition:all 0.2s;}
-    .admin-toggle-btn:hover{border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.6);}
-    .admin-panel{display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(0,196,120,0.2);border-radius:16px;padding:2rem;margin-top:1.5rem;}
-    .admin-panel.open{display:block;}
-    .admin-panel h3{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#00c478;letter-spacing:1px;margin-bottom:1.5rem;}
-    .admin-pw-wrap{display:flex;gap:.75rem;margin-bottom:1.5rem;}
-    .admin-pw-input{flex:1;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);border-radius:8px;padding:.65rem 1rem;font-size:.9rem;color:white;font-family:inherit;outline:none;}
-    .admin-pw-input:focus{border-color:rgba(0,196,120,0.4);}
-    .admin-pw-btn{background:#00c478;color:#050d12;border:none;border-radius:8px;padding:.65rem 1.4rem;font-weight:700;cursor:pointer;font-family:inherit;font-size:.88rem;}
-    .admin-form{display:none;}
-    .admin-form.open{display:block;}
-    .af-group{margin-bottom:1.1rem;}
-    .af-group label{display:block;font-size:.75rem;font-weight:700;color:rgba(255,255,255,0.5);letter-spacing:.5px;text-transform:uppercase;margin-bottom:.4rem;}
-    .af-group input,.af-group textarea,.af-group select{width:100%;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;padding:.65rem 1rem;font-size:.9rem;color:white;font-family:inherit;outline:none;}
-    .af-group input:focus,.af-group textarea:focus{border-color:rgba(0,196,120,0.4);}
-    .af-group textarea{resize:vertical;min-height:80px;}
-    .af-actions{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.2rem;}
-    .af-btn{border:none;border-radius:8px;padding:.65rem 1.4rem;font-weight:700;cursor:pointer;font-family:inherit;font-size:.88rem;transition:all 0.2s;}
-    .af-btn-primary{background:#0055ff;color:white;}
-    .af-btn-primary:hover{background:#0044dd;}
-    .af-btn-danger{background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);color:#f87171;}
-    .af-btn-danger:hover{background:rgba(220,38,38,0.25);}
-    .af-btn-secondary{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);}
-    .af-feature-list{margin-bottom:1.5rem;}
-    .af-feature-item{display:flex;align-items:center;justify-content:space-between;padding:.65rem .85rem;background:rgba(255,255,255,0.04);border-radius:8px;margin-bottom:.4rem;font-size:.88rem;gap:.5rem;flex-wrap:wrap;}
-    .af-feature-item span{color:rgba(255,255,255,0.8);}
-    .af-feature-item-actions{display:flex;gap:.4rem;}
-    .af-mini-btn{background:none;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);border-radius:6px;padding:.25rem .6rem;cursor:pointer;font-size:.75rem;font-family:inherit;}
-    .af-mini-btn:hover{border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.9);}
-    .status-msg{font-size:.85rem;margin-top:.75rem;min-height:1.2rem;color:#00c478;}
-    /* ── Empty state ── */
-    .empty-state{text-align:center;padding:4rem 2rem;color:rgba(255,255,255,0.35);}
-    .empty-state i{font-size:3rem;margin-bottom:1rem;display:block;}
+    body{font-family:'DM Sans',sans-serif;background:#080e1c;color:#e2e8f0;padding-top:64px;}
+    /* NAV */
+    .site-nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,14,28,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+    .site-nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:white;text-decoration:none;letter-spacing:2px;}
+    .site-nav-logo span{color:#f59e0b;}
+    .site-nav-links{display:flex;align-items:center;gap:0.1rem;}
+    .site-nav-links a{color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.82rem;font-weight:500;padding:0.4rem 0.75rem;border-radius:6px;}
+    .site-nav-links a.active{color:#f59e0b;font-weight:700;}
+    .site-nav-links a:hover{color:#fff;}
+    .site-nav-cta{background:#f59e0b;color:#1c0a00;padding:0.5rem 1.2rem;border-radius:8px;font-weight:700;font-size:0.85rem;text-decoration:none;}
+    .site-nav-cta:hover{background:#d97706;}
+    @media(max-width:768px){.site-nav-links{display:none;}}
+    /* PAGE */
+    .page-hero{background:linear-gradient(160deg,#080e1c 0%,#0d1a35 60%,#1a0a00 100%);padding:5rem 1.5rem 3rem;text-align:center;position:relative;}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(245,158,11,0.1) 0%,transparent 65%);}
+    .page-label{display:inline-flex;align-items:center;gap:.5rem;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.4rem 1rem;border-radius:50px;margin-bottom:1.2rem;}
+    .page-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,7vw,5rem);color:white;letter-spacing:2px;line-height:1;margin-bottom:1rem;}
+    .page-hero h1 span{color:#f59e0b;}
+    .page-hero p{color:rgba(255,255,255,0.65);font-size:1.05rem;max-width:560px;margin:0 auto;line-height:1.7;}
+    .content-wrap{max-width:900px;margin:0 auto;padding:3.5rem 1.5rem 5rem;}
+    .intro{font-size:1rem;color:rgba(255,255,255,0.6);line-height:1.8;margin-bottom:3rem;text-align:center;max-width:640px;margin-left:auto;margin-right:auto;}
+    /* Feature cards */
+    .feat-list{display:flex;flex-direction:column;gap:1.5rem;margin-bottom:3rem;}
+    .feat-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:2rem;transition:border-color 0.2s;}
+    .feat-item:hover{border-color:rgba(245,158,11,0.25);}
+    .feat-top{display:flex;align-items:flex-start;gap:1.2rem;margin-bottom:1rem;}
+    .feat-icon{font-size:2rem;flex-shrink:0;width:56px;height:56px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;}
+    .feat-info{flex:1;}
+    .feat-cat{font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f59e0b;margin-bottom:.3rem;}
+    .feat-name{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:white;letter-spacing:1px;margin-bottom:.4rem;}
+    .feat-desc{font-size:.92rem;color:rgba(255,255,255,0.55);line-height:1.7;}
+    .feat-rating{display:flex;align-items:center;gap:.6rem;margin-top:1rem;}
+    .feat-rating-label{font-size:.78rem;color:rgba(255,255,255,0.4);font-weight:600;}
+    .star-row{display:flex;gap:3px;}
+    .star-btn{background:none;border:none;color:rgba(255,255,255,0.2);font-size:1.2rem;cursor:pointer;padding:2px;transition:color 0.15s;}
+    .star-btn:hover,.star-btn.active{color:#f59e0b;}
+    .star-btn.voted{color:#f59e0b;}
+    .feat-avg{font-size:.78rem;color:rgba(255,255,255,0.35);margin-left:4px;}
+    .rated-msg{font-size:.78rem;color:#10b981;font-weight:600;margin-left:8px;display:none;}
+    /* CTA */
+    .cta-box{background:linear-gradient(135deg,#0d1a35,#0a0f20);border:1px solid rgba(245,158,11,0.2);border-radius:20px;padding:3rem 2rem;text-align:center;}
+    .cta-box h2{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:white;letter-spacing:1.5px;margin-bottom:.75rem;}
+    .cta-box p{color:rgba(255,255,255,0.6);margin-bottom:1.8rem;font-size:1rem;}
+    .cta-box-btn{background:linear-gradient(135deg,#f59e0b,#e85d04);color:#1c0a00;padding:.9rem 2.2rem;border-radius:10px;text-decoration:none;font-weight:700;font-size:1rem;display:inline-flex;align-items:center;gap:.5rem;transition:all 0.2s;}
+    .cta-box-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,158,11,0.4);}
+    /* Footer */
+    .site-footer{background:#050a14;padding:40px 40px 24px;border-top:1px solid rgba(255,255,255,0.06);}
+    .site-footer-inner{max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+    .site-footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:white;letter-spacing:2px;}
+    .site-footer-logo span{color:#f59e0b;}
+    .site-footer-links{display:flex;gap:20px;flex-wrap:wrap;}
+    .site-footer-links a{color:rgba(255,255,255,0.4);font-size:13px;text-decoration:none;}
+    .site-footer-links a:hover{color:#fff;}
+    .site-footer-copy{width:100%;text-align:center;color:rgba(255,255,255,0.2);font-size:12px;margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.05);}
   </style>
 </head>
 <body>
-<div id="tkNav"></div>
-<script>document.getElementById('tkNav').innerHTML = tkNav('coming-soon');</script>
 
-<div class="cs-hero">
-  <div class="cs-hero-label"><i class="fas fa-rocket"></i> What's Next</div>
-  <h1>Coming <span>Soon</span></h1>
-  <p>Exciting new features are in development. Browse what's coming and vote on what matters most to you.</p>
-</div>
-
-<div class="cs-wrap">
-  <div class="progress-dots" id="progressDots"></div>
-  <div id="featureDisplay"></div>
-  <div class="admin-toggle">
-    <button class="admin-toggle-btn" onclick="toggleAdmin()"><i class="fas fa-lock" style="margin-right:.4rem;"></i> Admin</button>
-    <div class="admin-panel" id="adminPanel">
-      <h3>Manage Features</h3>
-      <div class="admin-pw-wrap">
-        <input type="password" class="admin-pw-input" id="adminPw" placeholder="Admin password…" onkeydown="if(event.key==='Enter')checkAdminPw()">
-        <button class="admin-pw-btn" onclick="checkAdminPw()">Unlock</button>
-      </div>
-      <div class="admin-form" id="adminForm">
-        <div class="af-feature-list" id="afFeatureList"></div>
-        <h4 style="color:rgba(255,255,255,0.6);font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:1rem;">Add / Edit Feature</h4>
-        <input type="hidden" id="af_edit_index" value="-1">
-        <div class="af-group"><label>Feature Name</label><input type="text" id="af_name" placeholder="e.g. Google Reviews Integration"></div>
-        <div class="af-group"><label>Description</label><textarea id="af_desc" placeholder="What this feature does and why it matters…"></textarea></div>
-        <div class="af-group"><label>Category Tag</label>
-          <select id="af_cat">
-            <option value="New Feature">New Feature</option>
-            <option value="Enhancement">Enhancement</option>
-            <option value="Integration">Integration</option>
-            <option value="Automation">Automation</option>
-            <option value="Dashboard">Dashboard</option>
-            <option value="SEO">SEO</option>
-          </select>
-        </div>
-        <div class="af-actions">
-          <button class="af-btn af-btn-primary" onclick="afSave()"><i class="fas fa-save" style="margin-right:.3rem;"></i> Save Feature</button>
-          <button class="af-btn af-btn-secondary" onclick="afClear()">Clear</button>
-        </div>
-        <div class="status-msg" id="afStatus"></div>
-      </div>
+<!-- NAV -->
+<nav class="site-nav">
+  <div style="display:flex;align-items:center;gap:2rem;">
+    <a href="/pages/business.html" class="site-nav-logo">TurnkeyAI <span>Services</span></a>
+    <div class="site-nav-links">
+      <a href="/pages/business.html">Home</a>
+      <a href="/pages/coming-soon.html" class="active">Coming Soon</a>
+      <a href="/pages/references.html">References</a>
+      <a href="/pages/about.html">About Us</a>
+      <a href="/pages/pricing.html">Pricing</a>
     </div>
   </div>
+  <a href="/pages/intake.html" class="site-nav-cta">Get Started →</a>
+</nav>
+
+<div class="page-hero">
+  <div class="page-label"><i class="fas fa-flask"></i> Coming Soon</div>
+  <h1>What's <span>Next</span></h1>
+  <p>We're always building. Here's what's on the roadmap — rate the features you care about most and help us prioritize.</p>
+</div>
+
+<div class="content-wrap">
+
+  <p class="intro">These features are in active development. Click the stars to tell us what matters most to your business. Your ratings directly influence our build order.</p>
+
+  <div class="feat-list" id="featureList">
+
+    <div class="feat-item" data-id="google_business">
+      <div class="feat-top">
+        <div class="feat-icon">📍</div>
+        <div class="feat-info">
+          <div class="feat-cat">Google Integration</div>
+          <div class="feat-name">Google Business Profile Sync</div>
+          <div class="feat-desc">Automatically sync your website info — hours, services, phone number, photos — directly to your Google Business Profile. Keep your Google listing accurate without lifting a finger. When you update your site, Google updates too.</div>
+        </div>
+      </div>
+      <div class="feat-rating">
+        <span class="feat-rating-label">How important is this to you?</span>
+        <div class="star-row" data-feature="google_business">
+          <button class="star-btn" data-val="1">★</button>
+          <button class="star-btn" data-val="2">★</button>
+          <button class="star-btn" data-val="3">★</button>
+          <button class="star-btn" data-val="4">★</button>
+          <button class="star-btn" data-val="5">★</button>
+        </div>
+        <span class="feat-avg"></span>
+        <span class="rated-msg">✓ Thanks!</span>
+      </div>
+    </div>
+
+    <div class="feat-item" data-id="lead_crm">
+      <div class="feat-top">
+        <div class="feat-icon">📊</div>
+        <div class="feat-info">
+          <div class="feat-cat">Lead Management</div>
+          <div class="feat-name">Built-In Lead CRM &amp; Pipeline</div>
+          <div class="feat-desc">Every booking request, chat inquiry, and form submission captured in one dashboard. See who contacted you, when, what they need, and whether you've followed up. No more lost leads. No more sticky notes.</div>
+        </div>
+      </div>
+      <div class="feat-rating">
+        <span class="feat-rating-label">How important is this to you?</span>
+        <div class="star-row" data-feature="lead_crm">
+          <button class="star-btn" data-val="1">★</button>
+          <button class="star-btn" data-val="2">★</button>
+          <button class="star-btn" data-val="3">★</button>
+          <button class="star-btn" data-val="4">★</button>
+          <button class="star-btn" data-val="5">★</button>
+        </div>
+        <span class="feat-avg"></span>
+        <span class="rated-msg">✓ Thanks!</span>
+      </div>
+    </div>
+
+    <div class="feat-item" data-id="review_engine">
+      <div class="feat-top">
+        <div class="feat-icon">⭐</div>
+        <div class="feat-info">
+          <div class="feat-cat">Reputation</div>
+          <div class="feat-name">Automated Review Request Engine</div>
+          <div class="feat-desc">After every completed job, your customer gets an automatic text or email asking for a Google review — with a direct link that makes it one tap. More 5-star reviews means more calls from Google.</div>
+        </div>
+      </div>
+      <div class="feat-rating">
+        <span class="feat-rating-label">How important is this to you?</span>
+        <div class="star-row" data-feature="review_engine">
+          <button class="star-btn" data-val="1">★</button>
+          <button class="star-btn" data-val="2">★</button>
+          <button class="star-btn" data-val="3">★</button>
+          <button class="star-btn" data-val="4">★</button>
+          <button class="star-btn" data-val="5">★</button>
+        </div>
+        <span class="feat-avg"></span>
+        <span class="rated-msg">✓ Thanks!</span>
+      </div>
+    </div>
+
+    <div class="feat-item" data-id="invoice_payments">
+      <div class="feat-top">
+        <div class="feat-icon">💳</div>
+        <div class="feat-info">
+          <div class="feat-cat">Payments</div>
+          <div class="feat-name">Online Invoicing &amp; Payment Collection</div>
+          <div class="feat-desc">Send professional invoices from your dashboard and let customers pay online with a credit card. No chasing checks. No awkward payment conversations. Get paid faster.</div>
+        </div>
+      </div>
+      <div class="feat-rating">
+        <span class="feat-rating-label">How important is this to you?</span>
+        <div class="star-row" data-feature="invoice_payments">
+          <button class="star-btn" data-val="1">★</button>
+          <button class="star-btn" data-val="2">★</button>
+          <button class="star-btn" data-val="3">★</button>
+          <button class="star-btn" data-val="4">★</button>
+          <button class="star-btn" data-val="5">★</button>
+        </div>
+        <span class="feat-avg"></span>
+        <span class="rated-msg">✓ Thanks!</span>
+      </div>
+    </div>
+
+    <div class="feat-item" data-id="domain_auto">
+      <div class="feat-top">
+        <div class="feat-icon">🌐</div>
+        <div class="feat-info">
+          <div class="feat-cat">Infrastructure</div>
+          <div class="feat-name">One-Click Custom Domain Setup</div>
+          <div class="feat-desc">Tell us the domain you want, or bring your own, and we handle everything — registration, DNS, SSL, email forwarding. Your site goes from yourname.pages.dev to www.yourbusiness.com with zero effort on your part.</div>
+        </div>
+      </div>
+      <div class="feat-rating">
+        <span class="feat-rating-label">How important is this to you?</span>
+        <div class="star-row" data-feature="domain_auto">
+          <button class="star-btn" data-val="1">★</button>
+          <button class="star-btn" data-val="2">★</button>
+          <button class="star-btn" data-val="3">★</button>
+          <button class="star-btn" data-val="4">★</button>
+          <button class="star-btn" data-val="5">★</button>
+        </div>
+        <span class="feat-avg"></span>
+        <span class="rated-msg">✓ Thanks!</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h2>Don't Wait for Coming Soon</h2>
+    <p>Your AI-powered website is ready today. $0 setup. Live in 24 hours.</p>
+    <a href="/pages/intake.html" class="cta-box-btn"><i class="fas fa-rocket"></i> Start My Website</a>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-logo">TurnkeyAI <span>Services</span></div>
+    <div class="site-footer-links">
+      <a href="/pages/business.html">Home</a>
+      <a href="/pages/pricing.html">Pricing</a>
+      <a href="/pages/about.html">About Us</a>
+      <a href="/pages/coming-soon.html">Coming Soon</a>
+      <a href="/pages/references.html">References</a>
+      <a href="/pages/intake.html">Get Started</a>
+    </div>
+  </div>
+  <div class="site-footer-copy">© 2026 TurnkeyAI Services LLC. All Rights Reserved. Bay St. Louis, MS.</div>
 </div>
 
 <script>
-const BASE_URL = 'https://turnkeyaiservices.com';
-const ADMIN_PASSWORD = 'TKADMIN'; // Change this to your preferred password
+// Star rating interaction
+document.querySelectorAll('.star-row').forEach(function(row) {
+  var buttons = row.querySelectorAll('.star-btn');
+  var featureId = row.getAttribute('data-feature');
+  var voted = localStorage.getItem('voted_' + featureId);
+  var ratedMsg = row.parentElement.querySelector('.rated-msg');
 
-let features = [];
-let currentIndex = 0;
-let userRatings = {};
-
-async function loadFeatures() {
-  try {
-    const r = await fetch(BASE_URL + '/api/coming-soon');
-    if (r.ok) { const d = await r.json(); features = d.features || []; }
-  } catch(e) { features = []; }
-  renderFeatures();
-}
-
-function renderFeatures() {
-  const dots = document.getElementById('progressDots');
-  const display = document.getElementById('featureDisplay');
-  if (!features.length) {
-    dots.innerHTML = '';
-    display.innerHTML = '<div class="empty-state"><i class="fas fa-rocket"></i><p>Feature announcements coming soon!</p></div>';
-    return;
+  if (voted) {
+    var votedVal = parseInt(voted);
+    buttons.forEach(function(b) {
+      if (parseInt(b.getAttribute('data-val')) <= votedVal) b.classList.add('voted');
+    });
+    if (ratedMsg) ratedMsg.style.display = 'inline';
   }
-  if (currentIndex >= features.length) currentIndex = 0;
-  dots.innerHTML = features.map((f,i) =>
-    `<div class="dot ${i===currentIndex?'active':''}" onclick="goToFeature(${i})" title="${f.name}"></div>`
-  ).join('');
-  const f = features[currentIndex];
-  const avgRating = f.totalRatings > 0 ? (f.ratingSum / f.totalRatings).toFixed(1) : '—';
-  const userRating = userRatings[f.id] || 0;
-  display.innerHTML = `
-    <div class="feature-card active-card" id="featureCard">
-      <div class="fc-top">
-        <span class="fc-badge"><i class="fas fa-tag" style="margin-right:.3rem;"></i>${f.category||'New Feature'}</span>
-        <div class="fc-nav">
-          <button class="fc-nav-btn" onclick="prevFeature()" ${currentIndex===0?'disabled':''} title="Previous"><i class="fas fa-chevron-left"></i></button>
-          <span class="fc-counter">${currentIndex+1} / ${features.length}</span>
-          <button class="fc-nav-btn" onclick="nextFeature()" ${currentIndex===features.length-1?'disabled':''} title="Next"><i class="fas fa-chevron-right"></i></button>
-        </div>
-      </div>
-      <div class="fc-title">${f.name}</div>
-      <div class="fc-desc">${f.description}</div>
-      <div class="rating-section">
-        <div class="stars-wrap" id="starsWrap">
-          ${[1,2,3,4,5].map(n=>`<button class="star-btn ${userRating>=n?'selected':''}" data-val="${n}" onclick="selectStar(${n})" onmouseover="hoverStar(${n})" onmouseout="unhoverStar()">★</button>`).join('')}
-        </div>
-        <div class="rating-info">
-          <strong>${avgRating === '—' ? 'Be first to rate!' : avgRating + ' ★'}</strong>
-          ${f.totalRatings>0?f.totalRatings+' vote'+(f.totalRatings!==1?'s':''):'No votes yet'}
-        </div>
-        <button class="rate-submit-btn ${userRating>0&&!userRatings[f.id+'_submitted']?'visible':''}" id="submitRateBtn" onclick="submitRating()">
-          <i class="fas fa-paper-plane"></i> Submit Vote
-        </button>
-        <div class="rate-thanks ${userRatings[f.id+'_submitted']?'visible':''}" id="rateThanks">
-          <i class="fas fa-check-circle"></i> Thanks for voting!
-        </div>
-      </div>
-    </div>
-  `;
-}
 
-function goToFeature(i) { currentIndex = i; renderFeatures(); }
-function prevFeature() { if(currentIndex>0){currentIndex--;renderFeatures();} }
-function nextFeature() { if(currentIndex<features.length-1){currentIndex++;renderFeatures();} }
-
-let pendingStar = 0;
-function selectStar(n) {
-  const f = features[currentIndex];
-  userRatings[f.id] = n;
-  pendingStar = n;
-  document.querySelectorAll('.star-btn').forEach((b,i)=>{
-    b.classList.toggle('selected', i<n);
+  // Hover effect
+  buttons.forEach(function(btn) {
+    btn.addEventListener('mouseenter', function() {
+      if (voted) return;
+      var val = parseInt(this.getAttribute('data-val'));
+      buttons.forEach(function(b) {
+        b.classList.toggle('active', parseInt(b.getAttribute('data-val')) <= val);
+      });
+    });
+    btn.addEventListener('mouseleave', function() {
+      if (voted) return;
+      buttons.forEach(function(b) { b.classList.remove('active'); });
+    });
+    btn.addEventListener('click', function() {
+      if (voted) return;
+      var val = parseInt(this.getAttribute('data-val'));
+      localStorage.setItem('voted_' + featureId, val);
+      voted = val;
+      buttons.forEach(function(b) {
+        b.classList.remove('active');
+        if (parseInt(b.getAttribute('data-val')) <= val) b.classList.add('voted');
+      });
+      if (ratedMsg) ratedMsg.style.display = 'inline';
+      // Send to server
+      fetch('/api/coming-soon/rate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ featureId: featureId, rating: val })
+      }).catch(function() {});
+    });
   });
-  const btn = document.getElementById('submitRateBtn');
-  const thanks = document.getElementById('rateThanks');
-  if (btn && !userRatings[f.id+'_submitted']) { btn.classList.add('visible'); }
-}
-function hoverStar(n) {
-  document.querySelectorAll('.star-btn').forEach((b,i)=>b.classList.toggle('hovered',i<n));
-}
-function unhoverStar() {
-  document.querySelectorAll('.star-btn').forEach(b=>b.classList.remove('hovered'));
-}
-async function submitRating() {
-  const f = features[currentIndex];
-  const rating = userRatings[f.id] || 0;
-  if (!rating) return;
-  try {
-    await fetch(BASE_URL+'/api/coming-soon/rate', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({featureId: f.id, rating})
-    });
-    userRatings[f.id+'_submitted'] = true;
-    f.ratingSum = (f.ratingSum||0)+rating;
-    f.totalRatings = (f.totalRatings||0)+1;
-    const btn = document.getElementById('submitRateBtn');
-    const thanks = document.getElementById('rateThanks');
-    if(btn) btn.classList.remove('visible');
-    if(thanks) thanks.classList.add('visible');
-    renderFeatures();
-  } catch(e) { console.error(e); }
-}
-
-// ── Admin ──
-function toggleAdmin() {
-  const p = document.getElementById('adminPanel');
-  p.classList.toggle('open');
-}
-function checkAdminPw() {
-  const pw = document.getElementById('adminPw').value.trim().toUpperCase();
-  if (pw === ADMIN_PASSWORD) {
-    document.getElementById('adminForm').classList.add('open');
-    document.getElementById('adminPw').closest('.admin-pw-wrap').style.display='none';
-    renderAdminList();
-  } else {
-    document.getElementById('adminPw').style.borderColor='rgba(220,38,38,0.5)';
-    setTimeout(()=>{ document.getElementById('adminPw').style.borderColor=''; },1500);
-  }
-}
-function renderAdminList() {
-  const list = document.getElementById('afFeatureList');
-  if (!features.length) { list.innerHTML='<p style="color:rgba(255,255,255,0.35);font-size:.85rem;margin-bottom:1rem;">No features yet.</p>'; return; }
-  list.innerHTML = features.map((f,i)=>`
-    <div class="af-feature-item">
-      <span>${f.name} <span style="color:rgba(255,255,255,0.3);font-size:.78rem;">[${(f.totalRatings||0)} votes]</span></span>
-      <div class="af-feature-item-actions">
-        <button class="af-mini-btn" onclick="afEdit(${i})">Edit</button>
-        <button class="af-mini-btn" onclick="afDelete(${i})" style="color:#f87171;border-color:rgba(220,38,38,0.25);">Delete</button>
-      </div>
-    </div>`).join('');
-}
-function afEdit(i) {
-  const f = features[i];
-  document.getElementById('af_edit_index').value = i;
-  document.getElementById('af_name').value = f.name;
-  document.getElementById('af_desc').value = f.description;
-  document.getElementById('af_cat').value = f.category||'New Feature';
-}
-function afClear() {
-  document.getElementById('af_edit_index').value = -1;
-  document.getElementById('af_name').value = '';
-  document.getElementById('af_desc').value = '';
-  document.getElementById('af_cat').value = 'New Feature';
-}
-async function afSave() {
-  const name = document.getElementById('af_name').value.trim();
-  const desc = document.getElementById('af_desc').value.trim();
-  const cat  = document.getElementById('af_cat').value;
-  const editIdx = parseInt(document.getElementById('af_edit_index').value);
-  if (!name || !desc) { setStatus('Please fill in name and description.','#f87171'); return; }
-  const payload = editIdx>=0
-    ? {action:'edit', id: features[editIdx].id, name, description:desc, category:cat}
-    : {action:'add', name, description:desc, category:cat};
-  try {
-    const r = await fetch(BASE_URL+'/api/coming-soon', {
-      method:'POST', headers:{'Content-Type':'application/json','x-admin-key': prompt('Enter admin API key:') || ''},
-      body: JSON.stringify(payload)
-    });
-    const d = await r.json();
-    if (d.features) { features = d.features; afClear(); renderFeatures(); renderAdminList(); setStatus('✅ Saved!','#00c478'); }
-    else setStatus(d.error||'Save failed','#f87171');
-  } catch(e) { setStatus('Network error','#f87171'); }
-}
-async function afDelete(i) {
-  if (!confirm('Delete "'+features[i].name+'"?')) return;
-  try {
-    const r = await fetch(BASE_URL+'/api/coming-soon', {
-      method:'POST', headers:{'Content-Type':'application/json','x-admin-key': prompt('Enter admin API key:') || ''},
-      body: JSON.stringify({action:'delete', id: features[i].id})
-    });
-    const d = await r.json();
-    if (d.features) { features = d.features; if(currentIndex>=features.length) currentIndex=Math.max(0,features.length-1); renderFeatures(); renderAdminList(); setStatus('Deleted.','#00c478'); }
-  } catch(e) { setStatus('Network error','#f87171'); }
-}
-function setStatus(msg,color) {
-  const s = document.getElementById('afStatus');
-  s.textContent=msg; s.style.color=color;
-  setTimeout(()=>{ s.textContent=''; },3500);
-}
-
-loadFeatures();
+});
 </script>
 </body>
 </html>
