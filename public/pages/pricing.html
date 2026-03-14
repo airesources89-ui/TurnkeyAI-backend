@@ -8,10 +8,21 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'DM Sans',sans-serif;background:#080e1c;color:#e2e8f0;padding-top:64px;}
+    /* NAV */
+    .site-nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,14,28,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+    .site-nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:white;text-decoration:none;letter-spacing:2px;}
+    .site-nav-logo span{color:#f59e0b;}
+    .site-nav-links{display:flex;align-items:center;gap:0.1rem;}
+    .site-nav-links a{color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.82rem;font-weight:500;padding:0.4rem 0.75rem;border-radius:6px;}
+    .site-nav-links a.active{color:#f59e0b;font-weight:700;}
+    .site-nav-links a:hover{color:#fff;}
+    .site-nav-cta{background:#f59e0b;color:#1c0a00;padding:0.5rem 1.2rem;border-radius:8px;font-weight:700;font-size:0.85rem;text-decoration:none;}
+    .site-nav-cta:hover{background:#d97706;}
+    @media(max-width:768px){.site-nav-links{display:none;}}
+    /* HERO */
     .price-hero{background:linear-gradient(160deg,#080e1c 0%,#0d1a35 60%,#0a100a 100%);padding:5rem 1.5rem 3rem;text-align:center;position:relative;}
     .price-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(245,158,11,0.08) 0%,transparent 65%);}
     .price-label{display:inline-flex;align-items:center;gap:.5rem;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.4rem 1rem;border-radius:50px;margin-bottom:1.2rem;}
@@ -19,7 +30,7 @@
     .price-hero h1 span{color:#f59e0b;}
     .price-hero p{color:rgba(255,255,255,0.65);font-size:1.05rem;max-width:520px;margin:0 auto;line-height:1.7;}
     .price-wrap{max-width:1050px;margin:0 auto;padding:3.5rem 1.5rem 5rem;}
-    /* ── Plan cards ── */
+    /* Plan cards */
     .plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.4rem;margin-bottom:3.5rem;}
     .plan-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:20px;padding:2rem;display:flex;flex-direction:column;position:relative;transition:transform 0.25s,box-shadow 0.25s;}
     .plan-card:hover{transform:translateY(-4px);box-shadow:0 20px 48px rgba(0,0,0,0.35);}
@@ -39,7 +50,7 @@
     .plan-btn:hover{background:rgba(255,255,255,0.14);border-color:rgba(255,255,255,0.3);}
     .plan-btn.primary{background:linear-gradient(135deg,#f59e0b,#e85d04);border-color:transparent;color:#1c0a00;}
     .plan-btn.primary:hover{opacity:0.92;transform:translateY(-1px);}
-    /* ── Add-ons ── */
+    /* Add-ons */
     .addons-section{margin-bottom:3rem;}
     .section-eyebrow{font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f59e0b;margin-bottom:.5rem;}
     .section-heading{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:white;letter-spacing:1.5px;margin-bottom:1.5rem;}
@@ -50,7 +61,7 @@
     .addon-name{font-size:.9rem;font-weight:700;color:white;margin-bottom:.2rem;}
     .addon-price{font-size:.82rem;color:#f59e0b;font-weight:600;}
     .addon-desc{font-size:.78rem;color:rgba(255,255,255,0.4);line-height:1.5;margin-top:.3rem;}
-    /* ── FAQ ── */
+    /* FAQ */
     .faq-section{margin-bottom:3rem;}
     .faq-item{border-bottom:1px solid rgba(255,255,255,0.07);padding:1.2rem 0;}
     .faq-q{font-size:.95rem;font-weight:700;color:white;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
@@ -58,30 +69,38 @@
     .faq-a.open{display:block;}
     .faq-q i{font-size:.75rem;color:rgba(255,255,255,0.3);transition:transform 0.2s;}
     .faq-q.open i{transform:rotate(180deg);}
-    .price-cta{background:linear-gradient(135deg,#0d1a35,#0a0f20);border:1px solid rgba(245,158,11,0.2);border-radius:20px;padding:3rem 2rem;text-align:center;}
+    .price-cta{background:linear-gradient(135deg,#0d1a35,#0a0f20);border:1px solid rgba(245,158,11,0.2);border-radius:20px;padding:3rem 2rem;text-align:center;margin-bottom:3rem;}
     .price-cta h2{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:white;letter-spacing:1.5px;margin-bottom:.75rem;}
     .price-cta p{color:rgba(255,255,255,0.6);margin-bottom:1.8rem;}
     .price-cta-btn{background:linear-gradient(135deg,#f59e0b,#e85d04);color:#1c0a00;padding:.9rem 2.2rem;border-radius:10px;text-decoration:none;font-weight:700;font-size:1rem;display:inline-flex;align-items:center;gap:.5rem;transition:all 0.2s;}
     .price-cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,158,11,0.4);}
+    /* Footer */
+    .site-footer{background:#050a14;padding:40px 40px 24px;border-top:1px solid rgba(255,255,255,0.06);}
+    .site-footer-inner{max-width:1050px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+    .site-footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:white;letter-spacing:2px;}
+    .site-footer-logo span{color:#f59e0b;}
+    .site-footer-links{display:flex;gap:20px;flex-wrap:wrap;}
+    .site-footer-links a{color:rgba(255,255,255,0.4);font-size:13px;text-decoration:none;}
+    .site-footer-links a:hover{color:#fff;}
+    .site-footer-copy{width:100%;text-align:center;color:rgba(255,255,255,0.2);font-size:12px;margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.05);}
   </style>
 </head>
 <body>
-<nav style="position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,14,28,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;">
+
+<!-- NAV -->
+<nav class="site-nav">
   <div style="display:flex;align-items:center;gap:2rem;">
-    <a href="/" style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:white;text-decoration:none;letter-spacing:2px;">TurnkeyAI <span style="color:#f59e0b;">Services</span></a>
-    <div style="display:flex;align-items:center;gap:0.1rem;">
-      <a href="/" style="color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.82rem;font-weight:500;padding:0.4rem 0.75rem;border-radius:6px;font-family:'DM Sans',sans-serif;">Home</a>
-      <a href="/coming-soon.html" style="color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.82rem;font-weight:500;padding:0.4rem 0.75rem;border-radius:6px;font-family:'DM Sans',sans-serif;">Coming Soon</a>
-      <a href="/references.html" style="color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.82rem;font-weight:500;padding:0.4rem 0.75rem;border-radius:6px;font-family:'DM Sans',sans-serif;">References</a>
-      <a href="/about.html" style="color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.82rem;font-weight:500;padding:0.4rem 0.75rem;border-radius:6px;font-family:'DM Sans',sans-serif;">About Us</a>
-      <a href="/pricing.html" style="color:#f59e0b;text-decoration:none;font-size:0.82rem;font-weight:700;padding:0.4rem 0.75rem;border-radius:6px;font-family:'DM Sans',sans-serif;">Pricing</a>
+    <a href="/pages/business.html" class="site-nav-logo">TurnkeyAI <span>Services</span></a>
+    <div class="site-nav-links">
+      <a href="/pages/business.html">Home</a>
+      <a href="/pages/coming-soon.html">Coming Soon</a>
+      <a href="/pages/references.html">References</a>
+      <a href="/pages/about.html">About Us</a>
+      <a href="/pages/pricing.html" class="active">Pricing</a>
     </div>
   </div>
-  <a href="/pages/intake.html" style="background:#f59e0b;color:#1c0a00;padding:0.5rem 1.2rem;border-radius:8px;font-weight:700;font-size:0.85rem;text-decoration:none;font-family:'DM Sans',sans-serif;">Get Started →</a>
+  <a href="/pages/intake.html" class="site-nav-cta">Get Started →</a>
 </nav>
-
-
-
 
 <div class="price-hero">
   <div class="price-label"><i class="fas fa-tag"></i> Pricing</div>
@@ -94,7 +113,7 @@
   <div class="plans-grid">
 
     <div class="plan-card">
-      <div class="plan-name">Node</div>
+      <div class="plan-name">Website Only</div>
       <div class="plan-tagline">Professional website, fully managed</div>
       <div class="plan-price"><strong>$99</strong><span>/mo</span></div>
       <ul class="plan-features">
@@ -113,11 +132,11 @@
 
     <div class="plan-card featured">
       <div class="plan-badge">Most Popular</div>
-      <div class="plan-name">Node + Blog</div>
-      <div class="plan-tagline">Website + content marketing</div>
+      <div class="plan-name">Website + Blog</div>
+      <div class="plan-tagline">Website + 8 blog posts/month</div>
       <div class="plan-price"><strong>$129</strong><span>/mo</span></div>
       <ul class="plan-features">
-        <li><i class="fas fa-check"></i> Everything in Node</li>
+        <li><i class="fas fa-check"></i> Everything in Website Only</li>
         <li><i class="fas fa-check"></i> 8 AI blog posts per month</li>
         <li><i class="fas fa-check"></i> SEO-optimized content</li>
         <li><i class="fas fa-check"></i> Auto-published to your site</li>
@@ -133,7 +152,7 @@
       <div class="plan-tagline">Website + content + social media</div>
       <div class="plan-price"><strong>$159</strong><span>/mo</span></div>
       <ul class="plan-features">
-        <li><i class="fas fa-check"></i> Everything in Node + Blog</li>
+        <li><i class="fas fa-check"></i> Everything in Website + Blog</li>
         <li><i class="fas fa-check"></i> Social media post scheduling</li>
         <li><i class="fas fa-check"></i> Facebook &amp; Instagram</li>
         <li><i class="fas fa-check"></i> Consistent brand presence</li>
@@ -174,9 +193,7 @@
     <h2 class="section-heading">Enhance Your Package</h2>
     <div class="addons-grid">
       <div class="addon-card"><div class="addon-icon"><i class="fas fa-robot"></i></div><div><div class="addon-name">Mini-Me AI Avatar</div><div class="addon-price">$59/mo</div><div class="addon-desc">Your personal AI video avatar represents you on your site 24/7.</div></div></div>
-      <div class="addon-card"><div class="addon-icon"><i class="fas fa-video"></i></div><div><div class="addon-name">Free Promo Video</div><div class="addon-price">Included with any plan</div><div class="addon-desc">One free 60-second promotional video for every new client.</div></div></div>
-      <div class="addon-card"><div class="addon-icon"><i class="fas fa-phone-volume"></i></div><div><div class="addon-name">After Hours Answering</div><div class="addon-price">Ask us</div><div class="addon-desc">AI handles calls after hours so you never miss a lead.</div></div></div>
-      <div class="addon-card"><div class="addon-icon"><i class="fas fa-sms"></i></div><div><div class="addon-name">Missed Call Text-Back</div><div class="addon-price">Ask us</div><div class="addon-desc">Missed call? We automatically text them back in seconds.</div></div></div>
+      <div class="addon-card"><div class="addon-icon"><i class="fas fa-video"></i></div><div><div class="addon-name">Free Promo Video</div><div class="addon-price">Included with any upgrade</div><div class="addon-desc">One free 60-second promotional video when you upgrade your plan.</div></div></div>
       <div class="addon-card"><div class="addon-icon"><i class="fas fa-share-nodes"></i></div><div><div class="addon-name">Social Account Setup</div><div class="addon-price">$99 one-time</div><div class="addon-desc">We create and brand your Facebook &amp; Instagram business profiles.</div></div></div>
     </div>
   </div>
@@ -186,9 +203,10 @@
     <h2 class="section-heading">Common Questions</h2>
     <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is there a setup fee? <i class="fas fa-chevron-down"></i></div><div class="faq-a">No setup fees, ever. You pay the monthly rate starting when your site goes live.</div></div>
     <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How long does it take to go live? <i class="fas fa-chevron-down"></i></div><div class="faq-a">Most sites go from intake form to live website in under 24 hours. You'll receive a preview first and can request changes before approving.</div></div>
-    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can I cancel anytime? <i class="fas fa-chevron-down"></i></div><div class="faq-a">Yes. No contracts, no lock-in. The Node plan has a 12-month minimum but all other plans are month-to-month.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can I cancel anytime? <i class="fas fa-chevron-down"></i></div><div class="faq-a">Yes. No contracts, no lock-in. Month-to-month on all plans.</div></div>
     <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What if I already have a domain? <i class="fas fa-chevron-down"></i></div><div class="faq-a">No problem — we'll connect your existing domain to your new site. Just let us know during signup.</div></div>
     <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do I need any technical knowledge? <i class="fas fa-chevron-down"></i></div><div class="faq-a">None whatsoever. You fill out a form, review your preview, click approve. That's it. We handle everything else.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What's the Mini-Me AI Avatar? <i class="fas fa-chevron-down"></i></div><div class="faq-a">It's a personal AI-powered video avatar that represents you on your website 24/7. You record a short clip, and we turn it into a digital version of you that greets visitors and answers questions. $59/month as an add-on, or included in the Full Package.</div></div>
   </div>
 
   <div class="price-cta">
@@ -197,6 +215,23 @@
     <a href="/pages/intake.html" class="price-cta-btn"><i class="fas fa-rocket"></i> Start My Website</a>
   </div>
 
+</div>
+
+<!-- FOOTER -->
+<div class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-logo">TurnkeyAI <span>Services</span></div>
+    <div class="site-footer-links">
+      <a href="/pages/business.html">Home</a>
+      <a href="/pages/business.html#features">Features</a>
+      <a href="/pages/pricing.html">Pricing</a>
+      <a href="/pages/about.html">About Us</a>
+      <a href="/pages/coming-soon.html">Coming Soon</a>
+      <a href="/pages/references.html">References</a>
+      <a href="/pages/intake.html">Get Started</a>
+    </div>
+  </div>
+  <div class="site-footer-copy">© 2026 TurnkeyAI Services LLC. All Rights Reserved. Bay St. Louis, MS.</div>
 </div>
 
 <script>
