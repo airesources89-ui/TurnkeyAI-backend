@@ -98,8 +98,9 @@ async function initDB() {
     ['google_business', 'Google Business Profile Sync', 'Automatically sync your website info to your Google Business Profile. When you update your site, Google updates too.', 'Google Integration', 1],
     ['lead_crm', 'Built-In Lead CRM & Pipeline', 'Every booking request, chat inquiry, and form submission captured in one dashboard. No more lost leads.', 'Lead Management', 2],
     ['review_engine', 'Automated Review Request Engine', 'After every completed job, your customer gets an automatic text or email asking for a Google review.', 'Reputation', 3],
-    ['invoice_payments', 'Online Invoicing & Payment Collection', 'Send professional invoices from your dashboard and let customers pay online with a credit card.', 'Payments', 4],
-    ['domain_auto', 'One-Click Custom Domain Setup', 'Tell us the domain you want and we handle everything — registration, DNS, SSL, email forwarding.', 'Infrastructure', 5],
+    ['call_summaries', 'AI Call Summaries', 'Every call to your business automatically summarized by AI — who called, what they needed, and what was discussed.', 'AI Phone', 4],
+    ['online_estimator', 'Online Estimator', 'Let customers get a ballpark estimate directly from your website by answering a few simple questions about their project.', 'Customer Tools', 5],
+    ['domain_auto', 'One-Click Custom Domain Setup', 'Tell us the domain you want and we handle everything — registration, DNS, SSL, email forwarding.', 'Infrastructure', 6],
   ];
   for (const [id, name, description, category, sortOrder] of seedFeatures) {
     await pool.query(
