@@ -23,6 +23,7 @@ app.use(generalLimiter);
 
 app.use('/api/stripe-webhook', express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const BREVO_API_KEY      = process.env.BREVO_API_KEY;
@@ -78,6 +79,13 @@ async function initDB() {
       updated_at TIMESTAMPTZ DEFAULT NOW()
     )
   `);
+
+  // ── Telephony columns (idempotent) ──
+  await pool.query(`ALTER TABLE clients ADD COLUMN IF NOT EXISTS twilio_number TEXT`);
+  await pool.query(`ALTER TABLE clients ADD COLUMN IF NOT EXISTS forwarding_number TEXT`);
+  await pool.query(`ALTER TABLE clients ADD COLUMN IF NOT EXISTS business_hours_json JSONB`);
+  await pool.query(`ALTER TABLE clients ADD COLUMN IF NOT EXISTS telephony_enabled BOOLEAN DEFAULT FALSE`);
+
   // ── Coming Soon features table ──
   await pool.query(`
     CREATE TABLE IF NOT EXISTS coming_soon_features (
@@ -135,6 +143,11 @@ function rowToClient(row) {
     approvedAt: row.approved_at ? row.approved_at.toISOString() : null,
     createdAt: row.created_at ? row.created_at.toISOString() : null,
     updatedAt: row.updated_at ? row.updated_at.toISOString() : null,
+    // ── Telephony fields ──
+    twilioNumber: row.twilio_number || null,
+    forwardingNumber: row.forwarding_number || null,
+    businessHoursJson: row.business_hours_json || null,
+    telephonyEnabled: row.telephony_enabled || false,
   };
 }
 
@@ -146,8 +159,10 @@ async function saveClient(client) {
         id,status,data,preview_token,dash_token,dash_password,
         live_url,cf_project_name,mini_me_consent,mini_me_consent_at,
         mini_me_subscribed,mini_me_subscribed_at,mini_me_video_file,
-        promo_video_file,free_video_requested,logo_file,approved_at,updated_at
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,NOW())
+        promo_video_file,free_video_requested,logo_file,approved_at,
+        twilio_number,forwarding_number,business_hours_json,telephony_enabled,
+        updated_at
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,NOW())
       ON CONFLICT (id) DO UPDATE SET
         status=EXCLUDED.status, data=EXCLUDED.data,
         preview_token=EXCLUDED.preview_token, dash_token=EXCLUDED.dash_token,
@@ -161,6 +176,10 @@ async function saveClient(client) {
         promo_video_file=EXCLUDED.promo_video_file,
         free_video_requested=EXCLUDED.free_video_requested,
         logo_file=EXCLUDED.logo_file, approved_at=EXCLUDED.approved_at,
+        twilio_number=EXCLUDED.twilio_number,
+        forwarding_number=EXCLUDED.forwarding_number,
+        business_hours_json=EXCLUDED.business_hours_json,
+        telephony_enabled=EXCLUDED.telephony_enabled,
         updated_at=NOW()
     `, [
       client.id, client.status, JSON.stringify(client.data),
@@ -171,6 +190,10 @@ async function saveClient(client) {
       client.miniMeVideoFile || null, client.promoVideoFile || null,
       client.freeVideoRequested || false, client.logoFile || null,
       client.approvedAt || null,
+      client.twilioNumber || null,
+      client.forwardingNumber || null,
+      client.businessHoursJson ? JSON.stringify(client.businessHoursJson) : null,
+      client.telephonyEnabled || false,
     ]);
   } catch(e) { console.error('[saveClient]', e.message); }
 }
@@ -245,6 +268,205 @@ async function sendSMS(to, body) {
   const d = await res.json();
   if (!res.ok) console.error('[Twilio error]', d);
   return d;
+}
+
+// ════════════════════════════════════════════════
+// ── TELEPHONY SUITE ──
+// ════════════════════════════════════════════════
+
+// ── Provision a Twilio phone number for a client ──
+async function provisionTwilioNumber(client) {
+  if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN) {
+    console.warn('[Telephony] Missing Twilio credentials — provisioning skipped');
+    return null;
+  }
+  const auth = Buffer.from(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`).toString('base64');
+  const headers = { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' };
+
+  // Extract area code from client's phone
+  const clientPhone = (client.data.phone || '').replace(/\D/g, '');
+  const areaCode = clientPhone.length >= 10 ? clientPhone.slice(clientPhone.length - 10, clientPhone.length - 7) : '';
+
+  let availableNumber = null;
+
+  // Try local area code first
+  if (areaCode) {
+    try {
+      const searchRes = await fetch(
+        `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/AvailablePhoneNumbers/US/Local.json?AreaCode=${areaCode}&Limit=1&VoiceEnabled=true&SmsEnabled=true`,
+        { headers: { 'Authorization': `Basic ${auth}` } }
+      );
+      const searchData = await searchRes.json();
+      if (searchData.available_phone_numbers && searchData.available_phone_numbers.length > 0) {
+        availableNumber = searchData.available_phone_numbers[0].phone_number;
+      }
+    } catch (e) { console.warn('[Telephony] Area code search failed:', e.message); }
+  }
+
+  // Fallback: any US number
+  if (!availableNumber) {
+    try {
+      const searchRes = await fetch(
+        `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/AvailablePhoneNumbers/US/Local.json?Limit=1&VoiceEnabled=true&SmsEnabled=true`,
+        { headers: { 'Authorization': `Basic ${auth}` } }
+      );
+      const searchData = await searchRes.json();
+      if (searchData.available_phone_numbers && searchData.available_phone_numbers.length > 0) {
+        availableNumber = searchData.available_phone_numbers[0].phone_number;
+      }
+    } catch (e) { console.error('[Telephony] Fallback search failed:', e.message); }
+  }
+
+  if (!availableNumber) {
+    console.error('[Telephony] No available numbers found');
+    await sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `⚠️ Telephony Provisioning Failed: ${client.data.businessName}`,
+      html: `<p>Could not find an available Twilio number for <strong>${client.data.businessName}</strong> (area code: ${areaCode || 'none'}).</p><p>Provision manually in the Twilio console.</p>`
+    }).catch(() => {});
+    return null;
+  }
+
+  // Purchase the number
+  try {
+    const voiceUrl = `${BASE_URL}/api/telephony/voice`;
+    const voiceStatusUrl = `${BASE_URL}/api/telephony/voice-status`;
+    const smsUrl = `${BASE_URL}/api/telephony/sms-incoming`;
+
+    const buyParams = new URLSearchParams({
+      PhoneNumber: availableNumber,
+      VoiceUrl: voiceUrl,
+      VoiceMethod: 'POST',
+      StatusCallback: voiceStatusUrl,
+      StatusCallbackMethod: 'POST',
+      SmsUrl: smsUrl,
+      SmsMethod: 'POST',
+    });
+
+    const buyRes = await fetch(
+      `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/IncomingPhoneNumbers.json`,
+      { method: 'POST', headers, body: buyParams }
+    );
+    const buyData = await buyRes.json();
+
+    if (!buyRes.ok) {
+      console.error('[Telephony] Purchase failed:', buyData);
+      await sendEmail({
+        to: ADMIN_EMAIL,
+        subject: `⚠️ Telephony Purchase Failed: ${client.data.businessName}`,
+        html: `<p>Failed to purchase ${availableNumber} for <strong>${client.data.businessName}</strong>.</p><pre>${JSON.stringify(buyData, null, 2)}</pre>`
+      }).catch(() => {});
+      return null;
+    }
+
+    const twilioNumber = buyData.phone_number;
+    console.log(`[Telephony] Provisioned ${twilioNumber} for ${client.data.businessName}`);
+
+    // Update client record
+    client.twilioNumber = twilioNumber;
+    client.forwardingNumber = client.data.phone || '';
+    client.telephonyEnabled = true;
+
+    // Build business hours JSON from intake data
+    const daysOfWeek = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+    const hoursObj = {};
+    daysOfWeek.forEach(day => {
+      if (client.data['day_' + day]) {
+        hoursObj[day] = { open: true, hours: client.data['hours_' + day] || '9:00 AM - 5:00 PM' };
+      } else {
+        hoursObj[day] = { open: false, hours: null };
+      }
+    });
+    client.businessHoursJson = hoursObj;
+
+    await saveClient(client);
+
+    // Notify admin
+    const formattedNumber = twilioNumber.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3');
+    await sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `📞 Telephony Active: ${client.data.businessName} — ${formattedNumber}`,
+      html: `<div style="font-family:sans-serif;max-width:600px;"><div style="background:linear-gradient(135deg,#0066FF,#1a1a2e);padding:20px 28px;border-radius:12px 12px 0 0;"><h2 style="color:#00D68F;margin:0;">📞 Telephony Provisioned</h2></div><div style="padding:24px;background:white;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;"><table style="width:100%;border-collapse:collapse;"><tr><td style="padding:8px;font-weight:700;width:160px;">Business</td><td style="padding:8px;">${client.data.businessName}</td></tr><tr style="background:#f9fafb;"><td style="padding:8px;font-weight:700;">Twilio Number</td><td style="padding:8px;"><strong>${formattedNumber}</strong></td></tr><tr><td style="padding:8px;font-weight:700;">Forwards To</td><td style="padding:8px;">${client.data.phone}</td></tr><tr style="background:#f9fafb;"><td style="padding:8px;font-weight:700;">Features</td><td style="padding:8px;">Missed call text-back ✅<br>After-hours AI SMS ✅<br>Call recording ✅<br>Transcription ✅</td></tr></table></div></div>`
+    }).catch(() => {});
+
+    return twilioNumber;
+  } catch (e) {
+    console.error('[Telephony] Provisioning error:', e.message);
+    await sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `⚠️ Telephony Error: ${client.data.businessName}`,
+      html: `<p>Error provisioning number for <strong>${client.data.businessName}</strong>: ${e.message}</p>`
+    }).catch(() => {});
+    return null;
+  }
+}
+
+// ── Check if current time is outside business hours ──
+function isAfterHours(client) {
+  if (!client.businessHoursJson) return false; // If no hours set, assume always open
+
+  const now = new Date();
+  // Default to Central Time (CST/CDT)
+  const ctString = now.toLocaleString('en-US', { timeZone: 'America/Chicago' });
+  const ct = new Date(ctString);
+
+  const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+  const today = dayNames[ct.getDay()];
+  const dayConfig = client.businessHoursJson[today];
+
+  if (!dayConfig || !dayConfig.open) return true; // Closed today = after hours
+
+  // Parse hours string like "9:00 AM - 5:00 PM" or "9:00 AM – 5:00 PM"
+  const hoursStr = (dayConfig.hours || '').replace(/–/g, '-');
+  const parts = hoursStr.split('-').map(s => s.trim());
+  if (parts.length !== 2) return false; // Can't parse, assume open
+
+  function parseTime(str) {
+    const match = str.match(/^(\d{1,2}):?(\d{2})?\s*(AM|PM)$/i);
+    if (!match) return null;
+    let hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2] || '0', 10);
+    const ampm = match[3].toUpperCase();
+    if (ampm === 'PM' && hours !== 12) hours += 12;
+    if (ampm === 'AM' && hours === 12) hours = 0;
+    return hours * 60 + minutes;
+  }
+
+  const openMin = parseTime(parts[0]);
+  const closeMin = parseTime(parts[1]);
+  if (openMin === null || closeMin === null) return false; // Can't parse, assume open
+
+  const nowMin = ct.getHours() * 60 + ct.getMinutes();
+  return nowMin < openMin || nowMin >= closeMin;
+}
+
+// ── Find client by their Twilio number ──
+function findClientByTwilioNumber(twilioNumber) {
+  return Object.values(clients).find(c => c.twilioNumber === twilioNumber && c.telephonyEnabled);
+}
+
+// ── Send SMS from a specific Twilio number (not the master TWILIO_PHONE) ──
+async function sendSMSFrom(from, to, body) {
+  if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN) {
+    console.warn('[Twilio] Missing credentials — SMS skipped'); return;
+  }
+  const cleaned = to.replace(/\D/g, '');
+  const e164 = cleaned.length === 10 ? `+1${cleaned}` : `+${cleaned}`;
+  const auth = Buffer.from(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`).toString('base64');
+  const params = new URLSearchParams({ To: e164, From: from, Body: body });
+  const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`, {
+    method: 'POST',
+    headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params
+  });
+  const d = await res.json();
+  if (!res.ok) console.error('[Twilio SMS error]', d);
+  return d;
+}
+
+// ── Generate TwiML response string ──
+function twiml(content) {
+  return `<?xml version="1.0" encoding="UTF-8"?><Response>${content}</Response>`;
 }
 
 // ── Video script generator ──
@@ -373,6 +595,16 @@ async function deployToCloudflarePages(projectName, htmlContent) {
 // ── Send credentials email ──
 async function sendCredentialsEmail(client) {
   const dashUrl = `${BASE_URL}/client-dashboard.html?token=${client.dashToken}`;
+  const phoneDisplay = client.twilioNumber
+    ? client.twilioNumber.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3')
+    : null;
+  const phoneSection = phoneDisplay
+    ? `<div style="background:#f0f0ff;border:2px solid #6366f1;border-radius:12px;padding:24px;margin:24px 0;text-align:center;">
+        <p style="font-size:13px;color:#6B7280;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Your Business Phone Line</p>
+        <div style="font-size:28px;font-weight:700;color:#0066FF;letter-spacing:2px;font-family:'Bebas Neue',monospace;">${phoneDisplay}</div>
+        <p style="font-size:13px;color:#6B7280;margin-top:10px;">This is your dedicated business number. It forwards to your cell, handles missed calls with auto text-back, and provides AI after-hours support.</p>
+      </div>`
+    : '';
   await sendEmail({
     to: client.data.email,
     subject: `🎉 Your website is LIVE — ${client.data.businessName}`,
@@ -388,6 +620,7 @@ async function sendCredentialsEmail(client) {
           <p style="font-size:13px;color:#6B7280;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Your Live Website</p>
           <a href="${client.liveUrl}" style="font-size:22px;font-weight:700;color:#0066FF;text-decoration:none;">${client.liveUrl}</a>
         </div>
+        ${phoneSection}
         <div style="background:#f0f9ff;border:2px solid #0066FF;border-radius:12px;padding:24px;margin:24px 0;">
           <h3 style="margin:0 0 16px;color:#0066FF;">📋 Your Client Dashboard</h3>
           <p style="margin:0 0 8px;"><strong>Login URL:</strong><br><a href="${dashUrl}" style="color:#0066FF;word-break:break-all;">${dashUrl}</a></p>
@@ -406,7 +639,7 @@ async function runDeploy(client) {
   const dashToken   = makeToken();
   const dashPassword= makePassword();
   const projectName = `turnkeyai-${makeSlug(client.data.businessName)}`;
-  const liveHTML    = generateSiteHTML(client.data, false);
+  const liveHTML    = generateSiteHTML(client.data, false, client);
   const deployment  = await deployToCloudflarePages(projectName, liveHTML);
   client.status       = 'active';
   client.dashToken    = dashToken;
@@ -429,23 +662,45 @@ async function runDeploy(client) {
       html: `<p>After Hours: ${client.data.addon_after_hours==='yes'?'✅':'❌'} | Missed Call SMS: ${client.data.addon_missed_call==='yes'?'✅':'❌'}</p><p>Phone: ${client.data.phone}</p>`
     }).catch(()=>{});
   }
+
+  // ── Telephony: auto-provision after successful deploy ──
+  try {
+    if (client.data.phone) {
+      console.log(`[Telephony] Provisioning number for ${client.data.businessName}...`);
+      await provisionTwilioNumber(client);
+      // Re-deploy with Twilio number on the site if provisioning succeeded
+      if (client.twilioNumber) {
+        console.log(`[Telephony] Re-deploying site with Twilio number for ${client.data.businessName}...`);
+        const updatedHTML = generateSiteHTML(client.data, false, client);
+        await deployToCloudflarePages(client.cfProjectName, updatedHTML);
+      }
+    }
+  } catch (telErr) {
+    console.error('[Telephony] Provisioning failed (deploy still succeeded):', telErr.message);
+  }
+
   return client;
 }
 
 // ── Redeploy live site only (no token/password reset, no credentials email) ──
 async function redeployLive(client) {
   if (!client.cfProjectName) throw new Error('No CF project name — site has not been deployed yet.');
-  const liveHTML = generateSiteHTML(client.data, false);
+  const liveHTML = generateSiteHTML(client.data, false, client);
   await deployToCloudflarePages(client.cfProjectName, liveHTML);
   client.updatedAt = new Date().toISOString();
   await saveClient(client);
 }
 
 // ── FINALIZED DESIGN STANDARD: Gulf Coast Template ──
-function generateSiteHTML(data, isPreview) {
+function generateSiteHTML(data, isPreview, clientObj) {
   const biz      = data.businessName || 'Your Business';
   const owner    = data.ownerName || '';
-  const phone    = data.phone || '';
+  const rawPhone = data.phone || '';
+  // Use Twilio number on live sites if available
+  const phone    = (!isPreview && clientObj && clientObj.twilioNumber)
+    ? clientObj.twilioNumber.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3')
+    : rawPhone;
+  const phoneRaw = phone.replace(/\D/g, '');
   const email    = data.email || '';
   const city     = data.city || data.targetCity || '';
   const state    = data.state || '';
@@ -773,7 +1028,7 @@ ${previewBanner}
     <h1>${bizFirst} <span>${bizLast}</span></h1>
     <p>${tagline}</p>
     <div class="hero-btns">
-      ${phone?`<a href="tel:${phone.replace(/\D/g,'')}" class="btn-primary"><i class="fas fa-phone"></i> Call Now — Free Estimate</a>`:''}
+      ${phone?`<a href="tel:${phoneRaw}" class="btn-primary"><i class="fas fa-phone"></i> Call Now — Free Estimate</a>`:''}
       <a href="#services" class="btn-outline"><i class="fas fa-wrench"></i> Our Services</a>
     </div>
     <div class="hero-stats">
@@ -910,7 +1165,7 @@ ${about||ownerPhoto?`
       <div class="section-label" style="color:${pal.accent};">Ready to Get Started?</div>
       <h2 class="section-title" style="color:white;">Get Your Free Estimate Today</h2>
       <p style="color:rgba(255,255,255,.75);font-size:1.05rem;max-width:480px;margin:0 auto 2.2rem;line-height:1.7;">Call us now or submit a request. We respond within the hour during business hours.</p>
-      ${phone?`<a href="tel:${phone.replace(/\D/g,'')}" class="cta-phone"><i class="fas fa-phone-volume"></i> ${phone}</a>`:''}
+      ${phone?`<a href="tel:${phoneRaw}" class="cta-phone"><i class="fas fa-phone-volume"></i> ${phone}</a>`:''}
       <a href="#booking" class="btn-primary" style="font-size:1rem;padding:.95rem 2.2rem;display:inline-flex;"><i class="fas fa-calendar-check"></i> Schedule Online</a>
     </div>
   </div>
@@ -928,7 +1183,7 @@ ${(hoursData.length||phone||email)?`
       <div class="reveal" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:2rem;">
         <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:white;letter-spacing:1px;margin-bottom:1.5rem;">Contact Us</h3>
         <div style="display:flex;flex-direction:column;gap:1rem;">
-          ${phone?`<a href="tel:${phone.replace(/\D/g,'')}" style="display:flex;align-items:center;gap:1rem;color:white;text-decoration:none;padding:1rem;background:rgba(255,255,255,.07);border-radius:12px;"><span style="background:${pal.accent}22;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">📞</span><div><div style="font-size:.72rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Phone</div><div style="font-size:1rem;font-weight:600;">${phone}</div></div></a>`:''}
+          ${phone?`<a href="tel:${phoneRaw}" style="display:flex;align-items:center;gap:1rem;color:white;text-decoration:none;padding:1rem;background:rgba(255,255,255,.07);border-radius:12px;"><span style="background:${pal.accent}22;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">📞</span><div><div style="font-size:.72rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Phone</div><div style="font-size:1rem;font-weight:600;">${phone}</div></div></a>`:''}
           ${email?`<a href="mailto:${email}" style="display:flex;align-items:center;gap:1rem;color:white;text-decoration:none;padding:1rem;background:rgba(255,255,255,.07);border-radius:12px;"><span style="background:${pal.accent}22;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✉️</span><div><div style="font-size:.72rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Email</div><div style="font-size:.92rem;word-break:break-all;">${email}</div></div></a>`:''}
           ${address.length>5?`<div style="display:flex;align-items:flex-start;gap:1rem;padding:1rem;background:rgba(255,255,255,.07);border-radius:12px;"><span style="background:${pal.accent}22;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">📍</span><div><div style="font-size:.72rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Location</div><div style="font-size:.92rem;color:rgba(255,255,255,.85);">${address}</div></div></div>`:''}
         </div>
@@ -1055,6 +1310,7 @@ async function handleIntakeSubmission(data, res) {
     miniMeConsent: null, miniMeConsentAt: null,
     miniMeSubscribed: false,
     freeVideoRequested: data.wants_free_video === 'yes' || data.wantsFreeVideo === 'yes',
+    twilioNumber: null, forwardingNumber: null, businessHoursJson: null, telephonyEnabled: false,
     createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
   };
   await saveClient(clients[id]);
@@ -1265,6 +1521,8 @@ app.get('/api/admin/clients', (req, res) => {
     miniMeVideoFile: c.miniMeVideoFile || null, promoVideoFile: c.promoVideoFile || null,
     wantsFreeVideo: c.freeVideoRequested,
     wantsAfterHours: c.data.addon_after_hours, wantsMissedCall: c.data.addon_missed_call,
+    twilioNumber: c.twilioNumber || null, forwardingNumber: c.forwardingNumber || null,
+    telephonyEnabled: c.telephonyEnabled || false,
     domainStatus: {
       hasDomain: c.data.hasDomain || null, existingDomain: c.data.existingDomain || null,
       domainRegistrar: c.data.domainRegistrar || null, keepExistingEmail: c.data.keepExistingEmail || null,
@@ -1319,7 +1577,7 @@ app.get('/preview/:token', (req, res) => {
   const client = Object.values(clients).find(c => c.previewToken === req.params.token);
   if (!client) return res.status(404).send('<h2>Preview not found or expired.</h2>');
   const data = { ...client.data, _previewToken: client.previewToken, id: client.id };
-  res.send(generateSiteHTML(data, true));
+  res.send(generateSiteHTML(data, true, null));
 });
 
 // ── GET /api/mini-me-consent/:id ──
@@ -1393,7 +1651,7 @@ app.post('/api/client-update', async (req, res) => {
       await saveClient(client);
       if (client.status === 'active') {
         const projectName = client.cfProjectName || `turnkeyai-${makeSlug(client.data.businessName)}`;
-        const liveHTML = generateSiteHTML(client.data, false);
+        const liveHTML = generateSiteHTML(client.data, false, client);
         deployToCloudflarePages(projectName, liveHTML).catch(e => console.error('[hours redeploy]', e.message));
       }
       return res.json({ success: true, message: 'Hours saved and site updating.' });
@@ -1441,7 +1699,9 @@ app.post('/api/client-auth', async (req, res) => {
     data: client.data,
     miniMeConsent: client.miniMeConsent || false,
     miniMeVideoUrl: client.miniMeVideoFile || null,
-    freeVideoRequested: client.freeVideoRequested || false
+    freeVideoRequested: client.freeVideoRequested || false,
+    twilioNumber: client.twilioNumber || null,
+    telephonyEnabled: client.telephonyEnabled || false
   });
 });
 
@@ -1489,6 +1749,246 @@ app.post('/api/stripe-webhook', async (req, res) => {
     }
   }
   res.json({ received: true });
+});
+
+// ════════════════════════════════════════════════
+// ── TELEPHONY WEBHOOK ROUTES ──
+// ════════════════════════════════════════════════
+
+// ── POST /api/telephony/voice — Twilio calls this when someone dials a client's Twilio number ──
+app.post('/api/telephony/voice', async (req, res) => {
+  try {
+    const calledNumber = req.body.Called || req.body.To || '';
+    const callerNumber = req.body.From || '';
+    const client = findClientByTwilioNumber(calledNumber);
+
+    if (!client) {
+      console.warn('[Telephony/voice] No client found for number:', calledNumber);
+      res.type('text/xml').send(twiml(
+        `<Say voice="alice">We're sorry, this number is not currently in service. Please try again later.</Say><Hangup/>`
+      ));
+      return;
+    }
+
+    const biz = client.data.businessName || 'the business';
+    const industry = (client.data.industry || 'service').replace(/_/g, ' ');
+
+    if (isAfterHours(client)) {
+      // After hours: greeting + voicemail + SMS
+      console.log(`[Telephony/voice] After-hours call to ${biz} from ${callerNumber}`);
+      res.type('text/xml').send(twiml(
+        `<Say voice="alice">Thank you for calling ${biz}. We are currently closed. Please leave a message after the tone and we will return your call on our next business day. You can also send us a text at this number for immediate AI assistance.</Say>` +
+        `<Record maxLength="120" action="${BASE_URL}/api/telephony/voicemail" transcribe="true" transcribeCallback="${BASE_URL}/api/telephony/transcription" />`
+      ));
+
+      // Send after-hours text to caller
+      (async () => {
+        try {
+          let aiReply = `Hi! Thanks for calling ${biz}. We're currently closed but received your call. We'll get back to you first thing on our next business day. In the meantime, feel free to text this number and our AI assistant can help with basic questions.`;
+
+          // Try to generate a smarter reply via Workers AI
+          if (CF_AI_TOKEN && CF_ACCOUNT_ID) {
+            try {
+              const aiSystem = `You are the after-hours AI assistant for ${biz}, a ${industry} business. The caller just reached voicemail. Send a brief, friendly text message (under 300 characters) acknowledging their call, letting them know the business is closed, and offering to help via text. Do not make up hours or prices.`;
+              const cfRes = await fetch(
+                `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/ai/run/@cf/meta/llama-3-8b-instruct`,
+                { method: 'POST', headers: { 'Authorization': `Bearer ${CF_AI_TOKEN}`, 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ messages: [{ role: 'system', content: aiSystem }, { role: 'user', content: `Someone just called ${biz} after hours. Send them a friendly text.` }] }) }
+              );
+              const cfData = await cfRes.json();
+              if (cfData?.result?.response) aiReply = cfData.result.response.substring(0, 480);
+            } catch (aiErr) { console.warn('[Telephony] AI reply failed, using default:', aiErr.message); }
+          }
+
+          await sendSMSFrom(client.twilioNumber, callerNumber, aiReply);
+        } catch (smsErr) { console.error('[Telephony] After-hours SMS failed:', smsErr.message); }
+      })();
+
+      // Notify admin
+      sendEmail({
+        to: ADMIN_EMAIL,
+        subject: `📞 After-Hours Call: ${biz} — ${callerNumber}`,
+        html: `<p>After-hours call to <strong>${biz}</strong> from <strong>${callerNumber}</strong>. Voicemail recorded. Auto-text sent to caller.</p>`
+      }).catch(() => {});
+
+    } else {
+      // Business hours: forward to client's phone with missed-call fallback
+      console.log(`[Telephony/voice] Forwarding call to ${biz} (${client.forwardingNumber}) from ${callerNumber}`);
+      const forwardTo = (client.forwardingNumber || '').replace(/\D/g, '');
+      const e164Forward = forwardTo.length === 10 ? `+1${forwardTo}` : `+${forwardTo}`;
+
+      res.type('text/xml').send(twiml(
+        `<Dial callerId="${client.twilioNumber}" timeout="25" record="record-from-answer-dual" recordingStatusCallback="${BASE_URL}/api/telephony/transcription" action="${BASE_URL}/api/telephony/voice-status">` +
+        `<Number>${e164Forward}</Number>` +
+        `</Dial>`
+      ));
+    }
+  } catch (err) {
+    console.error('[Telephony/voice] Error:', err);
+    res.type('text/xml').send(twiml(`<Say voice="alice">We're experiencing technical difficulties. Please try again later.</Say><Hangup/>`));
+  }
+});
+
+// ── POST /api/telephony/voice-status — Called when <Dial> completes (missed call detection) ──
+app.post('/api/telephony/voice-status', async (req, res) => {
+  res.type('text/xml').send(twiml(''));
+  try {
+    const dialStatus = req.body.DialCallStatus || '';
+    const callerNumber = req.body.From || req.body.Caller || '';
+    const calledNumber = req.body.Called || req.body.To || '';
+
+    if (['no-answer', 'busy', 'failed', 'canceled'].includes(dialStatus)) {
+      const client = findClientByTwilioNumber(calledNumber);
+      if (!client) return;
+
+      const biz = client.data.businessName || 'the business';
+      console.log(`[Telephony] Missed call to ${biz} from ${callerNumber} (status: ${dialStatus})`);
+
+      // Send missed-call text-back to the caller
+      const missedMsg = `Hi! We missed your call to ${biz}. We're sorry we couldn't answer — we'll call you back as soon as possible. If it's urgent, please text this number and we can help right away.`;
+      await sendSMSFrom(client.twilioNumber, callerNumber, missedMsg);
+
+      // Notify the business owner via SMS to their forwarding number
+      if (client.forwardingNumber) {
+        await sendSMSFrom(client.twilioNumber, client.forwardingNumber,
+          `📞 Missed call to ${biz} from ${callerNumber}. Auto text-back sent to caller.`
+        ).catch(() => {});
+      }
+
+      // Notify admin
+      sendEmail({
+        to: ADMIN_EMAIL,
+        subject: `📵 Missed Call: ${biz} — ${callerNumber}`,
+        html: `<p>Missed call to <strong>${biz}</strong> from <strong>${callerNumber}</strong>. Status: ${dialStatus}. Auto text-back sent to caller.</p>`
+      }).catch(() => {});
+    }
+  } catch (err) { console.error('[Telephony/voice-status]', err.message); }
+});
+
+// ── POST /api/telephony/voicemail — Called when after-hours voicemail recording completes ──
+app.post('/api/telephony/voicemail', async (req, res) => {
+  res.type('text/xml').send(twiml(`<Say voice="alice">Thank you. We'll get back to you soon. Goodbye.</Say><Hangup/>`));
+  try {
+    const callerNumber = req.body.From || req.body.Caller || '';
+    const calledNumber = req.body.Called || req.body.To || '';
+    const recordingUrl = req.body.RecordingUrl || '';
+    const client = findClientByTwilioNumber(calledNumber);
+    if (!client) return;
+
+    const biz = client.data.businessName || 'Unknown Business';
+    sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `🎙️ Voicemail: ${biz} — from ${callerNumber}`,
+      html: `<p>New voicemail for <strong>${biz}</strong> from <strong>${callerNumber}</strong>.</p>${recordingUrl ? `<p><a href="${recordingUrl}.mp3" style="color:#0066FF;">🎧 Listen to Recording</a></p>` : '<p>(Recording URL not available yet — check Twilio console)</p>'}`
+    }).catch(() => {});
+  } catch (err) { console.error('[Telephony/voicemail]', err.message); }
+});
+
+// ── POST /api/telephony/sms-incoming — Handles inbound SMS to a client's Twilio number ──
+app.post('/api/telephony/sms-incoming', async (req, res) => {
+  try {
+    const smsFrom = req.body.From || '';
+    const smsTo = req.body.To || '';
+    const smsBody = (req.body.Body || '').trim();
+    const client = findClientByTwilioNumber(smsTo);
+
+    if (!client || !smsBody) {
+      res.type('text/xml').send(twiml(''));
+      return;
+    }
+
+    const biz = client.data.businessName || 'the business';
+    const industry = (client.data.industry || 'service').replace(/_/g, ' ');
+    const city = client.data.city || '';
+    const phone = client.twilioNumber ? client.twilioNumber.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3') : '';
+
+    console.log(`[Telephony/SMS] Inbound to ${biz} from ${smsFrom}: "${smsBody.substring(0, 80)}"`);
+
+    // Generate AI reply via Cloudflare Workers AI
+    let aiReply = `Thanks for texting ${biz}! We received your message and will get back to you shortly. For immediate help, call us at ${phone}.`;
+
+    if (CF_AI_TOKEN && CF_ACCOUNT_ID) {
+      try {
+        const smsSystem = `You are the AI text assistant for ${biz}, a ${industry} business in ${city}. Answer customer questions helpfully and briefly (under 400 characters). Be friendly and professional. Phone: ${phone}. If you don't know specific pricing or availability, say you'll have someone follow up. Do not make up information.`;
+        const cfRes = await fetch(
+          `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/ai/run/@cf/meta/llama-3-8b-instruct`,
+          { method: 'POST', headers: { 'Authorization': `Bearer ${CF_AI_TOKEN}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: [{ role: 'system', content: smsSystem }, { role: 'user', content: smsBody }] }) }
+        );
+        const cfData = await cfRes.json();
+        if (cfData?.result?.response) aiReply = cfData.result.response.substring(0, 480);
+      } catch (aiErr) { console.warn('[Telephony/SMS] AI reply failed:', aiErr.message); }
+    }
+
+    // Send AI reply back
+    await sendSMSFrom(client.twilioNumber, smsFrom, aiReply);
+
+    // Forward the SMS to the business owner
+    if (client.forwardingNumber) {
+      await sendSMSFrom(client.twilioNumber, client.forwardingNumber,
+        `📱 Text from ${smsFrom} to ${biz}:\n"${smsBody.substring(0, 300)}"\n\nAI replied automatically. Reply to this number to respond directly.`
+      ).catch(() => {});
+    }
+
+    // Log to admin
+    sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `💬 SMS: ${biz} — from ${smsFrom}`,
+      html: `<div style="font-family:sans-serif;max-width:600px;"><h3 style="color:#0066FF;">Inbound SMS to ${biz}</h3><table style="width:100%;border-collapse:collapse;"><tr><td style="padding:8px;font-weight:700;width:100px;">From</td><td style="padding:8px;">${smsFrom}</td></tr><tr style="background:#f9fafb;"><td style="padding:8px;font-weight:700;">Message</td><td style="padding:8px;">${smsBody}</td></tr><tr><td style="padding:8px;font-weight:700;">AI Reply</td><td style="padding:8px;color:#059669;">${aiReply}</td></tr></table></div>`
+    }).catch(() => {});
+
+    // Respond to Twilio with empty TwiML (we already sent the reply via API)
+    res.type('text/xml').send(twiml(''));
+  } catch (err) {
+    console.error('[Telephony/sms-incoming]', err.message);
+    res.type('text/xml').send(twiml(''));
+  }
+});
+
+// ── POST /api/telephony/transcription — Twilio recording/transcription callback ──
+app.post('/api/telephony/transcription', async (req, res) => {
+  res.sendStatus(200);
+  try {
+    const callerNumber = req.body.From || req.body.Caller || '';
+    const calledNumber = req.body.Called || req.body.To || '';
+    const recordingUrl = req.body.RecordingUrl || '';
+    const recordingDuration = req.body.RecordingDuration || '';
+    const transcriptionText = req.body.TranscriptionText || '';
+    const recordingStatus = req.body.RecordingStatus || '';
+
+    const client = findClientByTwilioNumber(calledNumber);
+    if (!client) return;
+
+    const biz = client.data.businessName || 'Unknown';
+    console.log(`[Telephony/transcription] Call to ${biz}: ${recordingDuration}s, status: ${recordingStatus}`);
+
+    if (recordingUrl || transcriptionText) {
+      await sendEmail({
+        to: ADMIN_EMAIL,
+        subject: `📝 Call Record: ${biz} — ${callerNumber} (${recordingDuration || '?'}s)`,
+        html: `<div style="font-family:sans-serif;max-width:600px;"><h3 style="color:#0066FF;">Call Recording — ${biz}</h3><table style="width:100%;border-collapse:collapse;"><tr><td style="padding:8px;font-weight:700;width:120px;">Caller</td><td style="padding:8px;">${callerNumber}</td></tr><tr style="background:#f9fafb;"><td style="padding:8px;font-weight:700;">Duration</td><td style="padding:8px;">${recordingDuration || '?'} seconds</td></tr>${recordingUrl ? `<tr><td style="padding:8px;font-weight:700;">Recording</td><td style="padding:8px;"><a href="${recordingUrl}.mp3" style="color:#0066FF;">🎧 Listen</a></td></tr>` : ''}${transcriptionText ? `<tr style="background:#f9fafb;"><td style="padding:8px;font-weight:700;">Transcript</td><td style="padding:8px;">${transcriptionText}</td></tr>` : ''}</table></div>`
+      }).catch(() => {});
+    }
+  } catch (err) { console.error('[Telephony/transcription]', err.message); }
+});
+
+// ── GET /api/admin/telephony-status — Admin view of all telephony ──
+app.get('/api/admin/telephony-status', (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+  const telephonyClients = Object.values(clients).map(c => ({
+    id: c.id,
+    businessName: c.data.businessName || '(unnamed)',
+    status: c.status,
+    twilioNumber: c.twilioNumber || null,
+    forwardingNumber: c.forwardingNumber || null,
+    telephonyEnabled: c.telephonyEnabled || false,
+    businessHoursJson: c.businessHoursJson || null,
+  })).filter(c => c.twilioNumber || c.telephonyEnabled);
+  res.json({
+    totalProvisioned: telephonyClients.length,
+    clients: telephonyClients
+  });
 });
 
 // ── GET /api/coming-soon ──
