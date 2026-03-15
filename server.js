@@ -1367,9 +1367,9 @@ async function handleIntakeSubmission(data, res) {
   const hoursLines = days2.filter(dy => d['day_'+dy]).map(dy => `<li>${dy.charAt(0).toUpperCase()+dy.slice(1)}: ${d['hours_'+dy]||'Open'}</li>`);
 
   const domainBlock = d.hasDomain === 'yes'
-    ? `<div style="background:#fff8ed;border:2px solid #f59e0b;border-radius:10px;padding:18px 22px;margin-bottom:22px;"><p style="font-weight:700;color:#92400e;margin:0 0 10px;">🌐 DNS SETUP NEEDED — Customer Has Domain</p><p style="margin:0 0 6px;font-size:14px;"><strong>Domain:</strong> ${d.existingDomain||'(not provided)'}</p><p style="margin:0 0 6px;font-size:14px;"><strong>Registrar:</strong> ${(d.domainRegistrar||'unknown').replace(/_/g,' ')}</p><p style="margin:0;font-size:14px;"><strong>Keep email?</strong> ${d.keepExistingEmail==='yes'?'✅ YES — do NOT change MX records':'❌ No'}</p></div>`
+    ? `<div style="background:#fff8ed;border:2px solid #f59e0b;border-radius:10px;padding:18px 22px;margin-bottom:22px;"><p style="font-weight:700;color:#92400e;margin:0 0 10px;">🌐 DNS SETUP NEEDED — Customer Has Domain</p><p style="margin:0 0 6px;font-size:14px;"><strong>Domain:</strong> ${d.existingDomain||'(not provided)'}</p><p style="margin:0 0 6px;font-size:14px;"><strong>Registrar:</strong> ${(d.domainRegistrar||'unknown').replace(/_/g,' ')}</p><p style="margin:0 0 6px;font-size:14px;"><strong>Keep email?</strong> ${d.keepExistingEmail==='yes'?'✅ YES — do NOT change MX records':'❌ No'}</p>${d.emailProvider?`<p style="margin:0 0 6px;font-size:14px;"><strong>Email Provider:</strong> ${d.emailProvider}</p>`:''}${d.emailsToPreserve?`<p style="margin:0 0 6px;font-size:14px;"><strong>Emails to Preserve:</strong> ${d.emailsToPreserve}</p>`:''}${d.dnsSetupPreference?`<p style="margin:0 0 6px;font-size:14px;"><strong>Setup Preference:</strong> ${d.dnsSetupPreference==='hands_free'?'🔧 Hands-Free (TurnkeyAI handles everything)':'📋 Self-Directed (client does it with our instructions)'}</p>`:''}${d.registrarUsername?`<p style="margin:0 0 6px;font-size:14px;"><strong>Registrar Credentials:</strong> ✅ Provided (username: ${d.registrarUsername})</p>`:''}${d.wantsProfessionalEmail?`<p style="margin:0;font-size:14px;"><strong>Wants Professional Email?</strong> ${d.wantsProfessionalEmail==='yes'?'✅ YES':'❌ No'}</p>`:''}</div>`
     : d.hasDomain === 'no'
-    ? `<div style="background:#f0f0ff;border:2px solid #6366f1;border-radius:10px;padding:18px 22px;margin-bottom:22px;"><p style="font-weight:700;color:#3730a3;margin:0 0 10px;">🆕 DOMAIN REGISTRATION NEEDED</p><p style="margin:0 0 6px;font-size:14px;"><strong>Suggested:</strong> ${d.suggestedDomain||'(ask client)'}</p><p style="margin:0;font-size:14px;"><strong>Action:</strong> Register on Namecheap → Cloudflare DNS → Zoho email → Point to Railway.</p></div>`
+    ? `<div style="background:#f0f0ff;border:2px solid #6366f1;border-radius:10px;padding:18px 22px;margin-bottom:22px;"><p style="font-weight:700;color:#3730a3;margin:0 0 10px;">🆕 DOMAIN REGISTRATION NEEDED</p><p style="margin:0 0 6px;font-size:14px;"><strong>Suggested:</strong> ${d.suggestedDomain||'(ask client)'}</p><p style="margin:0 0 6px;font-size:14px;"><strong>Action:</strong> Register on Namecheap → Cloudflare DNS → Zoho email → Point to Railway.</p>${d.wantsProfessionalEmail?`<p style="margin:0;font-size:14px;"><strong>Wants Professional Email?</strong> ${d.wantsProfessionalEmail==='yes'?'✅ YES':'❌ No'}</p>`:''}</div>`
     : '';
 
   const addons = [];
@@ -1527,7 +1527,12 @@ app.get('/api/admin/clients', (req, res) => {
       hasDomain: c.data.hasDomain || null, existingDomain: c.data.existingDomain || null,
       domainRegistrar: c.data.domainRegistrar || null, keepExistingEmail: c.data.keepExistingEmail || null,
       suggestedDomain: c.data.suggestedDomain || null, cfProjectName: c.cfProjectName || null,
-      needsDnsAction: (c.data.hasDomain === 'yes' || c.data.hasDomain === 'no') && c.status !== 'active'
+      needsDnsAction: (c.data.hasDomain === 'yes' || c.data.hasDomain === 'no') && c.status !== 'active',
+      emailProvider: c.data.emailProvider || null,
+      emailsToPreserve: c.data.emailsToPreserve || null,
+      dnsSetupPreference: c.data.dnsSetupPreference || null,
+      hasRegistrarCredentials: !!(c.data.registrarUsername),
+      wantsProfessionalEmail: c.data.wantsProfessionalEmail || null
     }
   }));
   res.json({ mrr: mrrSummary, clients: clientList });
