@@ -594,7 +594,7 @@ async function deployToCloudflarePages(projectName, htmlContent) {
 
 // ── Send credentials email ──
 async function sendCredentialsEmail(client) {
-  const dashUrl = `${BASE_URL}/client-dashboard.html?token=${client.dashToken}`;
+  const dashUrl = `${BASE_URL}/pages/client-dashboard.html?token=${client.dashToken}`;
   const phoneDisplay = client.twilioNumber
     ? client.twilioNumber.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3')
     : null;
@@ -618,7 +618,7 @@ async function sendCredentialsEmail(client) {
         <p>Congratulations — <strong>${client.data.businessName}</strong> is now live!</p>
         <div style="background:#f0fff4;border:2px solid #00D68F;border-radius:12px;padding:24px;margin:24px 0;text-align:center;">
           <p style="font-size:13px;color:#6B7280;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Your Live Website</p>
-          <a href="${client.liveUrl}" style="font-size:22px;font-weight:700;color:#0066FF;text-decoration:none;">${client.liveUrl}</a>
+          <a href="${client.liveUrl || '#'}" style="font-size:22px;font-weight:700;color:#0066FF;text-decoration:underline;">${client.liveUrl || 'Your site URL will appear here'}</a>
         </div>
         ${phoneSection}
         <div style="background:#f0f9ff;border:2px solid #0066FF;border-radius:12px;padding:24px;margin:24px 0;">
@@ -656,10 +656,43 @@ async function runDeploy(client) {
     html: `<p><strong>${client.data.businessName}</strong> is live at <a href="${client.liveUrl}">${client.liveUrl}</a></p><p>Dashboard password: <strong>${client.dashPassword}</strong></p><p>${client.data.ownerName} — ${client.data.email} — ${client.data.phone}</p>`
   });
   if (client.data.addon_after_hours === 'yes' || client.data.addon_missed_call === 'yes') {
+    // ── Phone services provisioning email with full details ──
+    const phoneD = client.data;
+    const phoneServices = [];
+    if (phoneD.addon_after_hours === 'yes') phoneServices.push('After-Hours AI Answering ✅');
+    if (phoneD.addon_missed_call === 'yes') phoneServices.push('Missed Call Text-Back ✅');
+    const phoneDays = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+    const phoneHoursLines = phoneDays.filter(dy => phoneD['day_' + dy]).map(dy => '<li>' + dy.charAt(0).toUpperCase() + dy.slice(1) + ': ' + (phoneD['hours_' + dy] || 'Open') + '</li>').join('');
+    const phoneServiceList = Object.keys(phoneD).filter(k => k.startsWith('service_') && phoneD[k] === 'on').map(k => '<li>' + k.replace('service_','').replace(/_/g,' ') + '</li>').join('');
     await sendEmail({
       to: ADMIN_EMAIL,
-      subject: `📞 Phone Services Needed: ${client.data.businessName}`,
-      html: `<p>After Hours: ${client.data.addon_after_hours==='yes'?'✅':'❌'} | Missed Call SMS: ${client.data.addon_missed_call==='yes'?'✅':'❌'}</p><p>Phone: ${client.data.phone}</p>`
+      subject: `📞 Phone Services Needed: ${phoneD.businessName}`,
+      html: `<div style="font-family:sans-serif;max-width:680px;margin:0 auto;">
+        <div style="background:linear-gradient(135deg,#6366f1,#1a1a2e);padding:24px 28px;border-radius:12px 12px 0 0;">
+          <h2 style="color:#c4b5fd;margin:0;">📞 Phone Services — Provisioning Required</h2>
+          <p style="color:rgba(255,255,255,.7);margin:8px 0 0;font-size:14px;">${phoneD.businessName}</p>
+        </div>
+        <div style="padding:24px 28px;background:white;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;">
+          <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+            <tr><td style="padding:8px;font-weight:700;width:160px;background:#f9fafb;border-bottom:1px solid #e5e7eb;">Business</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${phoneD.businessName || '—'}</td></tr>
+            <tr><td style="padding:8px;font-weight:700;background:#f9fafb;border-bottom:1px solid #e5e7eb;">Owner</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${phoneD.ownerName || '—'}</td></tr>
+            <tr><td style="padding:8px;font-weight:700;background:#f9fafb;border-bottom:1px solid #e5e7eb;">Email</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${phoneD.email || '—'}</td></tr>
+            <tr><td style="padding:8px;font-weight:700;background:#f9fafb;border-bottom:1px solid #e5e7eb;">Phone (forwarding)</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${phoneD.phone || '—'}</td></tr>
+            <tr><td style="padding:8px;font-weight:700;background:#f9fafb;border-bottom:1px solid #e5e7eb;">Industry</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${(phoneD.industry || '—').replace(/_/g,' ')}</td></tr>
+            <tr><td style="padding:8px;font-weight:700;background:#f9fafb;border-bottom:1px solid #e5e7eb;">City/State</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${phoneD.city || ''}${phoneD.state ? ', ' + phoneD.state : ''}</td></tr>
+          </table>
+          <div style="background:#f0f0ff;border:2px solid #6366f1;border-radius:10px;padding:16px;margin-bottom:16px;">
+            <p style="font-weight:700;color:#3730a3;margin:0 0 8px;">Services Requested:</p>
+            <ul style="margin:0;padding-left:20px;line-height:2;">${phoneServices.map(s => '<li><strong>' + s + '</strong></li>').join('')}</ul>
+          </div>
+          ${phoneHoursLines ? '<div style="margin-bottom:16px;"><p style="font-weight:700;margin:0 0 8px;">Business Hours:</p><ul style="margin:0;padding-left:20px;line-height:2;">' + phoneHoursLines + '</ul></div>' : ''}
+          ${phoneServiceList ? '<div style="margin-bottom:16px;"><p style="font-weight:700;margin:0 0 8px;">Services Offered:</p><ul style="margin:0;padding-left:20px;line-height:1.8;font-size:14px;color:#374151;">' + phoneServiceList + '</ul></div>' : ''}
+          <div style="border-top:2px solid #e5e7eb;padding-top:16px;margin-top:8px;">
+            <p style="font-weight:700;color:#0066FF;margin:0 0 6px;">Action Required:</p>
+            <p style="margin:0;font-size:14px;color:#374151;">Provision a Twilio number in area code matching <strong>${phoneD.phone || 'client phone'}</strong>, configure forwarding, and activate selected services.</p>
+          </div>
+        </div>
+      </div>`
     }).catch(()=>{});
   }
 
@@ -804,7 +837,7 @@ function generateSiteHTML(data, isPreview, clientObj) {
   const previewBanner = isPreview
     ? `<div style="background:#1a1d24;border-bottom:2px solid #f59e0b;padding:0;position:relative;z-index:101;">
         <div style="padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-          <div style="color:#f59e0b;font-weight:700;font-size:14px;">🔍 PREVIEW — This site is not yet live</div>
+          <div style="display:flex;align-items:center;gap:16px;"><a href="https://turnkeyaiservices.com" style="color:rgba(255,255,255,.7);font-size:13px;text-decoration:none;white-space:nowrap;">← TurnkeyAI Home</a><span style="color:#f59e0b;font-weight:700;font-size:14px;">🔍 PREVIEW — This site is not yet live</span></div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
             ${clientApproveUrl?`<a href="${clientApproveUrl}" style="background:#00D68F;color:#071c12;padding:10px 22px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;">✅ Approve &amp; Go Live →</a>`:''}
             <button onclick="document.getElementById('changeModal').style.display='flex'" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.25);color:white;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">✏️ Request Changes</button>
@@ -1196,7 +1229,7 @@ ${(hoursData.length||phone||email)?`
   <div class="footer-inner">
     <div class="footer-logo">${bizFirst} <span>${bizLast}</span></div>
     <div class="footer-links">
-      <a href="#services">Services</a><a href="#why">About</a><a href="#reviews">Reviews</a><a href="#booking">Book</a><a href="#contact">Contact</a>
+      <a href="#services">Services</a><a href="#why">About</a><a href="#reviews">Reviews</a><a href="#booking">Book</a><a href="#contact">Contact</a>${(!isPreview && clientObj && clientObj.dashToken) ? '<a href="' + BASE_URL + '/pages/client-dashboard.html?token=' + clientObj.dashToken + '" style="color:' + pal.accent + ';font-weight:600;">My Dashboard</a>' : ''}
     </div>
   </div>
   <div class="footer-copy">© ${new Date().getFullYear()} ${biz} · ${city}${state?', '+state:''} · All Rights Reserved · Powered by <a href="https://turnkeyaiservices.com" target="_blank" rel="noopener" style="color:${pal.accent};text-decoration:none;font-weight:600;">TurnkeyAI Services</a></div>
@@ -1387,8 +1420,8 @@ async function handleIntakeSubmission(data, res) {
 
   if (d.email) {
     const clientAddons = [];
-    if (d.wants_mini_me==='yes'||d.wantsMiniMe==='yes') clientAddons.push('<li>🤖 <strong>Mini-Me AI Avatar</strong> — recording instructions coming shortly</li>');
-    else if (d.wants_free_video==='yes'||d.wantsFreeVideo==='yes') clientAddons.push('<li>🎬 <strong>Free 60-Second Promo Video</strong> — recording instructions coming shortly</li>');
+    if (d.wants_mini_me==='yes'||d.wantsMiniMe==='yes') clientAddons.push('<li>🤖 <strong>Mini-Me AI Avatar</strong> — separate email with details on the way</li>');
+    else if (d.wants_free_video==='yes'||d.wantsFreeVideo==='yes') clientAddons.push('<li>🎬 <strong>Free 60-Second Promo Video</strong> — separate email with details on the way</li>');
     if (d.addon_after_hours==='yes') clientAddons.push('<li>📞 <strong>After Hours Answering</strong> — activated when site goes live</li>');
     if (d.addon_missed_call==='yes') clientAddons.push('<li>📱 <strong>Missed Call Text Return</strong> — activated when site goes live</li>');
 
