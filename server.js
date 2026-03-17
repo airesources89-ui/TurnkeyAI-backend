@@ -748,6 +748,7 @@ function generateSiteHTML(data, isPreview, clientObj) {
   const chatName    = data.chatName || 'Chat With Us';
 
   const heroImages = {
+    // ── Original 16 ──
     plumbing:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
     electrician:'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1600&q=80',
     electrical:'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1600&q=80',
@@ -764,10 +765,70 @@ function generateSiteHTML(data, isPreview, clientObj) {
     construction:'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80',
     painting:'https://images.unsplash.com/photo-1562259929-b4e1fd3aef09?w=1600&q=80',
     pest_control:'https://images.unsplash.com/photo-1584467735871-8e85353a8413?w=1600&q=80',
-    default:'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80',
+    // ── Expanded coverage (51 new) ──
+    accounting:'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1600&q=80',
+    acupuncture:'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=1600&q=80',
+    appliance_repair:'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=1600&q=80',
+    architecture:'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1600&q=80',
+    attorney:'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1600&q=80',
+    auto_body:'https://images.unsplash.com/photo-1603486002664-a7319421e133?w=1600&q=80',
+    auto_detailing:'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=1600&q=80',
+    auto_sales:'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1600&q=80',
+    agriculture:'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=1600&q=80',
+    bail_bonds:'https://images.unsplash.com/photo-1589578228447-e1a4e481c6c8?w=1600&q=80',
+    bakery:'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1600&q=80',
+    barber:'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1600&q=80',
+    beauty_supply:'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1600&q=80',
+    catering:'https://images.unsplash.com/photo-1555244162-803834f70033?w=1600&q=80',
+    childcare:'https://images.unsplash.com/photo-1587654780291-39c9404d7dd0?w=1600&q=80',
+    chiropractic:'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=1600&q=80',
+    counseling:'https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=1600&q=80',
+    dance:'https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=1600&q=80',
+    dental:'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=1600&q=80',
+    event_planning:'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&q=80',
+    financial_advisor:'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1600&q=80',
+    fitness:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80',
+    flooring:'https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?w=1600&q=80',
+    food_truck:'https://images.unsplash.com/photo-1567129937968-cdad8f07e2f8?w=1600&q=80',
+    funeral:'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=1600&q=80',
+    handyman:'https://images.unsplash.com/photo-1581244277943-fe4a9c777189?w=1600&q=80',
+    insurance:'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1600&q=80',
+    it_support:'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1600&q=80',
+    locksmith:'https://images.unsplash.com/photo-1558001373-7b93ee48ffa0?w=1600&q=80',
+    massage:'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1600&q=80',
+    moving:'https://images.unsplash.com/photo-1600518464441-9154a4dea21b?w=1600&q=80',
+    music_lessons:'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1600&q=80',
+    notary:'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1600&q=80',
+    pet_grooming:'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=1600&q=80',
+    pet_services:'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=1600&q=80',
+    photography:'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=1600&q=80',
+    physical_therapy:'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1600&q=80',
+    pool_service:'https://images.unsplash.com/photo-1572331165267-854da2b021b1?w=1600&q=80',
+    pressure_washing:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+    print_shop:'https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?w=1600&q=80',
+    real_estate:'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1600&q=80',
+    security:'https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=1600&q=80',
+    solar:'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1600&q=80',
+    tattoo:'https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?w=1600&q=80',
+    tree_service:'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1600&q=80',
+    trucking:'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1600&q=80',
+    towing:'https://images.unsplash.com/photo-1562920618-5738fd81ae03?w=1600&q=80',
+    tutoring:'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=1600&q=80',
+    upholstery:'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1600&q=80',
+    veterinary:'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=1600&q=80',
+    wedding:'https://images.unsplash.com/photo-1519741497674-611481863552?w=1600&q=80',
+    window_cleaning:'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1600&q=80',
+    window_door:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80',
+    other:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&q=80',
+    default:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&q=80',
   };
   const industryKey = (data.industry||'').toLowerCase().replace(/ /g,'_');
-  const heroImage = heroImages[industryKey] || heroImages.default;
+  // Exact match first, then fuzzy partial match, then default
+  let heroImage = heroImages[industryKey];
+  if (!heroImage) {
+    const fuzzyMatch = Object.keys(heroImages).find(k => k !== 'default' && (industryKey.includes(k) || k.includes(industryKey)));
+    heroImage = fuzzyMatch ? heroImages[fuzzyMatch] : heroImages.default;
+  }
 
   const iconSet = {
     plumbing:['fa-faucet-drip','fa-toilet','fa-fire-flame-curved','fa-pipe-section','fa-house-flood-water','fa-bolt'],
@@ -931,7 +992,33 @@ function generateSiteHTML(data, isPreview, clientObj) {
       </div>
     </section>` : '';
 
-  const chatSystem = `You work for ${biz}, a ${industry} business in ${city}. Be helpful and friendly. Answer questions about services, pricing, hours, and location. Phone: ${phone}. Email: ${email}. ${advantage?'What sets us apart: '+advantage:''}`;
+  // ── Build rich chatbot system prompt with actual business data ──
+  const chatServiceNames = serviceItems.map(s => s.name + (s.price ? ' ('+s.price+')' : '')).join(', ');
+  const chatHoursStr = hoursData.map(h => h.label + ': ' + h.hours).join('; ');
+  const chatPersonality = data.chatPersonality || 'friendly';
+  const chatPricing = data.pricingDisplay || 'free_estimate';
+  const chatFaq = data.faqQuestions || '';
+  const chatPricingInstruction = chatPricing === 'ranges' ? 'Show price ranges when asked about pricing.'
+    : chatPricing === 'starting_at' ? 'Show starting prices only when asked about pricing.'
+    : chatPricing === 'no_pricing' ? 'Do not share any pricing information. Tell them to call for a quote.'
+    : 'When asked about pricing, say we offer free estimates and to call or book online.';
+  const chatTone = chatPersonality === 'professional' ? 'Be professional and formal in tone.'
+    : chatPersonality === 'casual' ? 'Be casual and conversational.'
+    : chatPersonality === 'direct' ? 'Be direct and no-nonsense.'
+    : 'Be friendly and helpful.';
+  let chatSystem = `You are the AI chat assistant for ${biz}, a ${industry} business in ${city}${state ? ', ' + state : ''}. ${chatTone}
+Phone: ${phone}. Email: ${email}.${address.length > 5 ? ' Address: ' + address + '.' : ''}
+${chatServiceNames ? 'Services we offer: ' + chatServiceNames + '.' : ''}
+${chatHoursStr ? 'Business hours: ' + chatHoursStr + '.' : ''}
+${payMethods ? 'Payment methods: ' + payMethods + '.' : ''}
+${about ? 'About us: ' + about.substring(0, 300) + '.' : ''}
+${tagline ? 'Our motto: ' + tagline : ''}
+${advantage ? 'What sets us apart: ' + advantage : ''}
+${chatFaq ? 'Common questions customers ask: ' + chatFaq.substring(0, 300) : ''}
+${chatPricingInstruction}
+Answer customer questions using the information above. If you do not know a specific answer, say you will have someone follow up and provide the phone number. Do not make up information. Keep responses concise (under 200 words).`;
+  // Cap system prompt to ~2000 chars for LLM context efficiency
+  if (chatSystem.length > 2000) chatSystem = chatSystem.substring(0, 2000);
 
   const bizWords  = biz.split(' ');
   const bizFirst  = bizWords.slice(0,-1).join(' ') || biz;
