@@ -40,6 +40,7 @@
     .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
     .badge-pending { background: #f59e0b22; color: #f59e0b; border: 1px solid #f59e0b44; }
     .badge-active { background: #00D68F22; color: #00D68F; border: 1px solid #00D68F44; }
+    .badge-suspended { background: #ef444422; color: #ef4444; border: 1px solid #ef444444; }
     .badge-yes { background: #0066FF22; color: #60a5fa; border: 1px solid #0066FF44; font-size: 10px; }
 
     .btn { display: inline-block; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; cursor: pointer; border: none; font-family: inherit; transition: opacity .15s; white-space: nowrap; }
@@ -47,6 +48,7 @@
     .btn-approve { background: #00D68F; color: #071c12; }
     .btn-preview { background: #0066FF22; color: #60a5fa; border: 1px solid #0066FF44; }
     .btn-live { background: rgba(255,255,255,.07); color: rgba(255,255,255,.6); border: 1px solid rgba(255,255,255,.1); }
+    .btn-danger { background: #ef444422; color: #ef4444; border: 1px solid #ef444444; }
     .btn-sm { padding: 5px 10px; font-size: 11px; }
 
     .actions { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -123,6 +125,7 @@
       <button class="tab active" onclick="setFilter('all', this)">All</button>
       <button class="tab" onclick="setFilter('pending', this)">Pending</button>
       <button class="tab" onclick="setFilter('active', this)">Live</button>
+      <button class="tab" onclick="setFilter('suspended', this)">Suspended</button>
       <button class="tab" onclick="setFilter('minime', this)">Mini-Me</button>
     </div>
   </div>
@@ -165,11 +168,9 @@
       const res = await fetch(`/api/admin/clients?adminKey=${ADMIN_KEY}`);
       if (res.status === 403) { location.href = '/admin-login.html'; return; }
       const data = await res.json();
-      // T-12: response shape changed to { mrr, clients }
       const mrr = data.mrr;
       allClients = data.clients || [];
       allClients.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      // T-12: populate MRR panel
       if (mrr) {
         document.getElementById('mrrTotal').textContent = '$' + mrr.total.toLocaleString();
         document.getElementById('mrrCount').textContent = mrr.activeCount;
@@ -188,6 +189,7 @@
   function updateStats() {
     const pending = allClients.filter(c => c.status === 'pending').length;
     const active = allClients.filter(c => c.status === 'active').length;
+    const suspended = allClients.filter(c => c.status === 'suspended').length;
     const miniMe = allClients.filter(c => c.wantsMiniMe === 'yes').length;
     document.getElementById('statTotal').textContent = allClients.length;
     document.getElementById('statPending').textContent = pending;
@@ -209,9 +211,10 @@
     return allClients.filter(c => {
       if (currentFilter === 'pending' && c.status !== 'pending') return false;
       if (currentFilter === 'active' && c.status !== 'active') return false;
+      if (currentFilter === 'suspended' && c.status !== 'suspended') return false;
       if (currentFilter === 'minime' && c.wantsMiniMe !== 'yes') return false;
       if (q) {
-        const hay = [c.businessName, c.ownerName, c.email, c.city, c.industry].join(' ').toLowerCase();
+        const hay = [c.businessName, c.ownerName, c.email, c.city, c.industry, c.phone].join(' ').toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -232,6 +235,8 @@
       const date = c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '–';
       const statusBadge = c.status === 'active'
         ? `<span class="badge badge-active">✅ Live</span>`
+        : c.status === 'suspended'
+        ? `<span class="badge badge-suspended">⛔ Suspended</span>`
         : `<span class="badge badge-pending">⏳ Pending</span>`;
       const previewUrl = `/preview/${c.previewToken}`;
       const approveUrl = `/api/approve/${c.id}?adminKey=${ADMIN_KEY}`;
@@ -240,15 +245,25 @@
       if (c.wantsFreeVideo) addons.push('🎬 Video');
       if (c.wantsAfterHours === 'yes') addons.push('📞 After Hrs');
       if (c.wantsMissedCall === 'yes') addons.push('📱 Missed Call');
+      if (c.telephonyEnabled) addons.push('📶 Phone Active');
       const addonHtml = addons.map(a => `<span class="badge badge-yes" style="margin:2px;">${a}</span>`).join('');
-      const actionBtns = c.status === 'pending'
-        ? `<a class="btn btn-preview btn-sm" href="${previewUrl}" target="_blank">👁 Preview</a>
-           <a class="btn btn-approve btn-sm" href="${approveUrl}" onclick="return confirmApprove(this.dataset.name)" data-name="${(c.businessName||'').replace(/"/g,'&quot;')}">✅ Approve</a>`
-        : `<a class="btn btn-preview btn-sm" href="${previewUrl}" target="_blank">👁 Preview</a>
-           <a class="btn btn-live btn-sm" href="${c.liveUrl}" target="_blank">🌐 Live Site</a>`;
+
+      let actionBtns = '';
+      if (c.status === 'pending') {
+        actionBtns = `<a class="btn btn-preview btn-sm" href="${previewUrl}" target="_blank">👁 Preview</a>
+           <a class="btn btn-approve btn-sm" href="${approveUrl}" onclick="return confirmApprove('${(c.businessName||'').replace(/'/g,"\\'")}')">✅ Approve</a>`;
+      } else if (c.status === 'active') {
+        actionBtns = `<a class="btn btn-preview btn-sm" href="${previewUrl}" target="_blank">👁 Preview</a>
+           <a class="btn btn-live btn-sm" href="${c.liveUrl}" target="_blank">🌐 Live</a>
+           <button class="btn btn-sm" style="background:#0066FF22;color:#60a5fa;border:1px solid #0066FF44;" onclick="redeployClient('${c.id}','${(c.businessName||'').replace(/'/g,"\\'")}')">🔄 Redeploy</button>
+           <button class="btn btn-danger btn-sm" onclick="setClientStatus('${c.id}','suspended','${(c.businessName||'').replace(/'/g,"\\'")}')">⛔ Suspend</button>`;
+      } else if (c.status === 'suspended') {
+        actionBtns = `<button class="btn btn-approve btn-sm" onclick="setClientStatus('${c.id}','active','${(c.businessName||'').replace(/'/g,"\\'")}')">✅ Reactivate</button>`;
+      }
+
       return `<tr>
         <td>
-          <div class="biz-name">${c.businessName || '–'}</div>
+          <div class="biz-name" style="cursor:pointer;text-decoration:underline;" onclick="editClient('${c.id}')">${c.businessName || '–'}</div>
           <div class="biz-sub">${c.ownerName || ''}</div>
         </td>
         <td class="contact-line">
@@ -257,7 +272,7 @@
         </td>
         <td>
           <div style="text-transform:capitalize;">${(c.industry || '').replace(/_/g,' ')}</div>
-          <div class="biz-sub">${c.city || '–'}</div>
+          <div class="biz-sub">${c.city || '–'}${c.state ? ', ' + c.state : ''}</div>
         </td>
         <td style="color:rgba(255,255,255,.5);font-size:13px;">${date}</td>
         <td>${statusBadge}${c.status==='active'&&c.dashPassword?`<div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:4px;">PW: ${c.dashPassword}</div>`:''}</td>
@@ -271,6 +286,101 @@
     return confirm(`Approve and deploy ${name}? This sends the client their live URL and dashboard credentials.`);
   }
 
+  async function redeployClient(id, name) {
+    if (!confirm(`Redeploy ${name}? This regenerates the site and pushes it live.`)) return;
+    try {
+      const res = await fetch(`/api/redeploy/${id}?adminKey=${ADMIN_KEY}`);
+      if (res.ok) { showToast('✅ ' + name + ' redeployed!'); loadClients(); }
+      else showToast('❌ Redeploy failed', 'error');
+    } catch(e) { showToast('❌ Request failed', 'error'); }
+  }
+
+  async function setClientStatus(id, newStatus, name) {
+    const action = newStatus === 'suspended' ? 'suspend' : 'reactivate';
+    if (!confirm(`${action.charAt(0).toUpperCase()+action.slice(1)} ${name}?`)) return;
+    try {
+      const res = await fetch('/api/admin/set-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
+        body: JSON.stringify({ clientId: id, newStatus })
+      });
+      const d = await res.json();
+      if (d.success) { showToast('✅ ' + name + ' ' + action + 'd'); loadClients(); }
+      else showToast('❌ ' + (d.error || 'Failed'), 'error');
+    } catch(e) { showToast('❌ Request failed', 'error'); }
+  }
+
+  function editClient(id) {
+    const c = allClients.find(x => x.id === id);
+    if (!c) return;
+    const ds = c.domainStatus || {};
+    const domainInfo = ds.hasDomain === 'yes'
+      ? `Has domain: ${ds.existingDomain || '—'} @ ${(ds.domainRegistrar||'unknown').replace(/_/g,' ')}${ds.keepExistingEmail==='yes'?' (keep MX)':''}${ds.dnsSetupPreference?' | Setup: '+ds.dnsSetupPreference.replace(/_/g,' '):''}`
+      : ds.hasDomain === 'no'
+      ? `Needs domain: ${ds.suggestedDomain || 'ask client'}`
+      : 'No domain info';
+    const bindDomainBtn = c.status === 'active' && ds.existingDomain
+      ? `<button onclick="bindDomain('${c.id}','${ds.existingDomain}')" class="btn btn-sm" style="margin-top:8px;background:#0066FF;color:white;">🔗 Bind Domain to CF Pages</button>`
+      : c.status === 'active' && ds.suggestedDomain
+      ? `<button onclick="bindDomain('${c.id}','${ds.suggestedDomain}')" class="btn btn-sm" style="margin-top:8px;background:#0066FF;color:white;">🔗 Bind Domain to CF Pages</button>`
+      : '';
+    document.getElementById('editModal').innerHTML = `
+      <div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9998;display:flex;align-items:center;justify-content:center;padding:24px;" onclick="if(event.target===this)this.style.display='none'">
+        <div style="background:#1a1d24;border:1px solid #2e3240;border-radius:16px;padding:32px;width:100%;max-width:600px;max-height:85vh;overflow-y:auto;color:white;" onclick="event.stopPropagation()">
+          <h2 style="font-size:18px;margin:0 0 20px;font-weight:800;">✏️ Edit: ${c.businessName||'Client'}</h2>
+          <div style="display:grid;gap:12px;">
+            <div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Business Name</label><input id="ed_businessName" value="${(c.businessName||'').replace(/"/g,'&quot;')}" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;"></div>
+            <div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Owner Name</label><input id="ed_ownerName" value="${(c.ownerName||'').replace(/"/g,'&quot;')}" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;"></div>
+            <div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Phone</label><input id="ed_phone" value="${(c.phone||'').replace(/"/g,'&quot;')}" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;"></div>
+            <div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Email</label><input id="ed_email" value="${(c.email||'').replace(/"/g,'&quot;')}" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;"></div>
+            <div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Mission / Tagline</label><input id="ed_missionStatement" value="${(c.missionStatement||'').replace(/"/g,'&quot;')}" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;"></div>
+            <div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">About Us</label><textarea id="ed_aboutUs" rows="3" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;resize:vertical;">${(c.aboutUs||'').replace(/</g,'&lt;')}</textarea></div>
+          </div>
+          <div style="margin-top:16px;padding:12px;background:#12141a;border:1px solid #2e3240;border-radius:10px;">
+            <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:6px;">🌐 Domain/DNS</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.7);">${domainInfo}</div>
+            ${bindDomainBtn}
+          </div>
+          <div style="margin-top:16px;padding:12px;background:#12141a;border:1px solid #2e3240;border-radius:10px;">
+            <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:6px;">📞 Telephony</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.7);">${c.twilioNumber ? 'Twilio: '+c.twilioNumber+' → '+c.forwardingNumber+(c.telephonyEnabled?' ✅ Active':' ⏸ Held') : 'Not provisioned'}</div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:20px;">
+            <label style="font-size:13px;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:6px;"><input type="checkbox" id="ed_redeploy" ${c.status==='active'?'checked':''}> Redeploy live site after save</label>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <button onclick="saveClientEdit('${c.id}')" class="btn btn-approve" style="flex:1;">💾 Save Changes</button>
+            <button onclick="document.getElementById('editModal').innerHTML=''" class="btn btn-live" style="flex:1;">Cancel</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  async function saveClientEdit(id) {
+    const fields = {
+      businessName: document.getElementById('ed_businessName').value,
+      ownerName: document.getElementById('ed_ownerName').value,
+      phone: document.getElementById('ed_phone').value,
+      email: document.getElementById('ed_email').value,
+      missionStatement: document.getElementById('ed_missionStatement').value,
+      aboutUs: document.getElementById('ed_aboutUs').value,
+    };
+    const redeploy = document.getElementById('ed_redeploy').checked;
+    try {
+      const res = await fetch('/api/admin/update-client', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
+        body: JSON.stringify({ clientId: id, fields, redeploy })
+      });
+      const d = await res.json();
+      if (d.success) {
+        showToast('✅ Client updated' + (d.redeployed ? ' & redeployed' : ''));
+        document.getElementById('editModal').innerHTML = '';
+        loadClients();
+      } else showToast('❌ ' + (d.error || 'Failed'), 'error');
+    } catch(e) { showToast('❌ Request failed', 'error'); }
+  }
+
   function showToast(msg, type='success') {
     const t = document.createElement('div');
     t.className = `toast toast-${type}`;
@@ -279,7 +389,7 @@
     setTimeout(() => t.remove(), 4000);
   }
 
-  // T-11: DNS pending tasks panel
+  // DNS pending tasks panel
   function renderDnsPanel(clients) {
     const dnsPending = clients.filter(c => c.domainStatus && c.domainStatus.needsDnsAction);
     const panel = document.getElementById('dnsPendingPanel');
@@ -293,8 +403,8 @@
       const isExisting = ds.hasDomain === 'yes';
       const bg = isExisting ? '#2a1f00' : '#0f0f2a';
       const border = isExisting ? '#f59e0b' : '#6366f1';
-      const bindBtn = c.status === 'active' && ds.existingDomain
-        ? `<button onclick="bindDomain('${c.id}','${ds.existingDomain}')" class="btn btn-sm" style="margin-top:8px;background:#0066FF;color:white;">🔗 Bind Custom Domain to CF Pages</button>`
+      const bindBtn = c.status === 'active' && (ds.existingDomain || ds.suggestedDomain)
+        ? `<button onclick="bindDomain('${c.id}','${ds.existingDomain||ds.suggestedDomain}')" class="btn btn-sm" style="margin-top:8px;background:#0066FF;color:white;">🔗 Bind Custom Domain to CF Pages</button>`
         : '';
       return `<div style="background:${bg};border:1px solid ${border};border-radius:10px;padding:14px 18px;margin-bottom:10px;">
         <strong style="font-size:14px;color:white;">${c.businessName}</strong> — ${c.ownerName} — <a href="mailto:${c.email}" style="color:#60a5fa;">${c.email}</a><br>
@@ -309,14 +419,13 @@
   }
 
   async function bindDomain(clientId, customDomain) {
-    if (!confirm(`Bind ${customDomain} to CF Pages for this client?`)) return;
-    const key = ADMIN_KEY;
-    if (!key) { showToast('❌ No admin key in URL — add ?key=YOUR_KEY', 'error'); return; }
+    const domain = prompt('Confirm domain to bind:', customDomain);
+    if (!domain) return;
     try {
       const res = await fetch('/api/admin/bind-domain', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
-        body: JSON.stringify({ clientId, customDomain })
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
+        body: JSON.stringify({ clientId, customDomain: domain })
       });
       const d = await res.json();
       if (d.success) { showToast('✅ Domain bound! ' + d.liveUrl); loadClients(); }
@@ -328,5 +437,8 @@
   loadClients();
   setInterval(() => loadClients(true), 60000);
 </script>
+
+<div id="editModal"></div>
+
 </body>
 </html>
