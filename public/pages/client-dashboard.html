@@ -549,7 +549,7 @@ function selectChangeType(type, el) {
 function openIntakeModal() {
   const pass = encodeURIComponent(PASS);
   document.getElementById('intakeFrame').src =
-    `${BASE_URL}/intake.html?token=${TOKEN}&mode=update#${pass}`;
+    `${BASE_URL}/pages/intake.html?token=${TOKEN}&mode=update#${pass}`;
   document.getElementById('intakeModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
