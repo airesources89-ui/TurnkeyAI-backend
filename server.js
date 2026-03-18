@@ -1653,7 +1653,11 @@ app.get('/api/admin/clients', (req, res) => {
       dnsSetupPreference: c.data.dnsSetupPreference || null,
       hasRegistrarCredentials: !!(c.data.registrarUsername),
       wantsProfessionalEmail: c.data.wantsProfessionalEmail || null
-    }
+    },
+    state: c.data.state || null,
+    missionStatement: c.data.missionStatement || null,
+    aboutUs: c.data.aboutUs || null,
+    plan: c.data.plan || c.data.tier || c.data.packageType || null
   }));
   res.json({ mrr: mrrSummary, clients: clientList });
 });
@@ -2168,6 +2172,81 @@ app.post('/api/coming-soon/rate', postLimiter, async (req, res) => {
     );
     res.json({ success: true });
   } catch(err) { console.error('[coming-soon/rate]', err); res.status(500).json({ error: 'Failed' }); }
+});
+
+// ── POST /api/admin/set-status ──
+app.post('/api/admin/set-status', async (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+  const { clientId, newStatus } = req.body;
+  if (!clientId || !newStatus) return res.status(400).json({ error: 'clientId and newStatus required' });
+  if (!['active', 'suspended', 'pending'].includes(newStatus)) return res.status(400).json({ error: 'Invalid status' });
+  const client = clients[clientId];
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+
+  const oldStatus = client.status;
+  client.status = newStatus;
+
+  if (newStatus === 'suspended') {
+    client.telephonyEnabled = false;
+    if (client.cfProjectName && CF_ACCOUNT_ID && CF_API_TOKEN) {
+      try {
+        const placeholderHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${client.data.businessName||'Site'} — Temporarily Unavailable</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#0f1117;color:white;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:24px}.wrap{max-width:480px}h1{font-size:2rem;margin-bottom:1rem}p{color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:1.5rem}a{color:#0066FF;text-decoration:none;font-weight:700}</style></head><body><div class="wrap"><h1>🔒 Temporarily Unavailable</h1><p>This website is temporarily offline. If you need to reach the business, please try again later.</p><p style="font-size:13px;color:rgba(255,255,255,.3);">Powered by <a href="https://turnkeyaiservices.com">TurnkeyAI Services</a></p></div></body></html>`;
+        await deployToCloudflarePages(client.cfProjectName, placeholderHTML);
+      } catch (e) { console.error('[set-status] Placeholder deploy failed:', e.message); }
+    }
+  } else if (newStatus === 'active' && oldStatus === 'suspended') {
+    if (client.twilioNumber) client.telephonyEnabled = true;
+    if (client.cfProjectName) {
+      try { await redeployLive(client); } catch (e) { console.error('[set-status] Redeploy failed:', e.message); }
+    }
+  }
+
+  client.updatedAt = new Date().toISOString();
+  await saveClient(client);
+
+  await sendEmail({
+    to: ADMIN_EMAIL,
+    subject: `🔄 Status Change: ${client.data.businessName} — ${oldStatus} → ${newStatus}`,
+    html: `<p><strong>${client.data.businessName}</strong> status changed from <strong>${oldStatus}</strong> to <strong>${newStatus}</strong>.</p>`
+  }).catch(() => {});
+
+  res.json({ success: true, oldStatus, newStatus });
+});
+
+// ── POST /api/admin/update-client ──
+app.post('/api/admin/update-client', async (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+  const { clientId, fields, redeploy } = req.body;
+  if (!clientId || !fields) return res.status(400).json({ error: 'clientId and fields required' });
+  const client = clients[clientId];
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+
+  const BLOCKED = ['id','dashToken','dashPassword','previewToken','_previewToken'];
+  let changed = 0;
+  Object.keys(fields).forEach(k => {
+    if (!BLOCKED.includes(k) && fields[k] !== undefined) {
+      client.data[k] = fields[k];
+      changed++;
+    }
+  });
+
+  client.updatedAt = new Date().toISOString();
+  await saveClient(client);
+
+  let redeployed = false;
+  if (redeploy && client.status === 'active' && client.cfProjectName) {
+    try {
+      await redeployLive(client);
+      redeployed = true;
+    } catch (e) {
+      console.error('[admin/update-client] Redeploy failed:', e.message);
+      return res.json({ success: true, changed, redeployed: false, redeployError: e.message });
+    }
+  }
+
+  res.json({ success: true, changed, redeployed });
 });
 
 // ── Static admin page ──
