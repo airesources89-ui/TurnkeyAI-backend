@@ -11,16 +11,7 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;color:#1e293b;background:#f8fafc;-webkit-font-smoothing:antialiased}
-
-/* ── NAV ── */
-nav{background:#0a1628;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid rgba(245,158,11,.2)}
-.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:2px;text-decoration:none}
-.nav-logo span{color:#f59e0b}
-.nav-links{display:flex;gap:1.5rem;list-style:none;align-items:center}
-.nav-links a{color:rgba(255,255,255,.8);text-decoration:none;font-size:.88rem;font-weight:500;transition:color .2s}
-.nav-links a:hover{color:#f59e0b}
-.nav-cta{background:#f59e0b!important;color:#0a1628!important;padding:.5rem 1.2rem;border-radius:6px;font-weight:700!important}
+body{font-family:'DM Sans',sans-serif;color:#1e293b;background:#f8fafc;-webkit-font-smoothing:antialiased;padding-top:64px}
 
 /* ── HERO ── */
 .blog-hero{background:linear-gradient(135deg,#0a1628 0%,#1a3a6b 60%,rgba(232,93,4,.15) 100%);padding:5rem 2rem 4rem;text-align:center}
@@ -32,7 +23,7 @@ nav{background:#0a1628;padding:1rem 2rem;display:flex;align-items:center;justify
 .blog-container{max-width:1100px;margin:0 auto;padding:3rem 1.5rem 5rem}
 
 /* ── FEATURED POST ── */
-.featured-post{display:grid;grid-template-columns:1.2fr 1fr;gap:0;background:white;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(10,22,40,.1);margin-bottom:3rem;border:1px solid rgba(10,22,40,.06);transition:transform .25s,box-shadow .25s}
+.featured-post{display:grid;grid-template-columns:1.2fr 1fr;gap:0;background:white;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(10,22,40,.1);margin-bottom:3rem;border:1px solid rgba(10,22,40,.06);transition:transform .25s,box-shadow .25s;text-decoration:none;color:inherit}
 .featured-post:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(10,22,40,.15)}
 .featured-img{background:linear-gradient(135deg,#0a1628,#1a3a6b);display:flex;align-items:center;justify-content:center;min-height:320px;padding:3rem;text-align:center}
 .featured-img .week-badge{font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);padding:.3rem .8rem;border-radius:50px;display:inline-block;margin-bottom:1rem}
@@ -42,7 +33,7 @@ nav{background:#0a1628;padding:1rem 2rem;display:flex;align-items:center;justify
 .featured-body .tag{display:inline-block;background:#e0f2fe;color:#0369a1;font-size:.72rem;font-weight:700;padding:.25rem .7rem;border-radius:50px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:1rem;width:fit-content}
 .featured-body h3{font-size:1.3rem;font-weight:700;color:#0a1628;margin-bottom:.8rem;line-height:1.35}
 .featured-body p{font-size:.92rem;color:#64748b;line-height:1.7;margin-bottom:1.4rem}
-.featured-body .read-link{color:#0066FF;font-weight:700;font-size:.92rem;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;transition:gap .2s}
+.featured-body .read-link{color:#0066FF;font-weight:700;font-size:.92rem;display:inline-flex;align-items:center;gap:.4rem;transition:gap .2s}
 .featured-body .read-link:hover{gap:.7rem}
 
 /* ── POST GRID ── */
@@ -59,7 +50,7 @@ nav{background:#0a1628;padding:1rem 2rem;display:flex;align-items:center;justify
 .post-card-body .tag{display:inline-block;background:#e0f2fe;color:#0369a1;font-size:.68rem;font-weight:700;padding:.2rem .6rem;border-radius:50px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.7rem;width:fit-content}
 .post-card-body p{font-size:.85rem;color:#64748b;line-height:1.65;flex:1}
 .post-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding-top:.8rem;border-top:1px solid #f1f5f9}
-.post-card-footer .read-link{color:#0066FF;font-weight:700;font-size:.82rem;text-decoration:none}
+.post-card-footer .read-link{color:#0066FF;font-weight:700;font-size:.82rem}
 .post-card-footer .arrow-link{color:#0066FF;font-size:1.1rem}
 
 /* ── COMING SOON CARDS ── */
@@ -89,22 +80,15 @@ footer a{color:#f59e0b;text-decoration:none}
 @media(max-width:768px){
   .featured-post{grid-template-columns:1fr}
   .featured-img{min-height:200px;padding:2rem}
-  .nav-links li:not(:last-child){display:none}
 }
 </style>
 </head>
 <body>
 
-<nav>
-  <a href="/" class="nav-logo">TurnkeyAI <span>Services</span></a>
-  <ul class="nav-links">
-    <li><a href="/">Home</a></li>
-    <li><a href="/business.html">Business Sites</a></li>
-    <li><a href="/personal.html">Personal Sites</a></li>
-    <li><a href="/blog.html" style="color:#f59e0b;font-weight:700;">Blog</a></li>
-    <li><a href="/intake.html" class="nav-cta">Get Started</a></li>
-  </ul>
-</nav>
+<!-- NAV (shared via nav.js) -->
+<div id="tkNav"></div>
+<script src="/nav.js"></script>
+<script>document.getElementById('tkNav').innerHTML = tkNav('blog');</script>
 
 <div class="blog-hero">
   <div class="section-label">TurnkeyAI Blog</div>
@@ -115,10 +99,10 @@ footer a{color:#f59e0b;text-decoration:none}
 <div class="blog-container">
 
   <!-- ═══ FEATURED: WEEK 2 (latest live post) ═══ -->
-  <a href="/blog/website-mistakes-gulf-coast-businesses.html" class="featured-post" style="text-decoration:none;color:inherit;">
+  <a href="/blog/website-mistakes-gulf-coast-businesses.html" class="featured-post">
     <div class="featured-img">
       <div>
-        <div class="week-badge">📅 Week 2 of 12 · NEW</div>
+        <div class="week-badge">Week 2 of 12 · NEW</div>
         <h2>5 Website Mistakes<br><em>Gulf Coast Businesses Make</em></h2>
       </div>
     </div>
@@ -130,7 +114,7 @@ footer a{color:#f59e0b;text-decoration:none}
     </div>
   </a>
 
-  <!-- ═══ WEEK 1 (previous post, still live) ═══ -->
+  <!-- ═══ PREVIOUS POSTS ═══ -->
   <h2 class="section-heading">Previous Posts</h2>
   <div class="posts-grid">
 
@@ -142,6 +126,21 @@ footer a{color:#f59e0b;text-decoration:none}
       <div class="post-card-body">
         <div class="tag">Small Business</div>
         <p>If someone in Biloxi needs a house cleaner, a plumber in Gulfport, or a dog groomer in Pass Christian, the first thing they do is Google it. If your business isn't showing up, you're invisible.</p>
+        <div class="post-card-footer">
+          <span class="read-link">Read Post</span>
+          <span class="arrow-link">→</span>
+        </div>
+      </div>
+    </a>
+
+    <a href="/blog/house-cleaners-biloxi-gulfport-more-customers.html" class="post-card">
+      <div class="post-card-header">
+        <div class="week-num">Bonus Post</div>
+        <h3>How House Cleaners in Biloxi & Gulfport Can Get More Customers Online</h3>
+      </div>
+      <div class="post-card-body">
+        <div class="tag">Industry Spotlight</div>
+        <p>If you run a cleaning business on the Gulf Coast, your next customer is searching for you right now. Here's how to make sure they find you instead of the competition.</p>
         <div class="post-card-footer">
           <span class="read-link">Read Post</span>
           <span class="arrow-link">→</span>
@@ -207,14 +206,12 @@ footer a{color:#f59e0b;text-decoration:none}
 
   </div>
 
-  <!-- ═══ SUBSCRIBE BAR ═══ -->
   <div class="subscribe-bar">
     <h3>New Post Every Tuesday</h3>
     <p>Follow along as we publish one new article every week for 12 weeks — all focused on helping Gulf Coast businesses win online.</p>
     <a href="/intake.html"><i class="fas fa-rocket"></i> Get Your Website Built →</a>
   </div>
 
-  <!-- ═══ CTA STRIP ═══ -->
   <div class="cta-strip">
     <h3>Ready to get your business online?</h3>
     <p>Fill out our 10-minute intake form and your professional website is live in 24 hours.</p>
