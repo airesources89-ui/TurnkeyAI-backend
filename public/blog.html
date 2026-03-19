@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TurnkeyAI Blog — Gulf Coast Small Business Tips & Insights</title>
+<meta name="description" content="Tips, guides, and local insights for Gulf Coast small businesses. Learn how to get found online, grow your customer base, and build your digital presence.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:#1e293b;background:#f8fafc;-webkit-font-smoothing:antialiased}
+
+/* ── NAV ── */
+nav{background:#0a1628;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid rgba(245,158,11,.2)}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:2px;text-decoration:none}
+.nav-logo span{color:#f59e0b}
+.nav-links{display:flex;gap:1.5rem;list-style:none;align-items:center}
+.nav-links a{color:rgba(255,255,255,.8);text-decoration:none;font-size:.88rem;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:#f59e0b}
+.nav-cta{background:#f59e0b!important;color:#0a1628!important;padding:.5rem 1.2rem;border-radius:6px;font-weight:700!important}
+
+/* ── HERO ── */
+.blog-hero{background:linear-gradient(135deg,#0a1628 0%,#1a3a6b 60%,rgba(232,93,4,.15) 100%);padding:5rem 2rem 4rem;text-align:center}
+.blog-hero .section-label{font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f59e0b;margin-bottom:.5rem}
+.blog-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,5vw,3.8rem);color:white;letter-spacing:2px;margin-bottom:.8rem}
+.blog-hero p{color:rgba(255,255,255,.7);font-size:1.05rem;max-width:560px;margin:0 auto;line-height:1.7}
+
+/* ── CONTAINER ── */
+.blog-container{max-width:1100px;margin:0 auto;padding:3rem 1.5rem 5rem}
+
+/* ── FEATURED POST ── */
+.featured-post{display:grid;grid-template-columns:1.2fr 1fr;gap:0;background:white;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(10,22,40,.1);margin-bottom:3rem;border:1px solid rgba(10,22,40,.06);transition:transform .25s,box-shadow .25s}
+.featured-post:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(10,22,40,.15)}
+.featured-img{background:linear-gradient(135deg,#0a1628,#1a3a6b);display:flex;align-items:center;justify-content:center;min-height:320px;padding:3rem;text-align:center}
+.featured-img .week-badge{font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);padding:.3rem .8rem;border-radius:50px;display:inline-block;margin-bottom:1rem}
+.featured-img h2{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:white;letter-spacing:1.5px;line-height:1.15}
+.featured-img h2 em{color:#00D68F;font-style:normal}
+.featured-body{padding:2.5rem;display:flex;flex-direction:column;justify-content:center}
+.featured-body .tag{display:inline-block;background:#e0f2fe;color:#0369a1;font-size:.72rem;font-weight:700;padding:.25rem .7rem;border-radius:50px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:1rem;width:fit-content}
+.featured-body h3{font-size:1.3rem;font-weight:700;color:#0a1628;margin-bottom:.8rem;line-height:1.35}
+.featured-body p{font-size:.92rem;color:#64748b;line-height:1.7;margin-bottom:1.4rem}
+.featured-body .read-link{color:#0066FF;font-weight:700;font-size:.92rem;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;transition:gap .2s}
+.featured-body .read-link:hover{gap:.7rem}
+
+/* ── POST GRID ── */
+.section-heading{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#0a1628;letter-spacing:1.5px;margin-bottom:1.5rem}
+.posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;margin-bottom:3rem}
+
+/* ── POST CARD ── */
+.post-card{background:white;border-radius:14px;overflow:hidden;border:1px solid rgba(10,22,40,.06);box-shadow:0 4px 16px rgba(10,22,40,.06);transition:transform .25s,box-shadow .25s;display:flex;flex-direction:column;text-decoration:none;color:inherit}
+.post-card:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(10,22,40,.12)}
+.post-card-header{padding:1.8rem 1.5rem 1rem;background:linear-gradient(135deg,#0a1628,#1a3a6b);position:relative;min-height:120px;display:flex;flex-direction:column;justify-content:flex-end}
+.post-card-header .week-num{font-size:.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f59e0b;margin-bottom:.5rem}
+.post-card-header h3{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;color:white;letter-spacing:1px;line-height:1.2}
+.post-card-body{padding:1.3rem 1.5rem 1.5rem;flex:1;display:flex;flex-direction:column}
+.post-card-body .tag{display:inline-block;background:#e0f2fe;color:#0369a1;font-size:.68rem;font-weight:700;padding:.2rem .6rem;border-radius:50px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.7rem;width:fit-content}
+.post-card-body p{font-size:.85rem;color:#64748b;line-height:1.65;flex:1}
+.post-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding-top:.8rem;border-top:1px solid #f1f5f9}
+.post-card-footer .read-link{color:#0066FF;font-weight:700;font-size:.82rem;text-decoration:none}
+.post-card-footer .arrow-link{color:#0066FF;font-size:1.1rem}
+
+/* ── COMING SOON CARDS ── */
+.post-card.coming-soon{opacity:.55;pointer-events:none}
+.post-card.coming-soon .post-card-header{background:linear-gradient(135deg,#334155,#475569)}
+.coming-badge{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:.65rem;font-weight:700;padding:.25rem .6rem;border-radius:50px;letter-spacing:.5px;text-transform:uppercase}
+
+/* ── SUBSCRIBE BAR ── */
+.subscribe-bar{background:linear-gradient(135deg,#0a1628,#1a3a6b);border-radius:16px;padding:2.5rem;text-align:center;margin-bottom:3rem}
+.subscribe-bar h3{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:1.5px;margin-bottom:.5rem}
+.subscribe-bar p{color:rgba(255,255,255,.65);font-size:.9rem;margin-bottom:1.2rem}
+.subscribe-bar a{background:#f59e0b;color:#0a1628;padding:.75rem 2rem;border-radius:8px;font-weight:700;font-size:.92rem;text-decoration:none;display:inline-block;transition:background .2s}
+.subscribe-bar a:hover{background:#e85d04;color:white}
+
+/* ── CTA STRIP ── */
+.cta-strip{background:#00D68F;border-radius:16px;padding:2.5rem;text-align:center;margin-bottom:2rem}
+.cta-strip h3{font-size:1.3rem;font-weight:700;color:#071c12;margin-bottom:.5rem}
+.cta-strip p{font-size:.92rem;color:#065f46;margin-bottom:1.2rem;max-width:480px;margin-left:auto;margin-right:auto}
+.cta-strip .cta-btn{background:#0a1628;color:white;padding:.75rem 2rem;border-radius:8px;font-weight:700;font-size:.92rem;text-decoration:none;display:inline-block;transition:background .2s}
+.cta-strip .cta-btn:hover{background:#1a3a6b}
+
+/* ── FOOTER ── */
+footer{background:#0a1628;padding:2rem;text-align:center;border-top:1px solid rgba(245,158,11,.15)}
+footer p{color:rgba(255,255,255,.4);font-size:.8rem}
+footer a{color:#f59e0b;text-decoration:none}
+
+@media(max-width:768px){
+  .featured-post{grid-template-columns:1fr}
+  .featured-img{min-height:200px;padding:2rem}
+  .nav-links li:not(:last-child){display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">TurnkeyAI <span>Services</span></a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/business.html">Business Sites</a></li>
+    <li><a href="/personal.html">Personal Sites</a></li>
+    <li><a href="/blog.html" style="color:#f59e0b;font-weight:700;">Blog</a></li>
+    <li><a href="/intake.html" class="nav-cta">Get Started</a></li>
+  </ul>
+</nav>
+
+<div class="blog-hero">
+  <div class="section-label">TurnkeyAI Blog</div>
+  <h1>Tips & Insights for Gulf Coast Businesses</h1>
+  <p>Practical strategies to get found online, win more customers, and grow your business — written for the Mississippi Gulf Coast.</p>
+</div>
+
+<div class="blog-container">
+
+  <!-- ═══ FEATURED: WEEK 2 (latest live post) ═══ -->
+  <a href="/blog/website-mistakes-gulf-coast-businesses.html" class="featured-post" style="text-decoration:none;color:inherit;">
+    <div class="featured-img">
+      <div>
+        <div class="week-badge">📅 Week 2 of 12 · NEW</div>
+        <h2>5 Website Mistakes<br><em>Gulf Coast Businesses Make</em></h2>
+      </div>
+    </div>
+    <div class="featured-body">
+      <div class="tag">Small Business</div>
+      <h3>5 Website Mistakes Gulf Coast Businesses Make (And How to Avoid Them)</h3>
+      <p>Your website might be hurting your business without you knowing it. These are the five most common mistakes we see on Gulf Coast business websites — and the fixes that turn visitors into customers.</p>
+      <span class="read-link">Read the Full Post <i class="fas fa-arrow-right"></i></span>
+    </div>
+  </a>
+
+  <!-- ═══ WEEK 1 (previous post, still live) ═══ -->
+  <h2 class="section-heading">Previous Posts</h2>
+  <div class="posts-grid">
+
+    <a href="/blog/gulf-coast-small-business-website-2026.html" class="post-card">
+      <div class="post-card-header">
+        <div class="week-num">Week 1 of 12</div>
+        <h3>Why Every Gulf Coast Small Business Needs a Website in 2026</h3>
+      </div>
+      <div class="post-card-body">
+        <div class="tag">Small Business</div>
+        <p>If someone in Biloxi needs a house cleaner, a plumber in Gulfport, or a dog groomer in Pass Christian, the first thing they do is Google it. If your business isn't showing up, you're invisible.</p>
+        <div class="post-card-footer">
+          <span class="read-link">Read Post</span>
+          <span class="arrow-link">→</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- ═══ COMING SOON ═══ -->
+  <h2 class="section-heading">Coming Up</h2>
+  <div class="posts-grid">
+
+    <div class="post-card coming-soon">
+      <div class="post-card-header"><span class="coming-badge">Coming Soon</span><div class="week-num">Week 3</div><h3>Google Business Profile + Website = More Calls</h3></div>
+      <div class="post-card-body"><div class="tag">SEO</div><p>Your Google Business Profile is one of the most powerful free tools available. Pair it with a real website and you dominate local search.</p></div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-header"><span class="coming-badge">Coming Soon</span><div class="week-num">Week 4</div><h3>What Should Be on Your Small Business Homepage</h3></div>
+      <div class="post-card-body"><div class="tag">Web Design</div><p>Your homepage has 3 seconds to make a first impression. Here's exactly what needs to be above the fold and why.</p></div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-header"><span class="coming-badge">Coming Soon</span><div class="week-num">Week 5</div><h3>How Online Reviews Drive Revenue</h3></div>
+      <div class="post-card-body"><div class="tag">Reputation</div><p>92% of consumers read online reviews before choosing a local business. Here's how to build a 5-star reputation systematically.</p></div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-header"><span class="coming-badge">Coming Soon</span><div class="week-num">Week 6</div><h3>AI Chatbots for Small Business Websites</h3></div>
+      <div class="post-card-body"><div class="tag">AI</div><p>An AI chatbot on your site answers customer questions 24/7, captures leads while you sleep, and costs less than you think.</p></div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-header"><span class="coming-badge">Coming Soon</span><div class="week-num">Week 7</div><h3>Social Media Tips for Gulf Coast Service Businesses</h3></div>
+      <div class="post-card-body"><div class="tag">Social Media</div><p>You don't need to go viral. You need to show up consistently in your community's feed. Here's the simple playbook.</p></div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-header"><span class="coming-badge">Coming Soon</span><div class="week-num">Week 8</div><h3>What Is SEO and Why Should You Care?</h3></div>
+      <div class="post-card-body"><div class="tag">SEO</div><p>SEO isn't magic — it's showing up where your customers are looking. A plain-English breakdown for business owners.</p></div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-header"><span class="coming-badge">Coming Soon</span><div class="week-num">Week 9</div><h3>Your Website Is Your Best Salesperson</h3></div>
+      <div class="post-card-body"><div class="tag">Sales</div><p>A good website works 24/7, never calls in sick, and closes leads while you're on the job. Here's how to build one that sells.</p></div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-header"><span class="coming-badge">Coming Soon</span><div class="week-num">Week 10</div><h3>Email Marketing Basics for Local Businesses</h3></div>
+      <div class="post-card-body"><div class="tag">Marketing</div><p>Email is still the highest-ROI marketing channel. Simple strategies to build a list and stay top of mind.</p></div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-header"><span class="coming-badge">Coming Soon</span><div class="week-num">Week 11</div><h3>Mobile-First Design: Why It Matters More Than Ever</h3></div>
+      <div class="post-card-body"><div class="tag">Web Design</div><p>70% of your visitors are on their phone. If your site doesn't work on mobile, you're losing 7 out of 10 customers.</p></div>
+    </div>
+
+    <div class="post-card coming-soon">
+      <div class="post-card-header"><span class="coming-badge">Coming Soon</span><div class="week-num">Week 12</div><h3>How TurnkeyAI Builds Your Website in 24 Hours</h3></div>
+      <div class="post-card-body"><div class="tag">TurnkeyAI</div><p>A behind-the-scenes look at how we turn a 10-minute form into a professional, live website in under 24 hours.</p></div>
+    </div>
+
+  </div>
+
+  <!-- ═══ SUBSCRIBE BAR ═══ -->
+  <div class="subscribe-bar">
+    <h3>New Post Every Tuesday</h3>
+    <p>Follow along as we publish one new article every week for 12 weeks — all focused on helping Gulf Coast businesses win online.</p>
+    <a href="/intake.html"><i class="fas fa-rocket"></i> Get Your Website Built →</a>
+  </div>
+
+  <!-- ═══ CTA STRIP ═══ -->
+  <div class="cta-strip">
+    <h3>Ready to get your business online?</h3>
+    <p>Fill out our 10-minute intake form and your professional website is live in 24 hours.</p>
+    <a href="/business.html" class="cta-btn">Get Started Today →</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>&copy; 2026 TurnkeyAI Services &middot; Bay St. Louis, Mississippi &middot; <a href="mailto:turnkeyaiservices@gmail.com">turnkeyaiservices@gmail.com</a> &middot; <a href="tel:6039222004">(603) 922-2004</a></p>
+</footer>
+
+</body>
+</html>
