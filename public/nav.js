@@ -23,10 +23,11 @@ function tkNav(activePage) {
     <a href="/index.html" class="tk-logo"><img src="/assets/turnkey_logo.jpg" alt="TurnkeyAI Services"></a>
     <ul class="tk-links">
       <li><a href="/index.html" ${activePage==='home'?'class="active"':''}>Home</a></li>
-      <li><a href="/coming-soon.html" ${activePage==='coming-soon'?'class="active"':''}>Coming Soon</a></li>
-      <li><a href="/references.html" ${activePage==='references'?'class="active"':''}>References</a></li>
-      <li><a href="/about.html" ${activePage==='about'?'class="active"':''}>About Us</a></li>
+      <li><a href="/business.html" ${activePage==='business'?'class="active"':''}>Business Sites</a></li>
+      <li><a href="/personal.html" ${activePage==='personal'?'class="active"':''}>Personal Sites</a></li>
+      <li><a href="/blog.html" ${activePage==='blog'?'class="active"':''}>Blog</a></li>
       <li><a href="/pricing.html" ${activePage==='pricing'?'class="active"':''}>Pricing</a></li>
+      <li><a href="/about.html" ${activePage==='about'?'class="active"':''}>About Us</a></li>
       <li><a href="/intake.html" class="tk-cta">Get Started →</a></li>
     </ul>
     <button id="tk-hamburger" onclick="tkToggleMenu()" aria-label="Menu">
@@ -35,10 +36,11 @@ function tkNav(activePage) {
   </nav>
   <div id="tk-mobile-menu">
     <a href="/index.html" ${activePage==='home'?'class="active"':''}>Home</a>
-    <a href="/coming-soon.html" ${activePage==='coming-soon'?'class="active"':''}>Coming Soon</a>
-    <a href="/references.html" ${activePage==='references'?'class="active"':''}>References</a>
-    <a href="/about.html" ${activePage==='about'?'class="active"':''}>About Us</a>
+    <a href="/business.html" ${activePage==='business'?'class="active"':''}>Business Sites</a>
+    <a href="/personal.html" ${activePage==='personal'?'class="active"':''}>Personal Sites</a>
+    <a href="/blog.html" ${activePage==='blog'?'class="active"':''}>Blog</a>
     <a href="/pricing.html" ${activePage==='pricing'?'class="active"':''}>Pricing</a>
+    <a href="/about.html" ${activePage==='about'?'class="active"':''}>About Us</a>
     <a href="/intake.html" style="color:#00c478;font-weight:700;">Get Started →</a>
   </div>
   `;
