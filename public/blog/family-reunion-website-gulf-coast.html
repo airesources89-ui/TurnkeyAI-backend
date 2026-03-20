@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Reunion Coming Up? Why Your Family Needs Its Own Website | TurnkeyAI Blog</title>
+<meta name="description" content="Planning a family reunion on the Gulf Coast? A dedicated family website makes RSVPs, photos, and coordination effortless — and keeps your family connected long after the event.">
+<meta property="og:title" content="Family Reunion Coming Up? Why Your Family Needs Its Own Website">
+<meta property="og:description" content="Planning a family reunion on the Gulf Coast? A dedicated family website makes RSVPs, photos, and coordination effortless — and keeps your family connected long after the event.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://turnkeyaiservices.com/blog/family-reunion-website-gulf-coast.html">
+<link rel="canonical" href="https://turnkeyaiservices.com/blog/family-reunion-website-gulf-coast.html">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue-deep: #0a1628;
+    --blue-dark: #0f2440;
+    --blue: #1a3a5c;
+    --blue-light: #e8f0fe;
+    --green: #27ae60;
+    --green-dark: #1e8e4e;
+    --amber: #f0a500;
+    --gray-light: #e9ecef;
+    --gray: #6c757d;
+    --dark: #1a1a2e;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Source Sans 3', sans-serif; color: var(--dark); background: #f8f9fa; }
+  a { color: var(--blue); }
+
+  /* NAV */
+  nav {
+    background: var(--blue-deep);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-logo { text-decoration: none; }
+  .nav-logo span { color: white; font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 800; }
+  .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+  .nav-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: color 0.2s; }
+  .nav-links a:hover { color: white; }
+  .nav-cta {
+    background: var(--green) !important;
+    color: white !important;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-weight: 700 !important;
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: var(--green-dark) !important; }
+
+  /* HERO */
+  .post-hero {
+    background: linear-gradient(135deg, var(--blue-deep) 0%, var(--blue) 100%);
+    padding: 4rem 2rem 3rem;
+    text-align: center;
+  }
+  .post-hero-inner { max-width: 800px; margin: 0 auto; }
+  .post-meta-top { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .breadcrumb { color: var(--green); text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+  .breadcrumb:hover { text-decoration: underline; }
+  .breadcrumb-sep { color: rgba(255,255,255,0.3); }
+  .post-category { color: var(--amber); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .post-hero h1 { color: white; font-family: 'Playfair Display', serif; font-size: 2.5rem; line-height: 1.2; margin-bottom: 1.25rem; }
+  .post-hero h1 span { color: var(--amber); }
+  .post-byline { display: flex; gap: 1.5rem; justify-content: center; color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+
+  /* LAYOUT */
+  .post-layout {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 3rem;
+  }
+
+  /* ARTICLE */
+  article {
+    background: white;
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  article p {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: #333;
+    margin-bottom: 1.25rem;
+  }
+  article h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--blue-deep);
+    margin: 2rem 0 0.75rem;
+  }
+
+  /* PULL QUOTE */
+  .pull-quote {
+    border-left: 4px solid var(--green);
+    padding: 1.25rem 1.5rem;
+    margin: 2rem 0;
+    background: var(--blue-light);
+    border-radius: 0 8px 8px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--blue-deep);
+    line-height: 1.6;
+  }
+
+  /* INLINE CTA */
+  .inline-cta {
+    background: linear-gradient(135deg, var(--blue-deep), var(--blue));
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    margin: 2.5rem 0;
+  }
+  .inline-cta p { color: rgba(255,255,255,0.9); font-size: 1.05rem; margin-bottom: 1rem; }
+  .inline-cta a {
+    display: inline-block;
+    background: var(--green);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: background 0.2s;
+  }
+  .inline-cta a:hover { background: var(--green-dark); }
+
+  /* SIDEBAR */
+  aside { display: flex; flex-direction: column; gap: 1.5rem; }
+  .sidebar-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .sidebar-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--blue-deep);
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--green);
+  }
+  .upcoming-link {
+    display: block;
+    text-decoration: none;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--gray-light);
+    transition: background 0.2s;
+  }
+  .upcoming-link:last-child { border-bottom: none; }
+  .upcoming-link:hover { background: var(--blue-light); margin: 0 -0.5rem; padding-left: 0.5rem; padding-right: 0.5rem; border-radius: 6px; }
+  .upcoming-week { display: block; font-size: 0.75rem; color: var(--green); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .upcoming-title { display: block; font-size: 0.9rem; color: var(--dark); font-weight: 600; margin-top: 0.25rem; line-height: 1.35; }
+
+  /* SHARE */
+  .share-row { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
+  .share-btn {
+    flex: 1;
+    padding: 9px;
+    border-radius: 7px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .share-btn:hover { opacity: 0.85; }
+  .share-fb { background: #1877f2; color: white; }
+  .share-copy { background: var(--gray-light); color: var(--dark); cursor: pointer; border: none; font-family: inherit; }
+
+  /* NAV BOTTOM */
+  .post-nav {
+    background: white;
+    border-top: 1px solid var(--gray-light);
+    padding: 1.5rem 2rem;
+  }
+  .post-nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .post-nav a { color: var(--blue); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+  .post-nav a:hover { color: var(--blue-dark); }
+
+  footer { background: var(--blue-deep); color: rgba(255,255,255,0.6); text-align: center; padding: 2rem; font-size: 0.85rem; }
+  footer a { color: var(--green); text-decoration: none; }
+
+  @media (max-width: 768px) {
+    .post-layout { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    article { padding: 1.75rem; }
+    .post-hero h1 { font-size: 1.75rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><span>TurnkeyAI Services</span></a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/business.html">Business Sites</a>
+    <a href="/personal.html">Personal Sites</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/business.html#intake" class="nav-cta">Get Started</a>
+  </div>
+</nav>
+
+<div class="post-hero">
+  <div class="post-hero-inner">
+    <div class="post-meta-top">
+      <a href="/blog.html" class="breadcrumb">&larr; Blog</a>
+      <span class="breadcrumb-sep">/</span>
+      <span class="post-category">Family</span>
+    </div>
+    <h1>Family Reunion Coming Up?<br><span>Why Your Family Needs Its Own Website</span></h1>
+    <div class="post-byline">
+      <span>👨‍👩‍👧‍👦 Week 3 of 12</span>
+      <span>&middot; 3 min read</span>
+      <span>&middot; Gulf Coast, MS</span>
+    </div>
+  </div>
+</div>
+
+<div class="post-layout">
+
+  <article>
+
+    <p>Family reunions on the Gulf Coast are a tradition — crawfish boils in Pass Christian, beach weekends in Biloxi, backyard gatherings in Bay St. Louis. But coordinating 40 or 60 relatives across group texts, email chains, and Facebook threads is a logistical nightmare. There&#x27;s a better way.</p>
+
+    <h2>A Family Website Does the Heavy Lifting</h2>
+    <p>Imagine one link that everyone in the family bookmarks. It has the reunion date, location, schedule, and directions. It has an RSVP form so you know exactly who&#x27;s coming and what they&#x27;re bringing. It has a photo gallery from previous years. And it stays up year after year, growing into your family&#x27;s permanent digital home.</p>
+
+    <h2>More Than Just Reunions</h2>
+    <p>Family websites aren&#x27;t just for reunions. They&#x27;re the place you announce a new baby, share wedding photos, post Grandma&#x27;s recipes before they&#x27;re lost forever, and build a family tree your grandchildren will actually use someday. It becomes a living archive of your family&#x27;s story.</p>
+
+    <h2>Private and Secure</h2>
+    <p>Not everything should be public. TurnkeyAI family sites can be password-protected — only family members with the link and password can access your photos and memories. You get all the convenience of a dedicated site without putting your family&#x27;s private moments on social media.</p>
+
+    <h2>Built in 24 Hours, No Tech Skills Needed</h2>
+    <p>You don&#x27;t need to know anything about websites. Fill out our family intake form — it takes about 10 minutes — tell us about your family, your reunion, and the style you want. We build it overnight. You get a preview link, approve it, and share the link with the whole family.</p>
+
+    <p>Start building your family site today. $29/month and live in 24 hours.</p>
+
+
+    <div class="inline-cta">
+      <p>Start building your family site today. $29/month and live in 24 hours.</p>
+      <a href="/personal.html">Build My Family Site &rarr;</a>
+    </div>
+
+  </article>
+
+  <aside>
+
+    <div class="sidebar-card">
+      <h3>Coming Up</h3>
+      <a href="/blog/gulf-coast-contractors-need-website.html" class="upcoming-link">
+        <span class="upcoming-week">Week 4</span>
+        <span class="upcoming-title">Contractors on the Gulf Coast: Why Your Truck Wrap Isn&#x27;t Enough Anymore</span>
+      </a>
+      <a href="/blog/gulf-coast-crafters-ditch-etsy-own-store.html" class="upcoming-link">
+        <span class="upcoming-week">Week 5</span>
+        <span class="upcoming-title">Selling Handmade Goods on the Gulf Coast? Stop Paying Etsy&#x27;s Fees</span>
+      </a>
+      <a href="/blog/local-seo-bay-st-louis-businesses.html" class="upcoming-link">
+        <span class="upcoming-week">Week 6</span>
+        <span class="upcoming-title">What Is Local SEO and Why Does Every Bay St. Louis Business Need It?</span>
+      </a>
+
+    </div>
+
+    <div class="sidebar-card">
+      <h3>Share This Post</h3>
+      <div class="share-row">
+        <a href="https://www.facebook.com/sharer/sharer.php?u=https://turnkeyaiservices.com/blog/family-reunion-website-gulf-coast.html" target="_blank" class="share-btn share-fb">Share on Facebook</a>
+        <button class="share-btn share-copy" onclick="navigator.clipboard.writeText('https://turnkeyaiservices.com/blog/family-reunion-website-gulf-coast.html');this.textContent='Copied!'">Copy Link</button>
+      </div>
+    </div>
+
+  </aside>
+
+</div>
+
+<div class="post-nav">
+  <div class="post-nav-inner">
+    <a href="/blog.html">&larr; Back to Blog</a>
+    <a href="/personal.html">Build My Family Site &rarr;</a>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2026 TurnkeyAI Services &middot; Bay St. Louis, Mississippi &middot; <a href="mailto:turnkeyaiservices@gmail.com">turnkeyaiservices@gmail.com</a></p>
+</footer>
+
+</body>
+</html>
