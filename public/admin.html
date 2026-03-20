@@ -81,12 +81,33 @@
     .analytics-bar-value { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.7); min-width: 36px; text-align: right; flex-shrink: 0; }
     .analytics-empty { font-size: 13px; color: rgba(255,255,255,.25); text-align: center; padding: 20px 0; }
 
+    /* Activity Analytics Table */
+    .activity-section { padding: 16px 28px 0; }
+    .activity-card { background: #1a1d24; border: 1px solid #2e3240; border-radius: 12px; padding: 20px 24px; }
+    .activity-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+    .activity-title { font-size: 14px; font-weight: 700; color: white; display: flex; align-items: center; gap: 8px; }
+    .activity-filters { display: flex; gap: 6px; }
+    .activity-tab { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #2e3240; background: transparent; color: rgba(255,255,255,.4); transition: all .15s; }
+    .activity-tab.active { background: #0066FF; color: white; border-color: #0066FF; }
+    .activity-tab:hover:not(.active) { border-color: #0066FF; color: white; }
+    .activity-table { width: 100%; border-collapse: collapse; }
+    .activity-table thead { background: #12141a; }
+    .activity-table th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .8px; white-space: nowrap; }
+    .activity-table th.num { text-align: right; }
+    .activity-table td { padding: 10px 14px; font-size: 13px; border-top: 1px solid #22262f; }
+    .activity-table td.num { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .activity-table tr:hover td { background: rgba(255,255,255,.02); }
+    .activity-total { font-weight: 800; color: white; }
+    .activity-zero { color: rgba(255,255,255,.15); }
+    .activity-highlight { color: #00D68F; }
+
     @media (max-width: 900px) {
       .stats { grid-template-columns: 1fr 1fr; }
       .mrr-panel { flex-direction: column; }
       .analytics-grid { grid-template-columns: 1fr; }
       .section { padding: 16px; }
       .topbar { padding: 12px 16px; }
+      .activity-section { padding: 16px; }
     }
   </style>
 </head>
@@ -144,6 +165,24 @@
   </div>
 </div>
 
+<!-- Activity Analytics Section (from analytics_events table) -->
+<div class="activity-section">
+  <div class="activity-card">
+    <div class="activity-header">
+      <div class="activity-title">📡 Client Activity Tracker</div>
+      <div class="activity-filters">
+        <button class="activity-tab" onclick="setActivityDays(7, this)">7d</button>
+        <button class="activity-tab active" onclick="setActivityDays(30, this)">30d</button>
+        <button class="activity-tab" onclick="setActivityDays(90, this)">90d</button>
+        <button class="activity-tab" onclick="setActivityDays(9999, this)">All</button>
+      </div>
+    </div>
+    <div id="activityTableWrap">
+      <div class="analytics-empty">Loading activity data...</div>
+    </div>
+  </div>
+</div>
+
 <!-- T-11: DNS Pending Panel -->
 <div class="section" style="padding-bottom:0;">
   <div class="section-title" style="margin-bottom:12px;">🌐 DNS Pending Tasks</div>
@@ -188,8 +227,8 @@
   const ADMIN_KEY = new URLSearchParams(location.search).get('key') || '';
   let allClients = [];
   let currentFilter = 'all';
+  let activityDays = 30;
 
-  // Plan display names and monthly prices for revenue calc
   const PLAN_META = {
     'website_only':        { label: 'Website Only',        price: 99,  color: '#0066FF' },
     'website_blog':        { label: 'Website + Blog',      price: 129, color: '#00D68F' },
@@ -221,6 +260,7 @@
       renderTable();
       renderDnsPanel(allClients);
       renderAnalytics(allClients);
+      loadActivityAnalytics(activityDays);
       document.getElementById('lastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
     } catch(e) {
       document.getElementById('loadingEl').style.display = 'block';
@@ -228,7 +268,87 @@
     }
   }
 
-  /* ── Analytics ── */
+  /* ── Activity Analytics (from analytics_events table) ── */
+
+  function setActivityDays(days, el) {
+    activityDays = days;
+    document.querySelectorAll('.activity-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    loadActivityAnalytics(days);
+  }
+
+  async function loadActivityAnalytics(days) {
+    try {
+      const res = await fetch(`/api/admin/analytics?adminKey=${ADMIN_KEY}&days=${days}`);
+      if (!res.ok) { document.getElementById('activityTableWrap').innerHTML = '<div class="analytics-empty">Failed to load activity data.</div>'; return; }
+      const data = await res.json();
+      renderActivityTable(data.analytics || [], data.days);
+    } catch(e) {
+      document.getElementById('activityTableWrap').innerHTML = '<div class="analytics-empty">Failed to load activity data.</div>';
+    }
+  }
+
+  function renderActivityTable(analytics, days) {
+    const wrap = document.getElementById('activityTableWrap');
+    if (!analytics.length) {
+      wrap.innerHTML = '<div class="analytics-empty">No activity recorded yet. Events will appear here as client sites get traffic, chats, bookings, and calls.</div>';
+      return;
+    }
+    // Sort by total activity descending
+    analytics.sort((a, b) => {
+      const totalA = a.pageviews + a.chats + a.bookings + a.calls + a.sms;
+      const totalB = b.pageviews + b.chats + b.bookings + b.calls + b.sms;
+      return totalB - totalA;
+    });
+    // Totals row
+    const totals = { pageviews: 0, chats: 0, bookings: 0, calls: 0, sms: 0 };
+    analytics.forEach(r => { totals.pageviews += r.pageviews; totals.chats += r.chats; totals.bookings += r.bookings; totals.calls += r.calls; totals.sms += r.sms; });
+    const grandTotal = totals.pageviews + totals.chats + totals.bookings + totals.calls + totals.sms;
+
+    function cell(val) {
+      if (val === 0) return '<td class="num activity-zero">0</td>';
+      return `<td class="num">${val.toLocaleString()}</td>`;
+    }
+
+    const daysLabel = days >= 9999 ? 'All Time' : `Last ${days} Days`;
+
+    let html = `<div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:10px;">${daysLabel} — ${grandTotal.toLocaleString()} total events across ${analytics.length} source${analytics.length!==1?'s':''}</div>`;
+    html += `<table class="activity-table">
+      <thead><tr>
+        <th>Business</th>
+        <th class="num">👁 Views</th>
+        <th class="num">💬 Chats</th>
+        <th class="num">📅 Bookings</th>
+        <th class="num">📞 Calls</th>
+        <th class="num">📱 SMS</th>
+        <th class="num">Total</th>
+      </tr></thead><tbody>`;
+
+    analytics.forEach(r => {
+      const total = r.pageviews + r.chats + r.bookings + r.calls + r.sms;
+      html += `<tr>
+        <td style="font-weight:600;color:white;">${r.businessName || r.clientId}</td>
+        ${cell(r.pageviews)}${cell(r.chats)}${cell(r.bookings)}${cell(r.calls)}${cell(r.sms)}
+        <td class="num activity-highlight">${total.toLocaleString()}</td>
+      </tr>`;
+    });
+
+    // Totals row
+    html += `<tr style="border-top:2px solid #2e3240;">
+      <td class="activity-total">TOTALS</td>
+      <td class="num activity-total">${totals.pageviews.toLocaleString()}</td>
+      <td class="num activity-total">${totals.chats.toLocaleString()}</td>
+      <td class="num activity-total">${totals.bookings.toLocaleString()}</td>
+      <td class="num activity-total">${totals.calls.toLocaleString()}</td>
+      <td class="num activity-total">${totals.sms.toLocaleString()}</td>
+      <td class="num activity-total activity-highlight">${grandTotal.toLocaleString()}</td>
+    </tr>`;
+
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+  }
+
+  /* ── Business Analytics (from client list data) ── */
 
   function renderAnalytics(clients) {
     renderPlanDistribution(clients);
@@ -317,12 +437,11 @@
     document.getElementById('analyticsIndustry').innerHTML = buildBarHTML(items, max);
   }
 
-  /* ── End Analytics ── */
+  /* ── Stats & Table ── */
 
   function updateStats() {
     const pending = allClients.filter(c => c.status === 'pending').length;
     const active = allClients.filter(c => c.status === 'active').length;
-    const suspended = allClients.filter(c => c.status === 'suspended').length;
     const miniMe = allClients.filter(c => c.wantsMiniMe === 'yes').length;
     document.getElementById('statTotal').textContent = allClients.length;
     document.getElementById('statPending').textContent = pending;
@@ -367,62 +486,53 @@
     document.getElementById('tableBody').innerHTML = data.map(c => {
       const date = c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '–';
       const statusBadge = c.status === 'active'
-        ? `<span class="badge badge-active">✅ Live</span>`
+        ? '<span class="badge badge-active">✅ Live</span>'
         : c.status === 'suspended'
-        ? `<span class="badge badge-suspended">⛔ Suspended</span>`
-        : `<span class="badge badge-pending">⏳ Pending</span>`;
-      const previewUrl = `/preview/${c.previewToken}`;
-      const approveUrl = `/api/approve/${c.id}?adminKey=${ADMIN_KEY}`;
+        ? '<span class="badge badge-suspended">⛔ Suspended</span>'
+        : '<span class="badge badge-pending">⏳ Pending</span>';
+      const previewUrl = '/preview/' + c.previewToken;
+      const approveUrl = '/api/approve/' + c.id + '?adminKey=' + ADMIN_KEY;
       const addons = [];
       if (c.wantsMiniMe === 'yes') addons.push('🤖 Mini-Me');
       if (c.wantsFreeVideo) addons.push('🎬 Video');
       if (c.wantsAfterHours === 'yes') addons.push('📞 After Hrs');
       if (c.wantsMissedCall === 'yes') addons.push('📱 Missed Call');
       if (c.telephonyEnabled) addons.push('📶 Phone Active');
-      const addonHtml = addons.map(a => `<span class="badge badge-yes" style="margin:2px;">${a}</span>`).join('');
+      const addonHtml = addons.map(a => '<span class="badge badge-yes" style="margin:2px;">' + a + '</span>').join('');
 
       let actionBtns = '';
       if (c.status === 'pending') {
-        actionBtns = `<a class="btn btn-preview btn-sm" href="${previewUrl}" target="_blank">👁 Preview</a>
-           <a class="btn btn-approve btn-sm" href="${approveUrl}" onclick="return confirmApprove('${(c.businessName||'').replace(/'/g,"\\'")}')">✅ Approve</a>`;
+        actionBtns = '<a class="btn btn-preview btn-sm" href="' + previewUrl + '" target="_blank">👁 Preview</a>' +
+           '<a class="btn btn-approve btn-sm" href="' + approveUrl + '" onclick="return confirmApprove(\'' + (c.businessName||'').replace(/'/g,"\\'") + '\')">✅ Approve</a>';
       } else if (c.status === 'active') {
-        actionBtns = `<a class="btn btn-preview btn-sm" href="${previewUrl}" target="_blank">👁 Preview</a>
-           <a class="btn btn-live btn-sm" href="${c.liveUrl}" target="_blank">🌐 Live</a>
-           <button class="btn btn-sm" style="background:#0066FF22;color:#60a5fa;border:1px solid #0066FF44;" onclick="redeployClient('${c.id}','${(c.businessName||'').replace(/'/g,"\\'")}')">🔄 Redeploy</button>
-           <button class="btn btn-danger btn-sm" onclick="setClientStatus('${c.id}','suspended','${(c.businessName||'').replace(/'/g,"\\'")}')">⛔ Suspend</button>`;
+        actionBtns = '<a class="btn btn-preview btn-sm" href="' + previewUrl + '" target="_blank">👁 Preview</a>' +
+           '<a class="btn btn-live btn-sm" href="' + c.liveUrl + '" target="_blank">🌐 Live</a>' +
+           '<button class="btn btn-sm" style="background:#0066FF22;color:#60a5fa;border:1px solid #0066FF44;" onclick="redeployClient(\'' + c.id + '\',\'' + (c.businessName||'').replace(/'/g,"\\'") + '\')">🔄 Redeploy</button>' +
+           '<button class="btn btn-danger btn-sm" onclick="setClientStatus(\'' + c.id + '\',\'suspended\',\'' + (c.businessName||'').replace(/'/g,"\\'") + '\')">⛔ Suspend</button>';
       } else if (c.status === 'suspended') {
-        actionBtns = `<button class="btn btn-approve btn-sm" onclick="setClientStatus('${c.id}','active','${(c.businessName||'').replace(/'/g,"\\'")}')">✅ Reactivate</button>`;
+        actionBtns = '<button class="btn btn-approve btn-sm" onclick="setClientStatus(\'' + c.id + '\',\'active\',\'' + (c.businessName||'').replace(/'/g,"\\'") + '\')">✅ Reactivate</button>';
       }
 
-      return `<tr>
-        <td>
-          <div class="biz-name" style="cursor:pointer;text-decoration:underline;" onclick="editClient('${c.id}')">${c.businessName || '–'}</div>
-          <div class="biz-sub">${c.ownerName || ''}</div>
-        </td>
-        <td class="contact-line">
-          <div><a href="mailto:${c.email}">${c.email || '–'}</a></div>
-          <div>${c.phone || '–'}</div>
-        </td>
-        <td>
-          <div style="text-transform:capitalize;">${(c.industry || '').replace(/_/g,' ')}</div>
-          <div class="biz-sub">${c.city || '–'}${c.state ? ', ' + c.state : ''}</div>
-        </td>
-        <td style="color:rgba(255,255,255,.5);font-size:13px;">${date}</td>
-        <td>${statusBadge}${c.status==='active'&&c.dashPassword?`<div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:4px;">PW: ${c.dashPassword}</div>`:''}</td>
-        <td>${addonHtml || '<span style="color:rgba(255,255,255,.2);font-size:12px;">None</span>'}</td>
-        <td><div class="actions">${actionBtns}</div></td>
-      </tr>`;
+      return '<tr>' +
+        '<td><div class="biz-name" style="cursor:pointer;text-decoration:underline;" onclick="editClient(\'' + c.id + '\')">' + (c.businessName || '–') + '</div><div class="biz-sub">' + (c.ownerName || '') + '</div></td>' +
+        '<td class="contact-line"><div><a href="mailto:' + c.email + '">' + (c.email || '–') + '</a></div><div>' + (c.phone || '–') + '</div></td>' +
+        '<td><div style="text-transform:capitalize;">' + (c.industry || '').replace(/_/g,' ') + '</div><div class="biz-sub">' + (c.city || '–') + (c.state ? ', ' + c.state : '') + '</div></td>' +
+        '<td style="color:rgba(255,255,255,.5);font-size:13px;">' + date + '</td>' +
+        '<td>' + statusBadge + (c.status==='active'&&c.dashPassword?'<div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:4px;">PW: '+c.dashPassword+'</div>':'') + '</td>' +
+        '<td>' + (addonHtml || '<span style="color:rgba(255,255,255,.2);font-size:12px;">None</span>') + '</td>' +
+        '<td><div class="actions">' + actionBtns + '</div></td>' +
+        '</tr>';
     }).join('');
   }
 
   function confirmApprove(name) {
-    return confirm(`Approve and deploy ${name}? This sends the client their live URL and dashboard credentials.`);
+    return confirm('Approve and deploy ' + name + '? This sends the client their live URL and dashboard credentials.');
   }
 
   async function redeployClient(id, name) {
-    if (!confirm(`Redeploy ${name}? This regenerates the site and pushes it live.`)) return;
+    if (!confirm('Redeploy ' + name + '? This regenerates the site and pushes it live.')) return;
     try {
-      const res = await fetch(`/api/redeploy/${id}?adminKey=${ADMIN_KEY}`);
+      const res = await fetch('/api/redeploy/' + id + '?adminKey=' + ADMIN_KEY);
       if (res.ok) { showToast('✅ ' + name + ' redeployed!'); loadClients(); }
       else showToast('❌ Redeploy failed', 'error');
     } catch(e) { showToast('❌ Request failed', 'error'); }
@@ -430,12 +540,12 @@
 
   async function setClientStatus(id, newStatus, name) {
     const action = newStatus === 'suspended' ? 'suspend' : 'reactivate';
-    if (!confirm(`${action.charAt(0).toUpperCase()+action.slice(1)} ${name}?`)) return;
+    if (!confirm(action.charAt(0).toUpperCase()+action.slice(1) + ' ' + name + '?')) return;
     try {
       const res = await fetch('/api/admin/set-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
-        body: JSON.stringify({ clientId: id, newStatus })
+        body: JSON.stringify({ clientId: id, newStatus: newStatus })
       });
       const d = await res.json();
       if (d.success) { showToast('✅ ' + name + ' ' + action + 'd'); loadClients(); }
@@ -444,49 +554,47 @@
   }
 
   function editClient(id) {
-    const c = allClients.find(x => x.id === id);
+    const c = allClients.find(function(x){ return x.id === id; });
     if (!c) return;
     const ds = c.domainStatus || {};
     const domainInfo = ds.hasDomain === 'yes'
-      ? `Has domain: ${ds.existingDomain || '—'} @ ${(ds.domainRegistrar||'unknown').replace(/_/g,' ')}${ds.keepExistingEmail==='yes'?' (keep MX)':''}${ds.dnsSetupPreference?' | Setup: '+ds.dnsSetupPreference.replace(/_/g,' '):''}`
+      ? 'Has domain: ' + (ds.existingDomain || '—') + ' @ ' + (ds.domainRegistrar||'unknown').replace(/_/g,' ') + (ds.keepExistingEmail==='yes'?' (keep MX)':'') + (ds.dnsSetupPreference?' | Setup: '+ds.dnsSetupPreference.replace(/_/g,' '):'')
       : ds.hasDomain === 'no'
-      ? `Needs domain: ${ds.suggestedDomain || 'ask client'}`
+      ? 'Needs domain: ' + (ds.suggestedDomain || 'ask client')
       : 'No domain info';
-    const bindDomainBtn = c.status === 'active' && ds.existingDomain
-      ? `<button onclick="bindDomain('${c.id}','${ds.existingDomain}')" class="btn btn-sm" style="margin-top:8px;background:#0066FF;color:white;">🔗 Bind Domain to CF Pages</button>`
-      : c.status === 'active' && ds.suggestedDomain
-      ? `<button onclick="bindDomain('${c.id}','${ds.suggestedDomain}')" class="btn btn-sm" style="margin-top:8px;background:#0066FF;color:white;">🔗 Bind Domain to CF Pages</button>`
+    const bindDomainBtn = c.status === 'active' && (ds.existingDomain || ds.suggestedDomain)
+      ? '<button onclick="bindDomain(\'' + c.id + '\',\'' + (ds.existingDomain||ds.suggestedDomain) + '\')" class="btn btn-sm" style="margin-top:8px;background:#0066FF;color:white;">🔗 Bind Domain to CF Pages</button>'
       : '';
-    document.getElementById('editModal').innerHTML = `
-      <div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9998;display:flex;align-items:center;justify-content:center;padding:24px;" onclick="if(event.target===this)this.style.display='none'">
-        <div style="background:#1a1d24;border:1px solid #2e3240;border-radius:16px;padding:32px;width:100%;max-width:600px;max-height:85vh;overflow-y:auto;color:white;" onclick="event.stopPropagation()">
-          <h2 style="font-size:18px;margin:0 0 20px;font-weight:800;">✏️ Edit: ${c.businessName||'Client'}</h2>
-          <div style="display:grid;gap:12px;">
-            <div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Business Name</label><input id="ed_businessName" value="${(c.businessName||'').replace(/"/g,'&quot;')}" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;"></div>
-            <div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Owner Name</label><input id="ed_ownerName" value="${(c.ownerName||'').replace(/"/g,'&quot;')}" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;"></div>
-            <div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Phone</label><input id="ed_phone" value="${(c.phone||'').replace(/"/g,'&quot;')}" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;"></div>
-            <div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Email</label><input id="ed_email" value="${(c.email||'').replace(/"/g,'&quot;')}" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;"></div>
-            <div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Mission / Tagline</label><input id="ed_missionStatement" value="${(c.missionStatement||'').replace(/"/g,'&quot;')}" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;"></div>
-            <div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">About Us</label><textarea id="ed_aboutUs" rows="3" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;resize:vertical;">${(c.aboutUs||'').replace(/</g,'&lt;')}</textarea></div>
-          </div>
-          <div style="margin-top:16px;padding:12px;background:#12141a;border:1px solid #2e3240;border-radius:10px;">
-            <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:6px;">🌐 Domain/DNS</div>
-            <div style="font-size:13px;color:rgba(255,255,255,.7);">${domainInfo}</div>
-            ${bindDomainBtn}
-          </div>
-          <div style="margin-top:16px;padding:12px;background:#12141a;border:1px solid #2e3240;border-radius:10px;">
-            <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:6px;">📞 Telephony</div>
-            <div style="font-size:13px;color:rgba(255,255,255,.7);">${c.twilioNumber ? 'Twilio: '+c.twilioNumber+' → '+c.forwardingNumber+(c.telephonyEnabled?' ✅ Active':' ⏸ Held') : 'Not provisioned'}</div>
-          </div>
-          <div style="display:flex;gap:10px;margin-top:20px;">
-            <label style="font-size:13px;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:6px;"><input type="checkbox" id="ed_redeploy" ${c.status==='active'?'checked':''}> Redeploy live site after save</label>
-          </div>
-          <div style="display:flex;gap:10px;margin-top:16px;">
-            <button onclick="saveClientEdit('${c.id}')" class="btn btn-approve" style="flex:1;">💾 Save Changes</button>
-            <button onclick="document.getElementById('editModal').innerHTML=''" class="btn btn-live" style="flex:1;">Cancel</button>
-          </div>
-        </div>
-      </div>`;
+    document.getElementById('editModal').innerHTML =
+      '<div style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9998;display:flex;align-items:center;justify-content:center;padding:24px;" onclick="if(event.target===this)this.style.display=\'none\'">' +
+        '<div style="background:#1a1d24;border:1px solid #2e3240;border-radius:16px;padding:32px;width:100%;max-width:600px;max-height:85vh;overflow-y:auto;color:white;" onclick="event.stopPropagation()">' +
+          '<h2 style="font-size:18px;margin:0 0 20px;font-weight:800;">✏️ Edit: ' + (c.businessName||'Client') + '</h2>' +
+          '<div style="display:grid;gap:12px;">' +
+            '<div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Business Name</label><input id="ed_businessName" value="' + (c.businessName||'').replace(/"/g,'&quot;') + '" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;"></div>' +
+            '<div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Owner Name</label><input id="ed_ownerName" value="' + (c.ownerName||'').replace(/"/g,'&quot;') + '" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;"></div>' +
+            '<div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Phone</label><input id="ed_phone" value="' + (c.phone||'').replace(/"/g,'&quot;') + '" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;"></div>' +
+            '<div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Email</label><input id="ed_email" value="' + (c.email||'').replace(/"/g,'&quot;') + '" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;"></div>' +
+            '<div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Mission / Tagline</label><input id="ed_missionStatement" value="' + (c.missionStatement||'').replace(/"/g,'&quot;') + '" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;"></div>' +
+            '<div><label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">About Us</label><textarea id="ed_aboutUs" rows="3" style="width:100%;padding:8px 12px;background:#12141a;border:1px solid #2e3240;border-radius:8px;color:white;font-size:14px;resize:vertical;">' + (c.aboutUs||'').replace(/</g,'&lt;') + '</textarea></div>' +
+          '</div>' +
+          '<div style="margin-top:16px;padding:12px;background:#12141a;border:1px solid #2e3240;border-radius:10px;">' +
+            '<div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:6px;">🌐 Domain/DNS</div>' +
+            '<div style="font-size:13px;color:rgba(255,255,255,.7);">' + domainInfo + '</div>' +
+            bindDomainBtn +
+          '</div>' +
+          '<div style="margin-top:16px;padding:12px;background:#12141a;border:1px solid #2e3240;border-radius:10px;">' +
+            '<div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:6px;">📞 Telephony</div>' +
+            '<div style="font-size:13px;color:rgba(255,255,255,.7);">' + (c.twilioNumber ? 'Twilio: '+c.twilioNumber+' → '+c.forwardingNumber+(c.telephonyEnabled?' ✅ Active':' ⏸ Held') : 'Not provisioned') + '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:10px;margin-top:20px;">' +
+            '<label style="font-size:13px;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:6px;"><input type="checkbox" id="ed_redeploy" ' + (c.status==='active'?'checked':'') + '> Redeploy live site after save</label>' +
+          '</div>' +
+          '<div style="display:flex;gap:10px;margin-top:16px;">' +
+            '<button onclick="saveClientEdit(\'' + c.id + '\')" class="btn btn-approve" style="flex:1;">💾 Save Changes</button>' +
+            '<button onclick="document.getElementById(\'editModal\').innerHTML=\'\'" class="btn btn-live" style="flex:1;">Cancel</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
   }
 
   async function saveClientEdit(id) {
@@ -503,7 +611,7 @@
       const res = await fetch('/api/admin/update-client', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
-        body: JSON.stringify({ clientId: id, fields, redeploy })
+        body: JSON.stringify({ clientId: id, fields: fields, redeploy: redeploy })
       });
       const d = await res.json();
       if (d.success) {
@@ -514,61 +622,58 @@
     } catch(e) { showToast('❌ Request failed', 'error'); }
   }
 
-  function showToast(msg, type='success') {
-    const t = document.createElement('div');
-    t.className = `toast toast-${type}`;
+  function showToast(msg, type) {
+    type = type || 'success';
+    var t = document.createElement('div');
+    t.className = 'toast toast-' + type;
     t.textContent = msg;
     document.body.appendChild(t);
-    setTimeout(() => t.remove(), 4000);
+    setTimeout(function(){ t.remove(); }, 4000);
   }
 
-  // DNS pending tasks panel
   function renderDnsPanel(clients) {
-    const dnsPending = clients.filter(c => c.domainStatus && c.domainStatus.needsDnsAction);
-    const panel = document.getElementById('dnsPendingPanel');
+    var dnsPending = clients.filter(function(c){ return c.domainStatus && c.domainStatus.needsDnsAction; });
+    var panel = document.getElementById('dnsPendingPanel');
     if (!panel) return;
     if (!dnsPending.length) {
       panel.innerHTML = '<p style="color:rgba(255,255,255,.3);font-size:14px;">✅ No pending DNS tasks.</p>';
       return;
     }
-    panel.innerHTML = dnsPending.map(c => {
-      const ds = c.domainStatus;
-      const isExisting = ds.hasDomain === 'yes';
-      const bg = isExisting ? '#2a1f00' : '#0f0f2a';
-      const border = isExisting ? '#f59e0b' : '#6366f1';
-      const bindBtn = c.status === 'active' && (ds.existingDomain || ds.suggestedDomain)
-        ? `<button onclick="bindDomain('${c.id}','${ds.existingDomain||ds.suggestedDomain}')" class="btn btn-sm" style="margin-top:8px;background:#0066FF;color:white;">🔗 Bind Custom Domain to CF Pages</button>`
+    panel.innerHTML = dnsPending.map(function(c) {
+      var ds = c.domainStatus;
+      var isExisting = ds.hasDomain === 'yes';
+      var bg = isExisting ? '#2a1f00' : '#0f0f2a';
+      var border = isExisting ? '#f59e0b' : '#6366f1';
+      var bindBtn = c.status === 'active' && (ds.existingDomain || ds.suggestedDomain)
+        ? '<button onclick="bindDomain(\'' + c.id + '\',\'' + (ds.existingDomain||ds.suggestedDomain) + '\')" class="btn btn-sm" style="margin-top:8px;background:#0066FF;color:white;">🔗 Bind Custom Domain to CF Pages</button>'
         : '';
-      return `<div style="background:${bg};border:1px solid ${border};border-radius:10px;padding:14px 18px;margin-bottom:10px;">
-        <strong style="font-size:14px;color:white;">${c.businessName}</strong> — ${c.ownerName} — <a href="mailto:${c.email}" style="color:#60a5fa;">${c.email}</a><br>
-        <span style="font-size:13px;color:rgba(255,255,255,.6);">
-          ${isExisting
-            ? `🌐 Has domain: <strong>${ds.existingDomain||'—'}</strong> @ ${(ds.domainRegistrar||'unknown').replace(/_/g,' ')} ${ds.keepExistingEmail==='yes'?'⚠️ Keep MX records':''}`
-            : `🆕 Needs domain: <strong>${ds.suggestedDomain||'ask client'}</strong>`}
-        </span>
-        ${bindBtn}
-      </div>`;
+      return '<div style="background:'+bg+';border:1px solid '+border+';border-radius:10px;padding:14px 18px;margin-bottom:10px;">' +
+        '<strong style="font-size:14px;color:white;">' + c.businessName + '</strong> — ' + c.ownerName + ' — <a href="mailto:' + c.email + '" style="color:#60a5fa;">' + c.email + '</a><br>' +
+        '<span style="font-size:13px;color:rgba(255,255,255,.6);">' +
+          (isExisting
+            ? '🌐 Has domain: <strong>' + (ds.existingDomain||'—') + '</strong> @ ' + (ds.domainRegistrar||'unknown').replace(/_/g,' ') + (ds.keepExistingEmail==='yes'?' ⚠️ Keep MX records':'')
+            : '🆕 Needs domain: <strong>' + (ds.suggestedDomain||'ask client') + '</strong>') +
+        '</span>' + bindBtn + '</div>';
     }).join('');
   }
 
   async function bindDomain(clientId, customDomain) {
-    const domain = prompt('Confirm domain to bind:', customDomain);
+    var domain = prompt('Confirm domain to bind:', customDomain);
     if (!domain) return;
     try {
-      const res = await fetch('/api/admin/bind-domain', {
+      var res = await fetch('/api/admin/bind-domain', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY },
-        body: JSON.stringify({ clientId, customDomain: domain })
+        body: JSON.stringify({ clientId: clientId, customDomain: domain })
       });
-      const d = await res.json();
+      var d = await res.json();
       if (d.success) { showToast('✅ Domain bound! ' + d.liveUrl); loadClients(); }
       else showToast('❌ ' + (d.error || JSON.stringify(d.details)), 'error');
     } catch(e) { showToast('❌ Request failed', 'error'); }
   }
 
-  // Auto-refresh every 60 seconds
   loadClients();
-  setInterval(() => loadClients(true), 60000);
+  setInterval(function(){ loadClients(true); }, 60000);
 </script>
 
 <div id="editModal"></div>
