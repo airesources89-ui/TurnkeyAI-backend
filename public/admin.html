@@ -70,9 +70,21 @@
     .search-input { background: #12141a; border: 1px solid #2e3240; border-radius: 8px; padding: 8px 14px; color: white; font-size: 14px; font-family: inherit; outline: none; width: 220px; }
     .search-input:focus { border-color: #0066FF; }
 
+    /* Analytics Section */
+    .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px 28px 0; }
+    .analytics-card { background: #1a1d24; border: 1px solid #2e3240; border-radius: 12px; padding: 20px 24px; }
+    .analytics-card-title { font-size: 13px; font-weight: 700; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 16px; }
+    .analytics-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .analytics-bar-label { font-size: 12px; color: rgba(255,255,255,.55); min-width: 110px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .analytics-bar-track { flex: 1; height: 22px; background: #12141a; border-radius: 6px; overflow: hidden; position: relative; }
+    .analytics-bar-fill { height: 100%; border-radius: 6px; transition: width .4s ease; min-width: 2px; }
+    .analytics-bar-value { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.7); min-width: 36px; text-align: right; flex-shrink: 0; }
+    .analytics-empty { font-size: 13px; color: rgba(255,255,255,.25); text-align: center; padding: 20px 0; }
+
     @media (max-width: 900px) {
       .stats { grid-template-columns: 1fr 1fr; }
       .mrr-panel { flex-direction: column; }
+      .analytics-grid { grid-template-columns: 1fr; }
       .section { padding: 16px; }
       .topbar { padding: 12px 16px; }
     }
@@ -109,6 +121,26 @@
   <div class="stat-card" style="min-width:140px;">
     <div class="stat-label">Avg Per Client</div>
     <div class="stat-value yellow" id="mrrAvg">$–</div>
+  </div>
+</div>
+
+<!-- Analytics Section -->
+<div class="analytics-grid">
+  <div class="analytics-card">
+    <div class="analytics-card-title">📊 Plan Distribution</div>
+    <div id="analyticsPlanDist"></div>
+  </div>
+  <div class="analytics-card">
+    <div class="analytics-card-title">💰 Revenue by Plan</div>
+    <div id="analyticsRevByPlan"></div>
+  </div>
+  <div class="analytics-card">
+    <div class="analytics-card-title">📈 Client Growth (Last 6 Months)</div>
+    <div id="analyticsGrowth"></div>
+  </div>
+  <div class="analytics-card">
+    <div class="analytics-card-title">🏢 Top Industries</div>
+    <div id="analyticsIndustry"></div>
   </div>
 </div>
 
@@ -157,6 +189,15 @@
   let allClients = [];
   let currentFilter = 'all';
 
+  // Plan display names and monthly prices for revenue calc
+  const PLAN_META = {
+    'website_only':        { label: 'Website Only',        price: 99,  color: '#0066FF' },
+    'website_blog':        { label: 'Website + Blog',      price: 129, color: '#00D68F' },
+    'website_blog_social': { label: 'Web + Blog + Social', price: 159, color: '#f59e0b' },
+    'full_package':        { label: 'Full Package',        price: 218, color: '#a855f7' },
+  };
+  const PLAN_DEFAULT_COLOR = '#60a5fa';
+
   async function loadClients(silent = false) {
     if (!silent) {
       document.getElementById('loadingEl').style.display = 'block';
@@ -179,12 +220,104 @@
       updateStats();
       renderTable();
       renderDnsPanel(allClients);
+      renderAnalytics(allClients);
       document.getElementById('lastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
     } catch(e) {
       document.getElementById('loadingEl').style.display = 'block';
       document.getElementById('loadingEl').innerHTML = '<div style="color:#ef4444;">Failed to load. Check your connection.</div>';
     }
   }
+
+  /* ── Analytics ── */
+
+  function renderAnalytics(clients) {
+    renderPlanDistribution(clients);
+    renderRevenueByPlan(clients);
+    renderGrowthTimeline(clients);
+    renderIndustryBreakdown(clients);
+  }
+
+  function buildBarHTML(items, maxVal) {
+    if (!items.length) return '<div class="analytics-empty">No data yet</div>';
+    return items.map(item => {
+      const pct = maxVal > 0 ? Math.round((item.value / maxVal) * 100) : 0;
+      return `<div class="analytics-bar-row">
+        <div class="analytics-bar-label" title="${item.label}">${item.label}</div>
+        <div class="analytics-bar-track">
+          <div class="analytics-bar-fill" style="width:${Math.max(pct, 2)}%;background:${item.color || '#0066FF'};"></div>
+        </div>
+        <div class="analytics-bar-value">${item.display || item.value}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderPlanDistribution(clients) {
+    const counts = {};
+    clients.forEach(c => {
+      const key = c.plan || 'unknown';
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    const items = Object.entries(counts).map(([key, val]) => {
+      const meta = PLAN_META[key] || { label: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), color: PLAN_DEFAULT_COLOR };
+      return { label: meta.label, value: val, color: meta.color };
+    }).sort((a, b) => b.value - a.value);
+    const max = items.length ? Math.max(...items.map(i => i.value)) : 0;
+    document.getElementById('analyticsPlanDist').innerHTML = buildBarHTML(items, max);
+  }
+
+  function renderRevenueByPlan(clients) {
+    const rev = {};
+    clients.filter(c => c.status === 'active').forEach(c => {
+      const key = c.plan || 'unknown';
+      const meta = PLAN_META[key];
+      const price = meta ? meta.price : 0;
+      rev[key] = (rev[key] || 0) + price;
+    });
+    const items = Object.entries(rev).map(([key, val]) => {
+      const meta = PLAN_META[key] || { label: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), color: PLAN_DEFAULT_COLOR };
+      return { label: meta.label, value: val, display: '$' + val.toLocaleString(), color: meta.color };
+    }).sort((a, b) => b.value - a.value);
+    const max = items.length ? Math.max(...items.map(i => i.value)) : 0;
+    document.getElementById('analyticsRevByPlan').innerHTML = buildBarHTML(items, max);
+  }
+
+  function renderGrowthTimeline(clients) {
+    const now = new Date();
+    const months = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push({ year: d.getFullYear(), month: d.getMonth(), label: d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }) });
+    }
+    const counts = months.map(m => {
+      const count = clients.filter(c => {
+        if (!c.createdAt) return false;
+        const cd = new Date(c.createdAt);
+        return cd.getFullYear() === m.year && cd.getMonth() === m.month;
+      }).length;
+      return { label: m.label, value: count, color: '#00D68F' };
+    });
+    const max = Math.max(...counts.map(i => i.value), 1);
+    document.getElementById('analyticsGrowth').innerHTML = buildBarHTML(counts, max);
+  }
+
+  function renderIndustryBreakdown(clients) {
+    const counts = {};
+    clients.forEach(c => {
+      const key = c.industry || 'unknown';
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    const colors = ['#0066FF', '#00D68F', '#f59e0b', '#a855f7', '#ef4444', '#60a5fa', '#34d399', '#fb923c'];
+    const items = sorted.map(([key, val], i) => ({
+      label: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      value: val,
+      color: colors[i % colors.length]
+    }));
+    const max = items.length ? Math.max(...items.map(i => i.value)) : 0;
+    document.getElementById('analyticsIndustry').innerHTML = buildBarHTML(items, max);
+  }
+
+  /* ── End Analytics ── */
 
   function updateStats() {
     const pending = allClients.filter(c => c.status === 'pending').length;
