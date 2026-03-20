@@ -7,7 +7,7 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
-const { clients, saveClient } = require('../lib/db');
+const { clients, pool, saveClient } = require('../lib/db');
 const { validate } = require('../lib/helpers');
 const { sendEmail, ADMIN_EMAIL, sendMiniMeEmail, sendFreeVideoEmail } = require('../lib/email');
 const { runDeploy, redeployLive, deployToCloudflarePages } = require('../lib/deploy');
@@ -29,8 +29,44 @@ router.post('/api/client-auth', async (req, res) => {
     businessName: client.data.businessName, status: client.status, liveUrl: client.liveUrl,
     data: client.data, miniMeConsent: client.miniMeConsent || false,
     miniMeVideoUrl: client.miniMeVideoFile || null, freeVideoRequested: client.freeVideoRequested || false,
-    twilioNumber: client.twilioNumber || null, telephonyEnabled: client.telephonyEnabled || false
+    twilioNumber: client.twilioNumber || null, telephonyEnabled: client.telephonyEnabled || false,
+    clientId: client.id
   });
+});
+
+// ── POST /api/client-analytics ──
+router.post('/api/client-analytics', async (req, res) => {
+  const { token, password, days } = req.body;
+  if (!token || !password) return res.status(400).json({ error: 'Missing credentials' });
+  const client = Object.values(clients).find(c => c.dashToken === token);
+  if (!client) return res.status(404).json({ error: 'Not found' });
+  if (client.dashPassword !== password.trim().toUpperCase()) return res.status(401).json({ error: 'Wrong password' });
+  try {
+    const d = parseInt(days) || 30;
+    const dateFilter = (d > 0 && d < 9999) ? `AND created_at >= NOW() - INTERVAL '${d} days'` : '';
+    const result = await pool.query(`
+      SELECT
+        COUNT(*) FILTER (WHERE event_type = 'pageview') AS pageviews,
+        COUNT(*) FILTER (WHERE event_type = 'chat') AS chats,
+        COUNT(*) FILTER (WHERE event_type = 'booking') AS bookings,
+        COUNT(*) FILTER (WHERE event_type = 'call') AS calls,
+        COUNT(*) FILTER (WHERE event_type = 'sms') AS sms
+      FROM analytics_events
+      WHERE client_id = $1 ${dateFilter}
+    `, [client.id]);
+    const row = result.rows[0] || {};
+    res.json({
+      pageviews: parseInt(row.pageviews) || 0,
+      chats: parseInt(row.chats) || 0,
+      bookings: parseInt(row.bookings) || 0,
+      calls: parseInt(row.calls) || 0,
+      sms: parseInt(row.sms) || 0,
+      days: d
+    });
+  } catch(err) {
+    console.error('[/api/client-analytics]', err);
+    res.json({ pageviews: 0, chats: 0, bookings: 0, calls: 0, sms: 0, days: 30 });
+  }
 });
 
 // ── POST /api/client-update ──
