@@ -192,7 +192,7 @@
   }
   .read-link:hover { gap: 12px; }
 
-  /* COMING SOON GRID */
+  /* POST GRID */
   .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
 
   .post-card {
@@ -204,7 +204,6 @@
     flex-direction: column;
     position: relative;
   }
-  /* Live cards get hover */
   .post-card.live {
     text-decoration: none;
     color: inherit;
@@ -212,8 +211,6 @@
     cursor: pointer;
   }
   .post-card.live:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(26,31,92,0.12); }
-
-  /* Coming soon cards are dimmed */
   .post-card.coming-soon { opacity: 0.55; cursor: default; }
 
   .post-card-image {
@@ -353,6 +350,9 @@
   footer { background: var(--blue-deep); color: rgba(255,255,255,0.6); text-align: center; padding: 2rem; font-size: 0.85rem; }
   footer a { color: var(--green); text-decoration: none; }
 
+  /* Hide sections when empty */
+  .section-hidden { display: none; }
+
   @media (max-width: 768px) {
     .featured-post { grid-template-columns: 1fr; }
     .featured-image { min-height: 180px; }
@@ -382,202 +382,27 @@
 <div class="blog-hero">
   <div class="blog-hero-tag">Gulf Coast Insights</div>
   <h1>Grow Your Business.<br><span>Get Found Online.</span></h1>
-  <p>Tips, guides, and local insights for Gulf Coast small businesses, families, and creators — published every Tuesday.</p>
+  <p>Tips, guides, and local insights for Gulf Coast small businesses, families, and creators — published every Thursday.</p>
 </div>
 
 <div class="blog-container">
 
-  <!-- FEATURED - LIVE POST -->
+  <!-- FEATURED POST — rendered by JS -->
   <div class="section-label"><span>This Week</span></div>
+  <div id="featured-area"></div>
 
-  <a href="/blog/gulf-coast-small-business-website-2026.html" class="featured-post">
-    <div class="featured-image">
-      <div class="featured-image-icon">🌊</div>
-    </div>
-    <div class="featured-content">
-      <div class="post-badge"><span class="live-dot"></span>&nbsp; Live Now · Week 1</div>
-      <h2>Why Every Gulf Coast Small Business Needs a Website in 2026</h2>
-      <p>If your Bay St. Louis, Biloxi, or Gulfport business doesn't have a website, you're invisible to customers searching online. Here's what you're missing — and how to fix it fast.</p>
-      <span class="read-link">Read the full post →</span>
-    </div>
-  </a>
+  <!-- PREVIOUS POSTS — rendered by JS -->
+  <div id="previous-label" class="section-label section-hidden"><span>Previous Posts</span></div>
+  <div id="previous-area" class="posts-grid"></div>
 
-  <!-- COMING SOON GRID -->
-  <div class="section-label"><span>Coming Up — New Post Every Tuesday</span></div>
-
-  <div class="posts-grid">
-
-    <div class="post-card coming-soon">
-      <div class="post-card-image bg-2">
-        🧹
-        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 2</span></div>
-      </div>
-      <div class="post-card-body">
-        <div class="post-publish-date">Publishes next Tuesday</div>
-        <h3>House Cleaners in Biloxi and Gulfport: How to Get More Customers Without Paying for Ads</h3>
-        <p>How cleaning companies on the Gulf Coast are winning new customers with local SEO — no expensive ads required.</p>
-        <div class="post-card-footer">
-          <span class="post-tag tag-business">Small Business</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="post-card coming-soon">
-      <div class="post-card-image bg-3">
-        👨‍👩‍👧‍👦
-        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 3</span></div>
-      </div>
-      <div class="post-card-body">
-        <div class="post-publish-date">2 weeks away</div>
-        <h3>Family Reunion Coming Up? Why Your Family Needs Its Own Website</h3>
-        <p>A dedicated family website makes RSVPs, photos, and coordination effortless — and keeps your family connected long after the event.</p>
-        <div class="post-card-footer">
-          <span class="post-tag tag-family">Family</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="post-card coming-soon">
-      <div class="post-card-image bg-4">
-        🔨
-        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 4</span></div>
-      </div>
-      <div class="post-card-body">
-        <div class="post-publish-date">3 weeks away</div>
-        <h3>Contractors on the Gulf Coast: Why Your Truck Wrap Isn't Enough Anymore</h3>
-        <p>Contractors in Biloxi, Gulfport, and Bay St. Louis are losing jobs to competitors with better websites.</p>
-        <div class="post-card-footer">
-          <span class="post-tag tag-business">Small Business</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="post-card coming-soon">
-      <div class="post-card-image bg-5">
-        🎨
-        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 5</span></div>
-      </div>
-      <div class="post-card-body">
-        <div class="post-publish-date">4 weeks away</div>
-        <h3>Selling Handmade Goods on the Gulf Coast? Stop Paying Etsy's Fees</h3>
-        <p>Gulf Coast crafters are leaving Etsy and opening their own stores — keeping 90% of every sale.</p>
-        <div class="post-card-footer">
-          <span class="post-tag tag-crafters">Crafters</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="post-card coming-soon">
-      <div class="post-card-image bg-6">
-        📍
-        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 6</span></div>
-      </div>
-      <div class="post-card-body">
-        <div class="post-publish-date">5 weeks away</div>
-        <h3>What Is Local SEO and Why Does Every Bay St. Louis Business Need It?</h3>
-        <p>Plain-English breakdown of what local SEO is and how it gets your business found on Google.</p>
-        <div class="post-card-footer">
-          <span class="post-tag tag-seo">SEO</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="post-card coming-soon">
-      <div class="post-card-image bg-7">
-        🍳
-        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 7</span></div>
-      </div>
-      <div class="post-card-body">
-        <div class="post-publish-date">6 weeks away</div>
-        <h3>Mississippi Recipe Creators: Turn Your Family Recipes Into Income</h3>
-        <p>Mississippi home cooks are building audiences and earning real income from their recipes online.</p>
-        <div class="post-card-footer">
-          <span class="post-tag tag-food">Food & Recipes</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="post-card coming-soon">
-      <div class="post-card-image bg-8">
-        💇
-        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 8</span></div>
-      </div>
-      <div class="post-card-body">
-        <div class="post-publish-date">7 weeks away</div>
-        <h3>Why Gulf Coast Salons and Spas Are Losing Appointments to Competitors With Better Websites</h3>
-        <p>Salons in Biloxi, Gulfport, and Pass Christian are watching customers book with competitors online.</p>
-        <div class="post-card-footer">
-          <span class="post-tag tag-business">Small Business</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="post-card coming-soon">
-      <div class="post-card-image bg-9">
-        💰
-        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 9</span></div>
-      </div>
-      <div class="post-card-body">
-        <div class="post-publish-date">8 weeks away</div>
-        <h3>How a $99/Month Website Pays for Itself With One New Customer</h3>
-        <p>The simple math showing how a single new customer each month makes your TurnkeyAI site pay for itself.</p>
-        <div class="post-card-footer">
-          <span class="post-tag tag-roi">ROI</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="post-card coming-soon">
-      <div class="post-card-image bg-10">
-        📷
-        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 10</span></div>
-      </div>
-      <div class="post-card-body">
-        <div class="post-publish-date">9 weeks away</div>
-        <h3>Preserving Family History on the Gulf Coast: The Digital Archive Every Family Should Build</h3>
-        <p>Gulf Coast families are using family websites to preserve stories and photos before they're lost forever.</p>
-        <div class="post-card-footer">
-          <span class="post-tag tag-family">Family</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="post-card coming-soon">
-      <div class="post-card-image bg-11">
-        🦐
-        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 11</span></div>
-      </div>
-      <div class="post-card-body">
-        <div class="post-publish-date">10 weeks away</div>
-        <h3>Restaurants and Food Businesses on the Gulf Coast: Your Menu Belongs Online</h3>
-        <p>Gulf Coast restaurants without a website are losing customers every day to competitors who are easy to find online.</p>
-        <div class="post-card-footer">
-          <span class="post-tag tag-food">Food</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="post-card coming-soon">
-      <div class="post-card-image bg-1">
-        🔑
-        <div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week 12</span></div>
-      </div>
-      <div class="post-card-body">
-        <div class="post-publish-date">11 weeks away</div>
-        <h3>What Makes TurnkeyAI Different From Every Other Website Builder</h3>
-        <p>Wix, Squarespace, and GoDaddy put the work on you. TurnkeyAI does it all — in 24 hours, from a simple form.</p>
-        <div class="post-card-footer">
-          <span class="post-tag tag-business">TurnkeyAI</span>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- end posts-grid -->
+  <!-- COMING SOON — rendered by JS -->
+  <div id="coming-label" class="section-label section-hidden"><span>Coming Up — New Post Every Thursday</span></div>
+  <div id="coming-area" class="posts-grid"></div>
 
   <!-- SUBSCRIBE -->
   <div class="subscribe-bar">
     <div>
-      <h4>Get new posts in your inbox every Tuesday</h4>
+      <h4>Get new posts in your inbox every Thursday</h4>
       <p>Gulf Coast business tips, local SEO guides, and platform updates — no spam, ever.</p>
     </div>
     <div class="subscribe-form">
@@ -596,8 +421,249 @@
 </div>
 
 <footer>
-  <p>© 2026 TurnkeyAI Services · Bay St. Louis, Mississippi · <a href="tel:6039222004">(603) 922-2004</a> · <a href="mailto:turnkeyaiservices@gmail.com">turnkeyaiservices@gmail.com</a></p>
+  <p>&copy; 2026 TurnkeyAI Services &middot; Bay St. Louis, Mississippi &middot; <a href="tel:6039222004">(603) 922-2004</a> &middot; <a href="mailto:turnkeyaiservices@gmail.com">turnkeyaiservices@gmail.com</a></p>
 </footer>
+
+<script>
+(function() {
+  // ═══════════════════════════════════════════════
+  // BLOG POST DATA — All 12 weeks + bonus
+  // ═══════════════════════════════════════════════
+  var WEEK1_DATE = new Date(2026, 2, 5); // March 5, 2026 (Thursday) — Week 1 anchor
+
+  var posts = [
+    {
+      week: 1,
+      icon: '🌊',
+      bg: 'bg-1',
+      title: 'Why Every Gulf Coast Small Business Needs a Website in 2026',
+      desc: "If your Bay St. Louis, Biloxi, or Gulfport business doesn't have a website, you're invisible to customers searching online. Here's what you're missing — and how to fix it fast.",
+      tag: 'Small Business',
+      tagClass: 'tag-business',
+      url: '/blog/gulf-coast-small-business-website-2026.html'
+    },
+    {
+      week: 2,
+      icon: '🧹',
+      bg: 'bg-2',
+      title: 'House Cleaners in Biloxi and Gulfport: How to Get More Customers Without Paying for Ads',
+      desc: 'How cleaning companies on the Gulf Coast are winning new customers with local SEO — no expensive ads required.',
+      tag: 'Small Business',
+      tagClass: 'tag-business',
+      url: '/blog/house-cleaners-biloxi-gulfport-more-customers.html'
+    },
+    {
+      week: 3,
+      icon: '👨‍👩‍👧‍👦',
+      bg: 'bg-3',
+      title: 'Family Reunion Coming Up? Why Your Family Needs Its Own Website',
+      desc: 'A dedicated family website makes RSVPs, photos, and coordination effortless — and keeps your family connected long after the event.',
+      tag: 'Family',
+      tagClass: 'tag-family',
+      url: '/blog/family-reunion-website.html'
+    },
+    {
+      week: 4,
+      icon: '🔨',
+      bg: 'bg-4',
+      title: "Contractors on the Gulf Coast: Why Your Truck Wrap Isn't Enough Anymore",
+      desc: 'Contractors in Biloxi, Gulfport, and Bay St. Louis are losing jobs to competitors with better websites.',
+      tag: 'Small Business',
+      tagClass: 'tag-business',
+      url: '/blog/contractors-gulf-coast-websites.html'
+    },
+    {
+      week: 5,
+      icon: '🎨',
+      bg: 'bg-5',
+      title: "Selling Handmade Goods on the Gulf Coast? Stop Paying Etsy's Fees",
+      desc: 'Gulf Coast crafters are leaving Etsy and opening their own stores — keeping 90% of every sale.',
+      tag: 'Crafters',
+      tagClass: 'tag-crafters',
+      url: '/blog/handmade-goods-gulf-coast-etsy.html'
+    },
+    {
+      week: 6,
+      icon: '📍',
+      bg: 'bg-6',
+      title: 'What Is Local SEO and Why Does Every Bay St. Louis Business Need It?',
+      desc: 'Plain-English breakdown of what local SEO is and how it gets your business found on Google.',
+      tag: 'SEO',
+      tagClass: 'tag-seo',
+      url: '/blog/local-seo-bay-st-louis.html'
+    },
+    {
+      week: 7,
+      icon: '🍳',
+      bg: 'bg-7',
+      title: 'Mississippi Recipe Creators: Turn Your Family Recipes Into Income',
+      desc: 'Mississippi home cooks are building audiences and earning real income from their recipes online.',
+      tag: 'Food & Recipes',
+      tagClass: 'tag-food',
+      url: '/blog/mississippi-recipe-creators-income.html'
+    },
+    {
+      week: 8,
+      icon: '💇',
+      bg: 'bg-8',
+      title: 'Why Gulf Coast Salons and Spas Are Losing Appointments to Competitors With Better Websites',
+      desc: 'Salons in Biloxi, Gulfport, and Pass Christian are watching customers book with competitors online.',
+      tag: 'Small Business',
+      tagClass: 'tag-business',
+      url: '/blog/gulf-coast-salons-spas-websites.html'
+    },
+    {
+      week: 9,
+      icon: '💰',
+      bg: 'bg-9',
+      title: 'How a $99/Month Website Pays for Itself With One New Customer',
+      desc: 'The simple math showing how a single new customer each month makes your TurnkeyAI site pay for itself.',
+      tag: 'ROI',
+      tagClass: 'tag-roi',
+      url: '/blog/website-pays-for-itself.html'
+    },
+    {
+      week: 10,
+      icon: '📷',
+      bg: 'bg-10',
+      title: 'Preserving Family History on the Gulf Coast: The Digital Archive Every Family Should Build',
+      desc: 'Gulf Coast families are using family websites to preserve stories and photos before they\'re lost forever.',
+      tag: 'Family',
+      tagClass: 'tag-family',
+      url: '/blog/preserving-family-history-gulf-coast.html'
+    },
+    {
+      week: 11,
+      icon: '🦐',
+      bg: 'bg-11',
+      title: 'Restaurants and Food Businesses on the Gulf Coast: Your Menu Belongs Online',
+      desc: 'Gulf Coast restaurants without a website are losing customers every day to competitors who are easy to find online.',
+      tag: 'Food',
+      tagClass: 'tag-food',
+      url: '/blog/gulf-coast-restaurants-menu-online.html'
+    },
+    {
+      week: 12,
+      icon: '🔑',
+      bg: 'bg-1',
+      title: 'What Makes TurnkeyAI Different From Every Other Website Builder',
+      desc: 'Wix, Squarespace, and GoDaddy put the work on you. TurnkeyAI does it all — in 24 hours, from a simple form.',
+      tag: 'TurnkeyAI',
+      tagClass: 'tag-business',
+      url: '/blog/turnkeyai-different-from-website-builders.html'
+    }
+  ];
+
+  // ═══════════════════════════════════════════════
+  // CALCULATE CURRENT WEEK
+  // ═══════════════════════════════════════════════
+  var now = new Date();
+  var msPerWeek = 7 * 24 * 60 * 60 * 1000;
+  var elapsed = now.getTime() - WEEK1_DATE.getTime();
+  var currentWeek = Math.floor(elapsed / msPerWeek) + 1;
+  if (currentWeek < 1) currentWeek = 1;
+  if (currentWeek > 12) currentWeek = 12;
+
+  // Split posts into live, previous, and coming soon
+  var livePosts = posts.filter(function(p) { return p.week <= currentWeek; });
+  var comingPosts = posts.filter(function(p) { return p.week > currentWeek; });
+
+  // Featured = latest live post; Previous = all earlier live posts (newest first)
+  var featured = livePosts[livePosts.length - 1];
+  var previous = livePosts.slice(0, livePosts.length - 1).reverse();
+
+  // ═══════════════════════════════════════════════
+  // HELPER: format date for a given week number
+  // ═══════════════════════════════════════════════
+  function weekDate(weekNum) {
+    var d = new Date(WEEK1_DATE.getTime() + (weekNum - 1) * msPerWeek);
+    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  }
+
+  function weeksUntil(weekNum) {
+    var diff = weekNum - currentWeek;
+    if (diff === 1) return 'Publishes next Thursday';
+    return diff + ' weeks away';
+  }
+
+  // ═══════════════════════════════════════════════
+  // RENDER FEATURED POST
+  // ═══════════════════════════════════════════════
+  var featuredArea = document.getElementById('featured-area');
+  featuredArea.innerHTML =
+    '<a href="' + featured.url + '" class="featured-post">' +
+      '<div class="featured-image">' +
+        '<div class="featured-image-icon">' + featured.icon + '</div>' +
+      '</div>' +
+      '<div class="featured-content">' +
+        '<div class="post-badge"><span class="live-dot"></span>&nbsp; Live Now · Week ' + featured.week + '</div>' +
+        '<h2>' + featured.title + '</h2>' +
+        '<p>' + featured.desc + '</p>' +
+        '<span class="read-link">Read the full post →</span>' +
+      '</div>' +
+    '</a>';
+
+  // ═══════════════════════════════════════════════
+  // RENDER PREVIOUS POSTS
+  // ═══════════════════════════════════════════════
+  var previousLabel = document.getElementById('previous-label');
+  var previousArea = document.getElementById('previous-area');
+
+  if (previous.length > 0) {
+    previousLabel.classList.remove('section-hidden');
+    var prevHTML = '';
+    for (var i = 0; i < previous.length; i++) {
+      var p = previous[i];
+      prevHTML +=
+        '<a href="' + p.url + '" class="post-card live">' +
+          '<div class="post-card-image ' + p.bg + '">' + p.icon + '</div>' +
+          '<div class="post-card-body">' +
+            '<div class="post-publish-date">Published ' + weekDate(p.week) + '</div>' +
+            '<h3>' + p.title + '</h3>' +
+            '<p>' + p.desc + '</p>' +
+            '<div class="post-card-footer">' +
+              '<span class="post-tag ' + p.tagClass + '">' + p.tag + '</span>' +
+              '<span class="arrow-link">→</span>' +
+            '</div>' +
+          '</div>' +
+        '</a>';
+    }
+    previousArea.innerHTML = prevHTML;
+  }
+
+  // ═══════════════════════════════════════════════
+  // RENDER COMING SOON
+  // ═══════════════════════════════════════════════
+  var comingLabel = document.getElementById('coming-label');
+  var comingArea = document.getElementById('coming-area');
+
+  if (comingPosts.length > 0) {
+    comingLabel.classList.remove('section-hidden');
+    var comingHTML = '';
+    for (var j = 0; j < comingPosts.length; j++) {
+      var c = comingPosts[j];
+      comingHTML +=
+        '<div class="post-card coming-soon">' +
+          '<div class="post-card-image ' + c.bg + '">' +
+            c.icon +
+            '<div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week ' + c.week + '</span></div>' +
+          '</div>' +
+          '<div class="post-card-body">' +
+            '<div class="post-publish-date">' + weeksUntil(c.week) + '</div>' +
+            '<h3>' + c.title + '</h3>' +
+            '<p>' + c.desc + '</p>' +
+            '<div class="post-card-footer">' +
+              '<span class="post-tag ' + c.tagClass + '">' + c.tag + '</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }
+    comingArea.innerHTML = comingHTML;
+  }
+
+})();
+</script>
 
 </body>
 </html>
