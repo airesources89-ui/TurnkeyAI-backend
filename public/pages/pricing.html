@@ -11,7 +11,6 @@
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'DM Sans',sans-serif;background:#080e1c;color:#e2e8f0;padding-top:64px;}
-    /* NAV */
     .site-nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,14,28,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;}
     .site-nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:white;text-decoration:none;letter-spacing:2px;}
     .site-nav-logo span{color:#f59e0b;}
@@ -22,7 +21,6 @@
     .site-nav-cta{background:#f59e0b;color:#1c0a00;padding:0.5rem 1.2rem;border-radius:8px;font-weight:700;font-size:0.85rem;text-decoration:none;}
     .site-nav-cta:hover{background:#d97706;}
     @media(max-width:768px){.site-nav-links{display:none;}}
-    /* HERO */
     .price-hero{background:linear-gradient(160deg,#080e1c 0%,#0d1a35 60%,#0a100a 100%);padding:5rem 1.5rem 3rem;text-align:center;position:relative;}
     .price-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(245,158,11,0.08) 0%,transparent 65%);}
     .price-label{display:inline-flex;align-items:center;gap:.5rem;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.4rem 1rem;border-radius:50px;margin-bottom:1.2rem;}
@@ -30,7 +28,6 @@
     .price-hero h1 span{color:#f59e0b;}
     .price-hero p{color:rgba(255,255,255,0.65);font-size:1.05rem;max-width:520px;margin:0 auto;line-height:1.7;}
     .price-wrap{max-width:1050px;margin:0 auto;padding:3.5rem 1.5rem 5rem;}
-    /* Plan cards */
     .plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.4rem;margin-bottom:3.5rem;}
     .plan-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:20px;padding:2rem;display:flex;flex-direction:column;position:relative;transition:transform 0.25s,box-shadow 0.25s;}
     .plan-card:hover{transform:translateY(-4px);box-shadow:0 20px 48px rgba(0,0,0,0.35);}
@@ -50,7 +47,6 @@
     .plan-btn:hover{background:rgba(255,255,255,0.14);border-color:rgba(255,255,255,0.3);}
     .plan-btn.primary{background:linear-gradient(135deg,#f59e0b,#e85d04);border-color:transparent;color:#1c0a00;}
     .plan-btn.primary:hover{opacity:0.92;transform:translateY(-1px);}
-    /* Add-ons */
     .addons-section{margin-bottom:3rem;}
     .section-eyebrow{font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f59e0b;margin-bottom:.5rem;}
     .section-heading{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:white;letter-spacing:1.5px;margin-bottom:1.5rem;}
@@ -61,7 +57,6 @@
     .addon-name{font-size:.9rem;font-weight:700;color:white;margin-bottom:.2rem;}
     .addon-price{font-size:.82rem;color:#f59e0b;font-weight:600;}
     .addon-desc{font-size:.78rem;color:rgba(255,255,255,0.4);line-height:1.5;margin-top:.3rem;}
-    /* FAQ */
     .faq-section{margin-bottom:3rem;}
     .faq-item{border-bottom:1px solid rgba(255,255,255,0.07);padding:1.2rem 0;}
     .faq-q{font-size:.95rem;font-weight:700;color:white;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
@@ -74,7 +69,6 @@
     .price-cta p{color:rgba(255,255,255,0.6);margin-bottom:1.8rem;}
     .price-cta-btn{background:linear-gradient(135deg,#f59e0b,#e85d04);color:#1c0a00;padding:.9rem 2.2rem;border-radius:10px;text-decoration:none;font-weight:700;font-size:1rem;display:inline-flex;align-items:center;gap:.5rem;transition:all 0.2s;}
     .price-cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,158,11,0.4);}
-    /* Footer */
     .site-footer{background:#050a14;padding:40px 40px 24px;border-top:1px solid rgba(255,255,255,0.06);}
     .site-footer-inner{max-width:1050px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
     .site-footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:white;letter-spacing:2px;}
@@ -87,19 +81,20 @@
 </head>
 <body>
 
-<!-- NAV -->
 <nav class="site-nav">
   <div style="display:flex;align-items:center;gap:2rem;">
-    <a href="/business.html" class="site-nav-logo">TurnkeyAI <span>Services</span></a>
+    <a href="/" class="site-nav-logo">TurnkeyAI <span>Services</span></a>
     <div class="site-nav-links">
-      <a href="/business.html">Home</a>
-      <a href="/coming-soon.html">Coming Soon</a>
-      <a href="/references.html">References</a>
-      <a href="/about.html">About Us</a>
-      <a href="/pricing.html" class="active">Pricing</a>
+      <a href="/pages/business.html">Home</a>
+      <a href="/pages/community.html">Community</a>
+      <a href="/pages/blog.html">Blog</a>
+      <a href="/pages/coming-soon.html">Coming Soon</a>
+      <a href="/pages/references.html">References</a>
+      <a href="/pages/about.html">About Us</a>
+      <a href="/pages/pricing.html" class="active">Pricing</a>
     </div>
   </div>
-  <a href="/intake.html" class="site-nav-cta">Get Started →</a>
+  <a href="/pages/intake.html" class="site-nav-cta">Get Started →</a>
 </nav>
 
 <div class="price-hero">
@@ -111,7 +106,6 @@
 <div class="price-wrap">
 
   <div class="plans-grid">
-
     <div class="plan-card">
       <div class="plan-name">Website Only</div>
       <div class="plan-tagline">Professional website, fully managed</div>
@@ -127,9 +121,8 @@
         <li class="muted"><i class="fas fa-times"></i> Blog posts</li>
         <li class="muted"><i class="fas fa-times"></i> Social media posting</li>
       </ul>
-      <a href="/intake.html" class="plan-btn">Get Started →</a>
+      <a href="/pages/intake.html" class="plan-btn">Get Started →</a>
     </div>
-
     <div class="plan-card featured">
       <div class="plan-badge">Most Popular</div>
       <div class="plan-name">Website + Blog</div>
@@ -144,9 +137,8 @@
         <li><i class="fas fa-check"></i> Builds long-term search traffic</li>
         <li class="muted"><i class="fas fa-times"></i> Social media posting</li>
       </ul>
-      <a href="/intake.html" class="plan-btn primary">Get Started →</a>
+      <a href="/pages/intake.html" class="plan-btn primary">Get Started →</a>
     </div>
-
     <div class="plan-card">
       <div class="plan-name">Website + Blog + Social</div>
       <div class="plan-tagline">Website + content + social media</div>
@@ -159,9 +151,8 @@
         <li><i class="fas fa-check"></i> Automated cross-posting</li>
         <li><i class="fas fa-check"></i> Monthly performance summary</li>
       </ul>
-      <a href="/intake.html" class="plan-btn">Get Started →</a>
+      <a href="/pages/intake.html" class="plan-btn">Get Started →</a>
     </div>
-
     <div class="plan-card featured">
       <div class="plan-badge">Best Value</div>
       <div class="plan-name">Full Package</div>
@@ -174,12 +165,10 @@
         <li><i class="fas fa-check"></i> Priority support</li>
         <li><i class="fas fa-check"></i> Full brand presence online</li>
       </ul>
-      <a href="/intake.html" class="plan-btn primary">Get Started →</a>
+      <a href="/pages/intake.html" class="plan-btn primary">Get Started →</a>
     </div>
-
   </div>
 
-  <!-- Free Personal Sites Notice -->
   <div style="background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(139,47,192,0.08));border:1.5px solid rgba(192,132,252,0.3);border-radius:16px;padding:1.5rem 2rem;margin-bottom:3rem;display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
     <div style="font-size:1.5rem;flex-shrink:0;">🌳</div>
     <div>
@@ -212,23 +201,23 @@
   <div class="price-cta">
     <h2>Ready to Get Online?</h2>
     <p>Your professional website can be live in under 24 hours.</p>
-    <a href="/intake.html" class="price-cta-btn"><i class="fas fa-rocket"></i> Start My Website</a>
+    <a href="/pages/intake.html" class="price-cta-btn"><i class="fas fa-rocket"></i> Start My Website</a>
   </div>
 
 </div>
 
-<!-- FOOTER -->
 <div class="site-footer">
   <div class="site-footer-inner">
     <div class="site-footer-logo">TurnkeyAI <span>Services</span></div>
     <div class="site-footer-links">
-      <a href="/business.html">Home</a>
-      <a href="/business.html#features">Features</a>
-      <a href="/pricing.html">Pricing</a>
-      <a href="/about.html">About Us</a>
-      <a href="/coming-soon.html">Coming Soon</a>
-      <a href="/references.html">References</a>
-      <a href="/intake.html">Get Started</a>
+      <a href="/pages/business.html">Home</a>
+      <a href="/pages/community.html">Community</a>
+      <a href="/pages/blog.html">Blog</a>
+      <a href="/pages/pricing.html">Pricing</a>
+      <a href="/pages/about.html">About Us</a>
+      <a href="/pages/coming-soon.html">Coming Soon</a>
+      <a href="/pages/references.html">References</a>
+      <a href="/pages/intake.html">Get Started</a>
     </div>
   </div>
   <div class="site-footer-copy">© 2026 TurnkeyAI Services LLC. All Rights Reserved. Bay St. Louis, MS.</div>
