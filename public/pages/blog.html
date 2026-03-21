@@ -23,233 +23,50 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Source Sans 3', sans-serif; background: var(--off-white); color: var(--dark); }
-
-  nav {
-    background: var(--blue-deep);
-    padding: 0 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 64px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 20px rgba(10,31,92,0.3);
-  }
+  nav { background: var(--blue-deep); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px rgba(10,31,92,0.3); }
   .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
   .nav-logo span { font-weight: 700; font-size: 1.1rem; color: white; }
-  .nav-links { display: flex; gap: 2rem; align-items: center; }
-  .nav-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.95rem; font-weight: 500; transition: color 0.2s; }
+  .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+  .nav-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
   .nav-links a:hover { color: var(--green); }
+  .nav-links a.active { color: var(--green); font-weight: 700; }
   .nav-cta { background: var(--green); color: white !important; padding: 8px 20px; border-radius: 6px; font-weight: 600 !important; }
   .nav-cta:hover { background: var(--green-dark) !important; }
-
-  .blog-hero {
-    background: linear-gradient(135deg, var(--blue-deep) 0%, var(--blue-dark) 50%, #1a4a9e 100%);
-    padding: 5rem 2rem 4rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .blog-hero::before {
-    content: '';
-    position: absolute;
-    top: -50%; left: -20%;
-    width: 60%; height: 200%;
-    background: radial-gradient(ellipse, rgba(0,200,122,0.1) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .blog-hero-tag {
-    display: inline-block;
-    background: rgba(0,200,122,0.15);
-    color: var(--green);
-    border: 1px solid rgba(0,200,122,0.3);
-    padding: 6px 18px;
-    border-radius: 100px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-bottom: 1.5rem;
-    position: relative;
-    z-index: 1;
-  }
-  .blog-hero h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2.2rem, 5vw, 3.5rem);
-    font-weight: 900;
-    color: white;
-    line-height: 1.15;
-    max-width: 700px;
-    margin: 0 auto 1.25rem;
-    position: relative;
-    z-index: 1;
-  }
+  .blog-hero { background: linear-gradient(135deg, var(--blue-deep) 0%, var(--blue-dark) 50%, #1a4a9e 100%); padding: 5rem 2rem 4rem; text-align: center; position: relative; overflow: hidden; }
+  .blog-hero::before { content: ''; position: absolute; top: -50%; left: -20%; width: 60%; height: 200%; background: radial-gradient(ellipse, rgba(0,200,122,0.1) 0%, transparent 70%); pointer-events: none; }
+  .blog-hero-tag { display: inline-block; background: rgba(0,200,122,0.15); color: var(--green); border: 1px solid rgba(0,200,122,0.3); padding: 6px 18px; border-radius: 100px; font-size: 0.85rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1.5rem; position: relative; z-index: 1; }
+  .blog-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 900; color: white; line-height: 1.15; max-width: 700px; margin: 0 auto 1.25rem; position: relative; z-index: 1; }
   .blog-hero h1 span { color: var(--green); }
-  .blog-hero p {
-    font-size: 1.15rem;
-    color: rgba(255,255,255,0.75);
-    max-width: 520px;
-    margin: 0 auto;
-    line-height: 1.7;
-    position: relative;
-    z-index: 1;
-  }
-
+  .blog-hero p { font-size: 1.15rem; color: rgba(255,255,255,0.75); max-width: 520px; margin: 0 auto; line-height: 1.7; position: relative; z-index: 1; }
   .blog-container { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem 5rem; }
-
-  .section-label {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 2rem;
-  }
-  .section-label span {
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--gray-mid);
-  }
+  .section-label { display: flex; align-items: center; gap: 12px; margin-bottom: 2rem; }
+  .section-label span { font-size: 0.8rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid); }
   .section-label::after { content: ''; flex: 1; height: 1px; background: var(--gray-light); }
-
-  /* FEATURED - LIVE */
-  .featured-post {
-    background: white;
-    border-radius: 16px;
-    overflow: hidden;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    box-shadow: 0 4px 30px rgba(26,31,92,0.08);
-    margin-bottom: 3rem;
-    transition: transform 0.3s, box-shadow 0.3s;
-    text-decoration: none;
-    color: inherit;
-  }
+  .featured-post { background: white; border-radius: 16px; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; box-shadow: 0 4px 30px rgba(26,31,92,0.08); margin-bottom: 3rem; transition: transform 0.3s, box-shadow 0.3s; text-decoration: none; color: inherit; }
   .featured-post:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(26,31,92,0.15); }
-  .featured-image {
-    background: linear-gradient(135deg, var(--blue-deep), var(--blue));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 300px;
-    padding: 3rem;
-    position: relative;
-    overflow: hidden;
-  }
-  .featured-image::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at 30% 50%, rgba(0,200,122,0.2) 0%, transparent 60%);
-  }
+  .featured-image { background: linear-gradient(135deg, var(--blue-deep), var(--blue)); display: flex; align-items: center; justify-content: center; min-height: 300px; padding: 3rem; position: relative; overflow: hidden; }
+  .featured-image::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 50%, rgba(0,200,122,0.2) 0%, transparent 60%); }
   .featured-image-icon { font-size: 5rem; position: relative; z-index: 1; }
   .featured-content { padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; }
-  .post-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(0,200,122,0.1);
-    color: var(--green-dark);
-    padding: 4px 12px;
-    border-radius: 100px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-bottom: 1rem;
-    width: fit-content;
-  }
-  .live-dot {
-    width: 8px; height: 8px;
-    background: var(--green);
-    border-radius: 50%;
-    display: inline-block;
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.3); }
-  }
-  .featured-content h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.7rem;
-    font-weight: 700;
-    line-height: 1.3;
-    color: var(--dark);
-    margin-bottom: 1rem;
-  }
+  .post-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,200,122,0.1); color: var(--green-dark); padding: 4px 12px; border-radius: 100px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 1rem; width: fit-content; }
+  .live-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.3); } }
+  .featured-content h2 { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 700; line-height: 1.3; color: var(--dark); margin-bottom: 1rem; }
   .featured-content p { color: var(--gray-text); line-height: 1.7; font-size: 1rem; margin-bottom: 1.5rem; }
-  .read-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--blue);
-    font-weight: 600;
-    font-size: 0.95rem;
-    text-decoration: none;
-    transition: gap 0.2s;
-  }
+  .read-link { display: inline-flex; align-items: center; gap: 8px; color: var(--blue); font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: gap 0.2s; }
   .read-link:hover { gap: 12px; }
-
-  /* POST GRID */
   .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-
-  .post-card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 16px rgba(26,31,92,0.06);
-    display: flex;
-    flex-direction: column;
-    position: relative;
-  }
-  .post-card.live {
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.3s, box-shadow 0.3s;
-    cursor: pointer;
-  }
+  .post-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 16px rgba(26,31,92,0.06); display: flex; flex-direction: column; position: relative; }
+  .post-card.live { text-decoration: none; color: inherit; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; }
   .post-card.live:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(26,31,92,0.12); }
   .post-card.coming-soon { opacity: 0.55; cursor: default; }
-
-  .post-card-image {
-    height: 130px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
-    position: relative;
-  }
-  .coming-soon-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.35);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .coming-soon-pill {
-    background: white;
-    color: var(--dark);
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 5px 14px;
-    border-radius: 100px;
-  }
+  .post-card-image { height: 130px; display: flex; align-items: center; justify-content: center; font-size: 3rem; position: relative; }
+  .coming-soon-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; }
+  .coming-soon-pill { background: white; color: var(--dark); font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 14px; border-radius: 100px; }
   .post-card-body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
   .post-week { font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--gray-mid); margin-bottom: 0.6rem; }
   .post-publish-date { font-size: 0.75rem; font-weight: 600; color: var(--blue); margin-bottom: 0.6rem; }
-  .post-card h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.05rem;
-    font-weight: 700;
-    line-height: 1.4;
-    color: var(--dark);
-    margin-bottom: 0.75rem;
-  }
+  .post-card h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; line-height: 1.4; color: var(--dark); margin-bottom: 0.75rem; }
   .post-card p { color: var(--gray-text); font-size: 0.88rem; line-height: 1.6; flex: 1; margin-bottom: 1rem; }
   .post-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--gray-light); }
   .post-tag { font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: 100px; }
@@ -261,7 +78,6 @@
   .tag-roi { background: rgba(16,185,129,0.1); color: #059669; }
   .arrow-link { color: var(--blue); font-size: 1.2rem; transition: transform 0.2s; display: inline-block; }
   .post-card.live:hover .arrow-link { transform: translateX(4px); }
-
   .bg-1 { background: linear-gradient(135deg, #0a1f5c, #1a64d6); }
   .bg-2 { background: linear-gradient(135deg, #065f46, #00c87a); }
   .bg-3 { background: linear-gradient(135deg, #831843, #db2777); }
@@ -273,86 +89,26 @@
   .bg-9 { background: linear-gradient(135deg, #14532d, #16a34a); }
   .bg-10 { background: linear-gradient(135deg, #1c1917, #57534e); }
   .bg-11 { background: linear-gradient(135deg, #7c2d12, #ea580c); }
-
-  /* SUBSCRIBE */
-  .subscribe-bar {
-    background: white;
-    border: 1px solid var(--gray-light);
-    border-radius: 12px;
-    padding: 2rem;
-    margin: 3rem 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2rem;
-  }
+  .subscribe-bar { background: white; border: 1px solid var(--gray-light); border-radius: 12px; padding: 2rem; margin: 3rem 0; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
   .subscribe-bar h4 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.25rem; }
   .subscribe-bar p { color: var(--gray-text); font-size: 0.9rem; }
   .subscribe-form { display: flex; gap: 0.75rem; flex-shrink: 0; }
-  .subscribe-form input {
-    padding: 10px 16px;
-    border: 1px solid var(--gray-light);
-    border-radius: 6px;
-    font-family: 'Source Sans 3', sans-serif;
-    font-size: 0.9rem;
-    width: 220px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
+  .subscribe-form input { padding: 10px 16px; border: 1px solid var(--gray-light); border-radius: 6px; font-family: 'Source Sans 3', sans-serif; font-size: 0.9rem; width: 220px; outline: none; transition: border-color 0.2s; }
   .subscribe-form input:focus { border-color: var(--blue); }
-  .subscribe-form button {
-    background: var(--blue);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-family: 'Source Sans 3', sans-serif;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
+  .subscribe-form button { background: var(--blue); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-family: 'Source Sans 3', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background 0.2s; }
   .subscribe-form button:hover { background: var(--blue-dark); }
-
-  .cta-strip {
-    background: linear-gradient(135deg, var(--blue-deep), var(--blue-dark));
-    border-radius: 16px;
-    padding: 3rem;
-    margin-top: 2rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .cta-strip::before {
-    content: '';
-    position: absolute;
-    top: -30%; right: -10%;
-    width: 40%; height: 160%;
-    background: radial-gradient(ellipse, rgba(0,200,122,0.15) 0%, transparent 70%);
-  }
+  .cta-strip { background: linear-gradient(135deg, var(--blue-deep), var(--blue-dark)); border-radius: 16px; padding: 3rem; margin-top: 2rem; text-align: center; position: relative; overflow: hidden; }
+  .cta-strip::before { content: ''; position: absolute; top: -30%; right: -10%; width: 40%; height: 160%; background: radial-gradient(ellipse, rgba(0,200,122,0.15) 0%, transparent 70%); }
   .cta-strip h3 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: white; margin-bottom: 0.75rem; position: relative; z-index: 1; }
   .cta-strip p { color: rgba(255,255,255,0.75); margin-bottom: 1.75rem; font-size: 1.05rem; position: relative; z-index: 1; }
-  .cta-btn {
-    display: inline-block;
-    background: var(--green);
-    color: white;
-    padding: 14px 36px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 1rem;
-    text-decoration: none;
-    transition: background 0.2s, transform 0.2s;
-    position: relative;
-    z-index: 1;
-  }
+  .cta-btn { display: inline-block; background: var(--green); color: white; padding: 14px 36px; border-radius: 8px; font-weight: 700; font-size: 1rem; text-decoration: none; transition: background 0.2s, transform 0.2s; position: relative; z-index: 1; }
   .cta-btn:hover { background: var(--green-dark); transform: translateY(-2px); }
-
   footer { background: var(--blue-deep); color: rgba(255,255,255,0.6); text-align: center; padding: 2rem; font-size: 0.85rem; }
   footer a { color: var(--green); text-decoration: none; }
-
-  /* Hide sections when empty */
+  .footer-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
+  .footer-links a { color: rgba(255,255,255,0.5); font-size: 13px; text-decoration: none; }
+  .footer-links a:hover { color: white; }
   .section-hidden { display: none; }
-
   @media (max-width: 768px) {
     .featured-post { grid-template-columns: 1fr; }
     .featured-image { min-height: 180px; }
@@ -367,14 +123,17 @@
 <body>
 
 <nav>
-  <a href="/pages/business.html" class="nav-logo">
+  <a href="/" class="nav-logo">
     <span>TurnkeyAI Services</span>
   </a>
   <div class="nav-links">
     <a href="/pages/business.html">Home</a>
-    <a href="/pages/business.html">Business Sites</a>
-    <a href="/pages/personal.html">Personal Sites</a>
-    <a href="/pages/blog.html">Blog</a>
+    <a href="/pages/community.html">Community</a>
+    <a href="/pages/blog.html" class="active">Blog</a>
+    <a href="/pages/coming-soon.html">Coming Soon</a>
+    <a href="/pages/references.html">References</a>
+    <a href="/pages/about.html">About Us</a>
+    <a href="/pages/pricing.html">Pricing</a>
     <a href="/pages/intake.html" class="nav-cta">Get Started</a>
   </div>
 </nav>
@@ -386,20 +145,12 @@
 </div>
 
 <div class="blog-container">
-
-  <!-- FEATURED POST — rendered by JS -->
   <div class="section-label"><span>This Week</span></div>
   <div id="featured-area"></div>
-
-  <!-- PREVIOUS POSTS — rendered by JS -->
   <div id="previous-label" class="section-label section-hidden"><span>Previous Posts</span></div>
   <div id="previous-area" class="posts-grid"></div>
-
-  <!-- COMING SOON — rendered by JS -->
   <div id="coming-label" class="section-label section-hidden"><span>Coming Up — New Post Every Thursday</span></div>
   <div id="coming-area" class="posts-grid"></div>
-
-  <!-- SUBSCRIBE -->
   <div class="subscribe-bar">
     <div>
       <h4>Get new posts in your inbox every Thursday</h4>
@@ -410,260 +161,89 @@
       <button>Subscribe</button>
     </div>
   </div>
-
-  <!-- CTA -->
   <div class="cta-strip">
     <h3>Ready to get your business online?</h3>
     <p>Fill out our 10-minute intake form and your professional website is live in 24 hours.</p>
     <a href="/pages/intake.html" class="cta-btn">Get Started Today →</a>
   </div>
-
 </div>
 
 <footer>
+  <div class="footer-links">
+    <a href="/pages/business.html">Home</a>
+    <a href="/pages/community.html">Community</a>
+    <a href="/pages/blog.html">Blog</a>
+    <a href="/pages/pricing.html">Pricing</a>
+    <a href="/pages/about.html">About Us</a>
+    <a href="/pages/coming-soon.html">Coming Soon</a>
+    <a href="/pages/references.html">References</a>
+    <a href="/pages/intake.html">Get Started</a>
+  </div>
   <p>&copy; 2026 TurnkeyAI Services &middot; Bay St. Louis, Mississippi &middot; <a href="tel:6039222004">(603) 922-2004</a> &middot; <a href="mailto:turnkeyaiservices@gmail.com">turnkeyaiservices@gmail.com</a></p>
 </footer>
 
 <script>
 (function() {
-  // ═══════════════════════════════════════════════
-  // BLOG POST DATA — All 12 weeks + bonus
-  // ═══════════════════════════════════════════════
-  var WEEK1_DATE = new Date(2026, 2, 5); // March 5, 2026 (Thursday) — Week 1 anchor
-
+  var WEEK1_DATE = new Date(2026, 2, 5);
   var posts = [
-    {
-      week: 1,
-      icon: '🌊',
-      bg: 'bg-1',
-      title: 'Why Every Gulf Coast Small Business Needs a Website in 2026',
-      desc: "If your Bay St. Louis, Biloxi, or Gulfport business doesn't have a website, you're invisible to customers searching online. Here's what you're missing — and how to fix it fast.",
-      tag: 'Small Business',
-      tagClass: 'tag-business',
-      url: '/blog/gulf-coast-small-business-website-2026.html'
-    },
-    {
-      week: 2,
-      icon: '🧹',
-      bg: 'bg-2',
-      title: 'House Cleaners in Biloxi and Gulfport: How to Get More Customers Without Paying for Ads',
-      desc: 'How cleaning companies on the Gulf Coast are winning new customers with local SEO — no expensive ads required.',
-      tag: 'Small Business',
-      tagClass: 'tag-business',
-      url: '/blog/house-cleaners-biloxi-gulfport-more-customers.html'
-    },
-    {
-      week: 3,
-      icon: '👨‍👩‍👧‍👦',
-      bg: 'bg-3',
-      title: 'Family Reunion Coming Up? Why Your Family Needs Its Own Website',
-      desc: 'A dedicated family website makes RSVPs, photos, and coordination effortless — and keeps your family connected long after the event.',
-      tag: 'Family',
-      tagClass: 'tag-family',
-      url: '/blog/family-reunion-website.html'
-    },
-    {
-      week: 4,
-      icon: '🔨',
-      bg: 'bg-4',
-      title: "Contractors on the Gulf Coast: Why Your Truck Wrap Isn't Enough Anymore",
-      desc: 'Contractors in Biloxi, Gulfport, and Bay St. Louis are losing jobs to competitors with better websites.',
-      tag: 'Small Business',
-      tagClass: 'tag-business',
-      url: '/blog/contractors-gulf-coast-websites.html'
-    },
-    {
-      week: 5,
-      icon: '🎨',
-      bg: 'bg-5',
-      title: "Selling Handmade Goods on the Gulf Coast? Stop Paying Etsy's Fees",
-      desc: 'Gulf Coast crafters are leaving Etsy and opening their own stores — keeping 90% of every sale.',
-      tag: 'Crafters',
-      tagClass: 'tag-crafters',
-      url: '/blog/handmade-goods-gulf-coast-etsy.html'
-    },
-    {
-      week: 6,
-      icon: '📍',
-      bg: 'bg-6',
-      title: 'What Is Local SEO and Why Does Every Bay St. Louis Business Need It?',
-      desc: 'Plain-English breakdown of what local SEO is and how it gets your business found on Google.',
-      tag: 'SEO',
-      tagClass: 'tag-seo',
-      url: '/blog/local-seo-bay-st-louis.html'
-    },
-    {
-      week: 7,
-      icon: '🍳',
-      bg: 'bg-7',
-      title: 'Mississippi Recipe Creators: Turn Your Family Recipes Into Income',
-      desc: 'Mississippi home cooks are building audiences and earning real income from their recipes online.',
-      tag: 'Food & Recipes',
-      tagClass: 'tag-food',
-      url: '/blog/mississippi-recipe-creators-income.html'
-    },
-    {
-      week: 8,
-      icon: '💇',
-      bg: 'bg-8',
-      title: 'Why Gulf Coast Salons and Spas Are Losing Appointments to Competitors With Better Websites',
-      desc: 'Salons in Biloxi, Gulfport, and Pass Christian are watching customers book with competitors online.',
-      tag: 'Small Business',
-      tagClass: 'tag-business',
-      url: '/blog/gulf-coast-salons-spas-websites.html'
-    },
-    {
-      week: 9,
-      icon: '💰',
-      bg: 'bg-9',
-      title: 'How a $99/Month Website Pays for Itself With One New Customer',
-      desc: 'The simple math showing how a single new customer each month makes your TurnkeyAI site pay for itself.',
-      tag: 'ROI',
-      tagClass: 'tag-roi',
-      url: '/blog/website-pays-for-itself.html'
-    },
-    {
-      week: 10,
-      icon: '📷',
-      bg: 'bg-10',
-      title: 'Preserving Family History on the Gulf Coast: The Digital Archive Every Family Should Build',
-      desc: 'Gulf Coast families are using family websites to preserve stories and photos before they\'re lost forever.',
-      tag: 'Family',
-      tagClass: 'tag-family',
-      url: '/blog/preserving-family-history-gulf-coast.html'
-    },
-    {
-      week: 11,
-      icon: '🦐',
-      bg: 'bg-11',
-      title: 'Restaurants and Food Businesses on the Gulf Coast: Your Menu Belongs Online',
-      desc: 'Gulf Coast restaurants without a website are losing customers every day to competitors who are easy to find online.',
-      tag: 'Food',
-      tagClass: 'tag-food',
-      url: '/blog/gulf-coast-restaurants-menu-online.html'
-    },
-    {
-      week: 12,
-      icon: '🔑',
-      bg: 'bg-1',
-      title: 'What Makes TurnkeyAI Different From Every Other Website Builder',
-      desc: 'Wix, Squarespace, and GoDaddy put the work on you. TurnkeyAI does it all — in 24 hours, from a simple form.',
-      tag: 'TurnkeyAI',
-      tagClass: 'tag-business',
-      url: '/blog/turnkeyai-different-from-website-builders.html'
-    }
+    {week:1,icon:'🌊',bg:'bg-1',title:'Why Every Gulf Coast Small Business Needs a Website in 2026',desc:"If your Bay St. Louis, Biloxi, or Gulfport business doesn't have a website, you're invisible to customers searching online. Here's what you're missing — and how to fix it fast.",tag:'Small Business',tagClass:'tag-business',url:'/blog/gulf-coast-small-business-website-2026.html'},
+    {week:2,icon:'🧹',bg:'bg-2',title:'House Cleaners in Biloxi and Gulfport: How to Get More Customers Without Paying for Ads',desc:'How cleaning companies on the Gulf Coast are winning new customers with local SEO — no expensive ads required.',tag:'Small Business',tagClass:'tag-business',url:'/blog/house-cleaners-biloxi-gulfport-more-customers.html'},
+    {week:3,icon:'👨‍👩‍👧‍👦',bg:'bg-3',title:'Family Reunion Coming Up? Why Your Family Needs Its Own Website',desc:'A dedicated family website makes RSVPs, photos, and coordination effortless — and keeps your family connected long after the event.',tag:'Family',tagClass:'tag-family',url:'/blog/family-reunion-website.html'},
+    {week:4,icon:'🔨',bg:'bg-4',title:"Contractors on the Gulf Coast: Why Your Truck Wrap Isn't Enough Anymore",desc:'Contractors in Biloxi, Gulfport, and Bay St. Louis are losing jobs to competitors with better websites.',tag:'Small Business',tagClass:'tag-business',url:'/blog/contractors-gulf-coast-websites.html'},
+    {week:5,icon:'🎨',bg:'bg-5',title:"Selling Handmade Goods on the Gulf Coast? Stop Paying Etsy's Fees",desc:'Gulf Coast crafters are leaving Etsy and opening their own stores — keeping 90% of every sale.',tag:'Crafters',tagClass:'tag-crafters',url:'/blog/handmade-goods-gulf-coast-etsy.html'},
+    {week:6,icon:'📍',bg:'bg-6',title:'What Is Local SEO and Why Does Every Bay St. Louis Business Need It?',desc:'Plain-English breakdown of what local SEO is and how it gets your business found on Google.',tag:'SEO',tagClass:'tag-seo',url:'/blog/local-seo-bay-st-louis.html'},
+    {week:7,icon:'🍳',bg:'bg-7',title:'Mississippi Recipe Creators: Turn Your Family Recipes Into Income',desc:'Mississippi home cooks are building audiences and earning real income from their recipes online.',tag:'Food & Recipes',tagClass:'tag-food',url:'/blog/mississippi-recipe-creators-income.html'},
+    {week:8,icon:'💇',bg:'bg-8',title:'Why Gulf Coast Salons and Spas Are Losing Appointments to Competitors With Better Websites',desc:'Salons in Biloxi, Gulfport, and Pass Christian are watching customers book with competitors online.',tag:'Small Business',tagClass:'tag-business',url:'/blog/gulf-coast-salons-spas-websites.html'},
+    {week:9,icon:'💰',bg:'bg-9',title:'How a $99/Month Website Pays for Itself With One New Customer',desc:'The simple math showing how a single new customer each month makes your TurnkeyAI site pay for itself.',tag:'ROI',tagClass:'tag-roi',url:'/blog/website-pays-for-itself.html'},
+    {week:10,icon:'📷',bg:'bg-10',title:'Preserving Family History on the Gulf Coast: The Digital Archive Every Family Should Build',desc:"Gulf Coast families are using family websites to preserve stories and photos before they're lost forever.",tag:'Family',tagClass:'tag-family',url:'/blog/preserving-family-history-gulf-coast.html'},
+    {week:11,icon:'🦐',bg:'bg-11',title:'Restaurants and Food Businesses on the Gulf Coast: Your Menu Belongs Online',desc:'Gulf Coast restaurants without a website are losing customers every day to competitors who are easy to find online.',tag:'Food',tagClass:'tag-food',url:'/blog/gulf-coast-restaurants-menu-online.html'},
+    {week:12,icon:'🔑',bg:'bg-1',title:'What Makes TurnkeyAI Different From Every Other Website Builder',desc:'Wix, Squarespace, and GoDaddy put the work on you. TurnkeyAI does it all — in 24 hours, from a simple form.',tag:'TurnkeyAI',tagClass:'tag-business',url:'/blog/turnkeyai-different-from-website-builders.html'}
   ];
-
-  // ═══════════════════════════════════════════════
-  // CALCULATE CURRENT WEEK
-  // ═══════════════════════════════════════════════
   var now = new Date();
   var msPerWeek = 7 * 24 * 60 * 60 * 1000;
   var elapsed = now.getTime() - WEEK1_DATE.getTime();
   var currentWeek = Math.floor(elapsed / msPerWeek) + 1;
   if (currentWeek < 1) currentWeek = 1;
   if (currentWeek > 12) currentWeek = 12;
-
-  // Split posts into live, previous, and coming soon
   var livePosts = posts.filter(function(p) { return p.week <= currentWeek; });
   var comingPosts = posts.filter(function(p) { return p.week > currentWeek; });
-
-  // Featured = latest live post; Previous = all earlier live posts (newest first)
   var featured = livePosts[livePosts.length - 1];
   var previous = livePosts.slice(0, livePosts.length - 1).reverse();
-
-  // ═══════════════════════════════════════════════
-  // HELPER: format date for a given week number
-  // ═══════════════════════════════════════════════
   function weekDate(weekNum) {
     var d = new Date(WEEK1_DATE.getTime() + (weekNum - 1) * msPerWeek);
     var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
   }
-
   function weeksUntil(weekNum) {
     var diff = weekNum - currentWeek;
     if (diff === 1) return 'Publishes next Thursday';
     return diff + ' weeks away';
   }
-
-  // ═══════════════════════════════════════════════
-  // RENDER FEATURED POST
-  // ═══════════════════════════════════════════════
   var featuredArea = document.getElementById('featured-area');
-  featuredArea.innerHTML =
-    '<a href="' + featured.url + '" class="featured-post">' +
-      '<div class="featured-image">' +
-        '<div class="featured-image-icon">' + featured.icon + '</div>' +
-      '</div>' +
-      '<div class="featured-content">' +
-        '<div class="post-badge"><span class="live-dot"></span>&nbsp; Live Now · Week ' + featured.week + '</div>' +
-        '<h2>' + featured.title + '</h2>' +
-        '<p>' + featured.desc + '</p>' +
-        '<span class="read-link">Read the full post →</span>' +
-      '</div>' +
-    '</a>';
-
-  // ═══════════════════════════════════════════════
-  // RENDER PREVIOUS POSTS
-  // ═══════════════════════════════════════════════
+  featuredArea.innerHTML = '<a href="' + featured.url + '" class="featured-post"><div class="featured-image"><div class="featured-image-icon">' + featured.icon + '</div></div><div class="featured-content"><div class="post-badge"><span class="live-dot"></span>&nbsp; Live Now · Week ' + featured.week + '</div><h2>' + featured.title + '</h2><p>' + featured.desc + '</p><span class="read-link">Read the full post →</span></div></a>';
   var previousLabel = document.getElementById('previous-label');
   var previousArea = document.getElementById('previous-area');
-
   if (previous.length > 0) {
     previousLabel.classList.remove('section-hidden');
     var prevHTML = '';
     for (var i = 0; i < previous.length; i++) {
       var p = previous[i];
-      prevHTML +=
-        '<a href="' + p.url + '" class="post-card live">' +
-          '<div class="post-card-image ' + p.bg + '">' + p.icon + '</div>' +
-          '<div class="post-card-body">' +
-            '<div class="post-publish-date">Published ' + weekDate(p.week) + '</div>' +
-            '<h3>' + p.title + '</h3>' +
-            '<p>' + p.desc + '</p>' +
-            '<div class="post-card-footer">' +
-              '<span class="post-tag ' + p.tagClass + '">' + p.tag + '</span>' +
-              '<span class="arrow-link">→</span>' +
-            '</div>' +
-          '</div>' +
-        '</a>';
+      prevHTML += '<a href="' + p.url + '" class="post-card live"><div class="post-card-image ' + p.bg + '">' + p.icon + '</div><div class="post-card-body"><div class="post-publish-date">Published ' + weekDate(p.week) + '</div><h3>' + p.title + '</h3><p>' + p.desc + '</p><div class="post-card-footer"><span class="post-tag ' + p.tagClass + '">' + p.tag + '</span><span class="arrow-link">→</span></div></div></a>';
     }
     previousArea.innerHTML = prevHTML;
   }
-
-  // ═══════════════════════════════════════════════
-  // RENDER COMING SOON
-  // ═══════════════════════════════════════════════
   var comingLabel = document.getElementById('coming-label');
   var comingArea = document.getElementById('coming-area');
-
   if (comingPosts.length > 0) {
     comingLabel.classList.remove('section-hidden');
     var comingHTML = '';
     for (var j = 0; j < comingPosts.length; j++) {
       var c = comingPosts[j];
-      comingHTML +=
-        '<div class="post-card coming-soon">' +
-          '<div class="post-card-image ' + c.bg + '">' +
-            c.icon +
-            '<div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week ' + c.week + '</span></div>' +
-          '</div>' +
-          '<div class="post-card-body">' +
-            '<div class="post-publish-date">' + weeksUntil(c.week) + '</div>' +
-            '<h3>' + c.title + '</h3>' +
-            '<p>' + c.desc + '</p>' +
-            '<div class="post-card-footer">' +
-              '<span class="post-tag ' + c.tagClass + '">' + c.tag + '</span>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
+      comingHTML += '<div class="post-card coming-soon"><div class="post-card-image ' + c.bg + '">' + c.icon + '<div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week ' + c.week + '</span></div></div><div class="post-card-body"><div class="post-publish-date">' + weeksUntil(c.week) + '</div><h3>' + c.title + '</h3><p>' + c.desc + '</p><div class="post-card-footer"><span class="post-tag ' + c.tagClass + '">' + c.tag + '</span></div></div></div>';
     }
     comingArea.innerHTML = comingHTML;
   }
-
 })();
 </script>
-
 </body>
 </html>
