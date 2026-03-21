@@ -7,13 +7,10 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-
 const app = express();
-
 // ── Startup validation ──
 if (!process.env.ADMIN_KEY) { console.error('[FATAL] ADMIN_KEY env var is not set. Exiting.'); process.exit(1); }
 if (!process.env.DATABASE_URL) { console.error('[FATAL] DATABASE_URL env var is not set. Exiting.'); process.exit(1); }
-
 // ── Rate limiting (general — applied to all routes) ──
 const rateLimit = require('express-rate-limit');
 const generalLimiter = rateLimit({
@@ -22,22 +19,18 @@ const generalLimiter = rateLimit({
   message: { error: 'Too many requests. Please wait a few minutes and try again.' }
 });
 app.use(generalLimiter);
-
 // ── Body parsing ──
 // Stripe webhook needs raw body BEFORE json parsing
 app.use('/api/stripe-webhook', express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false }));
-
 // ── Static files ──
 app.use(express.static(path.join(__dirname, 'public')));
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 app.use('/uploads', express.static(UPLOADS_DIR));
-
 // ── Load database and initialize ──
 const { initDB, loadClientsFromDB } = require('./lib/db');
-
 // ── Mount route modules ──
 // Each module is an Express Router with its own routes
 app.use('/', require('./routes/intake'));
@@ -46,23 +39,20 @@ app.use('/', require('./routes/admin'));
 app.use('/', require('./routes/booking-chat'));
 app.use('/', require('./routes/telephony-webhooks'));
 app.use('/', require('./routes/analytics'));
-
+app.use('/', require('./routes/board'));
 // ── Static admin page ──
 app.get('/admin', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'admin.html')); });
-
 // ── Health check ──
 app.get('/health', (req, res) => {
   const { clients } = require('./lib/db');
   res.json({ status: 'ok', clients: Object.keys(clients).length, uptime: process.uptime() });
 });
-
 // ── Catch-all SPA ──
 app.get('*', (req, res) => {
   const indexPath = path.join(__dirname, 'public', 'index.html');
   if (fs.existsSync(indexPath)) res.sendFile(indexPath);
   else res.status(404).send('Not found');
 });
-
 // ── Start ──
 const PORT = process.env.PORT || 8080;
 initDB()
