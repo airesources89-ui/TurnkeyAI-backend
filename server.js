@@ -61,3 +61,4 @@ initDB()
     app.listen(PORT, () => console.log(`[TurnkeyAI] Server running on port ${PORT}`));
   })
   .catch(err => { console.error('[startup error]', err); process.exit(1); });
+
