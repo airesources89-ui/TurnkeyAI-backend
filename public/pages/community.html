@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Board — TurnkeyAI Services</title>
+  <meta name="description" content="Connect with TurnkeyAI Services and other small businesses. Ask questions, share tips, request features.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:#080e1c;color:#e2e8f0;padding-top:64px;}
+
+    /* NAV */
+    .site-nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,14,28,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+    .site-nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:white;text-decoration:none;letter-spacing:2px;}
+    .site-nav-logo span{color:#f59e0b;}
+    .site-nav-links{display:flex;align-items:center;gap:0.1rem;}
+    .site-nav-links a{color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.82rem;font-weight:500;padding:0.4rem 0.75rem;border-radius:6px;}
+    .site-nav-links a.active{color:#f59e0b;font-weight:700;}
+    .site-nav-links a:hover{color:#fff;}
+    .site-nav-cta{background:#f59e0b;color:#1c0a00;padding:0.5rem 1.2rem;border-radius:8px;font-weight:700;font-size:0.85rem;text-decoration:none;}
+    .site-nav-cta:hover{background:#d97706;}
+    @media(max-width:768px){.site-nav-links{display:none;}}
+
+    /* PAGE HERO */
+    .page-hero{background:linear-gradient(160deg,#080e1c 0%,#0d1a35 60%,#1a0a00 100%);padding:5rem 1.5rem 3rem;text-align:center;position:relative;}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(245,158,11,0.1) 0%,transparent 65%);}
+    .page-label{display:inline-flex;align-items:center;gap:.5rem;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.4rem 1rem;border-radius:50px;margin-bottom:1.2rem;}
+    .page-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,7vw,5rem);color:white;letter-spacing:2px;line-height:1;margin-bottom:1rem;}
+    .page-hero h1 span{color:#f59e0b;}
+    .page-hero p{color:rgba(255,255,255,0.65);font-size:1.05rem;max-width:600px;margin:0 auto;line-height:1.7;}
+
+    /* CONTENT */
+    .content-wrap{max-width:900px;margin:0 auto;padding:2.5rem 1.5rem 5rem;}
+
+    /* ADMIN BAR */
+    .admin-bar{background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:12px;padding:1rem 1.5rem;margin-bottom:2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+    .admin-bar label{font-size:.85rem;color:rgba(255,255,255,0.5);font-weight:600;}
+    .admin-bar input{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:.5rem .8rem;color:white;font-size:.85rem;font-family:'DM Sans',sans-serif;width:200px;}
+    .admin-bar input:focus{outline:none;border-color:#f59e0b;}
+    .admin-bar button{background:#f59e0b;color:#1c0a00;border:none;padding:.5rem 1.2rem;border-radius:8px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:'DM Sans',sans-serif;}
+    .admin-bar button:hover{background:#d97706;}
+    .admin-status{font-size:.8rem;color:#10b981;font-weight:600;display:none;}
+    .admin-status.active{display:inline;}
+    .admin-logout{background:transparent !important;color:rgba(255,255,255,0.4) !important;font-weight:500 !important;font-size:.78rem !important;text-decoration:underline;display:none;}
+    .admin-logout.active{display:inline;}
+
+    /* POST FORM */
+    .post-form-wrap{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:2rem;margin-bottom:2.5rem;}
+    .post-form-wrap h2{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:1px;margin-bottom:1.2rem;}
+    .form-row{margin-bottom:1rem;}
+    .form-row label{display:block;font-size:.8rem;font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:.35rem;letter-spacing:.5px;}
+    .form-row input,.form-row textarea,.form-row select{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:.65rem .9rem;color:white;font-size:.92rem;font-family:'DM Sans',sans-serif;}
+    .form-row input:focus,.form-row textarea:focus,.form-row select:focus{outline:none;border-color:#f59e0b;}
+    .form-row textarea{min-height:120px;resize:vertical;line-height:1.6;}
+    .form-row select{cursor:pointer;}
+    .form-row select option{background:#0d1a35;color:white;}
+    .form-row-inline{display:flex;gap:1rem;}
+    .form-row-inline .form-row{flex:1;}
+    @media(max-width:600px){.form-row-inline{flex-direction:column;}}
+    .form-file-label{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:.6rem 1.2rem;cursor:pointer;font-size:.85rem;color:rgba(255,255,255,0.6);transition:border-color 0.2s;}
+    .form-file-label:hover{border-color:#f59e0b;color:white;}
+    .form-file-label input{display:none;}
+    .form-file-name{font-size:.8rem;color:rgba(255,255,255,0.4);margin-left:.5rem;}
+    .form-submit{background:linear-gradient(135deg,#f59e0b,#e85d04);color:#1c0a00;border:none;padding:.75rem 2rem;border-radius:10px;font-weight:700;font-size:.95rem;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:.5rem;transition:all 0.2s;margin-top:.5rem;}
+    .form-submit:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,158,11,0.35);}
+    .form-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
+    .form-msg{font-size:.85rem;margin-top:.8rem;display:none;}
+    .form-msg.success{color:#10b981;display:block;}
+    .form-msg.error{color:#ef4444;display:block;}
+    /* Honeypot — hidden from humans */
+    .hp-field{position:absolute;left:-9999px;top:-9999px;opacity:0;height:0;width:0;z-index:-1;pointer-events:none;}
+
+    /* POSTS */
+    .posts-loading{text-align:center;color:rgba(255,255,255,0.4);padding:3rem 0;font-size:.95rem;}
+    .posts-empty{text-align:center;color:rgba(255,255,255,0.35);padding:3rem 0;}
+    .posts-empty i{font-size:2.5rem;margin-bottom:1rem;display:block;color:rgba(245,158,11,0.3);}
+
+    .post-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:1.8rem;margin-bottom:1.2rem;transition:border-color 0.2s;}
+    .post-card:hover{border-color:rgba(245,158,11,0.15);}
+    .post-header{display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem;flex-wrap:wrap;}
+    .post-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#e85d04);display:flex;align-items:center;justify-content:center;font-weight:700;color:#1c0a00;font-size:.85rem;flex-shrink:0;}
+    .post-avatar.admin-avatar{background:linear-gradient(135deg,#f59e0b,#dc2626);}
+    .post-author{font-weight:700;color:white;font-size:.95rem;}
+    .post-author .admin-badge{background:#f59e0b;color:#1c0a00;font-size:.6rem;font-weight:700;padding:.15rem .45rem;border-radius:4px;margin-left:.4rem;letter-spacing:.5px;text-transform:uppercase;vertical-align:middle;}
+    .post-time{font-size:.75rem;color:rgba(255,255,255,0.3);}
+    .post-directed{font-size:.72rem;font-weight:600;color:#38bdf8;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.2);padding:.15rem .5rem;border-radius:6px;}
+    .post-directed.to-turnkey{color:#f59e0b;background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.25);}
+    .post-body{font-size:.92rem;color:rgba(255,255,255,0.7);line-height:1.75;margin-bottom:.8rem;white-space:pre-wrap;word-break:break-word;}
+    .post-attachment{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:.4rem .8rem;font-size:.8rem;color:rgba(255,255,255,0.5);text-decoration:none;margin-bottom:.8rem;transition:border-color 0.2s;}
+    .post-attachment:hover{border-color:#f59e0b;color:white;}
+    .post-attachment img.thumb{max-width:200px;max-height:140px;border-radius:6px;display:block;margin-top:.5rem;}
+    .post-actions{display:flex;align-items:center;gap:1rem;}
+    .post-action-btn{background:none;border:none;color:rgba(255,255,255,0.3);font-size:.8rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;display:inline-flex;align-items:center;gap:.3rem;padding:.3rem 0;transition:color 0.15s;}
+    .post-action-btn:hover{color:#f59e0b;}
+    .post-action-btn.delete-btn:hover{color:#ef4444;}
+    .post-action-btn.delete-btn{display:none;}
+    body.admin-mode .post-action-btn.delete-btn{display:inline-flex;}
+
+    /* REPLIES */
+    .replies-wrap{margin-top:1rem;margin-left:2.5rem;padding-left:1rem;border-left:2px solid rgba(245,158,11,0.12);}
+    @media(max-width:600px){.replies-wrap{margin-left:1rem;padding-left:.8rem;}}
+    .reply-card{padding:1rem 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+    .reply-card:last-child{border-bottom:none;}
+
+    /* REPLY FORM (inline) */
+    .reply-form{margin-top:1rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:1.2rem;display:none;}
+    .reply-form.open{display:block;}
+    .reply-form textarea{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:.6rem .8rem;color:white;font-size:.88rem;font-family:'DM Sans',sans-serif;min-height:80px;resize:vertical;line-height:1.6;}
+    .reply-form textarea:focus{outline:none;border-color:#f59e0b;}
+    .reply-form-row{display:flex;gap:.8rem;margin-bottom:.8rem;}
+    .reply-form-row input{flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:.5rem .8rem;color:white;font-size:.85rem;font-family:'DM Sans',sans-serif;}
+    .reply-form-row input:focus{outline:none;border-color:#f59e0b;}
+    .reply-form-actions{display:flex;align-items:center;gap:.8rem;margin-top:.8rem;}
+    .reply-submit{background:#f59e0b;color:#1c0a00;border:none;padding:.5rem 1.2rem;border-radius:8px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:'DM Sans',sans-serif;}
+    .reply-submit:hover{background:#d97706;}
+    .reply-submit:disabled{opacity:0.5;cursor:not-allowed;}
+    .reply-cancel{background:none;border:none;color:rgba(255,255,255,0.4);font-size:.82rem;cursor:pointer;font-family:'DM Sans',sans-serif;}
+    .reply-cancel:hover{color:white;}
+
+    /* FOOTER */
+    .site-footer{background:#050a14;padding:40px 40px 24px;border-top:1px solid rgba(255,255,255,0.06);}
+    .site-footer-inner{max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+    .site-footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:white;letter-spacing:2px;}
+    .site-footer-logo span{color:#f59e0b;}
+    .site-footer-links{display:flex;gap:20px;flex-wrap:wrap;}
+    .site-footer-links a{color:rgba(255,255,255,0.4);font-size:13px;text-decoration:none;}
+    .site-footer-links a:hover{color:#fff;}
+    .site-footer-copy{width:100%;text-align:center;color:rgba(255,255,255,0.2);font-size:12px;margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.05);}
+
+    /* UTILITY */
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;}
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="site-nav">
+  <div style="display:flex;align-items:center;gap:2rem;">
+    <a href="/pages/business.html" class="site-nav-logo">TurnkeyAI <span>Services</span></a>
+    <div class="site-nav-links">
+      <a href="/pages/business.html">Home</a>
+      <a href="/pages/community.html" class="active">Community</a>
+      <a href="/pages/coming-soon.html">Coming Soon</a>
+      <a href="/pages/references.html">References</a>
+      <a href="/pages/about.html">About Us</a>
+      <a href="/pages/pricing.html">Pricing</a>
+    </div>
+  </div>
+  <a href="/pages/intake.html" class="site-nav-cta">Get Started →</a>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="page-label"><i class="fas fa-comments"></i> Community</div>
+  <h1>Message <span>Board</span></h1>
+  <p>Ask questions, share tips, request features, and connect with other small business owners and the TurnkeyAI team — all in one place.</p>
+</div>
+
+<div class="content-wrap">
+
+  <!-- ADMIN BAR -->
+  <div class="admin-bar" id="adminBar">
+    <label><i class="fas fa-lock"></i> Admin</label>
+    <input type="password" id="adminPass" placeholder="Admin password">
+    <button id="adminLoginBtn" onclick="adminLogin()">Log In</button>
+    <span class="admin-status" id="adminStatus"><i class="fas fa-check-circle"></i> Admin Mode</span>
+    <button class="admin-logout" id="adminLogout" onclick="adminLogout()">Log out</button>
+  </div>
+
+  <!-- NEW POST FORM -->
+  <div class="post-form-wrap">
+    <h2><i class="fas fa-pen" style="color:#f59e0b;margin-right:.5rem;font-size:1.1rem;"></i> Start a Conversation</h2>
+
+    <div class="form-row-inline">
+      <div class="form-row">
+        <label>Your Name *</label>
+        <input type="text" id="postName" placeholder="John Smith" maxlength="100" required>
+      </div>
+      <div class="form-row">
+        <label>Your Email * <span style="font-weight:400;color:rgba(255,255,255,0.3);">(not shown publicly)</span></label>
+        <input type="email" id="postEmail" placeholder="john@example.com" maxlength="255" required>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>Direct To</label>
+      <select id="postDirected">
+        <option value="">General — everyone can see &amp; respond</option>
+        <option value="TurnkeyAI">TurnkeyAI Services — send directly to the team</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Message *</label>
+      <textarea id="postMessage" placeholder="What's on your mind?" maxlength="5000" required></textarea>
+    </div>
+
+    <div class="form-row">
+      <label>Attachment <span style="font-weight:400;color:rgba(255,255,255,0.3);">(optional — images or PDF, max 5MB)</span></label>
+      <label class="form-file-label">
+        <i class="fas fa-paperclip"></i> Choose File
+        <input type="file" id="postFile" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf" onchange="showFileName(this)">
+      </label>
+      <span class="form-file-name" id="fileName"></span>
+    </div>
+
+    <!-- Honeypot -->
+    <div class="hp-field" aria-hidden="true">
+      <label for="website" class="sr-only">Website</label>
+      <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+    </div>
+
+    <button class="form-submit" id="postSubmitBtn" onclick="submitPost()">
+      <i class="fas fa-paper-plane"></i> Post Message
+    </button>
+    <div class="form-msg" id="postFormMsg"></div>
+  </div>
+
+  <!-- POSTS -->
+  <div id="postsContainer">
+    <div class="posts-loading" id="postsLoading"><i class="fas fa-spinner fa-spin"></i> Loading messages...</div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-logo">TurnkeyAI <span>Services</span></div>
+    <div class="site-footer-links">
+      <a href="/pages/business.html">Home</a>
+      <a href="/pages/pricing.html">Pricing</a>
+      <a href="/pages/about.html">About Us</a>
+      <a href="/pages/community.html">Community</a>
+      <a href="/pages/coming-soon.html">Coming Soon</a>
+      <a href="/pages/references.html">References</a>
+      <a href="/pages/intake.html">Get Started</a>
+    </div>
+  </div>
+  <div class="site-footer-copy">&copy; 2026 TurnkeyAI Services LLC. All Rights Reserved. Bay St. Louis, MS.</div>
+</div>
+
+<script>
+var API_BASE = '';  // same-origin, or set to Railway backend URL if cross-origin
+var adminToken = localStorage.getItem('board_admin_token') || '';
+
+// On load — check admin state and load posts
+(function init() {
+  if (adminToken) {
+    setAdminUI(true);
+  }
+  loadPosts();
+})();
+
+// ── ADMIN ──────────────────────────────────────────
+function adminLogin() {
+  var pass = document.getElementById('adminPass').value.trim();
+  if (!pass) return;
+  fetch(API_BASE + '/api/board/admin-auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pass })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.token) {
+      adminToken = data.token;
+      localStorage.setItem('board_admin_token', adminToken);
+      setAdminUI(true);
+    } else {
+      alert('Invalid password.');
+    }
+  })
+  .catch(function() { alert('Error connecting to server.'); });
+}
+
+function adminLogout() {
+  adminToken = '';
+  localStorage.removeItem('board_admin_token');
+  setAdminUI(false);
+}
+
+function setAdminUI(isAdmin) {
+  document.getElementById('adminPass').style.display = isAdmin ? 'none' : '';
+  document.getElementById('adminLoginBtn').style.display = isAdmin ? 'none' : '';
+  document.getElementById('adminStatus').className = 'admin-status' + (isAdmin ? ' active' : '');
+  document.getElementById('adminLogout').className = 'admin-logout' + (isAdmin ? ' active' : '');
+  if (isAdmin) {
+    document.body.classList.add('admin-mode');
+    document.getElementById('postName').value = 'TurnkeyAI Services';
+    document.getElementById('postName').readOnly = true;
+    document.getElementById('postEmail').value = 'turnkeyaiservices@gmail.com';
+    document.getElementById('postEmail').readOnly = true;
+  } else {
+    document.body.classList.remove('admin-mode');
+    document.getElementById('postName').value = '';
+    document.getElementById('postName').readOnly = false;
+    document.getElementById('postEmail').value = '';
+    document.getElementById('postEmail').readOnly = false;
+  }
+}
+
+// ── SUBMIT POST ────────────────────────────────────
+function showFileName(input) {
+  var nameEl = document.getElementById('fileName');
+  nameEl.textContent = input.files.length ? input.files[0].name : '';
+}
+
+function submitPost() {
+  // Honeypot check
+  if (document.getElementById('website').value) return;
+
+  var name = document.getElementById('postName').value.trim();
+  var email = document.getElementById('postEmail').value.trim();
+  var message = document.getElementById('postMessage').value.trim();
+  var directed = document.getElementById('postDirected').value;
+  var fileInput = document.getElementById('postFile');
+  var msgEl = document.getElementById('postFormMsg');
+  var btn = document.getElementById('postSubmitBtn');
+
+  if (!name || !email || !message) {
+    msgEl.className = 'form-msg error';
+    msgEl.textContent = 'Please fill in your name, email, and message.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+  msgEl.className = 'form-msg';
+  msgEl.style.display = 'none';
+
+  var doPost = function(attachmentUrl, attachmentName) {
+    var body = {
+      author_name: name,
+      author_email: email,
+      message: message,
+      directed_to: directed || null,
+      attachment_url: attachmentUrl || null,
+      attachment_name: attachmentName || null,
+      is_admin: !!adminToken,
+      hp: document.getElementById('website').value
+    };
+    var headers = { 'Content-Type': 'application/json' };
+    if (adminToken) headers['X-Admin-Token'] = adminToken;
+
+    fetch(API_BASE + '/api/board/posts', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(body)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Post Message';
+      if (data.success) {
+        msgEl.className = 'form-msg success';
+        msgEl.textContent = 'Posted!';
+        document.getElementById('postMessage').value = '';
+        document.getElementById('postDirected').value = '';
+        fileInput.value = '';
+        document.getElementById('fileName').textContent = '';
+        loadPosts();
+        setTimeout(function() { msgEl.style.display = 'none'; }, 3000);
+      } else {
+        msgEl.className = 'form-msg error';
+        msgEl.textContent = data.error || 'Something went wrong.';
+      }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Post Message';
+      msgEl.className = 'form-msg error';
+      msgEl.textContent = 'Error connecting to server.';
+    });
+  };
+
+  // Upload file first if present
+  if (fileInput.files.length > 0) {
+    var file = fileInput.files[0];
+    if (file.size > 5 * 1024 * 1024) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Post Message';
+      msgEl.className = 'form-msg error';
+      msgEl.textContent = 'File too large. Maximum 5MB.';
+      return;
+    }
+    var formData = new FormData();
+    formData.append('file', file);
+    fetch(API_BASE + '/api/board/upload', { method: 'POST', body: formData })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.url) {
+        doPost(data.url, file.name);
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Post Message';
+        msgEl.className = 'form-msg error';
+        msgEl.textContent = data.error || 'File upload failed.';
+      }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Post Message';
+      msgEl.className = 'form-msg error';
+      msgEl.textContent = 'File upload failed.';
+    });
+  } else {
+    doPost(null, null);
+  }
+}
+
+// ── LOAD POSTS ─────────────────────────────────────
+function loadPosts() {
+  var container = document.getElementById('postsContainer');
+  fetch(API_BASE + '/api/board/posts')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.posts || data.posts.length === 0) {
+      container.innerHTML = '<div class="posts-empty"><i class="fas fa-comment-slash"></i> No messages yet. Be the first to start a conversation!</div>';
+      return;
+    }
+    // Build tree: top-level posts with nested replies
+    var topLevel = [];
+    var repliesMap = {};
+    data.posts.forEach(function(p) {
+      if (!p.parent_id) {
+        topLevel.push(p);
+        repliesMap[p.id] = [];
+      }
+    });
+    data.posts.forEach(function(p) {
+      if (p.parent_id && repliesMap[p.parent_id]) {
+        repliesMap[p.parent_id].push(p);
+      }
+    });
+
+    var html = '';
+    topLevel.forEach(function(post) {
+      html += renderPost(post, repliesMap[post.id] || []);
+    });
+    container.innerHTML = html;
+  })
+  .catch(function() {
+    container.innerHTML = '<div class="posts-empty"><i class="fas fa-exclamation-triangle"></i> Could not load messages. Please try again later.</div>';
+  });
+}
+
+function renderPost(post, replies) {
+  var initials = (post.author_name || '??').split(' ').map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase();
+  var isAdmin = post.is_admin;
+  var avatarClass = isAdmin ? 'post-avatar admin-avatar' : 'post-avatar';
+  var adminBadge = isAdmin ? '<span class="admin-badge">TEAM</span>' : '';
+  var timeStr = formatTime(post.created_at);
+
+  var directedHtml = '';
+  if (post.directed_to === 'TurnkeyAI') {
+    directedHtml = '<span class="post-directed to-turnkey"><i class="fas fa-arrow-right"></i> To TurnkeyAI Services</span>';
+  } else if (post.directed_to) {
+    directedHtml = '<span class="post-directed"><i class="fas fa-arrow-right"></i> To ' + escapeHtml(post.directed_to) + '</span>';
+  }
+
+  var attachHtml = '';
+  if (post.attachment_url) {
+    var isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(post.attachment_name || '');
+    if (isImage) {
+      attachHtml = '<a href="' + escapeHtml(post.attachment_url) + '" target="_blank" class="post-attachment" style="flex-direction:column;align-items:flex-start;">' +
+        '<span><i class="fas fa-image"></i> ' + escapeHtml(post.attachment_name) + '</span>' +
+        '<img class="thumb" src="' + escapeHtml(post.attachment_url) + '" alt="attachment">' +
+        '</a>';
+    } else {
+      attachHtml = '<a href="' + escapeHtml(post.attachment_url) + '" target="_blank" class="post-attachment"><i class="fas fa-file"></i> ' + escapeHtml(post.attachment_name) + '</a>';
+    }
+  }
+
+  var repliesHtml = '';
+  if (replies.length > 0) {
+    repliesHtml = '<div class="replies-wrap">';
+    replies.forEach(function(r) {
+      var rInitials = (r.author_name || '??').split(' ').map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase();
+      var rAdmin = r.is_admin;
+      var rBadge = rAdmin ? '<span class="admin-badge">TEAM</span>' : '';
+      var rAttach = '';
+      if (r.attachment_url) {
+        var rIsImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(r.attachment_name || '');
+        if (rIsImage) {
+          rAttach = '<a href="' + escapeHtml(r.attachment_url) + '" target="_blank" class="post-attachment" style="flex-direction:column;align-items:flex-start;">' +
+            '<span><i class="fas fa-image"></i> ' + escapeHtml(r.attachment_name) + '</span>' +
+            '<img class="thumb" src="' + escapeHtml(r.attachment_url) + '" alt="attachment">' +
+            '</a>';
+        } else {
+          rAttach = '<a href="' + escapeHtml(r.attachment_url) + '" target="_blank" class="post-attachment"><i class="fas fa-file"></i> ' + escapeHtml(r.attachment_name) + '</a>';
+        }
+      }
+      repliesHtml += '<div class="reply-card">' +
+        '<div class="post-header">' +
+          '<div class="' + (rAdmin ? 'post-avatar admin-avatar' : 'post-avatar') + '">' + rInitials + '</div>' +
+          '<span class="post-author">' + escapeHtml(r.author_name) + rBadge + '</span>' +
+          '<span class="post-time">' + formatTime(r.created_at) + '</span>' +
+        '</div>' +
+        '<div class="post-body">' + escapeHtml(r.message) + '</div>' +
+        rAttach +
+        '<div class="post-actions">' +
+          '<button class="post-action-btn delete-btn" onclick="deletePost(' + r.id + ')"><i class="fas fa-trash"></i> Delete</button>' +
+        '</div>' +
+      '</div>';
+    });
+    repliesHtml += '</div>';
+  }
+
+  return '<div class="post-card" id="post-' + post.id + '">' +
+    '<div class="post-header">' +
+      '<div class="' + avatarClass + '">' + initials + '</div>' +
+      '<span class="post-author">' + escapeHtml(post.author_name) + adminBadge + '</span>' +
+      '<span class="post-time">' + timeStr + '</span>' +
+      directedHtml +
+    '</div>' +
+    '<div class="post-body">' + escapeHtml(post.message) + '</div>' +
+    attachHtml +
+    '<div class="post-actions">' +
+      '<button class="post-action-btn" onclick="toggleReply(' + post.id + ')"><i class="fas fa-reply"></i> Reply</button>' +
+      '<button class="post-action-btn delete-btn" onclick="deletePost(' + post.id + ')"><i class="fas fa-trash"></i> Delete</button>' +
+    '</div>' +
+    '<div class="reply-form" id="replyForm-' + post.id + '">' +
+      '<div class="reply-form-row">' +
+        '<input type="text" placeholder="Your name" id="replyName-' + post.id + '" maxlength="100">' +
+        '<input type="email" placeholder="Your email (not shown)" id="replyEmail-' + post.id + '" maxlength="255">' +
+      '</div>' +
+      '<textarea placeholder="Write a reply..." id="replyMsg-' + post.id + '" maxlength="5000"></textarea>' +
+      '<div class="reply-form-actions">' +
+        '<button class="reply-submit" onclick="submitReply(' + post.id + ')">Reply</button>' +
+        '<button class="reply-cancel" onclick="toggleReply(' + post.id + ')">Cancel</button>' +
+      '</div>' +
+    '</div>' +
+    repliesHtml +
+  '</div>';
+}
+
+// ── REPLY ──────────────────────────────────────────
+function toggleReply(postId) {
+  var form = document.getElementById('replyForm-' + postId);
+  form.classList.toggle('open');
+  if (form.classList.contains('open') && adminToken) {
+    document.getElementById('replyName-' + postId).value = 'TurnkeyAI Services';
+    document.getElementById('replyName-' + postId).readOnly = true;
+    document.getElementById('replyEmail-' + postId).value = 'turnkeyaiservices@gmail.com';
+    document.getElementById('replyEmail-' + postId).readOnly = true;
+  }
+}
+
+function submitReply(postId) {
+  var name = document.getElementById('replyName-' + postId).value.trim();
+  var email = document.getElementById('replyEmail-' + postId).value.trim();
+  var message = document.getElementById('replyMsg-' + postId).value.trim();
+  if (!name || !email || !message) { alert('Please fill in name, email, and message.'); return; }
+
+  var headers = { 'Content-Type': 'application/json' };
+  if (adminToken) headers['X-Admin-Token'] = adminToken;
+
+  fetch(API_BASE + '/api/board/posts', {
+    method: 'POST',
+    headers: headers,
+    body: JSON.stringify({
+      parent_id: postId,
+      author_name: name,
+      author_email: email,
+      message: message,
+      is_admin: !!adminToken,
+      hp: ''
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+      loadPosts();
+    } else {
+      alert(data.error || 'Error posting reply.');
+    }
+  })
+  .catch(function() { alert('Error connecting to server.'); });
+}
+
+// ── DELETE ─────────────────────────────────────────
+function deletePost(postId) {
+  if (!adminToken) return;
+  if (!confirm('Delete this message and all its replies?')) return;
+
+  fetch(API_BASE + '/api/board/posts/' + postId, {
+    method: 'DELETE',
+    headers: { 'X-Admin-Token': adminToken }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+      loadPosts();
+    } else {
+      alert(data.error || 'Error deleting post.');
+    }
+  })
+  .catch(function() { alert('Error connecting to server.'); });
+}
+
+// ── HELPERS ────────────────────────────────────────
+function formatTime(iso) {
+  try {
+    var d = new Date(iso);
+    var now = new Date();
+    var diff = (now - d) / 1000;
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch (e) { return ''; }
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+</body>
+</html>
