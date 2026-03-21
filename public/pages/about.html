@@ -11,7 +11,6 @@
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'DM Sans',sans-serif;background:#080e1c;color:#e2e8f0;padding-top:64px;}
-    /* NAV */
     .site-nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,14,28,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;}
     .site-nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:white;text-decoration:none;letter-spacing:2px;}
     .site-nav-logo span{color:#f59e0b;}
@@ -22,7 +21,6 @@
     .site-nav-cta{background:#f59e0b;color:#1c0a00;padding:0.5rem 1.2rem;border-radius:8px;font-weight:700;font-size:0.85rem;text-decoration:none;}
     .site-nav-cta:hover{background:#d97706;}
     @media(max-width:768px){.site-nav-links{display:none;}}
-    /* PAGE */
     .page-hero{background:linear-gradient(160deg,#080e1c 0%,#0d1a35 60%,#0a100a 100%);padding:5rem 1.5rem 3rem;text-align:center;position:relative;}
     .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(37,99,235,0.1) 0%,transparent 65%);}
     .page-label{display:inline-flex;align-items:center;gap:.5rem;background:rgba(37,99,235,0.12);border:1px solid rgba(96,165,250,0.3);color:#93c5fd;font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.4rem 1rem;border-radius:50px;margin-bottom:1.2rem;}
@@ -47,7 +45,6 @@
     .cta-box p{color:rgba(255,255,255,0.6);margin-bottom:1.8rem;font-size:1rem;}
     .cta-box-btn{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;padding:.9rem 2.2rem;border-radius:10px;text-decoration:none;font-weight:700;font-size:1rem;display:inline-flex;align-items:center;gap:.5rem;transition:all 0.2s;}
     .cta-box-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(37,99,235,0.4);}
-    /* Footer */
     .site-footer{background:#050a14;padding:40px 40px 24px;border-top:1px solid rgba(255,255,255,0.06);}
     .site-footer-inner{max-width:820px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
     .site-footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:white;letter-spacing:2px;}
@@ -60,12 +57,13 @@
 </head>
 <body>
 
-<!-- NAV -->
 <nav class="site-nav">
   <div style="display:flex;align-items:center;gap:2rem;">
-    <a href="/pages/business.html" class="site-nav-logo">TurnkeyAI <span>Services</span></a>
+    <a href="/" class="site-nav-logo">TurnkeyAI <span>Services</span></a>
     <div class="site-nav-links">
       <a href="/pages/business.html">Home</a>
+      <a href="/pages/community.html">Community</a>
+      <a href="/pages/blog.html">Blog</a>
       <a href="/pages/coming-soon.html">Coming Soon</a>
       <a href="/pages/references.html">References</a>
       <a href="/pages/about.html" class="active">About Us</a>
@@ -82,31 +80,26 @@
 </div>
 
 <div class="content-wrap">
-
   <div class="content-section">
     <h2>The Problem We Solve</h2>
     <p>Most local businesses — plumbers, electricians, restaurants, salons, contractors — know they need a website. But the options aren't great. Pay a web agency $3,000–$10,000 and wait weeks. Use a DIY builder and spend hours fighting templates. Or just skip it and hope word-of-mouth holds up.</p>
     <p>Meanwhile, customers search Google before they call anyone. A business without a strong online presence is invisible to the people who need it most.</p>
     <p><strong>TurnkeyAI fixes that.</strong> We built a platform that generates a professional, industry-specific website in under 24 hours — complete with AI chat, online booking, SEO, and a client dashboard — for $99 a month. No setup fee. No tech skills required. The business owner fills out a 10-minute form, reviews a preview, clicks approve, and they're live.</p>
   </div>
-
   <div class="content-section">
     <h2>Who We Are</h2>
     <p>TurnkeyAI Services was founded by <strong>George Dickson</strong>, an Army veteran, former law firm CEO, and lifelong entrepreneur based in Bay St. Louis, Mississippi. George has spent decades building and running businesses, and he understands firsthand what small business owners need: results, not complexity.</p>
     <p>The platform is built on modern infrastructure — Node.js, PostgreSQL, Cloudflare Pages, and AI services — but none of that matters to the client. What matters is that they get a great-looking website that actually brings in customers, and they don't have to think about the technology behind it.</p>
   </div>
-
   <div class="highlight-box">
     <h3>🎖️ Veteran-Founded. Mississippi-Built.</h3>
     <p>TurnkeyAI Services is proudly headquartered in Bay St. Louis, Mississippi. We're part of the Innovate Mississippi ecosystem and committed to helping Gulf Coast businesses — and local service businesses everywhere — get the online presence they deserve.</p>
   </div>
-
   <div class="content-section">
     <h2>Our Approach</h2>
     <p>We believe small businesses shouldn't need a marketing department or a six-figure budget to look professional online. Our platform handles the entire lifecycle: intake, site generation, deployment, AI chat, content updates, and ongoing management. One flat monthly fee. No surprises.</p>
     <p>For businesses that want to grow further, we offer blog content, social media management, and our Mini-Me AI Avatar — a digital version of the business owner that greets website visitors 24/7.</p>
   </div>
-
   <div class="content-section">
     <h2>What We Stand For</h2>
     <div class="values-grid">
@@ -116,34 +109,31 @@
       <div class="value-card"><div class="icon">🔧</div><h4>Simplicity</h4><p>If you can fill out a form, you can have a professional website. That's the bar.</p></div>
     </div>
   </div>
-
   <div class="content-section">
     <h2>Territory Partner Program</h2>
     <p>TurnkeyAI also offers a <strong>Territory Partner Program</strong> for entrepreneurs who want to build recurring revenue by signing up local businesses in their area. Partners earn 60% of every client they bring in — no tech skills required, just local relationships and hustle.</p>
     <p><a href="/pages/business.html#partner" style="color:#60a5fa;font-weight:700;">Learn more about the Territory Partner Program →</a></p>
   </div>
-
   <div class="content-section" style="margin-bottom:2rem;">
     <h2>Contact</h2>
     <p>📞 <a href="tel:6039222004" style="color:#60a5fa;">(603) 922-2004</a><br>
     ✉️ <a href="mailto:turnkeyaiservices@gmail.com" style="color:#60a5fa;">turnkeyaiservices@gmail.com</a><br>
     📍 Bay St. Louis, Mississippi</p>
   </div>
-
   <div class="cta-box">
     <h2>Ready to Get Your Business Online?</h2>
     <p>$0 setup. Live in 24 hours. AI-powered from day one.</p>
     <a href="/pages/intake.html" class="cta-box-btn"><i class="fas fa-rocket"></i> Start My Website</a>
   </div>
-
 </div>
 
-<!-- FOOTER -->
 <div class="site-footer">
   <div class="site-footer-inner">
     <div class="site-footer-logo">TurnkeyAI <span>Services</span></div>
     <div class="site-footer-links">
       <a href="/pages/business.html">Home</a>
+      <a href="/pages/community.html">Community</a>
+      <a href="/pages/blog.html">Blog</a>
       <a href="/pages/pricing.html">Pricing</a>
       <a href="/pages/about.html">About Us</a>
       <a href="/pages/coming-soon.html">Coming Soon</a>
