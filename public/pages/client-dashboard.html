@@ -221,6 +221,22 @@ a { text-decoration: none; color: inherit; }
 .plan-key { color: var(--muted); }
 .plan-val { font-weight: 600; }
 
+/* PASSWORD */
+.pw-group { margin-bottom: 14px; }
+.pw-group label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; display: block; }
+.pw-group input {
+  width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 11px 14px; font-size: 14px; font-family: var(--head); outline: none;
+  color: var(--text); background: #f9fafb; transition: border-color .2s;
+}
+.pw-group input:focus { border-color: var(--primary); background: white; }
+.pw-save-btn {
+  width: 100%; margin-top: 4px; background: var(--primary); color: white; border: none;
+  border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 700;
+  font-family: var(--head); cursor: pointer; transition: opacity .2s;
+}
+.pw-save-btn:hover { opacity: .9; }
+
 /* TOAST */
 .toast {
   position: fixed; bottom: 24px; right: 24px;
@@ -338,12 +354,32 @@ a { text-decoration: none; color: inherit; }
         </div>
       </div>
 
-      <!-- PLAN + CHANGE -->
+      <!-- PLAN + PASSWORD + CHANGE -->
       <div style="display:flex;flex-direction:column;gap:20px;">
         <!-- PLAN INFO -->
         <div class="card">
           <div class="card-head"><div class="card-title">💳 My Plan</div></div>
           <div class="card-body" id="planBody"></div>
+        </div>
+
+        <!-- CHANGE PASSWORD -->
+        <div class="card">
+          <div class="card-head"><div class="card-title">🔒 Change Password</div></div>
+          <div class="card-body">
+            <div class="pw-group">
+              <label>Current Password</label>
+              <input type="password" id="pw_current" placeholder="Your current password">
+            </div>
+            <div class="pw-group">
+              <label>New Password</label>
+              <input type="password" id="pw_new" placeholder="At least 8 characters">
+            </div>
+            <div class="pw-group">
+              <label>Confirm New Password</label>
+              <input type="password" id="pw_confirm" placeholder="Re-enter new password" onkeydown="if(event.key==='Enter')changePassword()">
+            </div>
+            <button class="pw-save-btn" onclick="changePassword()">Update Password</button>
+          </div>
         </div>
 
         <!-- CHANGE REQUEST -->
@@ -550,6 +586,33 @@ function buildPlan() {
     '<div class="plan-row"><span class="plan-key">Monthly Rate</span><span class="plan-val" style="color:var(--primary);">' + planRate + '</span></div>' +
     '<div class="plan-row"><span class="plan-key">Status</span><span class="plan-val" style="color:' + (clientData.status==='active'?'var(--accent)':'var(--warn)') + ';">' + (clientData.status==='active'?'✅ Active':'⏳ Pending') + '</span></div>' +
     '<div class="plan-row"><span class="plan-key">Support</span><span class="plan-val">(603) 922-2004</span></div>';
+}
+
+/* ── Change Password ── */
+async function changePassword() {
+  var current = document.getElementById('pw_current').value;
+  var newPw = document.getElementById('pw_new').value;
+  var confirm = document.getElementById('pw_confirm').value;
+  if (!current || !newPw || !confirm) { showToast('Please fill in all password fields'); return; }
+  if (newPw.length < 8) { showToast('New password must be at least 8 characters'); return; }
+  if (newPw !== confirm) { showToast('New passwords do not match'); return; }
+  if (newPw === current) { showToast('New password must be different from current'); return; }
+  try {
+    var res = await fetch(BASE_URL + '/api/client-update', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ token: TOKEN, password: PASS, updateType: 'change_password', updateData: { currentPassword: current, newPassword: newPw } })
+    });
+    var d = await res.json();
+    if (d.success) {
+      PASS = newPw;
+      document.getElementById('pw_current').value = '';
+      document.getElementById('pw_new').value = '';
+      document.getElementById('pw_confirm').value = '';
+      showToast('✅ Password updated successfully', true);
+    } else {
+      showToast('❌ ' + (d.error || 'Password change failed'));
+    }
+  } catch(e) { showToast('❌ Connection error'); }
 }
 
 /* ── Addons ── */
