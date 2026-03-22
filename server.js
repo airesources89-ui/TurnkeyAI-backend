@@ -24,6 +24,21 @@ app.use(generalLimiter);
 app.use('/api/stripe-webhook', express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false }));
+// ── CORS — allow client sites on Cloudflare Pages + custom domains ──
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && (
+    origin.endsWith('.pages.dev') ||
+    origin.endsWith('.turnkeyaiservices.com') ||
+    origin === 'https://turnkeyaiservices.com'
+  )) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') return res.sendStatus(204);
+  }
+  next();
+});
 // ── Static files ──
 app.use(express.static(path.join(__dirname, 'public')));
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
@@ -61,4 +76,3 @@ initDB()
     app.listen(PORT, () => console.log(`[TurnkeyAI] Server running on port ${PORT}`));
   })
   .catch(err => { console.error('[startup error]', err); process.exit(1); });
-
