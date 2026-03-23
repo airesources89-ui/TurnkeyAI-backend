@@ -77,6 +77,14 @@ router.post('/api/client-update', async (req, res) => {
   if (!client) return res.status(404).json({ error: 'Not found' });
   if (client.dashPassword !== password.trim().toUpperCase()) return res.status(401).json({ error: 'Wrong password' });
   try {
+    if (updateType === 'change_password') {
+      const newPass = (updateData && updateData.newPassword) ? updateData.newPassword.trim() : '';
+      if (!newPass || newPass.length < 6) return res.status(400).json({ error: 'New password must be at least 6 characters.' });
+      if (newPass.length > 64) return res.status(400).json({ error: 'Password too long.' });
+      client.dashPassword = newPass.toUpperCase();
+      await saveClient(client);
+      return res.json({ success: true, message: 'Password changed successfully. Use your new password next time you log in.' });
+    }
     if (updateType === 'content_update') {
       const BLOCKED = ['id','dashToken','dashPassword','previewToken','_previewToken'];
       const incoming = updateData || {};
