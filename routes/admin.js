@@ -194,5 +194,61 @@ router.post('/api/coming-soon/rate', postLimiter, async (req, res) => {
   } catch(err) { console.error('[coming-soon/rate]', err); res.status(500).json({ error: 'Failed' }); }
 });
 
+// ── GET /api/admin/check-token — Diagnostic: look up a client by preview token ──
+router.get('/api/admin/check-token', (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+  const token = req.query.t;
+  if (!token) return res.status(400).json({ error: 'Missing query param: t (preview token)' });
+  const totalClients = Object.keys(clients).length;
+  const match = Object.values(clients).find(c => c.previewToken === token);
+  if (!match) {
+    // Also check if any client has it as _previewToken (legacy)
+    const legacyMatch = Object.values(clients).find(c => c._previewToken === token);
+    if (legacyMatch) {
+      return res.json({
+        found: false, foundAsLegacy: true, totalClientsInMemory: totalClients,
+        legacyClient: {
+          id: legacyMatch.id, businessName: legacyMatch.data?.businessName || null,
+          status: legacyMatch.status, previewToken: legacyMatch.previewToken || null,
+          _previewToken: legacyMatch._previewToken || null
+        },
+        hint: 'Token exists as _previewToken but not previewToken — loadClientsFromDB may not be mapping it correctly.'
+      });
+    }
+    return res.json({
+      found: false, totalClientsInMemory: totalClients,
+      allTokens: Object.values(clients).map(c => ({
+        id: c.id, businessName: c.data?.businessName || null,
+        previewToken: c.previewToken || null,
+        _previewToken: c._previewToken || null
+      })),
+      hint: 'No client has this previewToken. Check if the token was saved to DB correctly during intake.'
+    });
+  }
+  res.json({
+    found: true, totalClientsInMemory: totalClients,
+    client: {
+      id: match.id,
+      businessName: match.data?.businessName || null,
+      ownerName: match.data?.ownerName || null,
+      email: match.data?.email || null,
+      status: match.status,
+      previewToken: match.previewToken,
+      _previewToken: match._previewToken || null,
+      dashPassword: match.dashPassword || null,
+      dashToken: match.dashToken || null,
+      liveUrl: match.liveUrl || null,
+      cfProjectName: match.cfProjectName || null,
+      createdAt: match.createdAt || null,
+      approvedAt: match.approvedAt || null,
+      hasData: !!match.data,
+      dataKeys: match.data ? Object.keys(match.data) : [],
+      telephonyEnabled: match.telephonyEnabled || false,
+      twilioNumber: match.twilioNumber || null
+    }
+  });
+});
+
 console.log('[module] routes/admin.js loaded');
 module.exports = router;
