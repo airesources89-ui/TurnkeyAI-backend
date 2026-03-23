@@ -45,7 +45,7 @@ router.get('/api/admin/clients', (req, res) => {
       wantsProfessionalEmail: c.data.wantsProfessionalEmail || null
     },
     state: c.data.state || null, missionStatement: c.data.missionStatement || null,
-    aboutUs: c.data.aboutUs || null, plan: c.data.plan || c.data.tier || c.data.packageType || null
+    aboutUs: c.data.aboutUs || null, plan: c.data.selectedPlan || c.data.plan || c.data.tier || c.data.packageType || null
   }));
   res.json({ mrr: mrrSummary, clients: clientList });
 });
