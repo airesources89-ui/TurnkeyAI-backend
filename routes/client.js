@@ -207,5 +207,68 @@ router.post('/api/video-upload-notify', async (req, res) => {
   } catch(err) { console.error('[/api/video-upload-notify]', err); res.status(500).json({ error: 'Failed' }); }
 });
 
+// ════════════════════════════════════════════════
+// ── GET /api/prefill/:id — Return client data for intake form pre-population
+// ── Called by intake.html in update mode to fill fields with existing data
+// ════════════════════════════════════════════════
+router.get('/api/prefill/:id', async (req, res) => {
+  const client = clients[req.params.id];
+  if (!client) return res.status(404).json({ success: false, error: 'Client not found' });
+  // Accept either previewToken or dashToken for authentication
+  const token = req.query.token;
+  if (!token) return res.status(400).json({ success: false, error: 'Missing token' });
+  if (client.previewToken !== token && client.dashToken !== token) {
+    return res.status(403).json({ success: false, error: 'Invalid token' });
+  }
+  res.json({ success: true, data: client.data });
+});
+
+// ════════════════════════════════════════════════
+// ── POST /api/client-update-intake/:id — Accept full intake re-submission
+// ── Called by intake.html in update mode when client submits changed data
+// ── Merges into client.data, saves, and redeploys if active
+// ════════════════════════════════════════════════
+router.post('/api/client-update-intake/:id', async (req, res) => {
+  const client = clients[req.params.id];
+  if (!client) return res.status(404).json({ success: false, error: 'Client not found' });
+  // Accept either previewToken or dashToken for authentication
+  const token = req.query.token;
+  if (!token) return res.status(400).json({ success: false, error: 'Missing token' });
+  if (client.previewToken !== token && client.dashToken !== token) {
+    return res.status(403).json({ success: false, error: 'Invalid token' });
+  }
+  try {
+    const BLOCKED = ['id', 'dashToken', 'dashPassword', 'previewToken', '_previewToken'];
+    const incoming = req.body || {};
+    Object.keys(incoming).forEach(k => {
+      if (!BLOCKED.includes(k)) client.data[k] = incoming[k];
+    });
+    client.updatedAt = new Date().toISOString();
+    await saveClient(client);
+
+    // Notify admin of the update
+    await sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `🔄 Content Update: ${client.data.businessName || 'Client'} — via Intake Form`,
+      html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;"><div style="background:linear-gradient(135deg,#0066FF,#1a1a2e);padding:20px 28px;border-radius:12px 12px 0 0;"><h2 style="color:#00D68F;margin:0;">🔄 Client Content Update</h2></div><div style="padding:24px;background:white;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;"><p><strong>Business:</strong> ${client.data.businessName || '—'}</p><p><strong>Owner:</strong> ${client.data.ownerName || '—'}</p><p><strong>Email:</strong> ${client.data.email || '—'}</p><p><strong>Status:</strong> ${client.status}</p><p style="font-size:13px;color:#6B7280;">Client updated their info via the intake form. ${client.status === 'active' ? 'Site redeploy was attempted.' : 'Site will update on next deployment.'}</p></div></div>`
+    }).catch(e => console.error('[update-intake admin email]', e.message));
+
+    // Redeploy if active
+    if (client.status === 'active' && client.cfProjectName) {
+      try {
+        await redeployLive(client);
+        return res.json({ success: true, message: 'Your site has been updated and redeployed.', liveUrl: client.liveUrl });
+      } catch(deployErr) {
+        console.error('[update-intake redeploy]', deployErr.message);
+        return res.json({ success: true, message: 'Your information was saved, but the redeploy failed. Please contact support at (603) 922-2004.', liveUrl: client.liveUrl });
+      }
+    }
+    return res.json({ success: true, message: 'Your information has been saved. Changes will appear on your next deployment.' });
+  } catch(err) {
+    console.error('[/api/client-update-intake]', err);
+    res.status(500).json({ success: false, error: 'Update failed. Please try again or call (603) 922-2004.' });
+  }
+});
+
 console.log('[module] routes/client.js loaded');
 module.exports = router;
