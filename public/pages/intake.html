@@ -639,9 +639,6 @@
     var IS_UPDATE = !!(UPDATE_ID && UPDATE_TOKEN);
 
     if (IS_UPDATE) {
-      // Show update banner, hide new-client welcome
-      document.getElementById('updateModeBanner').style.display = 'block';
-      document.getElementById('newClientWelcome').style.display = 'none';
       var submitBtn2 = document.getElementById('submitBtn');
       if (submitBtn2) submitBtn2.textContent = '💾 Save & Update My Site';
       fetch('https://turnkeyaiservices.com/api/prefill/'+UPDATE_ID+'?token='+UPDATE_TOKEN)
@@ -653,75 +650,15 @@
             var el = document.getElementById(id) || document.querySelector('[name="'+id+'"]');
             if (!el || val === undefined || val === null) return;
             if (el.type === 'checkbox') el.checked = (val === 'on' || val === 'yes' || val === true);
-            else if (el.type === 'radio') {
-              // For radio buttons, find the one with matching value
-              var radios = document.querySelectorAll('[name="'+id+'"]');
-              radios.forEach(function(r){ if(r.value === val){ r.checked = true; var p=r.closest('.checkbox-item,.radio-item'); if(p) p.classList.add('checked'); } });
-            }
             else el.value = val;
           };
-          // Fill industry first so dynamic sections render
-          if (d.industry) {
-            document.getElementById('industrySelect').value = d.industry;
-            handleIndustryChange();
-          }
-          // Fill all standard text/email/tel/textarea fields
           ['businessName','ownerName','phone','email','address','city','state','zip',
-           'yearsInBusiness','currentWebsite','facebook','instagram','googleBusiness','otherSocial',
            'aboutUs','missionStatement','ownerBackground','milestones','awards',
            'communityInvolvement','additionalServices','targetCity','targetRadius',
-           'chatName','faqQuestions','referralSource','additionalNotes','competitiveAdvantage'
+           'facebook','instagram','currentWebsite','googleBusiness','otherSocial',
+           'chatName','chatPersonality','pricingDisplay','faqQuestions',
+           'referralSource','additionalNotes','competitiveAdvantage'
           ].forEach(function(f){ fill(f, d[f]); });
-          // Fill radio buttons
-          ['hasLogo','businessType','bookingMethod','sameDay','pricingModel','supplies','insured',
-           'pricingDisplay','chatPersonality','emergencyAvail','freeEstimates','reservations'
-          ].forEach(function(f){ if(d[f]) fill(f, d[f]); });
-          // Fill checkboxes for services (service_xxx = "on")
-          Object.keys(d).forEach(function(k){
-            if (k.startsWith('service_') && d[k] === 'on') {
-              var cb = document.querySelector('[name="'+k+'"]');
-              if (cb) { cb.checked = true; var si = cb.closest('.service-item'); if(si) si.classList.add('checked'); }
-            }
-            if (k.startsWith('price_') && d[k]) {
-              var pi = document.querySelector('[name="'+k+'"]');
-              if (pi) pi.value = d[k];
-            }
-          });
-          // Fill day checkboxes and hours
-          ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].forEach(function(day){
-            if (d['day_'+day]) {
-              var cb = document.querySelector('[name="day_'+day+'"]');
-              if (cb) cb.checked = true;
-            }
-            if (d['hours_'+day]) {
-              var hi = document.querySelector('[name="hours_'+day+'"]');
-              if (hi) hi.value = d['hours_'+day];
-            }
-          });
-          // Fill payment checkboxes
-          ['pay_cash','pay_card','pay_check','pay_venmo','pay_cashapp','pay_zelle'].forEach(function(f){
-            if (d[f]) {
-              var cb = document.querySelector('[name="'+f+'"]');
-              if (cb) { cb.checked = true; var p=cb.closest('.checkbox-item'); if(p) p.classList.add('checked'); }
-            }
-          });
-          // Fill call handling checkboxes
-          ['addon_after_hours','addon_missed_call','addon_voicemail_drop'].forEach(function(f){
-            if (d[f] === 'yes') {
-              var cb = document.querySelector('[name="'+f+'"]');
-              if (cb) { cb.checked = true; toggleCallAddon(cb, cb.closest('.call-addon-item').id); }
-            }
-          });
-          // Fill video/mini-me checkboxes
-          if (d.wants_mini_me === 'yes') { document.getElementById('wantsMiniMe').checked = true; document.getElementById('miniMeCheckRow').classList.add('checked'); document.getElementById('miniMeConsentBox').style.display = 'block'; document.getElementById('wantsFreeVideo').checked = true; document.getElementById('videoCheckRow').classList.add('checked'); }
-          else if (d.wants_free_video === 'yes') { document.getElementById('wantsFreeVideo').checked = true; document.getElementById('videoCheckRow').classList.add('checked'); }
-          // Fill target market checkboxes
-          Object.keys(d).forEach(function(k){
-            if (k.startsWith('cust_') && d[k]) {
-              var cb = document.querySelector('[name="'+k+'"]');
-              if (cb) { cb.checked = true; var p=cb.closest('.checkbox-item'); if(p) p.classList.add('checked'); }
-            }
-          });
         })
         .catch(function(e){ console.warn('Prefill failed', e); });
     }
@@ -733,19 +670,20 @@
 
         if(document.getElementById('wantsMiniMe').checked&&!document.getElementById('miniMeConsentCb').checked){
             alert('Please check the image/likeness consent box to add Mini-Me.');
-            if(submitBtn){submitBtn.disabled=false;submitBtn.textContent=IS_UPDATE?'💾 Save & Update My Site':'🚀 Submit & Build My Website';}
+            if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='🚀 Submit & Build My Website';}
             return;
         }
 
         var formData=new FormData(this);
         var data=Object.fromEntries(formData.entries());
         data.submittedAt=new Date().toISOString();
-        if (!IS_UPDATE) data.id='client_'+Date.now();
+        data.id='client_'+Date.now();
         if(document.getElementById('wantsMiniMe').checked&&document.getElementById('miniMeConsentCb').checked){
             data.mini_me_consent_timestamp=new Date().toISOString();
         }
 
         try{
+            // FIX 1: Correct endpoint — always use turnkeyaiservices.com
             var endpoint = IS_UPDATE
                 ? 'https://turnkeyaiservices.com/api/client-update-intake/'+UPDATE_ID+'?token='+UPDATE_TOKEN
                 : 'https://turnkeyaiservices.com/api/submission-created';
