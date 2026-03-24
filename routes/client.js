@@ -20,9 +20,11 @@ const postLimiter = rateLimit({ windowMs: 15*60*1000, max: 10, standardHeaders: 
 
 // ── POST /api/client-auth ──
 router.post('/api/client-auth', async (req, res) => {
-  const { token, password } = req.body;
-  if (!token || !password) return res.status(400).json({ error: 'Missing token or password' });
-  const client = Object.values(clients).find(c => c.dashToken === token);
+  const { email, token, password } = req.body;
+  if ((!email && !token) || !password) return res.status(400).json({ error: 'Missing email or password' });
+  const client = email
+    ? Object.values(clients).find(c => c.data && c.data.email && c.data.email.toLowerCase() === email.toLowerCase())
+    : Object.values(clients).find(c => c.dashToken === token);
   if (!client) return res.status(404).json({ error: 'Not found' });
   if (client.dashPassword !== password.trim().toUpperCase()) return res.status(401).json({ error: 'Wrong password' });
   res.json({
@@ -30,13 +32,13 @@ router.post('/api/client-auth', async (req, res) => {
     data: client.data, miniMeConsent: client.miniMeConsent || false,
     miniMeVideoUrl: client.miniMeVideoFile || null, freeVideoRequested: client.freeVideoRequested || false,
     twilioNumber: client.twilioNumber || null, telephonyEnabled: client.telephonyEnabled || false,
-    clientId: client.id
+    clientId: client.id, dashToken: client.dashToken
   });
 });
 
 // ── POST /api/client-analytics ──
 router.post('/api/client-analytics', async (req, res) => {
-  const { token, password, days } = req.body;
+  const { token, password } = req.body;
   if (!token || !password) return res.status(400).json({ error: 'Missing credentials' });
   const client = Object.values(clients).find(c => c.dashToken === token);
   if (!client) return res.status(404).json({ error: 'Not found' });
