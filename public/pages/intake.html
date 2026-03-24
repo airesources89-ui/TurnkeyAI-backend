@@ -942,6 +942,88 @@ async function submitUpdateForm(dashToken, dashPass){
     }
   }
 }
+
+// ═══════════════════════════════════════════
+// PREVIEW UPDATE MODE — activated when ?update=ID&token=TOKEN
+// (from preview page "Edit My Information" button)
+// ═══════════════════════════════════════════
+(function initPreviewUpdateMode(){
+  var params = new URLSearchParams(window.location.search);
+  var clientId = params.get('update');
+  var token = params.get('token');
+  if(!clientId || !token) return;
+  // Don't run if the dashboard update mode already triggered
+  if(params.get('mode') === 'update') return;
+
+  window._updateMode = true;
+
+  fetch('/api/prefill/' + encodeURIComponent(clientId) + '?token=' + encodeURIComponent(token))
+    .then(function(r){ return r.json(); })
+    .then(function(result){
+      if(!result || !result.success || !result.data){
+        console.warn('[PreviewUpdateMode] Prefill failed:', result && result.error);
+        return;
+      }
+      // Build the shape that prefillAllFields expects: {data: {...}}
+      var cd = { data: result.data };
+      // Pass null for dashToken/dashPass — those are only used by the dashboard submit path
+      prefillAllFields(cd, null, null);
+      // Override the submit button to use the preview update endpoint
+      var btn = document.getElementById('submitBtn');
+      if(btn){
+        btn.textContent = '💾 Save & Update My Site →';
+        btn.onclick = function(){ submitPreviewUpdateForm(clientId, token); };
+      }
+    })
+    .catch(function(e){ console.error('[PreviewUpdateMode] fetch error', e); });
+})();
+
+async function submitPreviewUpdateForm(clientId, token){
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  document.getElementById('overlay').classList.add('show');
+
+  var data = {};
+  document.querySelectorAll('[name]').forEach(function(el){
+    if(el.type==='checkbox'){
+      if(el.checked){
+        if(el.name.endsWith('_cb')){
+          if(data[el.name]) data[el.name] += ', '+el.value;
+          else data[el.name] = el.value;
+        } else {
+          data[el.name]=el.value||'on';
+        }
+      }
+    }
+    else if(el.type==='radio'){ if(el.checked) data[el.name]=el.value; }
+    else if(el.tagName==='SELECT'||el.tagName==='TEXTAREA'||el.type==='text'||el.type==='tel'||el.type==='email'||el.type==='password'){
+      if(el.value.trim()) data[el.name]=el.value.trim();
+    }
+  });
+  data.industry = selectedIndustry;
+  if(selectedIndustry==='other') data.industryOther = document.getElementById('otherInput').value.trim();
+
+  try {
+    var res = await fetch('/api/client-update-intake/' + encodeURIComponent(clientId) + '?token=' + encodeURIComponent(token), {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(data)
+    });
+    var result = await res.json();
+    document.getElementById('overlay').classList.remove('show');
+    btn.disabled = false;
+
+    if(result.success){
+      document.querySelector('.container').innerHTML = '<div class="card" style="text-align:center;padding:60px 40px"><div style="font-size:64px;margin-bottom:20px">✅</div><h2 style="font-size:24px;color:#00D68F;margin-bottom:12px">Your Information Has Been Updated!</h2><p style="font-size:16px;color:#374151;line-height:1.8;max-width:480px;margin:0 auto 24px">' + (result.message || 'Your changes have been saved.') + '</p><p style="font-size:14px;color:#6B7280">Questions? Call <strong>(603) 922-2004</strong> or email <a href="mailto:turnkeyaiservices@gmail.com" style="color:#0066FF">turnkeyaiservices@gmail.com</a></p></div>';
+    } else {
+      alert('❌ ' + (result.error || 'Update failed. Please try again.'));
+    }
+  } catch(e){
+    document.getElementById('overlay').classList.remove('show');
+    btn.disabled = false;
+    alert('❌ Connection error: ' + e.message + '\n\nPlease call (603) 922-2004');
+  }
+}
 </script>
 </body>
 </html>
