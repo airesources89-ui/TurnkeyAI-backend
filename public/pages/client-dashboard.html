@@ -221,7 +221,7 @@ a { text-decoration: none; color: inherit; }
 .plan-key { color: var(--muted); }
 .plan-val { font-weight: 600; }
 
-/* PASSWORD */
+/* PASSWORD / LOGIN ID */
 .pw-group { margin-bottom: 14px; }
 .pw-group label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; display: block; }
 .pw-group input {
@@ -236,6 +236,11 @@ a { text-decoration: none; color: inherit; }
   font-family: var(--head); cursor: pointer; transition: opacity .2s;
 }
 .pw-save-btn:hover { opacity: .9; }
+.current-login-id {
+  background: #e0f2fe; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px;
+  font-family: var(--mono); font-size: 16px; font-weight: 700; letter-spacing: 2px;
+  color: var(--primary); text-align: center; margin-bottom: 14px;
+}
 
 /* TOAST */
 .toast {
@@ -285,13 +290,13 @@ a { text-decoration: none; color: inherit; }
       <div class="login-logo-text">Turnkey<span>AI</span></div>
     </div>
     <div class="login-tagline">Your business website dashboard</div>
-    <label class="form-label">Email Address</label>
-    <input class="form-input" type="email" id="dashEmail" placeholder="The email you signed up with">
+    <label class="form-label">Login ID</label>
+    <input class="form-input" type="text" id="dashLoginId" placeholder="e.g. TK-7F3A2B" style="font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;">
     <label class="form-label">Password</label>
     <input class="form-input" type="password" id="dashPassword" placeholder="8-character code from email" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="btn-primary" onclick="doLogin()">Access My Dashboard →</button>
-    <div class="form-err" id="loginErr">Wrong email or password. Check your welcome email.</div>
-    <div class="login-note">Log in with the email you signed up with and the password from your welcome email.<br>Questions? Call <strong>(603) 922-2004</strong></div>
+    <div class="form-err" id="loginErr">Wrong Login ID or password. Check your welcome email.</div>
+    <div class="login-note">Log in with the Login ID and password from your welcome email.<br>Questions? Call <strong>(603) 922-2004</strong></div>
   </div>
 </div>
 
@@ -354,12 +359,26 @@ a { text-decoration: none; color: inherit; }
         </div>
       </div>
 
-      <!-- PLAN + PASSWORD + CHANGE -->
+      <!-- PLAN + LOGIN ID + PASSWORD + CHANGE -->
       <div style="display:flex;flex-direction:column;gap:20px;">
         <!-- PLAN INFO -->
         <div class="card">
           <div class="card-head"><div class="card-title">💳 My Plan</div></div>
           <div class="card-body" id="planBody"></div>
+        </div>
+
+        <!-- CHANGE LOGIN ID -->
+        <div class="card">
+          <div class="card-head"><div class="card-title">🔑 Change Login ID</div></div>
+          <div class="card-body">
+            <div class="current-login-id" id="currentLoginIdDisplay">—</div>
+            <div class="pw-group">
+              <label>New Login ID</label>
+              <input type="text" id="new_login_id" placeholder="e.g. MY-BIZ-01" style="font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;" onkeydown="if(event.key==='Enter')changeLoginId()">
+            </div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Letters, numbers, and hyphens only. At least 4 characters.</p>
+            <button class="pw-save-btn" onclick="changeLoginId()">Update Login ID</button>
+          </div>
         </div>
 
         <!-- CHANGE PASSWORD -->
@@ -429,13 +448,16 @@ a { text-decoration: none; color: inherit; }
 
 <script>
 var BASE_URL = 'https://turnkeyaiservices.com';
-var TOKEN = '', PASS = '', clientData = null;
+var TOKEN = '', PASS = '', LOGIN_ID = '', clientData = null;
 var selectedChangeType = '';
 
 window.addEventListener('DOMContentLoaded', function() {
   var params = new URLSearchParams(window.location.search);
+  // Support both ?loginId= (new) and ?email= (legacy) pre-fill
+  var lid = params.get('loginId');
   var em = params.get('email');
-  if (em) document.getElementById('dashEmail').value = decodeURIComponent(em);
+  if (lid) document.getElementById('dashLoginId').value = decodeURIComponent(lid);
+  else if (em) document.getElementById('dashLoginId').value = ''; // email param no longer used for login
   window.addEventListener('message', function(e) {
     if (e.origin !== window.location.origin) return;
     if (!e.data || e.data.type !== 'content_update_result') return;
@@ -446,20 +468,22 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 async function doLogin() {
-  var email = document.getElementById('dashEmail').value.trim();
+  var loginId = document.getElementById('dashLoginId').value.trim();
   var password = document.getElementById('dashPassword').value.trim();
-  if (!email || !password) return;
+  if (!loginId || !password) return;
+  LOGIN_ID = loginId;
   PASS = password;
   try {
     var res = await fetch(BASE_URL + '/api/client-auth', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ email: email, password: password })
+      body: JSON.stringify({ loginId: loginId, password: password })
     });
     if (res.status === 401 || res.status === 404) {
       document.getElementById('loginErr').style.display = 'block'; return;
     }
     clientData = await res.json();
     TOKEN = clientData.dashToken || '';
+    LOGIN_ID = clientData.dashLoginId || loginId;
     buildDashboard();
   } catch(e) {
     document.getElementById('loginErr').textContent = 'Connection error. Try again.';
@@ -484,6 +508,8 @@ function buildDashboard() {
     document.getElementById('heroUrl').textContent = 'Preview is ready — approval activates your live site';
     document.getElementById('heroBtns').innerHTML = '';
   }
+  // Show current Login ID
+  document.getElementById('currentLoginIdDisplay').textContent = LOGIN_ID;
   buildHoursEditor();
   buildPlan();
   buildAddons();
@@ -587,6 +613,28 @@ function buildPlan() {
     '<div class="plan-row"><span class="plan-key">Monthly Rate</span><span class="plan-val" style="color:var(--primary);">' + planRate + '</span></div>' +
     '<div class="plan-row"><span class="plan-key">Status</span><span class="plan-val" style="color:' + (clientData.status==='active'?'var(--accent)':'var(--warn)') + ';">' + (clientData.status==='active'?'✅ Active':'⏳ Pending') + '</span></div>' +
     '<div class="plan-row"><span class="plan-key">Support</span><span class="plan-val">(603) 922-2004</span></div>';
+}
+
+/* ── Change Login ID ── */
+async function changeLoginId() {
+  var newId = document.getElementById('new_login_id').value.trim();
+  if (!newId) { showToast('Please enter a new Login ID'); return; }
+  if (newId.length < 4) { showToast('Login ID must be at least 4 characters'); return; }
+  try {
+    var res = await fetch(BASE_URL + '/api/client-update', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ token: TOKEN, password: PASS, updateType: 'change_login_id', updateData: { newLoginId: newId } })
+    });
+    var d = await res.json();
+    if (d.success) {
+      LOGIN_ID = d.newLoginId || newId.toUpperCase();
+      document.getElementById('currentLoginIdDisplay').textContent = LOGIN_ID;
+      document.getElementById('new_login_id').value = '';
+      showToast('✅ Login ID updated to ' + LOGIN_ID, true);
+    } else {
+      showToast('❌ ' + (d.error || 'Failed to change Login ID'));
+    }
+  } catch(e) { showToast('❌ Connection error'); }
 }
 
 /* ── Change Password ── */
