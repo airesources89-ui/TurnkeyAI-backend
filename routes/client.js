@@ -20,11 +20,17 @@ const postLimiter = rateLimit({ windowMs: 15*60*1000, max: 10, standardHeaders: 
 
 // ── POST /api/client-auth ──
 router.post('/api/client-auth', async (req, res) => {
-  const { email, token, password } = req.body;
-  if ((!email && !token) || !password) return res.status(400).json({ error: 'Missing email or password' });
-  const client = email
-    ? Object.values(clients).find(c => c.data && c.data.email && c.data.email.toLowerCase() === email.toLowerCase())
-    : Object.values(clients).find(c => c.dashToken === token);
+  const { loginId, email, token, password } = req.body;
+  if ((!loginId && !email && !token) || !password) return res.status(400).json({ error: 'Missing Login ID or password' });
+  let client;
+  if (loginId) {
+    client = Object.values(clients).find(c => c.dashLoginId && c.dashLoginId.toUpperCase() === loginId.trim().toUpperCase());
+  } else if (email) {
+    // Legacy fallback — find by email (for any old bookmarks/links)
+    client = Object.values(clients).find(c => c.data && c.data.email && c.data.email.toLowerCase() === email.toLowerCase());
+  } else {
+    client = Object.values(clients).find(c => c.dashToken === token);
+  }
   if (!client) return res.status(404).json({ error: 'Not found' });
   if (client.dashPassword !== password.trim().toUpperCase()) return res.status(401).json({ error: 'Wrong password' });
   res.json({
@@ -32,7 +38,7 @@ router.post('/api/client-auth', async (req, res) => {
     data: client.data, miniMeConsent: client.miniMeConsent || false,
     miniMeVideoUrl: client.miniMeVideoFile || null, freeVideoRequested: client.freeVideoRequested || false,
     twilioNumber: client.twilioNumber || null, telephonyEnabled: client.telephonyEnabled || false,
-    clientId: client.id, dashToken: client.dashToken
+    clientId: client.id, dashToken: client.dashToken, dashLoginId: client.dashLoginId || null
   });
 });
 
@@ -44,7 +50,7 @@ router.post('/api/client-analytics', async (req, res) => {
   if (!client) return res.status(404).json({ error: 'Not found' });
   if (client.dashPassword !== password.trim().toUpperCase()) return res.status(401).json({ error: 'Wrong password' });
   try {
-    const d = parseInt(days) || 30;
+    const d = parseInt(req.body.days) || 30;
     const dateFilter = (d > 0 && d < 9999) ? `AND created_at >= NOW() - INTERVAL '${d} days'` : '';
     const result = await pool.query(`
       SELECT
@@ -86,6 +92,18 @@ router.post('/api/client-update', async (req, res) => {
       client.dashPassword = newPass.toUpperCase();
       await saveClient(client);
       return res.json({ success: true, message: 'Password changed successfully. Use your new password next time you log in.' });
+    }
+    if (updateType === 'change_login_id') {
+      const newId = (updateData && updateData.newLoginId) ? updateData.newLoginId.trim().toUpperCase() : '';
+      if (!newId || newId.length < 4) return res.status(400).json({ error: 'Login ID must be at least 4 characters.' });
+      if (newId.length > 20) return res.status(400).json({ error: 'Login ID too long (max 20 characters).' });
+      if (!/^[A-Z0-9\-]+$/.test(newId)) return res.status(400).json({ error: 'Login ID can only contain letters, numbers, and hyphens.' });
+      // Check uniqueness
+      const taken = Object.values(clients).find(c => c.id !== client.id && c.dashLoginId && c.dashLoginId.toUpperCase() === newId);
+      if (taken) return res.status(409).json({ error: 'That Login ID is already taken. Please choose another.' });
+      client.dashLoginId = newId;
+      await saveClient(client);
+      return res.json({ success: true, message: 'Login ID changed successfully. Use your new Login ID next time you log in.', newLoginId: newId });
     }
     if (updateType === 'content_update') {
       const BLOCKED = ['id','dashToken','dashPassword','previewToken','_previewToken'];
