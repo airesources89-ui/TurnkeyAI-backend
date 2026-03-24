@@ -285,13 +285,13 @@ a { text-decoration: none; color: inherit; }
       <div class="login-logo-text">Turnkey<span>AI</span></div>
     </div>
     <div class="login-tagline">Your business website dashboard</div>
-    <label class="form-label">Dashboard URL token</label>
-    <input class="form-input" type="text" id="dashToken" placeholder="From your welcome email link...">
+    <label class="form-label">Email Address</label>
+    <input class="form-input" type="email" id="dashEmail" placeholder="The email you signed up with">
     <label class="form-label">Password</label>
     <input class="form-input" type="password" id="dashPassword" placeholder="8-character code from email" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="btn-primary" onclick="doLogin()">Access My Dashboard →</button>
-    <div class="form-err" id="loginErr">Wrong password or link. Check your welcome email.</div>
-    <div class="login-note">Your login link and password were in your welcome email.<br>Questions? Call <strong>(603) 922-2004</strong></div>
+    <div class="form-err" id="loginErr">Wrong email or password. Check your welcome email.</div>
+    <div class="login-note">Log in with the email you signed up with and the password from your welcome email.<br>Questions? Call <strong>(603) 922-2004</strong></div>
   </div>
 </div>
 
@@ -434,8 +434,8 @@ var selectedChangeType = '';
 
 window.addEventListener('DOMContentLoaded', function() {
   var params = new URLSearchParams(window.location.search);
-  var t = params.get('token');
-  if (t) document.getElementById('dashToken').value = t;
+  var em = params.get('email');
+  if (em) document.getElementById('dashEmail').value = decodeURIComponent(em);
   window.addEventListener('message', function(e) {
     if (e.origin !== window.location.origin) return;
     if (!e.data || e.data.type !== 'content_update_result') return;
@@ -446,19 +446,20 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 async function doLogin() {
-  var token = document.getElementById('dashToken').value.trim();
+  var email = document.getElementById('dashEmail').value.trim();
   var password = document.getElementById('dashPassword').value.trim();
-  if (!token || !password) return;
-  TOKEN = token; PASS = password;
+  if (!email || !password) return;
+  PASS = password;
   try {
     var res = await fetch(BASE_URL + '/api/client-auth', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ token: token, password: password })
+      body: JSON.stringify({ email: email, password: password })
     });
     if (res.status === 401 || res.status === 404) {
       document.getElementById('loginErr').style.display = 'block'; return;
     }
     clientData = await res.json();
+    TOKEN = clientData.dashToken || '';
     buildDashboard();
   } catch(e) {
     document.getElementById('loginErr').textContent = 'Connection error. Try again.';
