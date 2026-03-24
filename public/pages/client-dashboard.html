@@ -602,12 +602,13 @@ async function saveHours() {
 
 /* ── Plan ── */
 function buildPlan() {
-  var p = ((clientData.data && (clientData.data.plan || clientData.data.tier || clientData.data.packageType)) || '').toLowerCase();
-  var planName = 'Website + AI Chat';
+  var p = ((clientData.data && (clientData.data.selectedPlan || clientData.data.plan || clientData.data.tier || clientData.data.packageType)) || '').toLowerCase();
+  var planName = 'Website Only';
   var planRate = '$99/mo';
-  if (p.includes('social') || p.includes('full') || p === '159') { planName = 'Website + Blog + Social'; planRate = '$159/mo'; }
-  else if (p.includes('blog') || p === '129') { planName = 'Website + Blog'; planRate = '$129/mo'; }
-  else if (p === '218') { planName = 'Full Package'; planRate = '$218/mo'; }
+  if (p === 'full_package' || p === '218') { planName = 'Full Package'; planRate = '$218/mo'; }
+  else if (p === 'website_blog_social' || p.includes('social') || p === '159') { planName = 'Website + Blog + Social'; planRate = '$159/mo'; }
+  else if (p === 'website_blog' || p.includes('blog') || p === '129') { planName = 'Website + Blog'; planRate = '$129/mo'; }
+  else if (p === 'website_only' || p === '99') { planName = 'Website Only'; planRate = '$99/mo'; }
   document.getElementById('planBody').innerHTML =
     '<div class="plan-row"><span class="plan-key">Plan</span><span class="plan-val">' + planName + '</span></div>' +
     '<div class="plan-row"><span class="plan-key">Monthly Rate</span><span class="plan-val" style="color:var(--primary);">' + planRate + '</span></div>' +
