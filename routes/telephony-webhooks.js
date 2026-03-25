@@ -1,7 +1,7 @@
 // ════════════════════════════════════════════════
 // ── routes/telephony-webhooks.js — Twilio voice/SMS webhooks
-// ── Future: IVR menus, call queuing, voicemail-to-email,
-// ── call analytics dashboard, number porting
+// ── IVR menu during business hours, voicemail after hours,
+// ── missed call text-back, AI SMS, call recording
 // ════════════════════════════════════════════════
 const express = require('express');
 const router = express.Router();
@@ -13,6 +13,31 @@ const { logAnalyticsEvent } = require('../lib/analytics');
 const BASE_URL       = process.env.BASE_URL || 'https://turnkeyaiservices.com';
 const CF_AI_TOKEN    = process.env.CF_AI_TOKEN;
 const CF_ACCOUNT_ID  = process.env.CF_ACCOUNT_ID;
+
+// ══════════════════════════════════════
+// ── Helper: Build spoken hours string from intake data ──
+// ══════════════════════════════════════
+function buildSpokenHours(data) {
+  const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  const dayLabels = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const parts = [];
+  // Group consecutive days with the same hours
+  let i = 0;
+  while (i < days.length) {
+    if (!data['day_' + days[i]]) { i++; continue; }
+    const hours = data['hours_' + days[i]] || 'Open';
+    let j = i + 1;
+    while (j < days.length && data['day_' + days[j]] && (data['hours_' + days[j]] || 'Open') === hours) { j++; }
+    if (j - i === 1) {
+      parts.push(`${dayLabels[i]}, ${hours}`);
+    } else {
+      parts.push(`${dayLabels[i]} through ${dayLabels[j - 1]}, ${hours}`);
+    }
+    i = j;
+  }
+  if (!parts.length) return 'Please call during normal business hours.';
+  return 'We are open ' + parts.join('. ') + '.';
+}
 
 // ── POST /api/telephony/voice ──
 router.post('/api/telephony/voice', async (req, res) => {
@@ -32,6 +57,9 @@ router.post('/api/telephony/voice', async (req, res) => {
     logAnalyticsEvent(client.id, 'call', isAfterHours(client) ? 'after_hours' : 'business_hours', { from: callerNumber });
 
     if (isAfterHours(client)) {
+      // ═══════════════════════════════════
+      // ── AFTER HOURS: Voicemail + AI SMS (unchanged) ──
+      // ═══════════════════════════════════
       console.log(`[Telephony/voice] After-hours call to ${biz} from ${callerNumber}`);
       res.type('text/xml').send(twiml(
         `<Say voice="alice">Thank you for calling ${biz}. We are currently closed. Please leave a message after the tone and we will return your call on our next business day. You can also send us a text at this number for immediate AI assistance.</Say>` +
@@ -57,17 +85,128 @@ router.post('/api/telephony/voice', async (req, res) => {
       })();
       sendEmail({ to: ADMIN_EMAIL, subject: `📞 After-Hours Call: ${biz} — ${callerNumber}`, html: `<p>After-hours call to <strong>${biz}</strong> from <strong>${callerNumber}</strong>. Voicemail recorded. Auto-text sent to caller.</p>` }).catch(() => {});
     } else {
-      console.log(`[Telephony/voice] Forwarding call to ${biz} (${client.forwardingNumber}) from ${callerNumber}`);
-      const forwardTo = (client.forwardingNumber || '').replace(/\D/g, '');
-      const e164Forward = forwardTo.length === 10 ? `+1${forwardTo}` : `+${forwardTo}`;
+      // ═══════════════════════════════════
+      // ── BUSINESS HOURS: IVR Menu ──
+      // ═══════════════════════════════════
+      console.log(`[Telephony/voice] IVR menu for ${biz} — call from ${callerNumber}`);
+
+      // Build greeting: custom audio if available, otherwise text-to-speech
+      let greetingTwiml;
+      if (client.ivrGreetingFile) {
+        greetingTwiml = `<Play>${BASE_URL}/uploads/${client.ivrGreetingFile}</Play>`;
+      } else {
+        greetingTwiml = `<Say voice="alice">Thank you for calling ${biz}.</Say>`;
+      }
+
+      const menuPrompt = `<Say voice="alice">Press 1 to schedule an appointment. Press 2 for our business hours. Press 3 to send us a message. Press 4, or simply stay on the line, to speak with someone directly.</Say>`;
+
       res.type('text/xml').send(twiml(
-        `<Dial callerId="${client.twilioNumber}" timeout="25" record="record-from-answer-dual" recordingStatusCallback="${BASE_URL}/api/telephony/transcription" action="${BASE_URL}/api/telephony/voice-status">` +
-        `<Number>${e164Forward}</Number></Dial>`
+        `<Gather numDigits="1" action="${BASE_URL}/api/telephony/ivr-action" method="POST" timeout="6">` +
+        greetingTwiml +
+        menuPrompt +
+        `</Gather>` +
+        `<Redirect method="POST">${BASE_URL}/api/telephony/ivr-action?Digits=4</Redirect>`
       ));
     }
   } catch (err) {
     console.error('[Telephony/voice] Error:', err);
     res.type('text/xml').send(twiml(`<Say voice="alice">We're experiencing technical difficulties. Please try again later.</Say><Hangup/>`));
+  }
+});
+
+// ══════════════════════════════════════
+// ── POST /api/telephony/ivr-action — Handle IVR keypress ──
+// ══════════════════════════════════════
+router.post('/api/telephony/ivr-action', async (req, res) => {
+  try {
+    const digit = req.body.Digits || req.query.Digits || '4';
+    const callerNumber = req.body.From || req.body.Caller || '';
+    const calledNumber = req.body.Called || req.body.To || '';
+    const client = findClientByTwilioNumber(calledNumber);
+
+    if (!client) {
+      res.type('text/xml').send(twiml(`<Say voice="alice">We're sorry, something went wrong. Goodbye.</Say><Hangup/>`));
+      return;
+    }
+
+    const biz = client.data.businessName || 'the business';
+    const siteUrl = client.liveUrl || `https://${client.cfProjectName || 'turnkeyai'}.pages.dev`;
+
+    switch (digit) {
+      case '1': {
+        // ── Schedule an appointment: send SMS with link ──
+        console.log(`[IVR] ${biz}: Caller ${callerNumber} pressed 1 — scheduling link`);
+        res.type('text/xml').send(twiml(
+          `<Say voice="alice">We're sending you a text with a link to schedule your appointment online. Thank you for calling ${biz}!</Say><Hangup/>`
+        ));
+        const schedUrl = `${siteUrl}/scheduling.html`;
+        sendSMSFrom(client.twilioNumber, callerNumber, `Here's your link to schedule an appointment with ${biz}: ${schedUrl}`).catch(e => console.error('[IVR SMS]', e.message));
+        break;
+      }
+      case '2': {
+        // ── Business hours: read aloud, then replay menu ──
+        console.log(`[IVR] ${biz}: Caller ${callerNumber} pressed 2 — business hours`);
+        const spokenHours = buildSpokenHours(client.data);
+        res.type('text/xml').send(twiml(
+          `<Say voice="alice">${spokenHours}</Say>` +
+          `<Gather numDigits="1" action="${BASE_URL}/api/telephony/ivr-action" method="POST" timeout="6">` +
+          `<Say voice="alice">Press 1 to schedule an appointment. Press 3 to send us a message. Press 4, or stay on the line, to speak with someone.</Say>` +
+          `</Gather>` +
+          `<Redirect method="POST">${BASE_URL}/api/telephony/ivr-action?Digits=4</Redirect>`
+        ));
+        break;
+      }
+      case '3': {
+        // ── Send a message: send SMS with link ──
+        console.log(`[IVR] ${biz}: Caller ${callerNumber} pressed 3 — messaging link`);
+        res.type('text/xml').send(twiml(
+          `<Say voice="alice">We're sending you a text with a link to send us a message online. Thank you for calling ${biz}!</Say><Hangup/>`
+        ));
+        const msgUrl = `${siteUrl}/messaging.html`;
+        sendSMSFrom(client.twilioNumber, callerNumber, `Here's your link to send a message to ${biz}: ${msgUrl}`).catch(e => console.error('[IVR SMS]', e.message));
+        break;
+      }
+      case '4': {
+        // ── Speak with someone: forward to real phone (existing behavior) ──
+        console.log(`[IVR] ${biz}: Caller ${callerNumber} pressed 4 — forwarding to ${client.forwardingNumber}`);
+        const forwardTo = (client.forwardingNumber || '').replace(/\D/g, '');
+        const e164Forward = forwardTo.length === 10 ? `+1${forwardTo}` : `+${forwardTo}`;
+        res.type('text/xml').send(twiml(
+          `<Say voice="alice">Connecting you now. Please hold.</Say>` +
+          `<Dial callerId="${client.twilioNumber}" timeout="25" record="record-from-answer-dual" recordingStatusCallback="${BASE_URL}/api/telephony/transcription" action="${BASE_URL}/api/telephony/voice-status">` +
+          `<Number>${e164Forward}</Number></Dial>`
+        ));
+        break;
+      }
+      default: {
+        // ── Invalid digit: replay menu once, then forward ──
+        console.log(`[IVR] ${biz}: Caller ${callerNumber} pressed invalid digit ${digit}`);
+        res.type('text/xml').send(twiml(
+          `<Say voice="alice">Sorry, that's not a valid option.</Say>` +
+          `<Gather numDigits="1" action="${BASE_URL}/api/telephony/ivr-action" method="POST" timeout="6">` +
+          `<Say voice="alice">Press 1 to schedule an appointment. Press 2 for business hours. Press 3 to send a message. Press 4 to speak with someone.</Say>` +
+          `</Gather>` +
+          `<Redirect method="POST">${BASE_URL}/api/telephony/ivr-action?Digits=4</Redirect>`
+        ));
+        break;
+      }
+    }
+  } catch (err) {
+    console.error('[IVR/action] Error:', err);
+    // Failsafe: forward to real phone
+    try {
+      const calledNumber = req.body.Called || req.body.To || '';
+      const client = findClientByTwilioNumber(calledNumber);
+      if (client && client.forwardingNumber) {
+        const forwardTo = client.forwardingNumber.replace(/\D/g, '');
+        const e164 = forwardTo.length === 10 ? `+1${forwardTo}` : `+${forwardTo}`;
+        res.type('text/xml').send(twiml(`<Say voice="alice">Please hold.</Say><Dial callerId="${client.twilioNumber}" timeout="25"><Number>${e164}</Number></Dial>`));
+      } else {
+        res.type('text/xml').send(twiml(`<Say voice="alice">We're experiencing technical difficulties. Please try again later.</Say><Hangup/>`));
+      }
+    } catch (_) {
+      res.type('text/xml').send(twiml(`<Say voice="alice">We're experiencing technical difficulties. Please try again later.</Say><Hangup/>`));
+    }
   }
 });
 
