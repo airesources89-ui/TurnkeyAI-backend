@@ -74,6 +74,9 @@ const PORT = process.env.PORT || 8080;
 initDB()
   .then(() => loadClientsFromDB())
   .then(() => {
+    // Initialize blog scheduler
+    require('./lib/blog-scheduler');
+    
     app.listen(PORT, () => console.log(`[TurnkeyAI] Server running on port ${PORT}`));
   })
   .catch(err => { console.error('[startup error]', err); process.exit(1); });
