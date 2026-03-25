@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════
-// ── routes/booking-chat.js — Booking leads, AI chat, Stripe webhook
+// ── routes/booking-chat.js — Booking leads, AI chat, Stripe webhook, Appointments
 // ── Future: CRM pipeline, lead scoring, chat history storage
 // ════════════════════════════════════════════════
 const express = require('express');
@@ -19,6 +19,230 @@ const postLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 10,
   standardHeaders: true, legacyHeaders: false,
   message: { error: 'Too many submissions. Please wait a few minutes and try again.' }
+});
+
+// ══════════════════════════════════════
+// ── APPOINTMENTS: Parse business hours into 1-hour slots ──
+// ══════════════════════════════════════
+
+// Parse "8:00 AM – 5:00 PM" into { openHour: 8, closeHour: 17 }
+function parseHoursRange(hoursStr) {
+  if (!hoursStr || typeof hoursStr !== 'string') return null;
+  // Match patterns like "8:00 AM – 5:00 PM", "8 AM - 5 PM", "8:00AM-5:00PM"
+  const match = hoursStr.match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)\s*[\u2013\u2014\-–—]+\s*(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
+  if (!match) return null;
+  let openH = parseInt(match[1]);
+  const openAmPm = match[3].toUpperCase();
+  let closeH = parseInt(match[4]);
+  const closeAmPm = match[6].toUpperCase();
+  // Convert to 24-hour
+  if (openAmPm === 'PM' && openH !== 12) openH += 12;
+  if (openAmPm === 'AM' && openH === 12) openH = 0;
+  if (closeAmPm === 'PM' && closeH !== 12) closeH += 12;
+  if (closeAmPm === 'AM' && closeH === 12) closeH = 0;
+  if (closeH <= openH) return null; // invalid range
+  return { openHour: openH, closeHour: closeH };
+}
+
+// Generate 1-hour slot labels from open to close (last slot = closeHour - 1)
+function generateSlots(openHour, closeHour) {
+  const slots = [];
+  for (let h = openHour; h < closeHour; h++) {
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const displayH = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+    slots.push(`${displayH}:00 ${ampm}`);
+  }
+  return slots;
+}
+
+// Get day name from a date string "YYYY-MM-DD"
+function getDayName(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00'); // noon to avoid timezone issues
+  return ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][d.getDay()];
+}
+
+// ── GET /api/appointments/available/:clientId ──
+router.get('/api/appointments/available/:clientId', async (req, res) => {
+  try {
+    const client = clients[req.params.clientId];
+    if (!client) return res.status(404).json({ error: 'Business not found' });
+
+    const dateStr = req.query.date; // "YYYY-MM-DD"
+    if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD.' });
+    }
+
+    // Don't allow dates in the past
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const requested = new Date(dateStr + 'T12:00:00');
+    if (requested < today) {
+      return res.json({ date: dateStr, closed: false, slots: [] });
+    }
+
+    // Determine day of week and check if business is open
+    const dayName = getDayName(dateStr);
+    const data = client.data || {};
+
+    // Check if the business is open on this day
+    const dayOpen = data['day_' + dayName];
+    if (!dayOpen) {
+      return res.json({ date: dateStr, closed: true, dayName: dayName, slots: [] });
+    }
+
+    // Parse hours for this day
+    const hoursStr = data['hours_' + dayName] || '';
+    const parsed = parseHoursRange(hoursStr);
+    if (!parsed) {
+      // Fallback: default 9 AM – 5 PM
+      parsed_default = { openHour: 9, closeHour: 17 };
+      var allSlots = generateSlots(parsed_default.openHour, parsed_default.closeHour);
+    } else {
+      var allSlots = generateSlots(parsed.openHour, parsed.closeHour);
+    }
+
+    // Query existing bookings for this client + date
+    const result = await pool.query(
+      `SELECT appointment_time FROM appointments WHERE client_id = $1 AND appointment_date = $2 AND status = 'booked'`,
+      [client.id, dateStr]
+    );
+    const bookedTimes = new Set(result.rows.map(r => r.appointment_time));
+
+    // If today, filter out slots that have already passed
+    const now = new Date();
+    const isToday = dateStr === now.toISOString().split('T')[0];
+
+    const slots = allSlots.map(time => {
+      let available = !bookedTimes.has(time);
+      // If today, check if slot time has passed
+      if (available && isToday) {
+        const slotMatch = time.match(/^(\d{1,2}):00\s*(AM|PM)$/i);
+        if (slotMatch) {
+          let slotH = parseInt(slotMatch[1]);
+          const slotAmPm = slotMatch[2].toUpperCase();
+          if (slotAmPm === 'PM' && slotH !== 12) slotH += 12;
+          if (slotAmPm === 'AM' && slotH === 12) slotH = 0;
+          if (slotH <= now.getHours()) available = false;
+        }
+      }
+      return { time, available };
+    });
+
+    res.json({ date: dateStr, closed: false, dayName, slots });
+  } catch(err) {
+    console.error('[/api/appointments/available]', err);
+    res.status(500).json({ error: 'Failed to fetch availability' });
+  }
+});
+
+// ── POST /api/appointments/book ──
+router.post('/api/appointments/book', postLimiter, async (req, res) => {
+  try {
+    const { clientId, date, time, firstName, lastName, phone, email, service, notes } = req.body;
+    if (!clientId || !date || !time) return res.status(400).json({ error: 'Missing required fields (clientId, date, time)' });
+    if (!phone && !email) return res.status(400).json({ error: 'Phone or email is required' });
+
+    const client = clients[clientId];
+    if (!client) return res.status(404).json({ error: 'Business not found' });
+
+    const customerName = [firstName, lastName].filter(Boolean).join(' ') || 'Customer';
+
+    // Insert with unique constraint — prevents double booking
+    try {
+      await pool.query(
+        `INSERT INTO appointments (client_id, customer_name, customer_phone, customer_email, service, appointment_date, appointment_time, notes, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'booked')`,
+        [client.id, customerName, phone || null, email || null, service || null, date, time, notes || null]
+      );
+    } catch(dbErr) {
+      // Unique constraint violation = double booking
+      if (dbErr.code === '23505') {
+        return res.status(409).json({ error: 'This time slot was just booked by someone else. Please select a different time.' });
+      }
+      throw dbErr;
+    }
+
+    // Format date for display
+    const dateObj = new Date(date + 'T12:00:00');
+    const displayDate = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+    const bizName = client.data.businessName || 'Your Business';
+    const bizPhone = client.data.phone || '';
+    const bizEmail = client.data.email || '';
+
+    // ── Email to business owner ──
+    await sendEmail({
+      to: bizEmail || ADMIN_EMAIL,
+      subject: `📅 New Appointment Booked: ${customerName} — ${displayDate} at ${time}`,
+      html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
+        <div style="background:linear-gradient(135deg,#0066FF,#0052CC);padding:20px 28px;border-radius:12px 12px 0 0;">
+          <h2 style="color:white;margin:0;">📅 New Appointment Booked</h2>
+          <p style="color:rgba(255,255,255,.8);margin:6px 0 0;font-size:14px;">${bizName}</p>
+        </div>
+        <div style="padding:24px;background:white;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;">
+          <div style="background:#f0fff4;border:2px solid #00D68F;border-radius:10px;padding:16px;margin-bottom:20px;text-align:center;">
+            <p style="margin:0;font-size:18px;font-weight:700;color:#065f46;">${displayDate}</p>
+            <p style="margin:4px 0 0;font-size:24px;font-weight:800;color:#0066FF;">${time}</p>
+          </div>
+          <table style="width:100%;border-collapse:collapse;">
+            <tr><td style="padding:8px;font-weight:700;width:140px;color:#374151;border-bottom:1px solid #e5e7eb;">Customer</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${customerName}</td></tr>
+            <tr style="background:#f9fafb;"><td style="padding:8px;font-weight:700;color:#374151;border-bottom:1px solid #e5e7eb;">Phone</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><a href="tel:${(phone||'').replace(/\D/g,'')}">${phone||'Not provided'}</a></td></tr>
+            <tr><td style="padding:8px;font-weight:700;color:#374151;border-bottom:1px solid #e5e7eb;">Email</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${email||'Not provided'}</td></tr>
+            <tr style="background:#f9fafb;"><td style="padding:8px;font-weight:700;color:#374151;border-bottom:1px solid #e5e7eb;">Service</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${service||'Not specified'}</td></tr>
+            ${notes?`<tr><td style="padding:8px;font-weight:700;color:#374151;">Notes</td><td style="padding:8px;">${notes}</td></tr>`:''}
+          </table>
+        </div>
+      </div>`
+    }).catch(e => console.error('[appointment email to biz]', e.message));
+
+    // ── Also notify admin ──
+    if (bizEmail && bizEmail !== ADMIN_EMAIL) {
+      await sendEmail({
+        to: ADMIN_EMAIL,
+        subject: `📅 Appointment: ${bizName} — ${customerName} — ${displayDate} ${time}`,
+        html: `<p><strong>${bizName}</strong>: ${customerName} booked ${displayDate} at ${time}. Service: ${service||'—'}. Phone: ${phone||'—'}. Email: ${email||'—'}.</p>`
+      }).catch(() => {});
+    }
+
+    // ── Confirmation email to customer ──
+    if (email) {
+      await sendEmail({
+        to: email,
+        subject: `✅ Appointment Confirmed — ${bizName} — ${displayDate} at ${time}`,
+        html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
+          <div style="background:linear-gradient(135deg,#00D68F,#00b377);padding:28px 32px;border-radius:12px 12px 0 0;text-align:center;">
+            <h1 style="color:white;margin:0;font-size:24px;">✅ You're Booked!</h1>
+          </div>
+          <div style="padding:28px 32px;background:white;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;">
+            <p style="font-size:16px;margin:0 0 20px;">Hi ${firstName||'there'},</p>
+            <div style="background:#f0f9ff;border:2px solid #0066FF;border-radius:12px;padding:20px;text-align:center;margin-bottom:24px;">
+              <p style="margin:0;font-size:14px;color:#1e40af;font-weight:600;">${bizName}</p>
+              <p style="margin:8px 0 4px;font-size:18px;font-weight:700;color:#0a1628;">${displayDate}</p>
+              <p style="margin:0;font-size:28px;font-weight:800;color:#0066FF;">${time}</p>
+              ${service?`<p style="margin:8px 0 0;font-size:14px;color:#64748b;">Service: ${service}</p>`:''}
+            </div>
+            <p style="font-size:14px;color:#374151;line-height:1.7;">We'll see you then! If you need to make changes, please contact us:</p>
+            ${bizPhone?`<p style="font-size:14px;margin:4px 0;"><strong>Phone:</strong> <a href="tel:${bizPhone.replace(/\D/g,'')}" style="color:#0066FF;">${bizPhone}</a></p>`:''}
+            ${bizEmail?`<p style="font-size:14px;margin:4px 0;"><strong>Email:</strong> <a href="mailto:${bizEmail}" style="color:#0066FF;">${bizEmail}</a></p>`:''}
+            <p style="font-size:13px;color:#94a3b8;margin-top:20px;">Powered by <a href="https://turnkeyaiservices.com" style="color:#0066FF;text-decoration:none;">TurnkeyAI Services</a></p>
+          </div>
+        </div>`
+      }).catch(e => console.error('[appointment confirmation email]', e.message));
+    }
+
+    // ── SMS confirmation to customer ──
+    if (phone) {
+      await sendSMS(phone, `Hi ${firstName||'there'}! Your appointment with ${bizName} is confirmed for ${displayDate} at ${time}. Questions? Call ${bizPhone||'us'}.`).catch(() => {});
+    }
+
+    // ── Analytics event ──
+    logAnalyticsEvent(client.id, 'booking', null, { service: service || null, customerName, date, time });
+
+    res.json({ success: true, message: 'Appointment booked!' });
+  } catch(err) {
+    console.error('[/api/appointments/book]', err);
+    res.status(500).json({ error: 'Booking failed. Please try again or call the business directly.' });
+  }
 });
 
 // ── POST /api/booking-lead ──
