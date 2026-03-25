@@ -9,7 +9,7 @@ const path = require('path');
 const rateLimit = require('express-rate-limit');
 const { clients, pool, saveClient } = require('../lib/db');
 const { validate } = require('../lib/helpers');
-const { sendEmail, ADMIN_EMAIL, sendMiniMeEmail, sendFreeVideoEmail } = require('../lib/email');
+const { sendEmail, ADMIN_EMAIL, sendMiniMeEmail, sendFreeVideoEmail, sendContentUpdateEmail } = require('../lib/email');
 const { runDeploy, redeployLive, deployToCloudflarePages } = require('../lib/deploy');
 const { generateSiteHTML } = require('../lib/site-generator');
 
@@ -111,10 +111,19 @@ router.post('/api/client-update', async (req, res) => {
       Object.keys(incoming).forEach(k => { if (!BLOCKED.includes(k)) client.data[k] = incoming[k]; });
       await saveClient(client);
       if (client.status !== 'active' || !client.cfProjectName) {
+        sendContentUpdateEmail(client, false).catch(e => console.error('[content_update email]', e.message));
         return res.json({ success: true, message: 'Your information has been saved. Your site will reflect the changes on next deployment.' });
       }
-      try { await redeployLive(client); return res.json({ success: true, message: 'Your site has been updated and redeployed. Changes will be live within 1–2 minutes.' }); }
-      catch(deployErr) { console.error('[content_update redeploy]', deployErr.message); return res.status(500).json({ error: 'Your information was saved, but the redeploy failed: ' + deployErr.message + '. Please contact support at (603) 922-2004.' }); }
+      try {
+        await redeployLive(client);
+        sendContentUpdateEmail(client, true).catch(e => console.error('[content_update email]', e.message));
+        return res.json({ success: true, message: 'Your site has been updated and redeployed. Changes will be live within 1–2 minutes.' });
+      }
+      catch(deployErr) {
+        console.error('[content_update redeploy]', deployErr.message);
+        sendContentUpdateEmail(client, false).catch(e => console.error('[content_update email]', e.message));
+        return res.status(500).json({ error: 'Your information was saved, but the redeploy failed: ' + deployErr.message + '. Please contact support at (603) 922-2004.' });
+      }
     }
     if (updateType === 'hours') {
       const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
@@ -278,12 +287,15 @@ router.post('/api/client-update-intake/:id', async (req, res) => {
     if (client.status === 'active' && client.cfProjectName) {
       try {
         await redeployLive(client);
+        sendContentUpdateEmail(client, true).catch(e => console.error('[update-intake client email]', e.message));
         return res.json({ success: true, message: 'Your site has been updated and redeployed.', liveUrl: client.liveUrl });
       } catch(deployErr) {
         console.error('[update-intake redeploy]', deployErr.message);
+        sendContentUpdateEmail(client, false).catch(e => console.error('[update-intake client email]', e.message));
         return res.json({ success: true, message: 'Your information was saved, but the redeploy failed. Please contact support at (603) 922-2004.', liveUrl: client.liveUrl });
       }
     }
+    sendContentUpdateEmail(client, false).catch(e => console.error('[update-intake client email]', e.message));
     return res.json({ success: true, message: 'Your information has been saved. Changes will appear on your next deployment.' });
   } catch(err) {
     console.error('[/api/client-update-intake]', err);
