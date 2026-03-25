@@ -1,763 +1,1083 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="cf-2fa-verify" content="no-email-obfuscation">
-    <title>New Client Intake | TurnkeyAI Services</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --primary: #0066FF; --primary-dark: #0052CC; --accent: #00D68F; --dark: #1a1a2e;
-            --gray-900: #1F2937; --gray-700: #374151; --gray-500: #6B7280;
-            --gray-300: #D1D5DB; --gray-100: #F3F4F6; --white: #FFFFFF;
-            --error: #EF4444; --success: #10B981;
-        }
-        body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); min-height: 100vh; color: var(--gray-900); line-height: 1.6; }
-        .header { background: var(--white); box-shadow: 0 2px 20px rgba(0,0,0,0.08); padding: 20px 0; position: sticky; top: 0; z-index: 100; }
-        .header-content { max-width: 900px; margin: 0 auto; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { display: flex; align-items: baseline; gap: 4px; font-size: 28px; font-weight: 700; color: var(--dark); text-decoration: none; }
-        .logo span { color: var(--accent); }
-        .progress-container { display: flex; align-items: center; gap: 8px; }
-        .progress-bar { width: 200px; height: 8px; background: var(--gray-100); border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 4px; transition: width 0.5s ease; width: 0%; }
-        .progress-text { font-size: 14px; color: var(--gray-500); font-weight: 500; }
-        .container { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
-        .welcome { text-align: center; margin-bottom: 48px; }
-        .welcome h1 { font-family: 'Playfair Display', serif; font-size: 42px; font-weight: 700; color: var(--dark); margin-bottom: 16px; }
-        .welcome p { font-size: 18px; color: var(--gray-500); max-width: 600px; margin: 0 auto; }
-        .form-section { background: var(--white); border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); display: none; }
-        .form-section.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .section-header { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 2px solid var(--gray-100); }
-        .section-number { width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: var(--white); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; flex-shrink: 0; }
-        .section-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; color: var(--dark); }
-        .section-subtitle { font-size: 14px; color: var(--gray-500); margin-top: 4px; }
-        .form-group { margin-bottom: 24px; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
-        label { display: block; font-weight: 600; color: var(--gray-700); margin-bottom: 8px; font-size: 15px; }
-        label .required { color: var(--error); margin-left: 2px; }
-        input[type="text"], input[type="email"], input[type="tel"], input[type="url"], input[type="number"], textarea, select { width: 100%; padding: 14px 16px; border: 2px solid var(--gray-300); border-radius: 10px; font-size: 16px; font-family: inherit; transition: all 0.2s ease; background: var(--white); color: var(--gray-900); }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,102,255,0.1); }
-        textarea { min-height: 120px; resize: vertical; }
-        .checkbox-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-        .checkbox-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--gray-100); border-radius: 10px; cursor: pointer; transition: all 0.2s ease; border: 2px solid transparent; }
-        .checkbox-item:hover { background: #e8f0fe; }
-        .checkbox-item.checked { background: #e8f4ff; border-color: var(--primary); }
-        .checkbox-item input[type="checkbox"], .checkbox-item input[type="radio"] { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
-        .checkbox-item span { font-size: 15px; color: var(--gray-700); }
-        .radio-group { display: flex; flex-direction: column; gap: 12px; }
-        .radio-item { display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--gray-100); border-radius: 10px; cursor: pointer; transition: all 0.2s ease; border: 2px solid transparent; }
-        .radio-item:hover { background: #e8f0fe; }
-        .radio-item.checked { background: #e8f4ff; border-color: var(--primary); }
-        .radio-item input[type="radio"] { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
-        .service-grid { display: grid; gap: 12px; }
-        .service-item { display: grid; grid-template-columns: 1fr 120px; gap: 12px; align-items: center; padding: 12px 16px; background: var(--gray-100); border-radius: 10px; }
-        .service-item.checked { background: #e8f4ff; }
-        .service-item label { display: flex; align-items: center; gap: 10px; margin: 0; cursor: pointer; }
-        .service-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); flex-shrink: 0; }
-        .service-item input[type="text"] { padding: 10px 12px; font-size: 14px; }
-        .nav-buttons { display: flex; justify-content: space-between; gap: 16px; margin-top: 32px; padding-top: 24px; border-top: 2px solid var(--gray-100); }
-        .btn { padding: 16px 32px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; border: none; display: flex; align-items: center; gap: 8px; }
-        .btn-secondary { background: var(--gray-100); color: var(--gray-700); }
-        .btn-secondary:hover { background: var(--gray-300); }
-        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: var(--white); box-shadow: 0 4px 14px rgba(0,102,255,0.3); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,102,255,0.4); }
-        .btn-success { background: linear-gradient(135deg, var(--accent), #00b377); color: var(--white); box-shadow: 0 4px 14px rgba(0,214,143,0.3); }
-        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,214,143,0.4); }
-        .info-box { background: linear-gradient(135deg, #e0f2fe, #bae6fd); border-left: 4px solid var(--primary); padding: 16px 20px; border-radius: 0 12px 12px 0; margin-bottom: 24px; }
-        .info-box p { color: #075985; font-size: 15px; }
-        .category-header { font-size: 16px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--gray-100); }
-        .category-header:first-of-type { margin-top: 0; }
-        .industry-select-wrapper select { font-size: 18px; padding: 18px 20px; font-weight: 600; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 2px solid var(--primary); color: var(--dark); cursor: pointer; }
-        .industry-badge { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
-        /* SUCCESS */
-        .success-screen { text-align: center; padding: 60px 24px; display: none; }
-        .success-screen.active { display: block; }
-        .success-icon { width: 100px; height: 100px; background: linear-gradient(135deg, var(--accent), #00b377); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 32px; font-size: 48px; color: white; animation: scaleIn 0.5s ease; }
-        @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
-        .success-screen h2 { font-family: 'Playfair Display', serif; font-size: 36px; color: var(--dark); margin-bottom: 16px; }
-        .success-screen p { font-size: 18px; color: var(--gray-500); max-width: 500px; margin: 0 auto 32px; }
-        /* ADD-ON BOXES */
-        .addon-box { border-radius: 16px; padding: 24px; margin-bottom: 20px; }
-        .addon-box.video-box { background: linear-gradient(135deg, #1a1200, #2e1f00); border: 2px solid #f59e0b; color: white; }
-        .addon-box.mini-me-box { background: linear-gradient(135deg, #0a1f14, #0f2b1c); border: 2px solid #00D68F; color: white; }
-        .addon-box h3 { font-family: 'Playfair Display', serif; font-size: 19px; margin-bottom: 8px; }
-        .addon-box .addon-desc { font-size: 14px; opacity: 0.85; margin-bottom: 16px; line-height: 1.6; }
-        .addon-check-row { display: flex; align-items: flex-start; gap: 12px; background: rgba(255,255,255,0.08); padding: 14px 16px; border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; user-select: none; }
-        .addon-check-row:hover { border-color: rgba(255,255,255,0.3); }
-        .addon-check-row.checked { border-color: #00D68F; background: rgba(0,214,143,0.15); }
-        .addon-check-row input { width: 20px; height: 20px; accent-color: #00D68F; margin-top: 2px; flex-shrink: 0; cursor: pointer; pointer-events: none; }
-        .addon-check-row span { font-size: 14px; line-height: 1.5; }
-        .addon-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; margin-left: 8px; }
-        .addon-badge.green { background: #00D68F; color: #0a1628; }
-        .addon-badge.gold { background: #f59e0b; color: #1a1200; }
-        .consent-sub { display: none; margin-top: 14px; background: rgba(255,255,255,0.07); border: 1px solid rgba(0,214,143,0.35); border-radius: 10px; padding: 14px 16px; }
-        .consent-sub label { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-weight: 400; margin: 0; color: white; }
-        .consent-sub input[type="checkbox"] { width: 18px; height: 18px; accent-color: #00D68F; margin-top: 3px; flex-shrink: 0; }
-        .consent-sub span { font-size: 13px; line-height: 1.6; opacity: 0.85; }
-        /* CALL HANDLING */
-        .call-box { background: var(--white); border: 2px solid var(--gray-300); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
-        .call-box h3 { font-family: 'Playfair Display', serif; font-size: 19px; color: var(--dark); margin-bottom: 6px; }
-        .call-box .call-sub { font-size: 14px; color: var(--gray-500); margin-bottom: 20px; line-height: 1.6; }
-        .call-addon-item { background: var(--gray-100); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; border: 2px solid transparent; transition: border-color 0.2s; }
-        .call-addon-item.checked { border-color: var(--primary); background: #e8f4ff; }
-        .call-addon-header { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .call-addon-header input { width: 18px; height: 18px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; }
-        .call-addon-header strong { font-size: 15px; color: var(--dark); }
-        .call-addon-desc { font-size: 13px; color: var(--gray-500); margin-top: 6px; padding-left: 28px; line-height: 1.5; }
-        #callHandlingPhone { display: none; margin-top: 16px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Get Your AI Website — TurnkeyAI Services</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-height:100vh}
+.header{background:linear-gradient(135deg,#0066FF,#1a1a2e);padding:28px 24px;text-align:center}
+.header h1{color:white;font-size:26px;font-weight:700}
+.header p{color:rgba(255,255,255,.8);margin-top:6px;font-size:15px}
+.container{max-width:760px;margin:32px auto;padding:0 16px 80px}
+.card{background:white;border-radius:16px;padding:32px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.sec-title{font-size:17px;font-weight:700;color:#0066FF;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #e5e7eb}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:14px;font-weight:600;color:#374151;margin-bottom:6px}
+.req{color:#ef4444;margin-left:2px}
+.field input,.field select,.field textarea{width:100%;padding:11px 14px;border:2px solid #e5e7eb;border-radius:10px;font-size:15px;font-family:inherit;color:#1f2937;background:white;transition:border-color .2s;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#0066FF}
+.field textarea{resize:vertical;min-height:80px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:580px){.row2,.row3{grid-template-columns:1fr}}
+#indSearch{width:100%;padding:12px 16px;border:2px solid #0066FF;border-radius:10px;font-size:15px;font-family:inherit;outline:none;margin-bottom:16px}
+.industry-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:640px){.industry-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:400px){.industry-grid{grid-template-columns:repeat(2,1fr)}}
+.ind-tile{border:2px solid #e5e7eb;border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .15s;font-size:12px;font-weight:600;color:#374151;user-select:none}
+.ind-tile:hover{border-color:#0066FF;background:#f0f7ff}
+.ind-tile.selected{border-color:#0066FF;background:#0066FF;color:white}
+.ind-tile .icon{font-size:22px;display:block;margin-bottom:5px}
+.svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:580px){.svc-grid{grid-template-columns:1fr}}
+.svc-item{border:2px solid #e5e7eb;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .15s}
+.svc-item:hover{border-color:#0066FF;background:#f0f7ff}
+.svc-item input[type=checkbox]{width:17px;height:17px;accent-color:#0066FF;flex-shrink:0;cursor:pointer}
+.svc-item label{font-size:13px;font-weight:500;cursor:pointer;flex:1;line-height:1.3}
+.svc-price{width:88px;padding:6px 8px;border:1px solid #e5e7eb;border-radius:7px;font-size:12px;font-family:inherit;outline:none;color:#374151}
+.svc-price:focus{border-color:#0066FF}
+.hours-row{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:center;margin-bottom:8px}
+.hours-check{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500}
+.hours-check input{accent-color:#0066FF;width:16px;height:16px}
+.addon{border:2px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px;cursor:pointer;transition:all .15s;display:flex;gap:12px;align-items:flex-start}
+.addon:hover{border-color:#0066FF;background:#f0f7ff}
+.addon.selected{border-color:#00D68F;background:#f0fff9}
+.addon input{width:18px;height:18px;accent-color:#0066FF;margin-top:2px;flex-shrink:0;cursor:pointer}
+.addon-title{font-weight:700;font-size:14px}
+.addon-desc{font-size:13px;color:#6B7280;margin-top:2px;line-height:1.4}
+.addon-price{font-size:12px;font-weight:700;color:#0066FF;margin-top:3px}
+.pay-grid{display:flex;flex-wrap:wrap;gap:10px}
+.pay-item{display:flex;align-items:center;gap:7px;padding:9px 14px;border:2px solid #e5e7eb;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:all .15s}
+.pay-item:hover{border-color:#0066FF;background:#f0f7ff}
+.pay-item input{accent-color:#0066FF}
+.radio-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.radio-item{display:flex;align-items:center;gap:6px;padding:8px 14px;border:2px solid #e5e7eb;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s}
+.radio-item:hover{border-color:#0066FF;background:#f0f7ff}
+.radio-item input{accent-color:#0066FF}
+.checkbox-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.checkbox-item{display:flex;align-items:center;gap:6px;padding:8px 14px;border:2px solid #e5e7eb;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s}
+.checkbox-item:hover{border-color:#0066FF;background:#f0f7ff}
+.checkbox-item input{accent-color:#0066FF}
+.checkbox-item.checked{border-color:#0066FF;background:#f0f7ff}
+.nav-btns{display:flex;gap:12px;justify-content:space-between;margin-top:8px}
+.btn-next{background:linear-gradient(135deg,#0066FF,#0052CC);color:white;border:none;padding:15px 36px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(0,102,255,.3)}
+.btn-next:disabled{opacity:.5;cursor:not-allowed}
+.btn-back{background:white;color:#6B7280;border:2px solid #e5e7eb;padding:15px 28px;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-submit{width:100%;background:linear-gradient(135deg,#00D68F,#00b377);color:white;border:none;padding:20px;border-radius:14px;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 6px 24px rgba(0,214,143,.3)}
+.btn-submit:disabled{opacity:.6;cursor:not-allowed}
+.steps{display:flex;justify-content:center;gap:8px;margin-bottom:24px}
+.dot{width:32px;height:8px;border-radius:4px;background:#e5e7eb;transition:background .3s}
+.dot.active{background:#0066FF}
+.dot.done{background:#00D68F}
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;align-items:center;justify-content:center}
+#overlay.show{display:flex}
+.spin-box{background:white;border-radius:16px;padding:40px 48px;text-align:center}
+.spin{width:48px;height:48px;border:4px solid #e5e7eb;border-top-color:#0066FF;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-box p{font-weight:600;color:#0066FF;margin-top:16px;font-size:16px}
+.step-page{display:none}
+.step-page.active{display:block}
+.hidden{display:none!important}
+.ind-qs{margin-top:20px;border-top:2px solid #e5e7eb;padding-top:20px}
+.ind-qs-title{font-weight:700;font-size:15px;color:#1f2937;margin-bottom:14px}
+/* Plan selector styles */
+.plan-grid{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.plan-item{display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border:2px solid #e5e7eb;border-radius:12px;cursor:pointer;transition:all .15s;background:white}
+.plan-item:hover{border-color:#0066FF;background:#f0f7ff}
+.plan-item.selected{border-color:#0066FF;background:#f0f7ff}
+.plan-item input[type=radio]{margin-top:3px;accent-color:#0066FF;width:16px;height:16px;flex-shrink:0}
+.plan-item-name{font-weight:700;font-size:14px;color:#1f2937}
+.plan-item-desc{font-size:13px;color:#6B7280;margin-top:2px}
+.plan-item-price{font-size:13px;font-weight:700;color:#0066FF;margin-top:3px}
+/* FAQ Q&A pair styling */
+.faq-pair{background:#f9fafb;border:2px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px}
+.faq-pair-num{font-size:12px;font-weight:700;color:#0066FF;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.faq-pair input,.faq-pair textarea{width:100%;padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;color:#1f2937;background:white;outline:none;transition:border-color .2s}
+.faq-pair input:focus,.faq-pair textarea:focus{border-color:#0066FF}
+.faq-pair textarea{resize:vertical;min-height:60px}
+.faq-pair label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:4px}
+/* IVR section styling */
+.ivr-dept-row{display:grid;grid-template-columns:1fr 100px;gap:10px;margin-bottom:8px;align-items:center}
+@media(max-width:580px){.ivr-dept-row{grid-template-columns:1fr}}
+.ivr-dept-row input{padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;color:#1f2937;background:white;outline:none;transition:border-color .2s}
+.ivr-dept-row input:focus{border-color:#0066FF}
+</style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
-            <a href="/" class="logo">TurnkeyAI<span>Services</span></a>
-            <div class="progress-container">
-                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-                <span class="progress-text" id="progressText">Step 1 of 11</span>
-            </div>
+<div class="header">
+  <h1 id="pageTitle">🚀 Get Your AI-Powered Website</h1>
+  <p id="pageSubtitle">Fill this out once — we build your site and send you a preview within minutes</p>
+</div>
+<div id="overlay"><div class="spin-box"><div class="spin"></div><p id="overlayMsg">Building your preview...</p></div></div>
+<div class="container">
+  <div class="steps">
+    <div class="dot active" id="dot0"></div>
+    <div class="dot" id="dot1"></div>
+    <div class="dot" id="dot2"></div>
+    <div class="dot" id="dot3"></div>
+    <div class="dot" id="dot4"></div>
+    <div class="dot" id="dot5"></div>
+    <div class="dot" id="dot6"></div>
+  </div>
+  <!-- STEP 0: INDUSTRY -->
+  <div class="step-page active" id="page0">
+    <div class="card">
+      <div class="sec-title">🏢 What type of business do you have?</div>
+      <input type="text" id="indSearch" placeholder="🔍 Search industries... (e.g. plumber, restaurant, salon)">
+      <div class="industry-grid" id="industryGrid"></div>
+      <input type="text" id="otherInput" class="hidden" placeholder="Describe your business type..." style="margin-top:12px;padding:11px 14px;width:100%;border:2px solid #0066FF;border-radius:10px;font-size:15px;font-family:inherit;outline:none">
+      <div style="margin-top:20px">
+        <button type="button" class="btn-next" id="btnInd" onclick="goStep(1)" disabled>Next: Business Info →</button>
+      </div>
+    </div>
+  </div>
+  <!-- STEP 1: BUSINESS INFO -->
+  <div class="step-page" id="page1">
+    <!-- ═══ INTERSTITIAL: Why Your Answers Matter ═══ -->
+    <div class="card" style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:2px solid #0066FF;">
+      <div style="font-size:17px;font-weight:700;color:#0052CC;margin-bottom:12px;">💡 Help Us Build the Best Website for Your Business</div>
+      <p style="font-size:14px;color:#1e3a5f;line-height:1.75;margin-bottom:12px;">The questions you're about to answer are the foundation of everything we build for you — your website, your online chatbot, and your visibility on Google. The more detail you provide, the better everything works.</p>
+      <p style="font-size:14px;color:#1e3a5f;line-height:1.75;margin-bottom:12px;">When a potential customer visits your site and asks your chatbot a question — like what services you offer, your hours, or your service area — the chatbot pulls its answers directly from what you tell us here. More detail means smarter, more helpful answers that keep customers engaged instead of clicking away.</p>
+      <p style="font-size:14px;color:#1e3a5f;line-height:1.75;margin-bottom:12px;">The same information also helps your website show up higher in Google searches. Search engines reward websites that have specific, detailed content about what a business does, where it operates, and what makes it different. Every answer you give here becomes content that works for you around the clock.</p>
+      <p style="font-size:14px;color:#1e3a5f;line-height:1.75;margin:0;">You don't have to fill out every single field, but the more you give us, the harder your website works from day one — without you lifting a finger.</p>
+    </div>
+    <div class="card">
+      <div class="sec-title">📋 Your Business Information</div>
+      <div class="row2">
+        <div class="field"><label>Business Name <span class="req">*</span></label><input type="text" name="businessName" id="businessName"></div>
+        <div class="field"><label>Your Name <span class="req">*</span></label><input type="text" name="ownerName" id="ownerName"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Phone Number <span class="req">*</span></label><input type="tel" name="phone" id="phone" placeholder="(228) 555-1234"></div>
+        <div class="field"><label>Email Address <span class="req">*</span></label><input type="email" name="email" id="email"></div>
+      </div>
+      <div class="field"><label>Street Address</label><input type="text" name="address" placeholder="123 Main St (leave blank if mobile)"></div>
+      <div class="row3">
+        <div class="field"><label>City <span class="req">*</span></label><input type="text" name="city" id="city"></div>
+        <div class="field"><label>State</label><input type="text" name="state" placeholder="MS" maxlength="2"></div>
+        <div class="field"><label>ZIP</label><input type="text" name="zip" maxlength="10"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Years in Business</label><input type="text" name="yearsInBusiness" placeholder="e.g. 12 years"></div>
+        <div class="field"><label>Service Area / Radius</label><input type="text" name="targetRadius" placeholder="e.g. 50 miles around Bay St. Louis"></div>
+      </div>
+      <div class="nav-btns">
+        <button type="button" class="btn-back" onclick="goStep(0)">← Back</button>
+        <button type="button" class="btn-next" onclick="validateStep1()">Next: Services →</button>
+      </div>
+    </div>
+  </div>
+  <!-- STEP 2: SERVICES -->
+  <div class="step-page" id="page2">
+    <div class="card">
+      <div class="sec-title" id="svcTitle">🔧 Services &amp; Pricing</div>
+      <p style="font-size:13px;color:#6B7280;margin-bottom:14px">Check services you offer. Add a price if you want it shown on your website (optional).</p>
+      <div id="svcContainer"></div>
+      <div class="field" style="margin-top:16px">
+        <label>Any other services not listed?</label>
+        <textarea name="additionalServices" placeholder="One service per line..."></textarea>
+      </div>
+      <div id="indQuestions"></div>
+      <div class="nav-btns">
+        <button type="button" class="btn-back" onclick="goStep(1)">← Back</button>
+        <button type="button" class="btn-next" onclick="goStep(3)">Next: About You →</button>
+      </div>
+    </div>
+  </div>
+  <!-- STEP 3: ABOUT / HOURS / PAYMENT -->
+  <div class="step-page" id="page3">
+    <div class="card">
+      <div class="sec-title">💬 About Your Business</div>
+      <div class="field"><label>Business Story / About Us</label><textarea name="aboutUs" placeholder="How long in business? What makes you different? Why did you start?" style="min-height:100px"></textarea></div>
+      <div class="row2">
+        <div class="field"><label>Your #1 Competitive Advantage</label><textarea name="competitiveAdvantage" placeholder="e.g. Licensed &amp; insured, 5-star Google rating, same-day service" style="min-height:75px"></textarea></div>
+        <div class="field"><label>Owner Background</label><textarea name="ownerBackground" placeholder="e.g. 20 years experience, Army veteran, certified master plumber" style="min-height:75px"></textarea></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Tagline / Mission Statement</label><input type="text" name="missionStatement" placeholder="e.g. Honest work, fair prices, every time"></div>
+        <div class="field"><label>Awards / Certifications</label><input type="text" name="awards" placeholder="e.g. BBB A+, EPA certified, 500+ 5-star reviews"></div>
+      </div>
+      <div class="field"><label>Community Involvement (optional)</label><input type="text" name="communityInvolvement" placeholder="e.g. Sponsor Little League, volunteer at food bank"></div>
+    </div>
+    <div class="card">
+      <div class="sec-title">🕐 Business Hours</div>
+      <p style="font-size:13px;color:#6B7280;margin-bottom:14px">Check each day you are open and enter your hours.</p>
+      <div id="hoursContainer"></div>
+    </div>
+    <div class="card">
+      <div class="sec-title">💳 Payment Methods Accepted</div>
+      <div class="pay-grid">
+        <label class="pay-item"><input type="checkbox" name="pay_cash"> Cash</label>
+        <label class="pay-item"><input type="checkbox" name="pay_card" checked> Credit/Debit Card</label>
+        <label class="pay-item"><input type="checkbox" name="pay_check"> Check</label>
+        <label class="pay-item"><input type="checkbox" name="pay_venmo"> Venmo</label>
+        <label class="pay-item"><input type="checkbox" name="pay_cashapp"> CashApp</label>
+        <label class="pay-item"><input type="checkbox" name="pay_zelle"> Zelle</label>
+        <label class="pay-item"><input type="checkbox" name="pay_financing"> Financing Available</label>
+        <label class="pay-item"><input type="checkbox" name="pay_insurance"> Insurance Accepted</label>
+      </div>
+    </div>
+    <div class="card" style="padding:20px 32px">
+      <div class="nav-btns">
+        <button type="button" class="btn-back" onclick="goStep(2)">← Back</button>
+        <button type="button" class="btn-next" onclick="goStep(4)">Next: AI Chat Setup →</button>
+      </div>
+    </div>
+  </div>
+  <!-- STEP 4: CHAT + ONLINE PRESENCE + IVR -->
+  <div class="step-page" id="page4">
+    <div class="card">
+      <div class="sec-title">🤖 AI Chat Assistant Setup</div>
+      <p style="font-size:13px;color:#6B7280;margin-bottom:14px">Your website includes a 24/7 AI chat that captures leads while you sleep.</p>
+      <div class="row2">
+        <div class="field"><label>Chat Assistant Name</label><input type="text" name="chatName" placeholder="e.g. Lisa, Max, The Team"></div>
+        <div class="field"><label>Chat Personality</label>
+          <select name="chatPersonality">
+            <option value="friendly">Friendly &amp; Helpful</option>
+            <option value="professional">Professional &amp; Formal</option>
+            <option value="casual">Casual &amp; Conversational</option>
+            <option value="direct">Direct &amp; No-Nonsense</option>
+          </select>
         </div>
-    </header>
-
-    <div class="container">
-        <div id="updateModeBanner" style="display:none;background:linear-gradient(135deg,#1e3a5f,#2563eb);border-radius:16px;padding:32px 40px;margin-bottom:40px;box-shadow:0 8px 32px rgba(37,99,235,.25);">
-            <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
-                <div style="font-size:36px;">🔄</div>
-                <div>
-                    <h2 style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#ffffff;margin:0 0 4px;">Update Your Business Information</h2>
-                    <p style="color:rgba(255,255,255,.75);font-size:15px;margin:0;">Your current information is pre-loaded below. Change anything and resubmit.</p>
-                </div>
-            </div>
+      </div>
+      <!-- ═══ CHANGE 2: Structured FAQ Q&A Pairs ═══ -->
+      <div class="field">
+        <label>Frequently Asked Questions &amp; Answers</label>
+        <p style="font-size:13px;color:#6B7280;margin-bottom:14px">List the questions customers ask you most often, along with the answer you'd want your chatbot to give. The more detail in your answers, the smarter your chatbot will be.</p>
+        <div class="faq-pair">
+          <div class="faq-pair-num">Question 1</div>
+          <label>Question</label>
+          <input type="text" name="faq_q1" placeholder="e.g. Do you offer free estimates?">
+          <label style="margin-top:10px">Answer</label>
+          <textarea name="faq_a1" placeholder="e.g. Yes! We offer free estimates for all jobs. Just call us or fill out the form and we'll get back to you within a few hours." style="min-height:60px"></textarea>
         </div>
-
-        <div class="welcome" id="newClientWelcome">
-            <h1 id="welcomeTitle">Let's Build Your Website</h1>
-            <p id="welcomeSubtitle">Select your industry below and we'll customize this questionnaire for your business. Takes about 10–15 minutes.</p>
+        <div class="faq-pair">
+          <div class="faq-pair-num">Question 2</div>
+          <label>Question</label>
+          <input type="text" name="faq_q2" placeholder="e.g. How soon can you come out?">
+          <label style="margin-top:10px">Answer</label>
+          <textarea name="faq_a2" placeholder="e.g. Most jobs we can schedule within 24-48 hours. Emergencies we try to get to same day." style="min-height:60px"></textarea>
         </div>
-
-        <form id="intakeForm" name="client-intake">
-            <input type="hidden" name="form-name" value="client-intake">
-            <input type="hidden" name="operator_id" id="operatorId" value="">
-            <input type="hidden" name="operator_name" id="operatorName" value="">
-
-            <!-- SECTION 1: Business Info -->
-            <div class="form-section active" data-section="1">
-                <div class="section-header">
-                    <div class="section-number">1</div>
-                    <div><div class="section-title">Business Information</div><div class="section-subtitle">Tell us about your business</div></div>
-                </div>
-                <div class="form-group">
-                    <label>Select Your Industry <span class="required">*</span></label>
-                    <div class="industry-select-wrapper">
-                        <select name="industry" id="industrySelect" required onchange="handleIndustryChange()">
-                            <option value="">— Choose Your Industry —</option>
-                            <optgroup label="Agriculture & Food">
-                                <option value="agriculture">🌾 Agriculture / Farming</option>
-                                <option value="restaurant">🍽️ Restaurant / Food Service</option>
-                                <option value="catering">🍴 Catering</option>
-                                <option value="food_truck">🚚 Food Truck</option>
-                                <option value="bakery">🧁 Bakery</option>
-                                <option value="coffee_shop">☕ Coffee Shop</option>
-                            </optgroup>
-                            <optgroup label="Home Services">
-                                <option value="cleaning">🧹 House Cleaning</option>
-                                <option value="plumbing">🔧 Plumbing</option>
-                                <option value="electrical">⚡ Electrical</option>
-                                <option value="hvac">❄️ HVAC / Heating & Cooling</option>
-                                <option value="roofing">🏠 Roofing</option>
-                                <option value="painting">🎨 Painting</option>
-                                <option value="landscaping">🌿 Landscaping / Lawn Care</option>
-                                <option value="pest_control">🐛 Pest Control</option>
-                                <option value="handyman">🛠️ Handyman / General Repair</option>
-                                <option value="flooring">🪵 Flooring / Tile</option>
-                                <option value="fencing">🏗️ Fencing</option>
-                                <option value="pressure_washing">💦 Pressure Washing</option>
-                                <option value="pool_service">🏊 Pool Service</option>
-                                <option value="moving">📦 Moving / Hauling</option>
-                                <option value="junk_removal">🗑️ Junk Removal</option>
-                                <option value="carpet_upholstery">🧽 Carpet & Upholstery Cleaning</option>
-                                <option value="garage_doors">🚪 Garage Doors</option>
-                            </optgroup>
-                            <optgroup label="Automotive">
-                                <option value="auto_repair">🚗 Auto Repair</option>
-                                <option value="auto_detailing">✨ Auto Detailing</option>
-                                <option value="towing">🚛 Towing</option>
-                                <option value="auto_body">🔩 Auto Body / Collision</option>
-                            </optgroup>
-                            <optgroup label="Beauty & Wellness">
-                                <option value="salon">💇 Hair Salon / Barbershop</option>
-                                <option value="nail_salon">💅 Nail Salon</option>
-                                <option value="spa_massage">💆 Spa / Massage</option>
-                                <option value="fitness">💪 Fitness / Personal Training</option>
-                                <option value="chiropractic">🦴 Chiropractic</option>
-                                <option value="dental">🦷 Dental</option>
-                            </optgroup>
-                            <optgroup label="Care Services">
-                                <option value="daycare">👶 Daycare / Childcare</option>
-                                <option value="pet_services">🐕 Pet Services / Grooming</option>
-                                <option value="veterinary">🐾 Veterinary</option>
-                                <option value="senior_care">🤝 Senior Care / Home Health</option>
-                            </optgroup>
-                            <optgroup label="Professional Services">
-                                <option value="real_estate">🏡 Real Estate</option>
-                                <option value="photography">📸 Photography / Videography</option>
-                                <option value="tutoring">📚 Tutoring / Education</option>
-                                <option value="legal">⚖️ Legal Services</option>
-                                <option value="accounting">📊 Accounting / Tax Prep</option>
-                                <option value="insurance">🛡️ Insurance</option>
-                                <option value="it_support">💻 IT / Tech Support</option>
-                                <option value="event_planning">🎉 Event Planning</option>
-                                <option value="security">🔒 Security Services</option>
-                            </optgroup>
-                            <optgroup label="Construction & Development">
-                                <option value="construction">🏗️ General Construction</option>
-                                <option value="demolition">💥 Demolition</option>
-                                <option value="community_revitalization">🏘️ Community Revitalization</option>
-                                <option value="trade_school">🎓 Trade School Development</option>
-                            </optgroup>
-                            <optgroup label="Other">
-                                <option value="other">📋 Other</option>
-                            </optgroup>
-                        </select>
-                    </div>
-                </div>
-                <div id="industryBadge" style="display:none;"></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Business Name <span class="required">*</span></label><input type="text" name="businessName" required placeholder="e.g., Jazzy's House Cleaning"></div>
-                    <div class="form-group"><label>Your Name <span class="required">*</span></label><input type="text" name="ownerName" required placeholder="Your full name"></div>
-                </div>
-                <div class="form-group"><label>Business Address <span class="required">*</span></label><input type="text" name="address" required placeholder="Street address"></div>
-                <div class="form-row">
-                    <div class="form-group"><label>City <span class="required">*</span></label><input type="text" name="city" required placeholder="City"></div>
-                    <div class="form-group"><label>State <span class="required">*</span></label><input type="text" name="state" required placeholder="State"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>ZIP Code <span class="required">*</span></label><input type="text" name="zip" required placeholder="ZIP"></div>
-                    <div class="form-group"><label>Years in Business</label><input type="number" name="yearsInBusiness" placeholder="e.g., 5"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Business Phone <span class="required">*</span></label><input type="tel" name="phone" required placeholder="(555) 123-4567"></div>
-                    <div class="form-group"><label>Email Address <span class="required">*</span></label><input type="email" name="email" required placeholder="you@email.com"></div>
-                </div>
-                <div id="businessTypeContainer"></div>
-                <div class="nav-buttons"><div></div><button type="button" class="btn btn-primary" onclick="nextSection()">Continue <span>→</span></button></div>
-            </div>
-
-            <!-- SECTION 2: Online Presence -->
-            <div class="form-section" data-section="2">
-                <div class="section-header"><div class="section-number">2</div><div><div class="section-title">Current Online Presence</div><div class="section-subtitle">Where can customers find you now?</div></div></div>
-                <div class="form-group"><label>Current Website (if any)</label><input type="url" name="currentWebsite" placeholder="https://yoursite.com"></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Facebook Page</label><input type="url" name="facebook" placeholder="https://facebook.com/yourpage"></div>
-                    <div class="form-group"><label>Instagram Handle</label><input type="text" name="instagram" placeholder="@yourusername"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Google Business Profile</label><input type="url" name="googleBusiness" placeholder="Link to your Google listing"></div>
-                    <div class="form-group"><label>Other Social Media</label><input type="text" name="otherSocial" placeholder="TikTok, LinkedIn, YouTube, etc."></div>
-                </div>
-                <div class="form-group">
-                    <label>Do you have a logo file you can send us?</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-item"><input type="radio" name="hasLogo" value="yes"><span>Yes, I'll email it</span></label>
-                        <label class="checkbox-item"><input type="radio" name="hasLogo" value="no"><span>No, I need one</span></label>
-                        <label class="checkbox-item"><input type="radio" name="hasLogo" value="text_only"><span>Just use text/name</span></label>
-                    </div>
-                </div>
-                <div class="nav-buttons"><button type="button" class="btn btn-secondary" onclick="prevSection()"><span>←</span> Back</button><button type="button" class="btn btn-primary" onclick="nextSection()">Continue <span>→</span></button></div>
-            </div>
-
-            <!-- SECTION 3: Services & Pricing -->
-            <div class="form-section" data-section="3">
-                <div class="section-header"><div class="section-number">3</div><div><div class="section-title" id="servicesTitle">Services & Pricing</div><div class="section-subtitle" id="servicesSubtitle">Check services you offer and add your prices</div></div></div>
-                <div id="servicesContainer"><div class="info-box"><p>Please select an industry in Step 1 to see your services list.</p></div></div>
-                <div class="form-group" style="margin-top:24px;"><label>Additional services not listed above:</label><textarea name="additionalServices" placeholder="List any other services or products you offer with pricing..."></textarea></div>
-                <div class="nav-buttons"><button type="button" class="btn btn-secondary" onclick="prevSection()"><span>←</span> Back</button><button type="button" class="btn btn-primary" onclick="nextSection()">Continue <span>→</span></button></div>
-            </div>
-
-            <!-- SECTION 4: Hours -->
-            <div class="form-section" data-section="4">
-                <div class="section-header"><div class="section-number">4</div><div><div class="section-title">Hours & Availability</div><div class="section-subtitle">When are you available?</div></div></div>
-                <div class="form-group">
-                    <label>Business Hours</label>
-                    <div class="service-grid">
-                        <div class="service-item"><label><input type="checkbox" name="day_monday"> Monday</label><input type="text" name="hours_monday" placeholder="8am - 5pm"></div>
-                        <div class="service-item"><label><input type="checkbox" name="day_tuesday"> Tuesday</label><input type="text" name="hours_tuesday" placeholder="8am - 5pm"></div>
-                        <div class="service-item"><label><input type="checkbox" name="day_wednesday"> Wednesday</label><input type="text" name="hours_wednesday" placeholder="8am - 5pm"></div>
-                        <div class="service-item"><label><input type="checkbox" name="day_thursday"> Thursday</label><input type="text" name="hours_thursday" placeholder="8am - 5pm"></div>
-                        <div class="service-item"><label><input type="checkbox" name="day_friday"> Friday</label><input type="text" name="hours_friday" placeholder="8am - 5pm"></div>
-                        <div class="service-item"><label><input type="checkbox" name="day_saturday"> Saturday</label><input type="text" name="hours_saturday" placeholder="8am - 5pm"></div>
-                        <div class="service-item"><label><input type="checkbox" name="day_sunday"> Sunday</label><input type="text" name="hours_sunday" placeholder="Closed"></div>
-                    </div>
-                </div>
-                <div id="schedulingContainer"></div>
-                <div class="nav-buttons"><button type="button" class="btn btn-secondary" onclick="prevSection()"><span>←</span> Back</button><button type="button" class="btn btn-primary" onclick="nextSection()">Continue <span>→</span></button></div>
-            </div>
-
-            <!-- SECTION 5: Industry Questions -->
-            <div class="form-section" data-section="5">
-                <div class="section-header"><div class="section-number">5</div><div><div class="section-title" id="industryQTitle">Industry Details</div><div class="section-subtitle" id="industryQSubtitle">Questions specific to your business</div></div></div>
-                <div id="industryQuestionsContainer"><div class="info-box"><p>Please select an industry in Step 1 to see your custom questions.</p></div></div>
-                <div class="nav-buttons"><button type="button" class="btn btn-secondary" onclick="prevSection()"><span>←</span> Back</button><button type="button" class="btn btn-primary" onclick="nextSection()">Continue <span>→</span></button></div>
-            </div>
-
-            <!-- SECTION 6: Target Market -->
-            <div class="form-section" data-section="6">
-                <div class="section-header"><div class="section-number">6</div><div><div class="section-title">Target Market</div><div class="section-subtitle">Who are your ideal customers?</div></div></div>
-                <div id="targetMarketContainer"></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Primary City/Area You Serve <span class="required">*</span></label><input type="text" name="targetCity" required placeholder="e.g., Bay St. Louis, MS"></div>
-                    <div class="form-group"><label>Service Radius (miles)</label><input type="text" name="targetRadius" placeholder="e.g., 25 miles"></div>
-                </div>
-                <div class="form-group"><label>What makes you BETTER than your competition?</label><textarea name="competitiveAdvantage" placeholder="Why should customers choose YOU?"></textarea></div>
-                <div class="nav-buttons"><button type="button" class="btn btn-secondary" onclick="prevSection()"><span>←</span> Back</button><button type="button" class="btn btn-primary" onclick="nextSection()">Continue <span>→</span></button></div>
-            </div>
-
-            <!-- SECTION 7: AI Chat Setup -->
-            <div class="form-section" data-section="7">
-                <div class="section-header"><div class="section-number">7</div><div><div class="section-title">AI Chat Assistant Setup</div><div class="section-subtitle">Your 24/7 virtual receptionist</div></div></div>
-                <div class="info-box"><p>Your website will include a 24/7 AI chat assistant that answers questions, captures leads, and books appointments — even while you sleep.</p></div>
-                <div class="form-group"><label>What questions do customers frequently ask you?</label><textarea name="faqQuestions" id="faqSuggestions" placeholder="e.g., How much does it cost? Do you offer free estimates?"></textarea></div>
-                <div class="form-group">
-                    <label>What should the AI tell customers about pricing?</label>
-                    <div class="radio-group">
-                        <label class="radio-item"><input type="radio" name="pricingDisplay" value="all"><span>Show all prices on website</span></label>
-                        <label class="radio-item"><input type="radio" name="pricingDisplay" value="ranges"><span>General ranges only ("Starting at $XX")</span></label>
-                        <label class="radio-item"><input type="radio" name="pricingDisplay" value="consult"><span>"Contact us for a free estimate"</span></label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Preferred AI Chat Personality</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-item"><input type="radio" name="chatPersonality" value="professional"><span>Professional & Formal</span></label>
-                        <label class="checkbox-item"><input type="radio" name="chatPersonality" value="friendly"><span>Friendly & Casual</span></label>
-                        <label class="checkbox-item"><input type="radio" name="chatPersonality" value="warm"><span>Warm & Supportive</span></label>
-                        <label class="checkbox-item"><input type="radio" name="chatPersonality" value="confident"><span>Confident & Expert</span></label>
-                    </div>
-                </div>
-                <div class="form-group"><label>AI Chat Name (optional)</label><input type="text" name="chatName" placeholder="e.g., Ask Sarah, Chat with Mike"></div>
-                <div class="nav-buttons"><button type="button" class="btn btn-secondary" onclick="prevSection()"><span>←</span> Back</button><button type="button" class="btn btn-primary" onclick="nextSection()">Continue <span>→</span></button></div>
-            </div>
-
-            <!-- SECTION 8: About -->
-            <div class="form-section" data-section="8">
-                <div class="section-header"><div class="section-number">8</div><div><div class="section-title">About Your Business</div><div class="section-subtitle">Your story builds trust and sets you apart</div></div></div>
-                <div class="form-group"><label>Your Business Story <span class="required">*</span></label><textarea name="aboutUs" rows="5" placeholder="Tell us how you got started. Why did you start this business?"></textarea></div>
-                <div class="form-group"><label>Owner / Founder Name(s) and Background</label><textarea name="ownerBackground" rows="3" placeholder="e.g., Founded by John and Maria Santos..."></textarea></div>
-                <div class="form-group"><label>Years in Business & Key Milestones</label><input type="text" name="milestones" placeholder="e.g., In business since 2015. Expanded to second location in 2019."></div>
-                <div class="form-group"><label>Community Involvement (if any)</label><input type="text" name="communityInvolvement" placeholder="e.g., We sponsor Little League, donate to food bank..."></div>
-                <div class="form-group"><label>Awards, Certifications, or Recognition</label><input type="text" name="awards" placeholder="e.g., BBB A+ Rating, Licensed & Insured, 4.9 stars on Google..."></div>
-                <div class="form-group"><label>Your Mission Statement or Tagline</label><input type="text" name="missionStatement" placeholder="e.g., 'Fresh Gulf seafood, family recipes, Southern hospitality.'"></div>
-                <div class="nav-buttons"><button type="button" class="btn btn-secondary" onclick="prevSection()"><span>←</span> Back</button><button type="button" class="btn btn-primary" onclick="nextSection()">Continue <span>→</span></button></div>
-            </div>
-
-            <!-- SECTION 9: Photos -->
-            <div class="form-section" data-section="9">
-                <div class="section-header"><div class="section-number">9</div><div><div class="section-title">Business Photos</div><div class="section-subtitle">Photos help your site look professional and build trust</div></div></div>
-                <div class="form-group">
-                    <label>Owner / Team Photo</label>
-                    <div onclick="document.getElementById('ownerPhotoInput').click()" style="border:2px dashed #ccc;border-radius:12px;padding:30px;text-align:center;cursor:pointer;background:#fafafa;">
-                        <div id="ownerPhotoPreview" style="display:none;margin-bottom:10px;"><img id="ownerPhotoImg" style="max-width:200px;max-height:200px;border-radius:8px;"></div>
-                        <div id="ownerPhotoPrompt">📸 Click to upload owner/team photo<br><span style="font-size:12px;color:#999;">JPG, PNG — max 5MB</span></div>
-                    </div>
-                    <input type="file" id="ownerPhotoInput" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this,'ownerPhoto')">
-                    <input type="hidden" name="ownerPhoto" id="ownerPhotoData" value="">
-                </div>
-                <div class="form-group">
-                    <label>Work / Service Photos</label>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                        <div onclick="document.getElementById('workPhoto1Input').click()" style="border:2px dashed #ccc;border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:#fafafa;">
-                            <div id="workPhoto1Preview" style="display:none;margin-bottom:8px;"><img id="workPhoto1Img" style="max-width:150px;max-height:150px;border-radius:8px;"></div>
-                            <div id="workPhoto1Prompt">📷 Work photo 1</div>
-                        </div>
-                        <div onclick="document.getElementById('workPhoto2Input').click()" style="border:2px dashed #ccc;border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:#fafafa;">
-                            <div id="workPhoto2Preview" style="display:none;margin-bottom:8px;"><img id="workPhoto2Img" style="max-width:150px;max-height:150px;border-radius:8px;"></div>
-                            <div id="workPhoto2Prompt">📷 Work photo 2</div>
-                        </div>
-                    </div>
-                    <input type="file" id="workPhoto1Input" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this,'workPhoto1')">
-                    <input type="file" id="workPhoto2Input" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this,'workPhoto2')">
-                    <input type="hidden" name="workPhoto1" id="workPhoto1Data" value="">
-                    <input type="hidden" name="workPhoto2" id="workPhoto2Data" value="">
-                </div>
-                <div class="form-group" style="margin-top:16px;padding:16px;background:#fff3cd;border:1px solid #ffc107;border-radius:10px;">
-                    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin:0;">
-                        <input type="checkbox" id="skipPhotosCheckbox" name="skipPhotos" value="yes" onchange="updatePhotoRequirement()" style="width:18px;height:18px;margin-top:2px;">
-                        <span style="font-size:13px;"><strong>Skip photos for now</strong> — I can email photos later to george&#64;turnkeyaiservices.com</span>
-                    </label>
-                </div>
-                <div id="photoValidationMsg" style="display:none;color:#dc2626;font-size:13px;font-weight:600;margin-top:10px;padding:10px;background:#fef2f2;border-radius:8px;">⚠️ Please upload at least an owner photo and one work photo, or check the box above to skip.</div>
-                <div class="nav-buttons"><button type="button" class="btn btn-secondary" onclick="prevSection()"><span>←</span> Back</button><button type="button" class="btn btn-primary" onclick="nextSection()">Continue <span>→</span></button></div>
-            </div>
-
-            <!-- SECTION 10: Add-On Services -->
-            <div class="form-section" data-section="10">
-                <div class="section-header"><div class="section-number">10</div><div><div class="section-title">Free Video & Add-On Services</div><div class="section-subtitle">Boost your website — never miss a customer call</div></div></div>
-
-                <!-- FREE 60-SEC VIDEO -->
-                <div class="addon-box video-box">
-                    <h3>🎬 Your Free 60-Second Promo Video <span class="addon-badge gold">FREE with any plan</span></h3>
-                    <p class="addon-desc">Every TurnkeyAI client gets one free 60-second professional promo video — powered by AI video technology. We write the script from your intake info and send it to you. You record a short clip on your phone. We handle the rest.</p>
-                    <!-- FIX: div instead of label to prevent double-toggle -->
-                    <div class="addon-check-row" id="videoCheckRow" onclick="toggleFreeVideo()">
-                        <input type="checkbox" name="wants_free_video" id="wantsFreeVideo" value="yes">
-                        <span><strong>Yes, I want my free promo video!</strong> — We'll email you a custom script and recording instructions within 24 hours of signup.</span>
-                    </div>
-                </div>
-
-                <!-- MINI-ME -->
-                <div class="addon-box mini-me-box">
-                    <h3>🤖 Mini-Me AI Avatar <span class="addon-badge green">$59/mo — First video FREE</span></h3>
-                    <p class="addon-desc">Mini-Me is a digital version of you that lives on your website — your face, your voice, your personality — available 24/7. You record one short clip on your phone using a script we write. We create your AI avatar and put it on your site. Mini-Me subscribers automatically get the free 60-second promo video too.</p>
-                    <!-- FIX: div instead of label to prevent double-toggle -->
-                    <div class="addon-check-row" id="miniMeCheckRow" onclick="toggleMiniMe()">
-                        <input type="checkbox" name="wants_mini_me" id="wantsMiniMe" value="yes">
-                        <span><strong>Yes, I want Mini-Me!</strong> — $59/month after the free first video. We'll send everything you need to get started.</span>
-                    </div>
-                    <div class="consent-sub" id="miniMeConsentBox">
-                        <label>
-                            <input type="checkbox" name="mini_me_consent" id="miniMeConsentCb" value="yes">
-                            <span>I authorize TurnkeyAI Services to use my image, likeness, and voice recording to create my AI avatar (Mini-Me) for my business website. I can revoke this authorization at any time by contacting george&#64;turnkeyaiservices.com. <strong style="color:#00D68F;">Consent is stored with a timestamp in your account.</strong></span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- CALL HANDLING -->
-                <div class="call-box">
-                    <h3>📞 Never Miss a Customer Call</h3>
-                    <p class="call-sub">67% of missed calls never call back. These add-ons are included in your $99/month plan — just check the ones you want activated.</p>
-
-                    <div class="call-addon-item" id="afterHoursItem">
-                        <label class="call-addon-header" style="margin:0;font-weight:400;cursor:pointer;">
-                            <input type="checkbox" name="addon_after_hours" value="yes" onchange="toggleCallAddon(this,'afterHoursItem')">
-                            <strong>After Hours Answering</strong>
-                        </label>
-                        <p class="call-addon-desc">Calls after business hours automatically send an SMS: "Thanks for calling [Business]. We're closed but will call you back first thing tomorrow."</p>
-                    </div>
-
-                    <div class="call-addon-item" id="missedCallItem">
-                        <label class="call-addon-header" style="margin:0;font-weight:400;cursor:pointer;">
-                            <input type="checkbox" name="addon_missed_call" value="yes" onchange="toggleCallAddon(this,'missedCallItem')">
-                            <strong>Missed Call Text Return</strong>
-                        </label>
-                        <p class="call-addon-desc">Any missed call during business hours instantly triggers an SMS: "Hi! We missed your call at [Business]. Reply here or call [phone] and we'll get right back to you."</p>
-                    </div>
-
-                    <div class="call-addon-item" id="voicemailItem">
-                        <label class="call-addon-header" style="margin:0;font-weight:400;cursor:pointer;">
-                            <input type="checkbox" name="addon_voicemail_drop" value="yes" onchange="toggleCallAddon(this,'voicemailItem')">
-                            <strong>Custom Voicemail Greeting</strong>
-                        </label>
-                        <p class="call-addon-desc">We create a professional voicemail greeting using a script written from your intake data. Mini-Me subscribers can use their own recorded voice.</p>
-                    </div>
-
-                    <div id="callHandlingPhone">
-                        <div class="form-group" style="margin:16px 0 0;">
-                            <label>Phone number for call handling (if different from above)</label>
-                            <input type="tel" name="call_handling_phone" placeholder="(555) 123-4567">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="nav-buttons"><button type="button" class="btn btn-secondary" onclick="prevSection()"><span>←</span> Back</button><button type="button" class="btn btn-primary" onclick="nextSection()">Continue <span>→</span></button></div>
-            </div>
-
-            <!-- SECTION 11: Final Details -->
-            <div class="form-section" data-section="11">
-                <div class="section-header"><div class="section-number">11</div><div><div class="section-title">Final Details</div><div class="section-subtitle">Almost done!</div></div></div>
-                <div class="form-group">
-                    <label>Payment Methods You Accept</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-item"><input type="checkbox" name="pay_cash" value="cash"><span>Cash</span></label>
-                        <label class="checkbox-item"><input type="checkbox" name="pay_card" value="card"><span>Credit/Debit Cards</span></label>
-                        <label class="checkbox-item"><input type="checkbox" name="pay_check" value="check"><span>Check</span></label>
-                        <label class="checkbox-item"><input type="checkbox" name="pay_venmo" value="venmo"><span>Venmo</span></label>
-                        <label class="checkbox-item"><input type="checkbox" name="pay_cashapp" value="cashapp"><span>CashApp</span></label>
-                        <label class="checkbox-item"><input type="checkbox" name="pay_zelle" value="zelle"><span>Zelle</span></label>
-                    </div>
-                </div>
-                <div class="form-group"><label>Anything else we should know?</label><textarea name="additionalNotes" placeholder="Any special features you want, things you DON'T want, or other notes..."></textarea></div>
-                <div class="form-group"><label>How did you hear about TurnkeyAI Services?</label><input type="text" name="referralSource" placeholder="e.g., Google, referral from friend, social media"></div>
-                <div class="nav-buttons">
-                    <button type="button" class="btn btn-secondary" onclick="prevSection()"><span>←</span> Back</button>
-                    <button type="submit" class="btn btn-success" id="submitBtn">🚀 Submit & Build My Website</button>
-                </div>
-            </div>
-        </form>
-
-        <!-- Success Screen -->
-        <div class="success-screen" id="successScreen">
-            <div class="success-icon">✓</div>
-            <h2>You're All Set!</h2>
-            <p>We've received your information and will start building your website right away!</p>
-            <div style="background:linear-gradient(135deg,#0066FF,#0052CC);color:white;padding:28px;border-radius:16px;max-width:500px;margin:24px auto;text-align:center;">
-                <p style="font-size:18px;font-weight:700;margin-bottom:8px;">Activate & Pay Now</p>
-                <p style="opacity:.9;margin-bottom:20px;font-size:14px;">$0 setup • $99/month • Cancel anytime</p>
-                <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
-                    <a href="https://buy.stripe.com/dRm3cx0PY13J6Wu4DrfnO05" target="_blank" style="display:inline-block;background:#00D68F;color:white;padding:16px 40px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;width:280px;">💳 Pay with Credit Card</a>
-                    <a href="https://www.paypal.com/paypalme/airesources89" target="_blank" style="display:inline-block;background:#FFC439;color:#003087;padding:16px 40px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;width:280px;">🅿️ Pay with PayPal</a>
-                    <a href="#" onclick="showCashAppInfo();return false;" style="display:inline-block;background:#00D632;color:white;padding:16px 40px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;width:280px;">💲 Pay with CashApp</a>
-                    <!-- FIX 3: Partner button added -->
-                    <a href="#" onclick="showPartnerInfo();return false;" style="display:inline-block;background:rgba(255,255,255,.15);color:white;padding:16px 40px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;width:280px;border:2px solid rgba(255,255,255,.4);">🤝 TurnkeyAI Partner</a>
-                </div>
-                <div id="cashAppInfo" style="display:none;background:rgba(255,255,255,.15);padding:14px;border-radius:8px;margin-top:12px;">
-                    <p style="font-size:14px;font-weight:600;">Send $99 to <span style="font-size:16px;">$AIResources89</span></p>
-                    <p style="font-size:12px;opacity:.8;margin-top:4px;">Include your business name in the note</p>
-                </div>
-                <!-- FIX 3: Partner info panel -->
-                <div id="partnerInfo" style="display:none;background:rgba(255,255,255,.15);padding:14px;border-radius:8px;margin-top:12px;">
-                    <p style="font-size:14px;font-weight:600;">✅ Partner Account — No Payment Required</p>
-                    <p style="font-size:12px;opacity:.8;margin-top:4px;">Your site will be deployed automatically. You'll receive your preview link and dashboard credentials by email within minutes.</p>
-                </div>
-            </div>
-            <div id="successAddons" style="display:none;background:#f0fff4;border:2px solid #00D68F;border-radius:12px;padding:20px;max-width:500px;margin:0 auto 16px;text-align:left;">
-                <p style="font-weight:700;color:#065f46;margin-bottom:8px;">🎉 Your add-ons — what happens next:</p>
-                <ul id="successAddonList" style="padding-left:20px;color:#047857;line-height:2;font-size:14px;"></ul>
-            </div>
-            <div style="background:var(--gray-100);padding:24px;border-radius:12px;text-align:left;max-width:500px;margin:16px auto 0;">
-                <p style="font-weight:600;margin-bottom:12px;">What happens next:</p>
-                <ul style="padding-left:20px;color:var(--gray-500);line-height:2;">
-                    <li>We build your AI-powered website (typically within 24 hours)</li>
-                    <li>You'll receive a preview link by email to review and approve</li>
-                    <li>Once approved and paid, your site goes live automatically</li>
-                    <li>Send your logo and photos to <strong>george&#64;turnkeyaiservices.com</strong></li>
-                </ul>
-            </div>
-            <p style="margin-top:24px;font-size:14px;color:var(--gray-500);">Questions? Call us at (228) 604-3200</p>
+        <div class="faq-pair">
+          <div class="faq-pair-num">Question 3</div>
+          <label>Question</label>
+          <input type="text" name="faq_q3" placeholder="e.g. Do you work on weekends?">
+          <label style="margin-top:10px">Answer</label>
+          <textarea name="faq_a3" placeholder="e.g. Yes, we're available Saturday mornings 9am-2pm. Sundays by appointment only for emergencies." style="min-height:60px"></textarea>
         </div>
+        <div class="faq-pair">
+          <div class="faq-pair-num">Question 4</div>
+          <label>Question</label>
+          <input type="text" name="faq_q4" placeholder="e.g. What areas do you serve?">
+          <label style="margin-top:10px">Answer</label>
+          <textarea name="faq_a4" placeholder="e.g. We serve all of Hancock County, Harrison County, and Pearl River County — about a 50-mile radius from Bay St. Louis." style="min-height:60px"></textarea>
+        </div>
+        <div class="faq-pair">
+          <div class="faq-pair-num">Question 5</div>
+          <label>Question</label>
+          <input type="text" name="faq_q5" placeholder="e.g. Are you licensed and insured?">
+          <label style="margin-top:10px">Answer</label>
+          <textarea name="faq_a5" placeholder="e.g. Yes, we are fully licensed and insured. We carry $1M in liability coverage and all our technicians are background checked." style="min-height:60px"></textarea>
+        </div>
+        <p style="font-size:12px;color:#9CA3AF;margin-top:8px">Fill in as many as you can — leave any blank that don't apply. You can always add more later through your dashboard.</p>
+      </div>
+      <div class="field"><label>How should pricing be shown in chat?</label>
+        <select name="pricingDisplay">
+          <option value="ranges">Show price ranges</option>
+          <option value="starting_at">Show starting prices only</option>
+          <option value="free_estimate">Say free estimates only</option>
+          <option value="no_pricing">Do not show any pricing</option>
+        </select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-title">🌐 Online Presence</div>
+      <div class="row2">
+        <div class="field"><label>Current Website (if any)</label><input type="text" name="currentWebsite" placeholder="https://..."></div>
+        <div class="field"><label>Google Business Profile</label><input type="text" name="googleBusiness" placeholder="https://g.page/..."></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Facebook Page</label><input type="text" name="facebook" placeholder="https://facebook.com/..."></div>
+        <div class="field"><label>Instagram</label><input type="text" name="instagram" placeholder="https://instagram.com/..."></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Do you have a logo?</label>
+          <select name="hasLogo">
+            <option value="yes">Yes — I will email it to turnkeyaiservices@gmail.com</option>
+            <option value="no">No — please create one</option>
+          </select>
+        </div>
+        <div class="field"><label>How did you hear about us?</label><input type="text" name="referralSource" placeholder="e.g. Facebook, friend, Google"></div>
+      </div>
+    </div>
+    <!-- ═══ CHANGE 3: IVR / Phone System Setup ═══ -->
+    <div class="card">
+      <div class="sec-title">📞 Phone System Setup (IVR)</div>
+      <p style="font-size:13px;color:#6B7280;margin-bottom:16px">We can set up a professional phone system for your business — with a dedicated business number, automated greeting, and department routing. This is included with your plan at no extra charge.</p>
+      <div class="field">
+        <label>Would you like a professional phone system for your business?</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="ivrOptIn" value="yes" onchange="ivrLogic()"> Yes — set it up for me</label>
+          <label class="radio-item"><input type="radio" name="ivrOptIn" value="no" onchange="ivrLogic()"> No thanks — I'll just use my personal number</label>
+          <label class="radio-item"><input type="radio" name="ivrOptIn" value="tell_me_more" onchange="ivrLogic()"> Tell me more first</label>
+        </div>
+      </div>
+      <div id="ivrDetailsSection" class="hidden">
+        <div class="field">
+          <label>Custom Phone Greeting</label>
+          <p style="font-size:12px;color:#6B7280;margin-bottom:6px">What should callers hear when they call your business number? Leave blank and we'll create one for you.</p>
+          <textarea name="ivrGreeting" placeholder="e.g. Thank you for calling Joe's Plumbing! For service requests, press 1. For billing, press 2. To speak with someone, press 0." style="min-height:70px"></textarea>
+        </div>
+        <div class="field">
+          <label>Phone Departments / Extensions</label>
+          <p style="font-size:12px;color:#6B7280;margin-bottom:10px">If you want callers to choose a department ("Press 1 for Sales, Press 2 for Service"), list them below. Leave blank if you just want calls to ring your main number.</p>
+          <div class="ivr-dept-row">
+            <input type="text" name="ivr_dept1_name" placeholder="e.g. Sales / New Customers">
+            <input type="text" name="ivr_dept1_ext" placeholder="Press 1">
+          </div>
+          <div class="ivr-dept-row">
+            <input type="text" name="ivr_dept2_name" placeholder="e.g. Service / Repairs">
+            <input type="text" name="ivr_dept2_ext" placeholder="Press 2">
+          </div>
+          <div class="ivr-dept-row">
+            <input type="text" name="ivr_dept3_name" placeholder="e.g. Billing / Accounts">
+            <input type="text" name="ivr_dept3_ext" placeholder="Press 3">
+          </div>
+          <p style="font-size:12px;color:#9CA3AF;margin-top:4px">Each department can forward to a different phone number. We'll set this up with you after onboarding.</p>
+        </div>
+        <div class="field">
+          <label>What should happen when someone calls after hours?</label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="ivrAfterHours" value="voicemail"> Go to voicemail</label>
+            <label class="radio-item"><input type="radio" name="ivrAfterHours" value="text_back"> Send them an automatic text message</label>
+            <label class="radio-item"><input type="radio" name="ivrAfterHours" value="ai_sms"> Let the AI handle it via text (recommended)</label>
+            <label class="radio-item"><input type="radio" name="ivrAfterHours" value="ring_anyway"> Ring my phone anyway — I'll answer if I can</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Phone number to forward calls to (if different from business phone above)</label>
+          <input type="tel" name="ivrForwardingNumber" placeholder="(228) 555-1234 — leave blank to use your main business phone">
+        </div>
+      </div>
+    </div>
+    <div class="card" style="padding:20px 32px">
+      <div class="nav-btns">
+        <button type="button" class="btn-back" onclick="goStep(3)">← Back</button>
+        <button type="button" class="btn-next" onclick="goStep(5)">Next: Domain Setup →</button>
+      </div>
+    </div>
+  </div>
+  <!-- STEP 5: DOMAIN & TECHNICAL SETUP -->
+  <div class="step-page" id="page5">
+    <div class="card">
+      <div class="sec-title">🌐 Domain & Technical Setup</div>
+      <p style="font-size:13px;color:#6B7280;margin-bottom:16px">We need to understand your current domain situation to set up your site correctly.</p>
+
+      <!-- Q1: Domain Status -->
+      <div class="field">
+        <label>Do you currently have a website and/or domain name? <span class="req">*</span></label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="domainStatus" value="yes_both" onchange="domainLogic()"> Yes — I have a website and domain</label>
+          <label class="radio-item"><input type="radio" name="domainStatus" value="domain_only" onchange="domainLogic()"> I have a domain but no website</label>
+          <label class="radio-item"><input type="radio" name="domainStatus" value="no" onchange="domainLogic()"> No — I need a new domain</label>
+          <label class="radio-item"><input type="radio" name="domainStatus" value="not_sure" onchange="domainLogic()"> I'm not sure</label>
+        </div>
+      </div>
+
+      <div class="field hidden" id="domainNameField">
+        <label>What is your domain name?</label>
+        <input type="text" name="existingDomain" placeholder="e.g. joesplumbing.com">
+      </div>
+
+      <div class="field hidden" id="registrarField">
+        <label>Where is your domain registered?</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="domainRegistrar" value="godaddy"> GoDaddy</label>
+          <label class="radio-item"><input type="radio" name="domainRegistrar" value="namecheap"> Namecheap</label>
+          <label class="radio-item"><input type="radio" name="domainRegistrar" value="google_domains"> Google Domains</label>
+          <label class="radio-item"><input type="radio" name="domainRegistrar" value="squarespace"> Squarespace</label>
+          <label class="radio-item"><input type="radio" name="domainRegistrar" value="wix"> Wix</label>
+          <label class="radio-item"><input type="radio" name="domainRegistrar" value="network_solutions"> Network Solutions</label>
+          <label class="radio-item"><input type="radio" name="domainRegistrar" value="other_registrar"> Other</label>
+          <label class="radio-item"><input type="radio" name="domainRegistrar" value="dont_know"> I don't know</label>
+        </div>
+      </div>
+
+      <div class="field hidden" id="dnsApproachField">
+        <label>How would you like us to handle DNS setup?</label>
+        <div class="radio-group">
+          <label class="radio-item" style="align-items:flex-start"><input type="radio" name="dnsApproach" value="hands_free" onchange="dnsApproachLogic()" style="margin-top:3px"> <span><strong>Hands-Free</strong> — I'll provide my registrar login and authorize TurnkeyAI to make DNS changes for me</span></label>
+          <label class="radio-item" style="align-items:flex-start"><input type="radio" name="dnsApproach" value="self_directed" onchange="dnsApproachLogic()" style="margin-top:3px"> <span><strong>Self-Directed</strong> — Send me step-by-step instructions and I'll make the changes myself</span></label>
+          <label class="radio-item" style="align-items:flex-start"><input type="radio" name="dnsApproach" value="need_help" onchange="dnsApproachLogic()" style="margin-top:3px"> <span><strong>I need help</strong> — I'm not sure, please contact me to discuss</span></label>
+        </div>
+      </div>
+
+      <div class="field hidden" id="registrarCredsField" style="background:#fff8ed;border:1px solid #fbbf24;border-radius:10px;padding:16px;margin-bottom:18px">
+        <p style="font-size:13px;color:#92400e;font-weight:600;margin-bottom:10px">🔒 Your credentials will only be used for DNS setup and are stored securely.</p>
+        <div class="row2">
+          <div class="field"><label>Registrar Username / Email</label><input type="text" name="registrarUsername" placeholder="Your login email or username"></div>
+          <div class="field"><label>Registrar Password</label><input type="password" name="registrarPassword" placeholder="Your registrar password"></div>
+        </div>
+      </div>
+
+      <div class="field hidden" id="emailOnDomainField">
+        <label>Do you have email addresses using your domain? (e.g. joe@joesplumbing.com)</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="hasEmailOnDomain" value="yes" onchange="emailLogic()"> Yes</label>
+          <label class="radio-item"><input type="radio" name="hasEmailOnDomain" value="no" onchange="emailLogic()"> No</label>
+          <label class="radio-item"><input type="radio" name="hasEmailOnDomain" value="not_sure_email" onchange="emailLogic()"> Not sure</label>
+        </div>
+      </div>
+
+      <div class="field hidden" id="emailProviderField">
+        <label>Who provides your email?</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="emailProvider" value="google_workspace"> Google Workspace (Gmail)</label>
+          <label class="radio-item"><input type="radio" name="emailProvider" value="microsoft_365"> Microsoft 365 (Outlook)</label>
+          <label class="radio-item"><input type="radio" name="emailProvider" value="hosting_company"> My hosting company</label>
+          <label class="radio-item"><input type="radio" name="emailProvider" value="other_email_provider"> Other</label>
+          <label class="radio-item"><input type="radio" name="emailProvider" value="dont_know_email"> I don't know</label>
+        </div>
+      </div>
+
+      <div class="field hidden" id="emailListField">
+        <label>List all email addresses that must keep working</label>
+        <textarea name="emailsToPreserve" placeholder="e.g.&#10;joe@joesplumbing.com&#10;office@joesplumbing.com" style="min-height:70px"></textarea>
+      </div>
+
+      <div class="field hidden" id="newDomainField">
+        <label>What domain name would you like? (Give us your top 2–3 choices)</label>
+        <textarea name="preferredDomains" placeholder="e.g.&#10;joesplumbing.com&#10;joesplumbingms.com&#10;joesplumbingbiloxi.com" style="min-height:70px"></textarea>
+      </div>
+
+      <div class="field hidden" id="wantEmailField">
+        <label>Would you like a professional email address with your new domain? (e.g. joe@joesplumbing.com)</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="wantsProfessionalEmail" value="yes"> Yes — set it up for me</label>
+          <label class="radio-item"><input type="radio" name="wantsProfessionalEmail" value="no"> No thanks</label>
+          <label class="radio-item"><input type="radio" name="wantsProfessionalEmail" value="tell_me_more"> Tell me more first</label>
+        </div>
+      </div>
     </div>
 
-    <script>
-    // ── OPERATOR DETECTION ──
-    (function(){
-        var p=new URLSearchParams(window.location.search);
-        var opId=p.get("operator")||p.get("op")||"";
-        var opName=p.get("operator_name")||p.get("opname")||"";
-        if(opId){ document.getElementById("operatorId").value=opId; document.getElementById("operatorName").value=opName; }
-    })();
+    <div class="card" style="padding:20px 32px">
+      <div class="nav-btns">
+        <button type="button" class="btn-back" onclick="goStep(4)">← Back</button>
+        <button type="button" class="btn-next" onclick="validateDomainStep()">Next: Your Plan →</button>
+      </div>
+    </div>
+  </div>
+  <!-- STEP 6: PLAN + ADD-ONS + DISCLOSURES + SUBMIT -->
+  <div class="step-page" id="page6">
+    <div class="card">
+      <div class="sec-title">📦 Choose Your Plan</div>
+      <p style="font-size:13px;color:#6B7280;margin-bottom:16px">All plans include your AI-powered website, 24/7 chat assistant, lead capture, and mobile-optimized design. Your first 30 days are free.</p>
+      <div class="plan-grid" id="planGrid">
+        <label class="plan-item" id="plan_website_label">
+          <input type="radio" name="selectedPlan" id="plan_website" value="website_only" onchange="highlightPlanLabel()">
+          <div>
+            <div class="plan-item-name">🌐 Website Only</div>
+            <div class="plan-item-desc">Professional AI website with 24/7 chat, lead capture, and mobile design.</div>
+            <div class="plan-item-price">$99/month — 30 days free</div>
+          </div>
+        </label>
+        <label class="plan-item" id="plan_blog_label">
+          <input type="radio" name="selectedPlan" id="plan_blog" value="website_blog" onchange="highlightPlanLabel()">
+          <div>
+            <div class="plan-item-name">📝 Website + Blog</div>
+            <div class="plan-item-desc">Everything in Website Only plus 8 AI-written blog posts per month to boost your Google ranking.</div>
+            <div class="plan-item-price">$129/month — 30 days free</div>
+          </div>
+        </label>
+        <label class="plan-item" id="plan_social_label">
+          <input type="radio" name="selectedPlan" id="plan_social" value="website_blog_social" onchange="highlightPlanLabel()">
+          <div>
+            <div class="plan-item-name">📱 Website + Blog + Social Posting</div>
+            <div class="plan-item-desc">Everything in Website + Blog plus weekly social media posts to Facebook and Instagram.</div>
+            <div class="plan-item-price">$159/month — 30 days free</div>
+          </div>
+        </label>
+        <label class="plan-item" id="plan_full_label">
+          <input type="radio" name="selectedPlan" id="plan_full" value="full_package" onchange="highlightPlanLabel()">
+          <div>
+            <div class="plan-item-name">⭐ Full Package</div>
+            <div class="plan-item-desc">Everything included — Website, Blog, Social Posting, and your Mini-Me AI Avatar. Best value.</div>
+            <div class="plan-item-price">$218/month — 30 days free</div>
+          </div>
+        </label>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-title">🎯 Optional Add-Ons (Free First Month)</div>
+      <div class="addon" id="addonMiniMe" onclick="toggleAddon('chk_miniMe','addonMiniMe',event)">
+        <input type="checkbox" name="wants_mini_me" id="chk_miniMe" value="yes" onchange="syncAddon('chk_miniMe','addonMiniMe')">
+        <div><div class="addon-title">🤖 Mini-Me AI Avatar</div><div class="addon-desc">A video avatar of YOU on your website — greets visitors and answers questions in your voice, 24/7. Record a 60-second phone clip and we do the rest.</div><div class="addon-price">$59/month after first month free</div></div>
+      </div>
+      <div class="addon" id="addonVideo" onclick="toggleAddon('chk_video','addonVideo',event)">
+        <input type="checkbox" name="wants_free_video" id="chk_video" value="yes" onchange="syncAddon('chk_video','addonVideo')">
+        <div><div class="addon-title">🎬 Free 60-Second Promo Video</div><div class="addon-desc">Professional promo video from your phone clip — added to your site and ready to share on social. One free video per client.</div><div class="addon-price">FREE with your website</div></div>
+      </div>
+      <div class="addon" id="addonAH" onclick="toggleAddon('chk_ah','addonAH',event)">
+        <input type="checkbox" name="addon_after_hours" id="chk_ah" value="yes" onchange="syncAddon('chk_ah','addonAH')">
+        <div><div class="addon-title">📞 After Hours Text Response</div><div class="addon-desc">Callers after hours automatically get a friendly text — never lose a lead again.</div><div class="addon-price">Included free</div></div>
+      </div>
+      <div class="addon" id="addonMC" onclick="toggleAddon('chk_mc','addonMC',event)">
+        <input type="checkbox" name="addon_missed_call" id="chk_mc" value="yes" onchange="syncAddon('chk_mc','addonMC')">
+        <div><div class="addon-title">📱 Missed Call Text Return</div><div class="addon-desc">Miss a call? They get a text from you within seconds — works 24/7.</div><div class="addon-price">Included free</div></div>
+      </div>
+    </div>
+    <!-- DISCLOSURES -->
+    <div class="card" id="disclosuresCard">
+      <div class="sec-title">📜 Required Disclosures</div>
+      <p style="font-size:13px;color:#6B7280;margin-bottom:16px">Please review and acknowledge the following before we build your site.</p>
+      <label class="addon" style="cursor:pointer" onclick="toggleDisclosure('disc1',this,event)">
+        <input type="checkbox" id="disc1" name="disc_domain_ownership" value="yes" onchange="syncDisclosure('disc1',this.closest('.addon'))">
+        <div>
+          <div class="addon-title">Domain Ownership</div>
+          <div class="addon-desc">If TurnkeyAI registers a domain on your behalf, you own it. It will be transferred to you at no cost within 30 days of a written request if you cancel your service.</div>
+        </div>
+      </label>
+      <label class="addon" style="cursor:pointer" onclick="toggleDisclosure('disc2',this,event)">
+        <input type="checkbox" id="disc2" name="disc_dns_transition" value="yes" onchange="syncDisclosure('disc2',this.closest('.addon'))">
+        <div>
+          <div class="addon-title">DNS and Website Transition</div>
+          <div class="addon-desc">Once we point your domain to your new TurnkeyAI website, your existing website will no longer be visible at that address. You are responsible for backing up your current site before the transition.</div>
+        </div>
+      </label>
+      <label class="addon" style="cursor:pointer" onclick="toggleDisclosure('disc3',this,event)">
+        <input type="checkbox" id="disc3" name="disc_email_preservation" value="yes" onchange="syncDisclosure('disc3',this.closest('.addon'))">
+        <div>
+          <div class="addon-title">Email Preservation</div>
+          <div class="addon-desc">If you have email addresses on your domain (e.g. joe@yourbusiness.com), you must disclose them during intake. TurnkeyAI will take precautions to preserve email service but is not liable for temporary disruptions during DNS changes.</div>
+        </div>
+      </label>
+      <label class="addon" style="cursor:pointer" onclick="toggleDisclosure('disc4',this,event)">
+        <input type="checkbox" id="disc4" name="disc_registrar_access" value="yes" onchange="syncDisclosure('disc4',this.closest('.addon'))">
+        <div>
+          <div class="addon-title">Registrar Access Authorization</div>
+          <div class="addon-desc">If you choose Hands-Free setup, you authorize TurnkeyAI to access your domain registrar account solely for the purpose of configuring DNS records. If you choose Self-Directed setup, TurnkeyAI is not responsible for delays caused by incomplete or incorrect changes on your end.</div>
+        </div>
+      </label>
+      <label class="addon" style="cursor:pointer" onclick="toggleDisclosure('disc5',this,event)">
+        <input type="checkbox" id="disc5" name="disc_service_scope" value="yes" onchange="syncDisclosure('disc5',this.closest('.addon'))">
+        <div>
+          <div class="addon-title">Service Scope</div>
+          <div class="addon-desc">TurnkeyAI provides website design, hosting, and management services. Email hosting and email administration are not included unless specifically selected as an add-on.</div>
+        </div>
+      </label>
+    </div>
+    <div class="card">
+      <div class="sec-title">📝 Final Details</div>
+      <div class="field"><label>Preferred colors or style (optional)</label><input type="text" name="colorPreference" placeholder="e.g. Blue and white, dark professional, bright and friendly"></div>
+      <div class="field"><label>Anything else you want on your site?</label><textarea name="additionalNotes" placeholder="Special requests, things to include or avoid, questions..."></textarea></div>
+    </div>
+    <div class="card" id="submitCard" style="background:linear-gradient(135deg,#f0fff9,#f0f9ff);border:2px solid #00D68F">
+      <p id="submitIntroText" style="font-weight:700;font-size:16px;margin-bottom:10px;color:#065f46">What happens next:</p>
+      <ol id="submitStepsList" style="padding-left:20px;line-height:2.3;font-size:14px;color:#374151">
+        <li>We build your website preview using your answers</li>
+        <li>You get an email with a preview link (usually within minutes)</li>
+        <li>Review it — click Approve in the preview or in your email</li>
+        <li>Your site goes live — you get your URL and dashboard login</li>
+      </ol>
+      <div id="paymentMethodSection" style="margin-top:24px;margin-bottom:4px">
+        <p style="font-weight:700;font-size:15px;color:#065f46;margin-bottom:12px">💳 How will you be paying?</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <label id="pay_cc_label" style="display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border:2px solid #e5e7eb;border-radius:12px;cursor:pointer;transition:border-color .15s;background:white">
+            <input type="radio" name="paymentMethod" id="pay_cc" value="credit_debit" onchange="highlightPayLabel()" style="margin-top:3px;accent-color:#0066FF;width:16px;height:16px;flex-shrink:0">
+            <div>
+              <div style="font-weight:700;font-size:14px;color:#1f2937">💳 Credit / Debit Card</div>
+              <div style="font-size:13px;color:#6B7280;margin-top:2px">30 days free, then billed monthly. You'll be redirected to our secure payment page after submitting.</div>
+            </div>
+          </label>
+          <label id="pay_partner_label" style="display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border:2px solid #e5e7eb;border-radius:12px;cursor:pointer;transition:border-color .15s;background:white">
+            <input type="radio" name="paymentMethod" id="pay_partner" value="partner" onchange="highlightPayLabel()" style="margin-top:3px;accent-color:#0066FF;width:16px;height:16px;flex-shrink:0">
+            <div>
+              <div style="font-weight:700;font-size:14px;color:#1f2937">🤝 Partner / Invoice</div>
+              <div style="font-size:13px;color:#6B7280;margin-top:2px">Hub partner, reseller, or invoiced account — your site deploys automatically.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div style="margin-top:20px">
+        <button type="button" class="btn-submit" id="submitBtn" onclick="submitForm()">🚀 Build My Website Preview →</button>
+      </div>
+      <p id="submitNote" style="font-size:12px;color:#9CA3AF;margin-top:10px;text-align:center">No payment required now. Preview is 100% free.</p>
+    </div>
+    <div style="padding:0 8px;margin-top:4px">
+      <button type="button" class="btn-back" onclick="goStep(5)">← Back</button>
+    </div>
+  </div>
+</div>
+<script>
+var STRIPE_LINKS = {
+  'website_only':       'https://buy.stripe.com/9B628t56edQveoWd9XfnO0a',
+  'website_blog':       'https://buy.stripe.com/7sYaEZ6aiaEjft05HvfnO0k',
+  'website_blog_social':'https://buy.stripe.com/cNibJ32Y6aEjcgO9XLfnO0e',
+  'full_package':       'https://buy.stripe.com/aFa6oJ8iqeUzft00nbfnO0d'
+};
 
-    var currentSection = 1;
-    var totalSections = 11;
+var IND = {"accounting":{"label":"Accounting / Bookkeeping","icon":"📊","services":["Bookkeeping","Tax Preparation","Payroll Services","QuickBooks Setup","Financial Statements","Business Tax Returns","Personal Tax Returns","IRS Representation","CFO Services","Accounts Payable/Receivable","Audit Preparation","Business Consulting","Nonprofit Accounting","Estate & Trust Accounting"],"questions":[{"n":"certifications","l":"Certifications","t":"text","p":"e.g. CPA, EA, QuickBooks ProAdvisor"},{"n":"clients_served","l":"Types of clients you serve","t":"text","p":"e.g. small businesses, restaurants, contractors, nonprofits"},{"n":"software","l":"Software you use","t":"text","p":"e.g. QuickBooks, Xero, FreshBooks"},{"n":"virtual","l":"Do you work remotely / virtually?","t":"checkbox","o":["Yes, fully virtual","In-person and virtual","In-person only"]}]},"acupuncture":{"label":"Acupuncture","icon":"🪡","services":["Acupuncture","Dry Needling","Cupping","Moxibustion","Herbal Medicine","Tui Na Massage","Electro-Acupuncture","Fertility Support","Pain Management","Stress & Anxiety","Sports Recovery","Migraine Treatment","Weight Loss Support"],"questions":[{"n":"licensed","l":"State licensed?","t":"radio","o":["Yes, licensed acupuncturist","Board certified","No"]},{"n":"insurance","l":"Insurance accepted?","t":"checkbox","o":["Yes, major insurances","Some plans","Cash only"]},{"n":"first_visit","l":"New patient process","t":"text","p":"e.g. 60-minute intake, health history review"}]},"appliance_repair":{"label":"Appliance Repair","icon":"🧰","services":["Washer Repair","Dryer Repair","Refrigerator Repair","Dishwasher Repair","Oven/Range Repair","Microwave Repair","Freezer Repair","Ice Maker Repair","Garbage Disposal","Wine Cooler Repair","Dryer Vent Cleaning","Commercial Appliance Repair","Same-Day Service"],"questions":[{"n":"brands","l":"Brands you service","t":"text","p":"e.g. All brands, or Samsung/LG/Whirlpool specialist"},{"n":"warranty","l":"Warranty on repairs?","t":"text","p":"e.g. 90-day parts and labor warranty"},{"n":"diagnostic_fee","l":"Service call fee?","t":"text","p":"e.g. $75 diagnostic, waived if we do the repair"},{"n":"same_day","l":"Same-day service?","t":"radio","o":["Yes, usually same day","Next-day typical","Depends on parts"]}]},"architecture":{"label":"Architecture / Design","icon":"🏛️","services":["Residential Design","Commercial Design","Interior Architecture","Renovations & Additions","Custom Home Design","3D Renderings","Construction Documents","Permit Applications","Site Planning","Historic Preservation","Sustainable Design","Landscape Architecture"],"questions":[{"n":"licensed","l":"Licensed architect?","t":"radio","o":["Yes, registered architect","Architectural designer","No"]},{"n":"project_types","l":"Project types you specialize in","t":"text","p":"e.g. custom homes, commercial retail, renovations"},{"n":"software","l":"Software used","t":"text","p":"e.g. AutoCAD, Revit, SketchUp"}]},"attorney":{"label":"Attorney / Law","icon":"⚖️","services":["Free Consultation","Contract Review","Business Formation","Real Estate Law","Personal Injury","Family Law","Divorce","Criminal Defense","Estate Planning","Wills & Trusts","Probate","Immigration","Workers Compensation","Traffic Violations","Mediation"],"questions":[{"n":"bar_admission","l":"State bar admitted?","t":"text","p":"e.g. Mississippi, Louisiana"},{"n":"practice_areas","l":"Primary practice areas","t":"text","p":"e.g. personal injury, estate planning, family law"},{"n":"free_consult","l":"Free consultations?","t":"radio","o":["Yes, always free","Free for certain cases","Paid consultations only"]},{"n":"contingency","l":"Contingency fee cases?","t":"radio","o":["Yes for personal injury","No","Depends on case type"]}]},"auto_body":{"label":"Auto Body","icon":"🔨","services":["Collision Repair","Dent Removal","Paintless Dent Repair","Auto Painting","Frame Straightening","Bumper Repair","Windshield Replacement","Hail Damage Repair","Rust Repair","Scratch Removal","Insurance Claims","Free Estimates","Custom Paint","Detailing"],"questions":[{"n":"certifications","l":"Certifications","t":"text","p":"e.g. I-CAR Gold, ASE certified"},{"n":"insurance_work","l":"Work with insurance?","t":"checkbox","o":["Yes, all major insurers","Most insurers","Cash only"]},{"n":"loaner","l":"Loaner vehicle?","t":"radio","o":["Yes","No"]},{"n":"warranty","l":"Warranty on work?","t":"text","p":"e.g. Lifetime warranty on paint and body work"}]},"auto_detailing":{"label":"Auto Detailing","icon":"✨","services":["Full Detail","Exterior Wash & Wax","Interior Detail","Carpet Shampooing","Leather Conditioning","Engine Bay Cleaning","Paint Correction","Ceramic Coating","Window Tinting","Headlight Restoration","Odor Elimination","Boat/RV Detailing","Mobile Detailing","Fleet Detailing"],"questions":[{"n":"mobile","l":"Mobile (you come to them)?","t":"radio","o":["Yes, fully mobile","Both shop and mobile","Shop only"]},{"n":"turnaround","l":"Typical turnaround","t":"text","p":"e.g. Full detail 4-6 hours, exterior 1 hour"},{"n":"products","l":"Products/brands used","t":"text","p":"e.g. Meguiar's, Chemical Guys, Gtechniq"}]},"auto_repair":{"label":"Auto Repair","icon":"🚗","services":["Oil Change","Brake Service","Tire Rotation & Balance","Tire Replacement","Wheel Alignment","Engine Diagnostics","Transmission Service","AC Repair","Battery Replacement","Exhaust Repair","Suspension Work","Check Engine Light","State Inspection","Tune-Up","Cooling System","Fuel System"],"questions":[{"n":"certified","l":"ASE certified?","t":"radio","o":["Yes, ASE certified","Some staff certified","No"]},{"n":"makes","l":"Makes/models you specialize in","t":"text","p":"e.g. All makes, or Toyota/Honda specialist"},{"n":"warranty","l":"Warranty on work?","t":"text","p":"e.g. 12 months / 12,000 miles"},{"n":"loaner","l":"Loaner car?","t":"radio","o":["Yes","No"]},{"n":"towing","l":"Towing available?","t":"radio","o":["Yes","No"]}]},"auto_sales":{"label":"Auto Sales","icon":"🚘","services":["Used Car Sales","New Car Sales","Truck Sales","SUV Sales","Van Sales","Fleet Sales","Buy Here Pay Here","Trade-Ins","Financing","Extended Warranties","Vehicle Inspection","Delivery Available","Online Sales"],"questions":[{"n":"inventory_size","l":"Approximate inventory size","t":"text","p":"e.g. 50-100 vehicles"},{"n":"financing","l":"Financing options?","t":"checkbox","o":["Yes, in-house","Third-party lenders","Both","No financing"]},{"n":"warranty","l":"Warranty offered?","t":"radio","o":["Yes, all vehicles","Select vehicles","As-is only"]},{"n":"price_range","l":"Typical price range","t":"text","p":"e.g. $5,000 - $35,000"}]},"agriculture":{"label":"Agriculture / Farm","icon":"🌾","services":["Fresh Vegetables","Microgreens","Herbs","Eggs / Poultry","Catfish / Aquaponics","Mushrooms","Honey","Fruit","Beef / Meat","Flowers","Farm Tours","CSA Boxes / Subscriptions","Wholesale to Restaurants","Farmers Market Sales","Online Orders","Seeds & Plants"],"questions":[{"n":"farm_type","l":"Type of farm operation","t":"text","p":"e.g. regenerative, organic, aquaponics, greenhouse, pasture-raised"},{"n":"certified_organic","l":"Certified organic?","t":"radio","o":["Yes, USDA certified","Practicing organic, not certified","No"]},{"n":"wholesale","l":"Do you sell wholesale?","t":"checkbox","o":["Yes, to restaurants and stores","Direct to consumer only","Both"]},{"n":"pickup_delivery","l":"How do customers get products?","t":"checkbox","o":["Farm pickup only","Delivery available","Both","Farmers market"]}]},"bail_bonds":{"label":"Bail Bonds","icon":"🔐","services":["Bail Bonds","24/7 Emergency Bail","Federal Bonds","Immigration Bonds","Property Bonds","Co-Signer Assistance","Payment Plans","Free Consultation","Out-of-County Bail","Out-of-State Bail"],"questions":[{"n":"licensed","l":"State licensed bail agent?","t":"radio","o":["Yes","No"]},{"n":"response_time","l":"Response time","t":"text","p":"e.g. Available 24/7, usually respond within 30 minutes"},{"n":"payment_plans","l":"Payment plans available?","t":"radio","o":["Yes","No"]}]},"bakery":{"label":"Bakery","icon":"🎂","services":["Custom Cakes","Wedding Cakes","Birthday Cakes","Cupcakes","Cookies","Bread","Pastries","Pies","Cheesecakes","Gluten-Free Options","Vegan Options","Corporate Orders","Event Catering","Cookie Decorating Classes","Delivery"],"questions":[{"n":"order_lead_time","l":"Order lead time required","t":"text","p":"e.g. 2 weeks for wedding cakes, 48 hours for standard orders"},{"n":"dietary","l":"Special dietary options","t":"text","p":"e.g. gluten-free, vegan, nut-free, sugar-free"},{"n":"delivery","l":"Delivery / pickup options?","t":"checkbox","o":["Yes, local delivery","Pickup only","Shipping available"]},{"n":"storefront","l":"Do you have a storefront?","t":"radio","o":["Yes, walk-in welcome","By appointment only","Home-based, pickup only"]}]},"barber":{"label":"Barber Shop","icon":"💈","services":["Men's Haircut","Boys' Haircut","Fade / Taper","Beard Trim & Shape","Hot Towel Shave","Straight Razor Shave","Hair Designs","Hair Coloring","Braids","Dreadlocks","Scalp Treatment","Lineup / Edge-Up","Kids First Cut"],"questions":[{"n":"appointment","l":"Appointment or walk-in?","t":"checkbox","o":["Appointments only","Walk-ins welcome","Both"]},{"n":"licensed","l":"Licensed barbers?","t":"radio","o":["Yes, all licensed","Yes, some licensed","No"]},{"n":"num_barbers","l":"Number of barbers","t":"text","p":"e.g. 3 barbers, solo shop"}]},"beauty_supply":{"label":"Beauty Supply","icon":"💄","services":["Hair Care Products","Hair Extensions","Wigs","Weaves","Natural Hair Products","Skin Care","Nail Supplies","Makeup","Barber Supplies","Professional Products","Wholesale Pricing","Custom Orders","Brand Consultations"],"questions":[{"n":"brands","l":"Key brands you carry","t":"text","p":"e.g. ORS, African Pride, Cantu, Shea Moisture"},{"n":"wholesale","l":"Wholesale available?","t":"radio","o":["Yes, licensed cosmetologists","All customers","No"]},{"n":"online_sales","l":"Online sales?","t":"radio","o":["Yes, ship nationwide","Local pickup only","No online sales"]}]},"catering":{"label":"Catering","icon":"🍱","services":["Corporate Catering","Wedding Catering","Private Events","Box Lunches","Buffet Service","Plated Dinners","BBQ Catering","Breakfast Catering","Food Stations","Bar Service","Staffing","Rentals","Drop-Off Catering","Full Service"],"questions":[{"n":"cuisine","l":"Cuisine / food specialties","t":"text","p":"e.g. Southern, BBQ, seafood, Italian, fusion"},{"n":"min_headcount","l":"Minimum headcount","t":"text","p":"e.g. 20 people minimum"},{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes, fully licensed","In process","No"]},{"n":"lead_time","l":"Booking lead time needed","t":"text","p":"e.g. 2 weeks minimum, 6 months for weddings"}]},"childcare":{"label":"Childcare / Daycare","icon":"👶","services":["Full-Day Childcare","Half-Day Childcare","Before School Care","After School Care","Drop-In Care","Infant Care (0-12 mo)","Toddler Care (1-3 yrs)","Preschool Program (3-5 yrs)","School-Age (5-12 yrs)","Summer Camp","Evening/Weekend Care","Special Needs Care","Homework Help","Arts & Crafts","Outdoor Activities"],"questions":[{"n":"licensed","l":"State licensed?","t":"radio","o":["Yes, state licensed","In process","No — private/informal care"]},{"n":"ages","l":"Ages served","t":"text","p":"e.g. 6 weeks to 12 years"},{"n":"ratio","l":"Child-to-staff ratio","t":"text","p":"e.g. 4:1 infants, 8:1 school age"},{"n":"meals","l":"Meals provided?","t":"checkbox","o":["Yes, full meals & snacks","Snacks only","No — bring your own"]},{"n":"curriculum","l":"Curriculum / program used","t":"text","p":"e.g. Montessori, HighScope, Creative Curriculum"}]},"chiropractic":{"label":"Chiropractic","icon":"🦴","services":["Spinal Adjustments","Back Pain Treatment","Neck Pain Treatment","Headache/Migraine Relief","Sports Injury","Auto Accident Injury","Sciatica Treatment","Posture Correction","X-Rays On-Site","Massage Therapy","Dry Needling","Pediatric Chiropractic","Wellness Plans","DOT Physicals"],"questions":[{"n":"licensed","l":"Licensed chiropractor?","t":"radio","o":["Yes, DC licensed","Yes, board certified","No"]},{"n":"insurance","l":"Insurance accepted?","t":"checkbox","o":["Yes, most major plans","Some plans","Cash only"]},{"n":"new_patient","l":"New patient process","t":"text","p":"e.g. 60-minute first visit includes x-rays and exam"},{"n":"auto_accident","l":"Auto accident / PI cases?","t":"radio","o":["Yes, we handle these regularly","Occasionally","No"]}]},"cleaning":{"label":"Cleaning Services","icon":"🧹","services":["Residential Cleaning","Commercial Cleaning","Deep Cleaning","Move-In / Move-Out Cleaning","Post-Construction Cleanup","Carpet Cleaning","Window Cleaning","Pressure Washing","Janitorial Services","Vacation Rental Cleaning","Office Cleaning","Weekly Recurring Cleaning","Bi-Weekly Cleaning","Monthly Cleaning","Same-Day Cleaning","Hoarding Cleanup"],"questions":[{"n":"products","l":"Cleaning products used","t":"checkbox","o":["Eco-friendly / green only","Standard professional products","Client-supplied products","Client's choice"]},{"n":"bonded","l":"Bonded & insured?","t":"radio","o":["Yes, fully bonded & insured","Insured only","No"]},{"n":"team","l":"Solo or team?","t":"checkbox","o":["Solo cleaner","2-person team","Larger teams depending on job"]},{"n":"background","l":"Background checked?","t":"radio","o":["Yes, all staff","No"]}]},"construction":{"label":"General Contractor","icon":"🏗️","services":["New Home Construction","Home Additions","Kitchen Remodels","Bathroom Remodels","Basement Finishing","Deck / Patio Construction","Garage Construction","Pole Barns / Metal Buildings","Commercial Build-Outs","Demolition","Storm Damage Repairs","Accessibility Modifications","Custom Homes","Design-Build"],"questions":[{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes, fully licensed & insured","Yes, insured only","No"]},{"n":"permits","l":"Do you handle permits?","t":"radio","o":["Yes, we handle everything","Client gets permit, we build","Depends on project"]},{"n":"project_size","l":"Typical project size range","t":"text","p":"e.g. $10K - $500K"},{"n":"financing","l":"Financing available?","t":"radio","o":["Yes","No","Coming soon"]}]},"counseling":{"label":"Counseling / Therapy","icon":"🧠","services":["Individual Therapy","Couples Counseling","Family Therapy","Child/Teen Therapy","Grief Counseling","Trauma Therapy","Anxiety Treatment","Depression Treatment","Addiction Counseling","EMDR Therapy","CBT","Telehealth / Online Therapy","Group Therapy","Life Coaching","Career Counseling"],"questions":[{"n":"credentials","l":"Credentials / license","t":"text","p":"e.g. LPC, LCSW, PhD, LMFT"},{"n":"insurance","l":"Insurance accepted?","t":"checkbox","o":["Yes, major plans","Some plans","Private pay only"]},{"n":"telehealth","l":"Telehealth available?","t":"radio","o":["Yes, fully virtual option","In-person only","Both"]},{"n":"specialties","l":"Client populations you specialize in","t":"text","p":"e.g. adults, adolescents, veterans, trauma survivors"}]},"dance":{"label":"Dance Studio","icon":"💃","services":["Ballet","Jazz","Tap","Hip Hop","Contemporary","Ballroom","Salsa","Wedding Dance Lessons","Toddler Dance (2-4 yrs)","Kids Classes","Teen Classes","Adult Classes","Competition Teams","Private Lessons","Summer Camps","Performance Showcases"],"questions":[{"n":"ages","l":"Ages served","t":"text","p":"e.g. 2 years through adult"},{"n":"performance","l":"Annual recital / showcase?","t":"radio","o":["Yes","No","Optional"]},{"n":"experience","l":"Instructor credentials","t":"text","p":"e.g. 20+ years, professional dance background"}]},"dental":{"label":"Dental","icon":"🦷","services":["General Dentistry","Teeth Cleaning","Teeth Whitening","Fillings","Crowns & Bridges","Root Canal","Tooth Extraction","Dentures","Dental Implants","Invisalign / Braces","Emergency Dental","Pediatric Dentistry","Sedation Dentistry","Veneers","Gum Disease Treatment"],"questions":[{"n":"insurance","l":"Insurance accepted?","t":"checkbox","o":["Yes, most major plans","Some plans","Cash/private pay only"]},{"n":"emergency","l":"Emergency dental?","t":"radio","o":["Yes, same-day emergency slots","After-hours emergency","No"]},{"n":"sedation","l":"Sedation options available?","t":"checkbox","o":["Nitrous oxide","IV sedation","Oral sedation","No sedation"]},{"n":"new_patients","l":"Accepting new patients?","t":"radio","o":["Yes","Waitlist only","No"]}]},"electrical":{"label":"Electrical","icon":"⚡","services":["Panel Upgrades","Outlet Installation","Lighting Installation","Ceiling Fans","EV Charger Installation","Generator Installation & Service","Wiring & Rewiring","Surge Protection","Smoke & CO Detectors","Electrical Troubleshooting","Commercial Electrical","Smart Home / Automation","Outdoor Lighting","Security Lighting","Emergency Electrical"],"questions":[{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes, fully licensed & insured","Yes, insured only","No"]},{"n":"emergency","l":"Emergency service?","t":"radio","o":["Yes, 24/7","Yes, evenings & weekends","Business hours only"]},{"n":"residential_commercial","l":"Residential or commercial?","t":"checkbox","o":["Residential only","Commercial only","Both"]}]},"event_planning":{"label":"Event Planning","icon":"🎉","services":["Wedding Planning","Corporate Events","Birthday Parties","Baby Showers","Quinceañeras","Graduation Parties","Anniversary Parties","Holiday Events","Venue Selection","Vendor Coordination","Day-Of Coordination","Full Planning Service","Partial Planning","Decor & Design","Virtual Events"],"questions":[{"n":"speciality","l":"Events you specialize in","t":"text","p":"e.g. weddings, corporate, social events"},{"n":"packages","l":"Service packages offered","t":"text","p":"e.g. Day-of coordination, partial planning, full service"},{"n":"vendors","l":"Preferred vendors / partnerships","t":"text","p":"e.g. preferred caterers, florists, photographers"}]},"fencing":{"label":"Fencing","icon":"🪵","services":["Wood Fence Installation","Vinyl Fence Installation","Chain Link Fence","Aluminum Fence","Wrought Iron Fence","Farm & Ranch Fencing","Gate Installation","Automatic Gate Openers","Fence Repair","Fence Staining & Painting","Pool Fencing","Privacy Fencing","Security Fencing","Temporary Fencing"],"questions":[{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes","No"]},{"n":"materials","l":"Materials you work with","t":"text","p":"e.g. wood, vinyl, chain link, aluminum, wrought iron"},{"n":"permits","l":"Do you handle permits?","t":"radio","o":["Yes, we handle everything","Client gets permit, we install","No permits needed typically"]},{"n":"free_estimate","l":"Free estimates?","t":"radio","o":["Yes","No"]}]},"financial_advisor":{"label":"Financial Advisor","icon":"💰","services":["Investment Planning","Retirement Planning","401k Rollover","IRA Accounts","Life Insurance","Wealth Management","Estate Planning","College Savings (529)","Tax Planning","Debt Management","Social Security Planning","Medicare Planning","Business Financial Planning","Insurance Review"],"questions":[{"n":"credentials","l":"Credentials","t":"text","p":"e.g. CFP, CFA, Series 65, insurance licensed"},{"n":"fee_structure","l":"How you charge","t":"checkbox","o":["Fee-only (no commissions)","Fee-based","Commission-based","Assets under management"]},{"n":"minimum","l":"Minimum account size?","t":"text","p":"e.g. No minimum, $100K minimum"}]},"fitness":{"label":"Fitness / Personal Training","icon":"💪","services":["Personal Training","Group Fitness","Weight Loss Programs","Strength Training","HIIT Training","Yoga","Pilates","Nutrition Coaching","Online Training","Sports Performance","Senior Fitness","Rehabilitation Exercise","Boxing / Kickboxing","Bootcamp"],"questions":[{"n":"certified","l":"Certifications","t":"text","p":"e.g. NASM, ACE, ISSA, CSCS"},{"n":"location","l":"Where you train","t":"checkbox","o":["My studio / gym","Client's home","Online / virtual","Outdoors","Multiple options"]},{"n":"specialties","l":"Client specialties","t":"text","p":"e.g. weight loss, athletes, seniors, postpartum"}]},"flooring":{"label":"Flooring","icon":"🏠","services":["Hardwood Installation","Hardwood Refinishing","Laminate Flooring","Luxury Vinyl Plank (LVP)","Tile Installation","Carpet Installation","Carpet Removal","Subfloor Repair","Floor Leveling","Stair Treads","Commercial Flooring","Epoxy Floors","Grout Cleaning & Sealing"],"questions":[{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes","No"]},{"n":"brands","l":"Brands / materials you work with","t":"text","p":"e.g. Shaw, Mohawk, Armstrong, custom hardwood"},{"n":"removal","l":"Old floor removal included?","t":"radio","o":["Yes, always included","Available for extra fee","No — client handles removal"]},{"n":"free_estimate","l":"Free estimates?","t":"radio","o":["Yes","No"]}]},"food_truck":{"label":"Food Truck","icon":"🚚","services":["Lunch Service","Dinner Service","Catering Events","Corporate Lunches","Festivals & Markets","Private Parties","Wedding Catering","Online Pre-Orders","Daily Specials","Seasonal Menu"],"questions":[{"n":"cuisine","l":"Type of food you serve","t":"text","p":"e.g. tacos, BBQ, seafood, burgers, Southern, fusion"},{"n":"schedule","l":"Where/when you operate","t":"text","p":"e.g. Downtown Mon-Fri 11am-2pm, events on weekends"},{"n":"catering_min","l":"Catering minimum","t":"text","p":"e.g. $500 minimum, 50 people minimum"},{"n":"health_permit","l":"Health department permitted?","t":"radio","o":["Yes","In process","No"]}]},"funeral":{"label":"Funeral Home","icon":"🕊️","services":["Traditional Funeral","Graveside Service","Cremation","Memorial Service","Pre-Planning / Pre-Arrangements","Veteran Services","Burial Packages","Celebration of Life","International Repatriation","Online Memorial Pages","Grief Support","Headstones & Monuments"],"questions":[{"n":"licensed","l":"Licensed funeral director?","t":"radio","o":["Yes","No"]},{"n":"preneed","l":"Pre-need planning available?","t":"radio","o":["Yes","No"]},{"n":"service_area","l":"Service area","t":"text","p":"e.g. All of Hancock, Harrison, and Pearl River counties"}]},"handyman":{"label":"Handyman","icon":"🛠️","services":["General Repairs","Furniture Assembly","TV Mounting","Door Installation & Repair","Window Repair","Drywall Repair","Tile Work","Caulking & Sealing","Deck Repair","Gutter Cleaning","Painting Touch-Ups","Fixture Installation","Shelving & Storage","Weatherproofing","Senior Home Safety Modifications"],"questions":[{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes","No"]},{"n":"min_job","l":"Minimum job size","t":"text","p":"e.g. $75 minimum, 2-hour minimum"},{"n":"free_estimate","l":"Free estimates?","t":"radio","o":["Yes","No — small service fee"]}]},"hvac":{"label":"HVAC","icon":"❄️","services":["AC Installation","AC Repair","AC Maintenance / Tune-Up","Heating Installation","Heating Repair","Heating Maintenance","Duct Cleaning","Duct Installation & Repair","Indoor Air Quality","Thermostat Installation","Mini-Split Systems","Commercial HVAC","Emergency Service","Refrigerant Recharge","UV Air Purifiers"],"questions":[{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes, fully licensed & insured","Yes, insured only","No"]},{"n":"brands","l":"Brands you service","t":"text","p":"e.g. Carrier, Trane, Lennox, Rheem, Goodman, Daikin"},{"n":"emergency","l":"Emergency service?","t":"radio","o":["Yes, 24/7","Yes, evenings & weekends","Business hours only"]},{"n":"financing","l":"Financing available?","t":"radio","o":["Yes","No","Coming soon"]}]},"insurance":{"label":"Insurance","icon":"🛡️","services":["Auto Insurance","Home Insurance","Life Insurance","Health Insurance","Business Insurance","Renters Insurance","Flood Insurance","Boat/Marine Insurance","Commercial Vehicle","Workers Comp","Umbrella Policy","Medicare Supplements","Final Expense","SR-22 Filing"],"questions":[{"n":"licensed","l":"Licensed insurance agent?","t":"radio","o":["Yes, licensed","Yes, licensed in multiple states","No"]},{"n":"carriers","l":"Insurance carriers you work with","t":"text","p":"e.g. State Farm, Allstate, Progressive, independent broker"},{"n":"independent","l":"Independent or captive agent?","t":"radio","o":["Independent (multiple carriers)","Captive (one carrier)"]}]},"it_support":{"label":"IT / Tech Support","icon":"💻","services":["Computer Repair","Virus & Malware Removal","Network Setup","WiFi Installation","Data Recovery","Hardware Upgrades","Software Installation","Remote Support","Business IT Support","Server Setup","Cloud Services","Security Cameras","Smart Home Setup","Phone Repair","Printer Setup"],"questions":[{"n":"certifications","l":"Certifications","t":"text","p":"e.g. CompTIA A+, Microsoft, Cisco, Google"},{"n":"on_site_remote","l":"On-site or remote support?","t":"checkbox","o":["On-site only","Remote only","Both on-site and remote"]},{"n":"response_time","l":"Response time","t":"text","p":"e.g. Same-day for emergencies, next-day standard"},{"n":"business_residential","l":"Residential or business?","t":"checkbox","o":["Residential only","Small business only","Both"]}]},"landscaping":{"label":"Landscaping","icon":"🌿","services":["Lawn Mowing","Lawn Fertilization & Treatment","Landscape Design","Sod Installation","Mulching","Flower Bed Installation","Tree & Shrub Planting","Irrigation Systems","Drainage Solutions","Hardscaping","Retaining Walls","Seasonal Cleanup","Leaf Removal","Aeration & Overseeding","Commercial Landscaping"],"questions":[{"n":"recurring","l":"Recurring service plans offered?","t":"checkbox","o":["Yes — weekly/bi-weekly/monthly","Seasonal contracts","One-time only"]},{"n":"design","l":"Landscape design services?","t":"radio","o":["Yes, full design service","Basic planning included","No"]},{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes","No"]}]},"locksmith":{"label":"Locksmith","icon":"🔑","services":["Lockout Service","Lock Rekeying","Lock Replacement","Key Duplication","Deadbolt Installation","Safe Opening","Car Lockout","Ignition Repair","Master Key Systems","Access Control","Security Consultation","24/7 Emergency Service","Residential Locksmith","Commercial Locksmith"],"questions":[{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes","No"]},{"n":"response_time","l":"Response time","t":"text","p":"e.g. 30 minutes or less for emergencies"},{"n":"emergency","l":"24/7 emergency?","t":"radio","o":["Yes, 24/7","Business hours only"]}]},"massage":{"label":"Massage Therapy","icon":"💆","services":["Swedish Massage","Deep Tissue Massage","Hot Stone Massage","Sports Massage","Prenatal Massage","Trigger Point Therapy","Myofascial Release","Aromatherapy","Couples Massage","Chair Massage","Corporate Chair Massage","Reflexology","CBD Massage","Mobile Massage"],"questions":[{"n":"licensed","l":"Licensed massage therapist?","t":"radio","o":["Yes, LMT","Certified (non-licensed state)","No"]},{"n":"insurance","l":"Insurance accepted?","t":"checkbox","o":["Yes, some plans","Cash only"]},{"n":"mobile","l":"Mobile / outcall available?","t":"checkbox","o":["Yes, we come to you","Studio only","Both"]},{"n":"appointment","l":"Appointment required?","t":"radio","o":["Appointment only","Walk-ins sometimes available"]}]},"moving":{"label":"Moving Company","icon":"📦","services":["Local Moving","Long-Distance Moving","Packing Services","Unpacking Services","Loading / Unloading Only","Storage Units","Piano Moving","Specialty Items","Furniture Assembly","Junk Removal","Office Moving","Senior Moving","Military Moving","Same-Day Moving"],"questions":[{"n":"licensed","l":"Licensed & insured / bonded?","t":"radio","o":["Yes, USDOT licensed & insured","Yes, insured","No"]},{"n":"truck_sizes","l":"Truck sizes available","t":"text","p":"e.g. 16-ft, 24-ft, 26-ft trucks"},{"n":"free_estimate","l":"Free estimates?","t":"radio","o":["Yes, free in-home estimate","Yes, phone estimate","No"]}]},"music_lessons":{"label":"Music Lessons","icon":"🎵","services":["Guitar Lessons","Piano Lessons","Drum Lessons","Voice / Vocal Lessons","Bass Guitar","Violin","Ukulele","Saxophone","Trumpet","Music Theory","Songwriting","Recording Basics","Group Lessons","Online Lessons","In-Home Lessons"],"questions":[{"n":"ages","l":"Ages you teach","t":"text","p":"e.g. All ages 5 and up, or adults only"},{"n":"experience","l":"Your musical background","t":"text","p":"e.g. 15 years performing, music degree, working musician"},{"n":"location","l":"Lesson location","t":"checkbox","o":["My studio","Student's home","Online only","Multiple options"]},{"n":"lesson_length","l":"Typical lesson length & rate","t":"text","p":"e.g. 30 min $35, 60 min $60"}]},"notary":{"label":"Notary","icon":"📜","services":["Notary Services","Mobile Notary","Loan Signing Agent","Remote Online Notarization","Wills & POA Notarization","Real Estate Documents","Immigration Forms","DMV Documents","Affidavits","Business Documents","Title Notarization","24/7 Availability"],"questions":[{"n":"mobile","l":"Mobile notary?","t":"checkbox","o":["Yes, I come to you","Office only","Both"]},{"n":"lsa","l":"Loan signing agent?","t":"radio","o":["Yes","No"]},{"n":"available","l":"Availability","t":"text","p":"e.g. Mon-Sat 8am-8pm, evenings by appointment"}]},"painting":{"label":"Painting","icon":"🎨","services":["Interior Painting","Exterior Painting","Cabinet Painting","Deck Staining & Sealing","Fence Painting","Commercial Painting","Wallpaper Removal","Drywall Repair","Popcorn Ceiling Removal","Epoxy Floors","Color Consultation","New Construction Painting","Pressure Washing Prep"],"questions":[{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes","No"]},{"n":"brands","l":"Paint brands you use","t":"text","p":"e.g. Sherwin-Williams, Benjamin Moore, Behr"},{"n":"free_estimate","l":"Free estimates?","t":"radio","o":["Yes, always free","Yes, in-person only","No"]},{"n":"warranty","l":"Warranty on work?","t":"text","p":"e.g. 2-year workmanship warranty"}]},"pest_control":{"label":"Pest Control","icon":"🐛","services":["General Pest Control","Termite Inspection","Termite Treatment","Termite Bond","Mosquito Treatment","Rodent Control","Bed Bug Treatment","Ant Control","Cockroach Control","Wildlife Removal","Fumigation","Pre-Construction Treatment","Recurring Quarterly Service","Same-Day Service","Commercial Pest Control"],"questions":[{"n":"licensed","l":"State licensed?","t":"radio","o":["Yes, fully licensed","No"]},{"n":"pet_safe","l":"Pet & family-safe treatments?","t":"radio","o":["Yes, always","Available on request","No"]},{"n":"guarantee","l":"Guarantee / warranty?","t":"text","p":"e.g. 30-day guarantee, free retreatment"},{"n":"termite_bond","l":"Termite bond available?","t":"radio","o":["Yes","No"]}]},"pet_grooming":{"label":"Pet Grooming","icon":"🐾","services":["Full Groom","Bath & Brush","Nail Trim","Ear Cleaning","Teeth Brushing","Deshedding Treatment","Puppy First Groom","Senior Pet Grooming","Mobile Grooming","Cat Grooming","Breed-Specific Styling","Flea Treatment","Bandanas & Accessories"],"questions":[{"n":"mobile","l":"Mobile grooming?","t":"checkbox","o":["Yes, fully mobile","Salon only","Both"]},{"n":"species","l":"Animals you groom","t":"text","p":"e.g. dogs & cats, dogs only, small animals"},{"n":"appointment","l":"Appointment required?","t":"radio","o":["Appointment only","Walk-ins welcome when available"]},{"n":"products","l":"Products used","t":"text","p":"e.g. all-natural, hypoallergenic, breed-specific"}]},"pet_services":{"label":"Pet Services / Vet","icon":"🐶","services":["Wellness Exams","Vaccinations","Spay & Neuter","Dental Cleaning","Surgery","Emergency Care","Boarding","Doggy Daycare","Dog Walking","Pet Sitting","In-Home Pet Care","Flea/Tick Treatment","Microchipping","Senior Pet Care","Exotic Animals"],"questions":[{"n":"licensed","l":"Licensed veterinarian on staff?","t":"radio","o":["Yes, licensed DVM","Technician-run clinic","No"]},{"n":"emergency","l":"Emergency/after-hours available?","t":"radio","o":["Yes, 24/7","Limited after-hours","No"]},{"n":"species","l":"Species you treat","t":"text","p":"e.g. dogs & cats only, exotic animals, livestock"}]},"photography":{"label":"Photography","icon":"📸","services":["Wedding Photography","Family Portraits","Senior Portraits","Newborn / Baby","Real Estate Photography","Commercial / Brand Photography","Headshots","Events & Parties","Product Photography","Drone / Aerial","Birth Photography","Engagement Sessions","Graduation Photos","Sports Photography","Video Services"],"questions":[{"n":"turnaround","l":"Photo delivery turnaround","t":"text","p":"e.g. 2 weeks for weddings, 1 week for portraits"},{"n":"style","l":"Editing style","t":"text","p":"e.g. light & airy, moody, vibrant, natural, film-inspired"},{"n":"travel","l":"Available to travel?","t":"radio","o":["Local area only","Regional travel (extra fee)","Available anywhere"]},{"n":"packages","l":"Briefly describe your packages","t":"textarea","p":"e.g. 2-hour session $350 includes 50 edited photos..."}]},"physical_therapy":{"label":"Physical Therapy","icon":"🏃","services":["Post-Surgery Rehab","Sports Injury","Back & Neck Pain","Shoulder Rehab","Knee Rehab","Balance & Fall Prevention","Dry Needling","Manual Therapy","Cupping","Work Injury Rehab","Pre-Surgery Prep","Home Exercise Programs","Aquatic Therapy","Pediatric PT","Vestibular Therapy"],"questions":[{"n":"licensed","l":"Licensed PT?","t":"radio","o":["Yes, licensed PT","PTA on staff","Both PT and PTA"]},{"n":"insurance","l":"Insurance accepted?","t":"checkbox","o":["Yes, most major plans","Some plans","Cash / private pay only"]},{"n":"referral","l":"Physician referral required?","t":"radio","o":["Yes","No — direct access state","Depends on insurance"]}]},"plumbing":{"label":"Plumbing","icon":"🔧","services":["Drain Cleaning","Water Heater Installation","Water Heater Repair","Leak Detection & Repair","Pipe Installation","Pipe Repair","Toilet Repair & Replace","Faucet Repair & Replace","Garbage Disposal","Sewer Line Service","Water Softener","Emergency Plumbing","Backflow Prevention","Whole-House Repiping","Water Filtration"],"questions":[{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes, fully licensed & insured","Yes, insured only","No"]},{"n":"emergency","l":"24/7 emergency service?","t":"radio","o":["Yes, 24/7","Yes, evenings & weekends","Business hours only"]},{"n":"free_estimate","l":"Free estimates?","t":"radio","o":["Yes, always free","Free in-person estimates","Service call fee applies"]},{"n":"brands","l":"Brands / systems you specialize in","t":"text","p":"e.g. Rheem, AO Smith, Bradford White"}]},"pool_service":{"label":"Pool Service","icon":"🏊","services":["Weekly Pool Cleaning","Bi-Weekly Cleaning","Pool Opening","Pool Closing","Equipment Repair","Pump Repair","Filter Service","Chemical Balancing","Algae Treatment","Leak Detection","Pool Renovation","Liner Replacement","Heater Repair","Salt System Service","Pool Inspections"],"questions":[{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes","No"]},{"n":"pool_types","l":"Pool types you service","t":"text","p":"e.g. inground, above ground, salt water, fiberglass"},{"n":"contracts","l":"Service contracts offered?","t":"checkbox","o":["Yes, annual contracts available","Month-to-month","One-time service only"]}]},"pressure_washing":{"label":"Pressure Washing","icon":"💦","services":["House Washing","Driveway Cleaning","Deck & Patio Cleaning","Roof Cleaning","Gutter Cleaning","Fence Washing","Commercial Washing","Sidewalk Cleaning","Graffiti Removal","Fleet Washing","Parking Lot Cleaning","Pool Deck Cleaning","Soft Washing","Concrete Sealing"],"questions":[{"n":"insured","l":"Insured?","t":"radio","o":["Yes","No"]},{"n":"soft_wash","l":"Wash methods available?","t":"checkbox","o":["Yes, soft and pressure wash","Pressure wash only","Soft wash only"]},{"n":"chemicals","l":"Chemicals/products used","t":"text","p":"e.g. eco-friendly, biodegradable, bleach-based for roofs"}]},"print_shop":{"label":"Print Shop","icon":"🖨️","services":["Business Cards","Flyers & Brochures","Banners","Yard Signs","T-Shirt Printing","Custom Apparel","Vehicle Wraps","Signage","Menus","Postcards","Custom Stickers","Posters","Photo Printing","Embroidery","Promotional Products"],"questions":[{"n":"turnaround","l":"Standard turnaround time","t":"text","p":"e.g. Same-day rush available, standard 3-5 business days"},{"n":"design_services","l":"Graphic design services?","t":"radio","o":["Yes, in-house design","Basic design only","No — customer provides files"]},{"n":"shipping","l":"Shipping available?","t":"radio","o":["Yes, nationwide shipping","Local pickup only"]}]},"real_estate":{"label":"Real Estate","icon":"🏡","services":["Buyer Representation","Seller Representation","Listing Services","Market Analysis (CMA)","New Construction","Investment Properties","Short Sales","Foreclosures","Property Management","Commercial Real Estate","Relocation Services","Luxury Homes","Land Sales","Virtual Tours"],"questions":[{"n":"licensed","l":"Licensed agent or broker?","t":"radio","o":["Licensed agent","Licensed broker","Team leader/broker"]},{"n":"areas","l":"Areas you serve","t":"text","p":"e.g. Hancock, Harrison, Pearl River counties"},{"n":"specialties","l":"Specialties","t":"text","p":"e.g. first-time buyers, luxury, investment, new construction"},{"n":"reviews","l":"Number of reviews / rating","t":"text","p":"e.g. 150+ five-star reviews on Zillow and Google"}]},"restaurant":{"label":"Restaurant / Food","icon":"🍽️","services":["Dine-In","Takeout / To-Go","Delivery","Catering","Private Events & Parties","Breakfast","Lunch","Dinner","Sunday Brunch","Happy Hour","Outdoor Seating","Drive-Through","Online Ordering","Reservations","Food Truck"],"questions":[{"n":"cuisine","l":"Type of cuisine","t":"text","p":"e.g. Southern, Seafood, Mexican, BBQ, Italian, Soul Food"},{"n":"alcohol","l":"Alcohol served?","t":"radio","o":["Full bar","Beer & wine only","No"]},{"n":"price_range","l":"Average price per person","t":"radio","o":["Under $15","$15 - $30","$30 - $60","$60+"]},{"n":"reservations","l":"Reservations?","t":"radio","o":["Required","Recommended — walk-ins welcome","Walk-ins only"]},{"n":"dietary","l":"Special dietary options","t":"text","p":"e.g. vegetarian, vegan, gluten-free, halal, kosher"}]},"roofing":{"label":"Roofing","icon":"🏠","services":["Roof Replacement","Roof Repair","Roof Inspection","Storm Damage Repair","Leak Repair","Shingle Roofing","Metal Roofing","Flat / TPO Roofing","Gutters","Fascia & Soffit","Skylight Installation","Ridge Vent & Ventilation","Insurance Claims","Emergency Tarping","Commercial Roofing"],"questions":[{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes, fully licensed & insured","Yes, insured only","No"]},{"n":"insurance","l":"Work with insurance claims?","t":"radio","o":["Yes, we handle everything","We assist but client files","No"]},{"n":"warranty","l":"Workmanship warranty?","t":"text","p":"e.g. 10-year workmanship warranty, manufacturer warranties passed through"},{"n":"materials","l":"Primary materials / brands","t":"text","p":"e.g. GAF, Owens Corning, CertainTeed, metal roofing"}]},"salon":{"label":"Salon / Spa","icon":"💇","services":["Women's Haircut","Men's Haircut","Children's Haircut","Hair Color","Highlights / Balayage","Keratin Treatment","Hair Extensions","Blowout","Braiding","Manicure","Pedicure","Gel Nails","Acrylic Nails","Waxing","Facials","Eyelash Extensions","Massage","Eyebrow Threading & Tinting","Microblading"],"questions":[{"n":"appointment","l":"Appointment or walk-in?","t":"checkbox","o":["Appointment only","Walk-ins welcome","Both"]},{"n":"licensed","l":"State licensed?","t":"radio","o":["Yes, all licensed","Some staff licensed","No"]},{"n":"stylists","l":"Number of stylists / staff","t":"text","p":"e.g. 4 stylists, solo booth renter"},{"n":"brands","l":"Product lines you use","t":"text","p":"e.g. Redken, Wella, OPI, Essie, Kerastase"}]},"security":{"label":"Security Services","icon":"🔒","services":["Security Guards","Patrol Services","Event Security","Armed Security","Unarmed Security","Security Cameras","Access Control","Alarm Systems","Home Security","Commercial Security","Loss Prevention","Executive Protection","Construction Site Security","Fire Watch"],"questions":[{"n":"licensed","l":"Licensed & bonded?","t":"radio","o":["Yes, fully licensed & bonded","Yes, licensed","No"]},{"n":"armed","l":"Armed services available?","t":"checkbox","o":["Yes, armed & unarmed","Unarmed only","Armed only"]},{"n":"response_time","l":"Response time","t":"text","p":"e.g. Patrol passes every hour, on-call 24/7"}]},"solar":{"label":"Solar","icon":"☀️","services":["Solar Panel Installation","Solar Battery Storage","Roof-Mount Solar","Ground-Mount Solar","Solar for Homes","Solar for Businesses","EV Charger + Solar","Solar Maintenance","System Monitoring","Net Metering Assistance","Solar Inspections","Inverter Repair","Generator Backup","Energy Audits"],"questions":[{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes, fully licensed & insured","Yes, insured only","No"]},{"n":"brands","l":"Panel / inverter brands you install","t":"text","p":"e.g. Tesla, SunPower, Enphase, SolarEdge, LG"},{"n":"financing","l":"Financing options available?","t":"checkbox","o":["Yes, $0 down options","Loan options","Cash only"]},{"n":"warranty","l":"Warranty offered?","t":"text","p":"e.g. 25-year panel warranty, 10-year workmanship warranty"}]},"tattoo":{"label":"Tattoo / Piercing","icon":"🖊️","services":["Custom Tattoos","Walk-In Tattoos","Cover-Up Tattoos","Black & Grey","Color Tattoos","Fine Line","Traditional","Neo-Traditional","Realism","Watercolor","Body Piercing","Ear Piercing","Tattoo Touch-Ups","Laser Tattoo Removal","Jewelry Sales"],"questions":[{"n":"licensed","l":"Licensed shop?","t":"radio","o":["Yes, fully licensed","In process","No"]},{"n":"appointment","l":"Appointment or walk-in?","t":"checkbox","o":["Appointment preferred","Walk-ins welcome","Appointment only"]},{"n":"artists","l":"Number of artists","t":"text","p":"e.g. 3 artists, solo artist"},{"n":"specialties","l":"Styles you specialize in","t":"text","p":"e.g. realism, traditional, fine line, watercolor"}]},"tree_service":{"label":"Tree Service","icon":"🌳","services":["Tree Removal","Tree Trimming & Pruning","Stump Grinding","Stump Removal","Emergency Tree Service","Storm Cleanup","Tree Planting","Deadwood Removal","Crown Reduction","Land Clearing","Cabling & Bracing","Arborist Consultation","Firewood Sales"],"questions":[{"n":"certified","l":"ISA Certified Arborist?","t":"radio","o":["Yes","No"]},{"n":"insured","l":"Fully insured?","t":"radio","o":["Yes","No"]},{"n":"emergency","l":"Emergency service?","t":"radio","o":["Yes, 24/7","Business hours only"]},{"n":"debris","l":"Debris removal included?","t":"radio","o":["Always included","Available for extra fee","Not included"]}]},"trucking":{"label":"Trucking / Hauling","icon":"🚛","services":["Local Hauling","Long-Distance Hauling","Dump Truck Service","Gravel Delivery","Sand Delivery","Topsoil & Fill Dirt","Debris Removal","Junk Removal","Freight Transport","Equipment Transport","Commercial Trucking","Land Clearing Hauling","Demolition Hauling"],"questions":[{"n":"dot","l":"DOT licensed?","t":"radio","o":["Yes, USDOT registered","Local only — no DOT required","No"]},{"n":"trucks","l":"Equipment / truck types","t":"text","p":"e.g. 10-wheel dump, flatbed, box truck, semi"},{"n":"radius","l":"How far do you haul?","t":"text","p":"e.g. Within 100 miles, statewide, nationwide"}]},"towing":{"label":"Towing","icon":"🚜","services":["Local Towing","Long-Distance Towing","Emergency Roadside","Flat Tire Change","Jump Starts","Lockout Service","Winch-Out","Motorcycle Towing","Heavy Duty Towing","Accident Recovery","Impound Services","Vehicle Storage","24/7 Service"],"questions":[{"n":"response_time","l":"Average response time","t":"text","p":"e.g. 30 minutes or less"},{"n":"area","l":"Service area","t":"text","p":"e.g. All of Hancock County, 50-mile radius"},{"n":"trucks","l":"Truck types","t":"text","p":"e.g. flatbed, wheel-lift, heavy duty rotator"}]},"tutoring":{"label":"Tutoring","icon":"📚","services":["Math Tutoring","Reading / Writing","Science","Test Prep (SAT/ACT)","College Prep","Elementary School","Middle School","High School","College Level","Foreign Languages","Special Education","Online Tutoring","In-Home Tutoring","Group Sessions","Summer Programs"],"questions":[{"n":"subjects","l":"Subjects you specialize in","t":"text","p":"e.g. Algebra, AP Calculus, reading comprehension, SAT prep"},{"n":"ages","l":"Ages / grade levels","t":"text","p":"e.g. K-12, elementary through high school, college level"},{"n":"credentials","l":"Your background/credentials","t":"text","p":"e.g. former teacher, degree in mathematics, 10 years tutoring"},{"n":"location","l":"Where sessions take place","t":"checkbox","o":["Student's home","My location","Online","Multiple options"]}]},"upholstery":{"label":"Upholstery / Furniture","icon":"🛋️","services":["Furniture Reupholstery","Sofa Repair","Chair Reupholstery","Auto Upholstery","Boat Interior","Custom Headboards","Cushion Replacement","Fabric Selection","Leather Work","Antique Restoration","Commercial Furniture","Hospital / Medical Seating","Pick-Up & Delivery"],"questions":[{"n":"mobile","l":"Pick-up and delivery?","t":"checkbox","o":["Yes, we pick up and deliver","Drop-off only","We come to you"]},{"n":"turnaround","l":"Typical turnaround time","t":"text","p":"e.g. 2-3 weeks for sofas, 1 week for chairs"},{"n":"free_estimate","l":"Free estimates?","t":"radio","o":["Yes","No"]}]},"veterinary":{"label":"Veterinary","icon":"🐾","services":["Wellness Exams","Vaccinations","Spay & Neuter","Dental Cleaning","Surgery","Diagnostics / Lab Work","X-Rays","Emergency Care","Boarding","Grooming","Prescription Food","Heartworm Testing","Microchipping","Senior Pet Care","Exotic Animals"],"questions":[{"n":"licensed","l":"Licensed DVM on staff?","t":"radio","o":["Yes","No"]},{"n":"emergency","l":"Emergency / after-hours?","t":"radio","o":["Yes, 24/7","Limited after-hours","No"]},{"n":"species","l":"Species you treat","t":"text","p":"e.g. dogs & cats only, exotic animals, livestock"},{"n":"insurance","l":"Pet insurance accepted?","t":"checkbox","o":["Yes, most plans","Some plans","No"]}]},"wedding":{"label":"Wedding Services","icon":"💍","services":["Wedding Planning","Day-Of Coordination","Venue","Photography","Videography","Catering","Wedding Cake","Flowers & Florals","DJ / Music","Live Band","Officiant","Hair & Makeup","Rentals & Decor","Transportation","Honeymoon Planning"],"questions":[{"n":"packages","l":"Packages offered","t":"text","p":"e.g. full planning, day-of only, a la carte"},{"n":"capacity","l":"Venue capacity (if applicable)","t":"text","p":"e.g. Up to 250 guests"},{"n":"lead_time","l":"Booking lead time","t":"text","p":"e.g. 6-12 months recommended"}]},"window_cleaning":{"label":"Window Cleaning","icon":"🪟","services":["Residential Window Cleaning","Commercial Window Cleaning","Interior Windows","Exterior Windows","Screen Cleaning","Sill & Track Cleaning","High-Rise Windows","Pressure Washing","Gutter Cleaning","Solar Panel Cleaning","Holiday Lighting"],"questions":[{"n":"insured","l":"Insured?","t":"radio","o":["Yes","No"]},{"n":"frequency","l":"Recurring service options?","t":"checkbox","o":["Yes, monthly/quarterly/annual contracts","One-time only","Both"]},{"n":"high_rise","l":"High-rise / multi-story?","t":"radio","o":["Yes, any height","1-3 stories only","Residential only"]}]},"window_door":{"label":"Window / Door Installation","icon":"🚪","services":["Window Replacement","New Window Installation","Door Replacement","Entry Door Installation","Patio / Sliding Doors","French Doors","Storm Windows & Doors","Egress Windows","Garage Doors","Screen Replacement","Window Repair","Energy-Efficient Windows","Commercial Windows & Doors"],"questions":[{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes","No"]},{"n":"brands","l":"Brands you install","t":"text","p":"e.g. Andersen, Pella, Milgard, PGT, Clopay"},{"n":"free_estimate","l":"Free estimates?","t":"radio","o":["Yes","No"]},{"n":"financing","l":"Financing options available?","t":"checkbox","o":["Yes","No","Coming soon"]}]},"other":{"label":"Other Business","icon":"💼","services":["Consultation","Service Call","Installation","Repair","Maintenance","Inspection","Custom Project","Rush / Emergency Service","Residential Service","Commercial Service"],"questions":[{"n":"describe","l":"Describe what your business does","t":"textarea","p":"Tell us what services you provide and who your customers are..."},{"n":"licensed","l":"Licensed & insured?","t":"radio","o":["Yes","No","Not required for my industry"]}]}};
 
-    var industryData = {
-        cleaning:{businessTypes:[{value:'solo',label:'Solo Cleaner'},{value:'small_team',label:'Small Team (2-5)'},{value:'company',label:'Cleaning Company (6+)'},{value:'residential_only',label:'Residential Only'},{value:'commercial_only',label:'Commercial Only'},{value:'both',label:'Both'}],services:{'Residential Cleaning':[{name:'general_clean',label:'General / Standard Cleaning',pricePlaceholder:'$/visit'},{name:'deep_clean',label:'Deep Cleaning',pricePlaceholder:'$/visit'},{name:'move_inout',label:'Move In / Move Out Cleaning',pricePlaceholder:'$/visit'},{name:'recurring_weekly',label:'Weekly Recurring',pricePlaceholder:'$/visit'},{name:'recurring_biweekly',label:'Bi-Weekly',pricePlaceholder:'$/visit'},{name:'recurring_monthly',label:'Monthly',pricePlaceholder:'$/visit'}],'Specialty':[{name:'carpet_clean',label:'Carpet Cleaning',pricePlaceholder:'$/room'},{name:'window_clean',label:'Window Cleaning',pricePlaceholder:'$/window'},{name:'organizing',label:'Organizing / Decluttering',pricePlaceholder:'$/hour'}],'Commercial':[{name:'office_clean',label:'Office Cleaning',pricePlaceholder:'$/visit'},{name:'airbnb',label:'Airbnb / Vacation Rental Turnover',pricePlaceholder:'$/turnover'}]},scheduling:'<div class="form-group"><label>How do you handle booking?</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="bookingMethod" value="phone"><span>Phone calls only</span></label><label class="checkbox-item"><input type="radio" name="bookingMethod" value="online"><span>Want online booking</span></label><label class="checkbox-item"><input type="radio" name="bookingMethod" value="any"><span>All methods</span></label></div></div><div class="form-group"><label>Do you offer same-day or emergency cleaning?</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="sameDay" value="yes"><span>Yes</span></label><label class="checkbox-item"><input type="radio" name="sameDay" value="no"><span>No, scheduled only</span></label></div></div>',industryQuestions:'<div class="form-group"><label>How do you price your services?</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="pricingModel" value="flat"><span>Flat rate per visit</span></label><label class="checkbox-item"><input type="radio" name="pricingModel" value="sqft"><span>By square footage</span></label><label class="checkbox-item"><input type="radio" name="pricingModel" value="hourly"><span>Hourly rate</span></label></div></div><div class="form-group"><label>Do you provide your own supplies?</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="supplies" value="all"><span>Yes, everything included</span></label><label class="checkbox-item"><input type="radio" name="supplies" value="client"><span>Client provides all</span></label></div></div><div class="form-group"><label>Are you insured and bonded?</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="insured" value="both"><span>Yes, insured & bonded</span></label><label class="checkbox-item"><input type="radio" name="insured" value="no"><span>Not yet</span></label></div></div><div class="form-group"><label>What sets your cleaning apart?</label><textarea name="cleaningSpecialty" placeholder="e.g., hospital-grade disinfectants, always clean baseboards..."></textarea></div>',targetMarket:'<div class="form-group"><label>Who are your ideal customers?</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" name="cust_homeowners" value="homeowners"><span>Homeowners</span></label><label class="checkbox-item"><input type="checkbox" name="cust_renters" value="renters"><span>Renters</span></label><label class="checkbox-item"><input type="checkbox" name="cust_busy_pros" value="busy_pros"><span>Busy Professionals</span></label><label class="checkbox-item"><input type="checkbox" name="cust_seniors" value="seniors"><span>Seniors</span></label><label class="checkbox-item"><input type="checkbox" name="cust_airbnb" value="airbnb"><span>Airbnb Hosts</span></label></div></div>',faqSuggestions:'e.g., How much does a cleaning cost? Do you bring your own supplies? Are you insured? Do you do deep cleans? What areas do you serve?',sectionTitle:'Services & Pricing',sectionSubtitle:'Check services you offer and add your prices',industryQTitle:'Cleaning Business Details',industryQSubtitle:'Help us understand how you operate'},
-        agriculture:{businessTypes:[{value:'specialty_crop',label:'Specialty Crops (herbs, microgreens, mushrooms)'},{value:'aquaponics',label:'Aquaponics / Aquaculture'},{value:'market_garden',label:'Market Garden / Urban Farm'},{value:'mixed',label:'Mixed / Regenerative / Integrated'},{value:'csa',label:'CSA / Subscription Box Farm'}],services:{'Products':[{name:'fresh_produce',label:'Fresh Produce / Vegetables',pricePlaceholder:'$/lb'},{name:'microgreens',label:'Microgreens',pricePlaceholder:'$/tray'},{name:'herbs',label:'Fresh & Dried Herbs',pricePlaceholder:'$/bunch'},{name:'mushrooms',label:'Specialty Mushrooms',pricePlaceholder:'$/lb'},{name:'fish',label:'Farm-Raised Fish / Catfish',pricePlaceholder:'$/lb'},{name:'eggs',label:'Farm Eggs',pricePlaceholder:'$/dozen'}],'Services':[{name:'csa_box',label:'CSA / Weekly Subscription Box',pricePlaceholder:'$/week'},{name:'farm_tours',label:'Farm Tours',pricePlaceholder:'$/person'},{name:'workshops',label:'Workshops & Classes',pricePlaceholder:'$/class'},{name:'delivery',label:'Home Delivery',pricePlaceholder:'$/delivery'}]},scheduling:'<div class="form-group"><label>Seasonal Availability</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" name="season_spring" value="spring"><span>Spring</span></label><label class="checkbox-item"><input type="checkbox" name="season_summer" value="summer"><span>Summer</span></label><label class="checkbox-item"><input type="checkbox" name="season_fall" value="fall"><span>Fall</span></label><label class="checkbox-item"><input type="checkbox" name="season_yearround" value="yearround"><span>Year-Round</span></label></div></div><div class="form-group"><label>Do you attend farmers markets?</label><input type="text" name="farmersMarkets" placeholder="Which markets, what days?"></div>',industryQuestions:'<div class="form-group"><label>Farm / Property Size</label><input type="text" name="farmSize" placeholder="e.g., 2.5 acres"></div><div class="form-group"><label>Growing Methods</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" name="method_organic" value="organic"><span>Organic</span></label><label class="checkbox-item"><input type="checkbox" name="method_regenerative" value="regenerative"><span>Regenerative</span></label><label class="checkbox-item"><input type="checkbox" name="method_aquaponics" value="aquaponics"><span>Aquaponics</span></label><label class="checkbox-item"><input type="checkbox" name="method_indoor" value="indoor"><span>Indoor / Controlled Environment</span></label></div></div><div class="form-group"><label>Your farm story</label><textarea name="farmStory" placeholder="What drives you? Your mission and passion for agriculture..."></textarea></div>',targetMarket:'<div class="form-group"><label>Primary customers</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" name="cust_families" value="families"><span>Local Families</span></label><label class="checkbox-item"><input type="checkbox" name="cust_restaurants" value="restaurants"><span>Restaurants / Chefs</span></label><label class="checkbox-item"><input type="checkbox" name="cust_health" value="health"><span>Health-Conscious Consumers</span></label></div></div>',faqSuggestions:'e.g., Do you deliver? Are your products organic? When is harvest season? Can I visit the farm? What fish do you raise?',sectionTitle:'Products & Services',sectionSubtitle:'Check what you sell and add pricing',industryQTitle:'Farm & Agriculture Details',industryQSubtitle:'Tell us about your operation'},
-        plumbing:{businessTypes:[{value:'solo_plumber',label:'Solo Plumber'},{value:'small_company',label:'Small Company (2-5)'},{value:'both_plumb',label:'Residential & Commercial'}],services:{'Emergency & Repair':[{name:'emergency_plumb',label:'24/7 Emergency Service',pricePlaceholder:'$/call'},{name:'leak_repair',label:'Leak Detection & Repair',pricePlaceholder:'Starting $'},{name:'drain_clearing',label:'Drain Clearing',pricePlaceholder:'Starting $'}],'Installation':[{name:'water_heater',label:'Water Heater Install / Repair',pricePlaceholder:'Starting $'},{name:'faucet_fixture',label:'Faucet & Fixture Install',pricePlaceholder:'$/install'},{name:'toilet_install',label:'Toilet Install / Repair',pricePlaceholder:'Starting $'}]},scheduling:'<div class="form-group"><label>Emergency Availability</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="emergencyAvail" value="24_7"><span>24/7 Emergency Service</span></label><label class="checkbox-item"><input type="radio" name="emergencyAvail" value="business"><span>Business Hours Only</span></label></div></div><div class="form-group"><label>Free estimates?</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="freeEstimates" value="yes"><span>Yes, always free</span></label><label class="checkbox-item"><input type="radio" name="freeEstimates" value="diagnostic"><span>Diagnostic fee applies</span></label></div></div>',industryQuestions:'<div class="form-group"><label>Licenses & Certifications</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" name="lic_master" value="master"><span>Master Plumber</span></label><label class="checkbox-item"><input type="checkbox" name="lic_insured" value="insured"><span>Licensed & Insured</span></label></div></div><div class="form-group"><label>What sets you apart?</label><textarea name="plumbingAdvantage" placeholder="e.g., Same-day service, flat-rate pricing..."></textarea></div>',targetMarket:'<div class="form-group"><label>Ideal customers</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" name="cust_homeowners_p" value="homeowners"><span>Homeowners</span></label><label class="checkbox-item"><input type="checkbox" name="cust_landlords" value="landlords"><span>Landlords</span></label></div></div>',faqSuggestions:'e.g., Do you offer free estimates? Are you available for emergencies? How much does it cost to fix a leak?',sectionTitle:'Services & Pricing',sectionSubtitle:'Check services and add starting prices',industryQTitle:'Plumbing Business Details',industryQSubtitle:'Tell us about your credentials'},
-        restaurant:{businessTypes:[{value:'full_service',label:'Full-Service Restaurant'},{value:'fast_casual',label:'Fast Casual'},{value:'seafood',label:'Seafood Restaurant'},{value:'bbq',label:'BBQ / Smokehouse'},{value:'bar_grill',label:'Bar & Grill'}],services:{'Dining':[{name:'dine_in',label:'Dine In',pricePlaceholder:'avg. $/person'},{name:'takeout',label:'Takeout',pricePlaceholder:'avg. $/order'},{name:'delivery',label:'Delivery',pricePlaceholder:'delivery fee'},{name:'catering',label:'Catering',pricePlaceholder:'$/person'}],'Meals':[{name:'breakfast',label:'Breakfast',pricePlaceholder:'avg. $/person'},{name:'lunch',label:'Lunch',pricePlaceholder:'avg. $/person'},{name:'dinner',label:'Dinner',pricePlaceholder:'avg. $/person'}]},scheduling:'<div class="form-group"><label>Do you take reservations?</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="reservations" value="yes"><span>Yes</span></label><label class="checkbox-item"><input type="radio" name="reservations" value="no"><span>Walk-in only</span></label></div></div>',industryQuestions:'<div class="form-group"><label>Cuisine Type</label><input type="text" name="cuisineType" placeholder="e.g., Southern comfort, Cajun seafood..."></div><div class="form-group"><label>Signature Dishes</label><textarea name="signatureDishes" placeholder="Your must-order items..."></textarea></div><div class="form-group"><label>Dietary Options</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" name="diet_vegetarian" value="vegetarian"><span>Vegetarian</span></label><label class="checkbox-item"><input type="checkbox" name="diet_glutenfree" value="glutenfree"><span>Gluten-Free</span></label></div></div><div class="form-group"><label>Seating Capacity</label><input type="text" name="seatingCapacity" placeholder="e.g., 60 inside, 20 on patio"></div>',targetMarket:'<div class="form-group"><label>Primary customers</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" name="cust_families_r" value="families"><span>Families</span></label><label class="checkbox-item"><input type="checkbox" name="cust_tourists_r" value="tourists"><span>Tourists</span></label><label class="checkbox-item"><input type="checkbox" name="cust_locals_r" value="locals"><span>Local Regulars</span></label></div></div>',faqSuggestions:'e.g., Are you open on Sundays? Do you take reservations? Do you have gluten-free options?',sectionTitle:'Menu & Services',sectionSubtitle:'Check what you offer and add pricing',industryQTitle:'Restaurant Details',industryQSubtitle:'Tell us what makes your restaurant special'}
-    };
+var selectedIndustry = null;
+var allInds = Object.entries(IND).map(function(e){return{key:e[0],label:e[1].label,icon:e[1].icon};});
 
-    ['hvac','electrical','roofing','painting','landscaping','pest_control','handyman','flooring','fencing','pressure_washing','pool_service','moving','junk_removal','carpet_upholstery','garage_doors','auto_repair','auto_detailing','towing','auto_body','salon','nail_salon','spa_massage','fitness','chiropractic','dental','daycare','pet_services','veterinary','senior_care','real_estate','photography','tutoring','legal','accounting','insurance','it_support','event_planning','security','construction','demolition','community_revitalization','trade_school','catering','food_truck','bakery','coffee_shop','other'].forEach(function(ind){
-        if(!industryData[ind]){industryData[ind]={businessTypes:[{value:'solo',label:'Solo / Owner-Operator'},{value:'small',label:'Small Team'},{value:'company',label:'Company'}],services:{'Services':[{name:'service1',label:'Primary Service',pricePlaceholder:'Starting $'},{name:'service2',label:'Secondary Service',pricePlaceholder:'Starting $'},{name:'service3',label:'Additional Service',pricePlaceholder:'Starting $'}]},scheduling:'<div class="form-group"><label>How do customers book?</label><div class="checkbox-group"><label class="checkbox-item"><input type="radio" name="bookingMethod" value="phone"><span>Phone</span></label><label class="checkbox-item"><input type="radio" name="bookingMethod" value="online"><span>Online</span></label></div></div>',industryQuestions:'<div class="form-group"><label>Licenses & Insurance</label><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" name="lic_insured_g" value="insured"><span>Licensed & Insured</span></label></div></div><div class="form-group"><label>What sets you apart?</label><textarea name="advantage" placeholder="What makes your business better than the competition?"></textarea></div>',targetMarket:'<div class="form-group"><label>Ideal customers</label><textarea name="idealCustomer" placeholder="Describe your typical customer..."></textarea></div>',faqSuggestions:'e.g., How much does it cost? Are you licensed? Do you offer free estimates? What areas do you serve?',sectionTitle:'Services & Pricing',sectionSubtitle:'Check services you offer and add prices',industryQTitle:'Business Details',industryQSubtitle:'Tell us about your operations'};}
-    });
+function buildGrid(filter){
+  filter = (filter||'').toLowerCase();
+  var grid = document.getElementById('industryGrid');
+  var list = filter ? allInds.filter(function(i){return i.label.toLowerCase().indexOf(filter)>=0||i.key.indexOf(filter)>=0;}) : allInds;
+  grid.innerHTML = list.map(function(i){
+    return '<div class="ind-tile'+(selectedIndustry===i.key?' selected':'')+'" data-val="'+i.key+'" onclick="selectInd(\''+i.key+'\')"><span class="icon">'+i.icon+'</span>'+i.label+'</div>';
+  }).join('');
+}
+buildGrid();
+document.getElementById('indSearch').addEventListener('input',function(){buildGrid(this.value);});
 
-    function handleIndustryChange(){
-        var industry=document.getElementById('industrySelect').value;
-        var data=industryData[industry];
-        document.getElementById('industrySelect').style.borderColor='';
-        var badge=document.getElementById('industryBadge');
-        if(industry){var opt=document.getElementById('industrySelect').selectedOptions[0];badge.innerHTML='<div class="industry-badge">'+opt.textContent.trim()+' — Loaded ✓</div>';badge.style.display='block';}
-        else{badge.style.display='none';}
-        var btc=document.getElementById('businessTypeContainer');
-        if(data&&data.businessTypes){var h='<div class="form-group"><label>Business Type</label><div class="checkbox-group">';data.businessTypes.forEach(function(bt){h+='<label class="checkbox-item"><input type="radio" name="businessType" value="'+bt.value+'"><span>'+bt.label+'</span></label>';});h+='</div></div>';btc.innerHTML=h;}
-        document.getElementById('servicesTitle').textContent=(data&&data.sectionTitle)?data.sectionTitle:'Services & Pricing';
-        document.getElementById('servicesSubtitle').textContent=(data&&data.sectionSubtitle)?data.sectionSubtitle:'Check services you offer';
-        var sc=document.getElementById('servicesContainer');
-        if(data&&data.services){var h='';for(var cat in data.services){h+='<p class="category-header">'+cat+'</p><div class="service-grid">';data.services[cat].forEach(function(svc){h+='<div class="service-item"><label><input type="checkbox" name="service_'+svc.name+'"> '+svc.label+'</label><input type="text" name="price_'+svc.name+'" placeholder="'+svc.pricePlaceholder+'"></div>';});h+='</div>';}sc.innerHTML=h;}
-        document.getElementById('schedulingContainer').innerHTML=(data&&data.scheduling)?data.scheduling:'';
-        document.getElementById('industryQTitle').textContent=(data&&data.industryQTitle)?data.industryQTitle:'Industry Details';
-        document.getElementById('industryQSubtitle').textContent=(data&&data.industryQSubtitle)?data.industryQSubtitle:'Questions specific to your business';
-        document.getElementById('industryQuestionsContainer').innerHTML=(data&&data.industryQuestions)?data.industryQuestions:'';
-        document.getElementById('targetMarketContainer').innerHTML=(data&&data.targetMarket)?data.targetMarket:'';
-        if(data&&data.faqSuggestions)document.getElementById('faqSuggestions').placeholder=data.faqSuggestions;
-        bindCheckboxStyles();
-    }
+function selectInd(key){
+  selectedIndustry = key;
+  buildGrid(document.getElementById('indSearch').value);
+  document.getElementById('otherInput').classList.toggle('hidden', key!=='other');
+  document.getElementById('btnInd').disabled = false;
+}
 
-    function bindCheckboxStyles(){
-        document.querySelectorAll('.checkbox-item input,.radio-item input').forEach(function(input){
-            input.addEventListener('change',function(){
-                if(this.type==='radio'){var g=this.closest('.checkbox-group,.radio-group');if(g)g.querySelectorAll('.checkbox-item,.radio-item').forEach(function(i){i.classList.remove('checked');});}
-                var p=this.closest('.checkbox-item,.radio-item');if(p)p.classList.toggle('checked',this.checked);
-            });
+function buildHours(){
+  var days=[['monday','Monday'],['tuesday','Tuesday'],['wednesday','Wednesday'],['thursday','Thursday'],['friday','Friday'],['saturday','Saturday'],['sunday','Sunday']];
+  var def={monday:'8:00 AM - 5:00 PM',tuesday:'8:00 AM - 5:00 PM',wednesday:'8:00 AM - 5:00 PM',thursday:'8:00 AM - 5:00 PM',friday:'8:00 AM - 5:00 PM',saturday:'9:00 AM - 2:00 PM',sunday:''};
+  var on={monday:true,tuesday:true,wednesday:true,thursday:true,friday:true,saturday:true,sunday:false};
+  document.getElementById('hoursContainer').innerHTML = days.map(function(pair){
+    var d=pair[0],l=pair[1];
+    return '<div class="hours-row"><label class="hours-check"><input type="checkbox" name="day_'+d+'" '+(on[d]?'checked':'')+' onchange="toggleDay(\''+d+'\')"> '+l+'</label><div id="ht_'+d+'" '+(on[d]?'':'style="display:none"')+'><input type="text" name="hours_'+d+'" value="'+def[d]+'" placeholder="e.g. 8:00 AM - 5:00 PM" style="padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;width:100%;outline:none" onfocus="this.style.borderColor=\'#0066FF\'" onblur="this.style.borderColor=\'#e5e7eb\'"></div></div>';
+  }).join('');
+}
+function toggleDay(d){var el=document.getElementById('ht_'+d);var chk=document.querySelector('[name="day_'+d+'"]');if(el)el.style.display=chk.checked?'':'none';}
+buildHours();
+
+function buildServices(key){
+  var d = IND[key]||IND['other'];
+  document.getElementById('svcTitle').textContent = d.label+' — Services & Pricing';
+  document.getElementById('svcContainer').innerHTML = '<div class="svc-grid">'+
+    d.services.map(function(s){
+      var k=s.toLowerCase().replace(/[^a-z0-9]/g,'_');
+      return '<div class="svc-item"><input type="checkbox" name="service_'+k+'" id="sv_'+k+'" value="on"><label for="sv_'+k+'">'+s+'</label><input type="text" class="svc-price" name="price_'+k+'" placeholder="Price"></div>';
+    }).join('')+'</div>';
+  if(d.questions&&d.questions.length){
+    var qh='<div class="ind-qs"><p class="ind-qs-title">📋 A few questions specific to your industry:</p>';
+    d.questions.forEach(function(q){
+      qh+='<div class="field"><label>'+q.l+'</label>';
+      if(q.t==='radio'){
+        qh+='<div class="radio-group">';
+        q.o.forEach(function(opt){qh+='<label class="radio-item"><input type="radio" name="'+q.n+'" value="'+opt.replace(/"/g,'&quot;')+'"> '+opt+'</label>';});
+        qh+='</div>';
+      } else if(q.t==='checkbox'){
+        qh+='<div class="checkbox-group">';
+        q.o.forEach(function(opt){
+          var cbId='cb_'+q.n+'_'+opt.replace(/[^a-z0-9]/gi,'_');
+          qh+='<label class="checkbox-item" id="lbl_'+cbId+'"><input type="checkbox" id="'+cbId+'" name="'+q.n+'_cb" value="'+opt.replace(/"/g,'&quot;')+'" onchange="syncCheckboxItem(\'lbl_'+cbId+'\',this)"> '+opt+'</label>';
         });
-    }
-
-    // FIX 2: Separate toggle functions that directly set checked state, no double-fire
-    function toggleFreeVideo(){
-        var cb=document.getElementById('wantsFreeVideo');
-        // Only toggle if Mini-Me is NOT checked (Mini-Me auto-includes free video)
-        if(document.getElementById('wantsMiniMe').checked) return;
-        cb.checked=!cb.checked;
-        document.getElementById('videoCheckRow').classList.toggle('checked',cb.checked);
-    }
-
-    function toggleMiniMe(){
-        var cb=document.getElementById('wantsMiniMe');
-        cb.checked=!cb.checked;
-        document.getElementById('miniMeCheckRow').classList.toggle('checked',cb.checked);
-        document.getElementById('miniMeConsentBox').style.display=cb.checked?'block':'none';
-        if(cb.checked){
-            // Mini-Me auto-includes free video — check it and lock it
-            document.getElementById('wantsFreeVideo').checked=true;
-            document.getElementById('videoCheckRow').classList.add('checked');
-        }
-    }
-
-    function toggleCallAddon(cb,itemId){
-        document.getElementById(itemId).classList.toggle('checked',cb.checked);
-        var anyCall=document.querySelector('input[name="addon_after_hours"]:checked')||document.querySelector('input[name="addon_missed_call"]:checked')||document.querySelector('input[name="addon_voicemail_drop"]:checked');
-        document.getElementById('callHandlingPhone').style.display=anyCall?'block':'none';
-    }
-
-    function updateProgress(){
-        document.getElementById('progressFill').style.width=(currentSection/totalSections*100)+'%';
-        document.getElementById('progressText').textContent='Step '+currentSection+' of '+totalSections;
-    }
-
-    function showSection(num){
-        document.querySelectorAll('.form-section').forEach(function(s){s.classList.remove('active');});
-        var t=document.querySelector('[data-section="'+num+'"]');if(t)t.classList.add('active');
-        currentSection=num; updateProgress(); window.scrollTo({top:0,behavior:'smooth'});
-    }
-
-    function nextSection(){
-        if(currentSection===1&&!document.getElementById('industrySelect').value){document.getElementById('industrySelect').style.borderColor='#EF4444';document.getElementById('industrySelect').focus();return;}
-        if(currentSection===9&&!validatePhotos())return;
-        if(currentSection<totalSections)showSection(currentSection+1);
-    }
-
-    function prevSection(){if(currentSection>1)showSection(currentSection-1);}
-
-    bindCheckboxStyles();
-    updateProgress();
-
-    // ── UPDATE MODE ──────────────────────────────────────────────────────────
-    var urlP = new URLSearchParams(location.search);
-    var UPDATE_ID = urlP.get('update');
-    var UPDATE_TOKEN = urlP.get('token');
-    var IS_UPDATE = !!(UPDATE_ID && UPDATE_TOKEN);
-
-    if (IS_UPDATE) {
-      var submitBtn2 = document.getElementById('submitBtn');
-      if (submitBtn2) submitBtn2.textContent = '💾 Save & Update My Site';
-      fetch('https://turnkeyaiservices.com/api/prefill/'+UPDATE_ID+'?token='+UPDATE_TOKEN)
-        .then(function(r){ return r.json(); })
-        .then(function(json){
-          if (!json.success) return;
-          var d = json.data;
-          var fill = function(id, val) {
-            var el = document.getElementById(id) || document.querySelector('[name="'+id+'"]');
-            if (!el || val === undefined || val === null) return;
-            if (el.type === 'checkbox') el.checked = (val === 'on' || val === 'yes' || val === true);
-            else el.value = val;
-          };
-          ['businessName','ownerName','phone','email','address','city','state','zip',
-           'aboutUs','missionStatement','ownerBackground','milestones','awards',
-           'communityInvolvement','additionalServices','targetCity','targetRadius',
-           'facebook','instagram','currentWebsite','googleBusiness','otherSocial',
-           'chatName','chatPersonality','pricingDisplay','faqQuestions',
-           'referralSource','additionalNotes','competitiveAdvantage'
-          ].forEach(function(f){ fill(f, d[f]); });
-        })
-        .catch(function(e){ console.warn('Prefill failed', e); });
-    }
-
-    document.getElementById('intakeForm').addEventListener('submit',async function(e){
-        e.preventDefault();
-        var submitBtn=document.getElementById('submitBtn');
-        if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='⏳ Submitting...';}
-
-        if(document.getElementById('wantsMiniMe').checked&&!document.getElementById('miniMeConsentCb').checked){
-            alert('Please check the image/likeness consent box to add Mini-Me.');
-            if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='🚀 Submit & Build My Website';}
-            return;
-        }
-
-        var formData=new FormData(this);
-        var data=Object.fromEntries(formData.entries());
-        data.submittedAt=new Date().toISOString();
-        data.id='client_'+Date.now();
-        if(document.getElementById('wantsMiniMe').checked&&document.getElementById('miniMeConsentCb').checked){
-            data.mini_me_consent_timestamp=new Date().toISOString();
-        }
-
-        try{
-            // FIX 1: Correct endpoint — always use turnkeyaiservices.com
-            var endpoint = IS_UPDATE
-                ? 'https://turnkeyaiservices.com/api/client-update-intake/'+UPDATE_ID+'?token='+UPDATE_TOKEN
-                : 'https://turnkeyaiservices.com/api/submission-created';
-            var response=await fetch(endpoint,{
-                method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)
-            });
-            if (IS_UPDATE) {
-                var rj = await response.json();
-                document.getElementById('intakeForm').style.display='none';
-                document.getElementById('successScreen').classList.add('active');
-                document.getElementById('successScreen').innerHTML = '<div style="text-align:center;padding:40px 20px;"><div style="font-size:56px;margin-bottom:16px;">✅</div><h2 style="color:#00D68F;margin-bottom:12px;">Site Updated!</h2><p style="font-size:15px;color:#374151;margin-bottom:24px;">Your changes have been saved' + (rj.liveUrl ? ' and your site has been rebuilt.' : ' and your preview has been updated.') + '</p>' + (rj.liveUrl ? '<a href="'+rj.liveUrl+'" style="display:inline-block;background:#0066FF;color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;margin-bottom:12px;">🌐 View My Live Site</a><br>' : '') + '<a href="https://turnkeyaiservices.com/client-review.html?id='+UPDATE_ID+'&token='+UPDATE_TOKEN+'" style="display:inline-block;background:#00D68F;color:#0a1628;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;">← Back to Review Page</a></div>';
-                window.scrollTo({top:0,behavior:'smooth'});
-                return;
-            }
-            if(!response.ok)console.error('Submission error:',await response.text());
-        }catch(err){console.error('Submission failed:',err);}
-
-        var addonList=[];
-        if(document.getElementById('wantsMiniMe').checked)addonList.push('Mini-Me AI Avatar — we\'ll email your script and recording instructions within 24 hours');
-        else if(document.getElementById('wantsFreeVideo').checked)addonList.push('Free 60-second promo video — we\'ll email your custom script and recording instructions within 24 hours');
-        if(data.addon_after_hours==='yes')addonList.push('After Hours Answering — activated when your site goes live');
-        if(data.addon_missed_call==='yes')addonList.push('Missed Call Text Return — activated when your site goes live');
-        if(data.addon_voicemail_drop==='yes')addonList.push('Custom Voicemail Greeting — we\'ll send it for your approval');
-        if(addonList.length>0){
-            var ul=document.getElementById('successAddonList');
-            ul.innerHTML=addonList.map(function(a){return'<li>'+a+'</li>';}).join('');
-            document.getElementById('successAddons').style.display='block';
-        }
-
-        document.getElementById('intakeForm').style.display='none';
-        document.getElementById('successScreen').classList.add('active');
-        window.scrollTo({top:0,behavior:'smooth'});
+        qh+='</div>';
+      } else if(q.t==='textarea'){
+        qh+='<textarea name="'+q.n+'" placeholder="'+(q.p||'').replace(/"/g,'&quot;')+'"></textarea>';
+      } else {
+        qh+='<input type="text" name="'+q.n+'" placeholder="'+(q.p||'').replace(/"/g,'&quot;')+'">';
+      }
+      qh+='</div>';
     });
+    qh+='</div>';
+    document.getElementById('indQuestions').innerHTML=qh;
+  } else {
+    document.getElementById('indQuestions').innerHTML='';
+  }
+}
 
-    function showCashAppInfo(){document.getElementById('cashAppInfo').style.display='block';}
+function syncCheckboxItem(lblId, chk){
+  var lbl = document.getElementById(lblId);
+  if(lbl) lbl.classList.toggle('checked', chk.checked);
+}
 
-    // FIX 3: Partner info function
-    function showPartnerInfo(){document.getElementById('partnerInfo').style.display='block';}
+function toggleAddon(chkId,cardId,event){
+  if(event && event.target && event.target.type==='checkbox') return;
+  var chk=document.getElementById(chkId);
+  chk.checked=!chk.checked;
+  document.getElementById(cardId).classList.toggle('selected',chk.checked);
+}
+function syncAddon(chkId,cardId){
+  var chk=document.getElementById(chkId);
+  document.getElementById(cardId).classList.toggle('selected',chk.checked);
+}
 
-    function handlePhotoUpload(input,fieldName){
-        if(!input.files||!input.files[0])return;
-        var file=input.files[0];
-        if(file.size>5*1024*1024){alert('Photo must be under 5MB.');return;}
-        var reader=new FileReader();
-        reader.onload=function(e){
-            var img=new Image();
-            img.onload=function(){
-                var canvas=document.createElement('canvas');
-                var maxW=800,w=img.width,h=img.height;
-                if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
-                canvas.width=w;canvas.height=h;
-                canvas.getContext('2d').drawImage(img,0,0,w,h);
-                var compressed=canvas.toDataURL('image/jpeg',0.7);
-                document.getElementById(fieldName+'Data').value=compressed;
-                var pd=document.getElementById(fieldName+'Preview');
-                var pi=document.getElementById(fieldName+'Img');
-                if(pd&&pi){pi.src=compressed;pd.style.display='block';}
-                var pr=document.getElementById(fieldName+'Prompt');
-                if(pr)pr.innerHTML='✅ Uploaded! Click to replace.';
-                document.getElementById('photoValidationMsg').style.display='none';
-            };
-            img.src=e.target.result;
-        };
-        reader.readAsDataURL(file);
+function toggleDisclosure(chkId,card,event){
+  if(event && event.target && event.target.type==='checkbox') return;
+  var chk=document.getElementById(chkId);
+  chk.checked=!chk.checked;
+  card.classList.toggle('selected',chk.checked);
+}
+function syncDisclosure(chkId,card){
+  var chk=document.getElementById(chkId);
+  card.classList.toggle('selected',chk.checked);
+}
+
+function highlightPayLabel(){
+  document.getElementById('pay_cc_label').style.borderColor = document.getElementById('pay_cc').checked ? '#0066FF' : '#e5e7eb';
+  document.getElementById('pay_partner_label').style.borderColor = document.getElementById('pay_partner').checked ? '#0066FF' : '#e5e7eb';
+}
+
+function highlightPlanLabel(){
+  ['plan_website_label','plan_blog_label','plan_social_label','plan_full_label'].forEach(function(id){
+    document.getElementById(id).classList.remove('selected');
+  });
+  var sel = document.querySelector('input[name="selectedPlan"]:checked');
+  if(sel){
+    var map = {website_only:'plan_website_label', website_blog:'plan_blog_label', website_blog_social:'plan_social_label', full_package:'plan_full_label'};
+    var lblId = map[sel.value];
+    if(lblId) document.getElementById(lblId).classList.add('selected');
+  }
+}
+
+// ═══════════════════════════════════════════
+// IVR SECTION — Conditional Logic
+// ═══════════════════════════════════════════
+function ivrLogic(){
+  var val = (document.querySelector('input[name="ivrOptIn"]:checked')||{}).value||'';
+  var show = (val === 'yes' || val === 'tell_me_more');
+  toggle('ivrDetailsSection', show);
+}
+
+// ═══════════════════════════════════════════
+// DOMAIN & TECHNICAL SETUP — Conditional Logic
+// ═══════════════════════════════════════════
+function domainLogic(){
+  var val = (document.querySelector('input[name="domainStatus"]:checked')||{}).value||'';
+  var hasDomain = (val === 'yes_both' || val === 'domain_only');
+  var noDomain = (val === 'no');
+  toggle('domainNameField', hasDomain);
+  toggle('registrarField', hasDomain);
+  toggle('dnsApproachField', hasDomain);
+  toggle('emailOnDomainField', hasDomain);
+  toggle('newDomainField', noDomain);
+  toggle('wantEmailField', noDomain);
+  if(!hasDomain){
+    toggle('registrarCredsField', false);
+    toggle('emailProviderField', false);
+    toggle('emailListField', false);
+  }
+  dnsApproachLogic();
+  emailLogic();
+}
+function dnsApproachLogic(){
+  var val = (document.querySelector('input[name="dnsApproach"]:checked')||{}).value||'';
+  toggle('registrarCredsField', val === 'hands_free');
+}
+function emailLogic(){
+  var val = (document.querySelector('input[name="hasEmailOnDomain"]:checked')||{}).value||'';
+  var hasEmail = (val === 'yes' || val === 'not_sure_email');
+  toggle('emailProviderField', hasEmail);
+  toggle('emailListField', val === 'yes');
+}
+function toggle(id, show){
+  var el = document.getElementById(id);
+  if(el){ if(show) el.classList.remove('hidden'); else el.classList.add('hidden'); }
+}
+function validateDomainStep(){
+  var domStatus = document.querySelector('input[name="domainStatus"]:checked');
+  if(!domStatus){ alert('Please select your current domain situation before continuing.'); return; }
+  goStep(6);
+}
+
+var cur=0;
+function goStep(n){
+  document.querySelectorAll('.step-page').forEach(function(p,i){p.classList.toggle('active',i===n);});
+  for(var i=0;i<7;i++){var dot=document.getElementById('dot'+i);if(dot)dot.className='dot'+(i<n?' done':i===n?' active':'');}
+  cur=n;
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(window._updateMode && n===2){
+    setTimeout(function(){prefillServices();},80);
+  }
+}
+
+function validateStep1(){
+  var required=[['businessName','Business Name'],['ownerName','Your Name'],['phone','Phone Number'],['email','Email Address'],['city','City']];
+  for(var i=0;i<required.length;i++){
+    var el=document.getElementById(required[i][0]);
+    if(!el||!el.value.trim()){alert('Please enter your '+required[i][1]+' before continuing.');if(el)el.focus();return;}
+  }
+  buildServices(selectedIndustry);
+  goStep(2);
+}
+
+async function submitForm(){
+  var disclosures = ['disc1','disc2','disc3','disc4','disc5'];
+  var allDisclosed = disclosures.every(function(id){ return document.getElementById(id).checked; });
+  if(!allDisclosed){alert('Please review and check all disclosure boxes before submitting.');return;}
+
+  var paySelected = document.querySelector('input[name="paymentMethod"]:checked');
+  if(!paySelected){alert('Please select a payment method before submitting.');return;}
+
+  var planSelected = document.querySelector('input[name="selectedPlan"]:checked');
+  if(!planSelected && paySelected.value === 'credit_debit'){
+    alert('Please select a plan before submitting.');return;
+  }
+
+  var btn=document.getElementById('submitBtn');
+  btn.disabled=true;
+  document.getElementById('overlay').classList.add('show');
+
+  var data={};
+  document.querySelectorAll('[name]').forEach(function(el){
+    if(el.type==='checkbox'){
+      if(el.checked){
+        if(el.name.endsWith('_cb')){
+          var baseName = el.name;
+          if(data[baseName]) data[baseName] += ', '+el.value;
+          else data[baseName] = el.value;
+        } else {
+          data[el.name]=el.value||'on';
+        }
+      }
     }
+    else if(el.type==='radio'){if(el.checked)data[el.name]=el.value;}
+    else if(el.tagName==='SELECT'||el.tagName==='TEXTAREA'||el.type==='text'||el.type==='tel'||el.type==='email'||el.type==='password'){if(el.value.trim())data[el.name]=el.value.trim();}
+  });
+  data.industry=selectedIndustry;
+  if(selectedIndustry==='other')data.industryOther=document.getElementById('otherInput').value.trim();
+  data.id='client_'+Date.now();
 
-    function validatePhotos(){
-        var skipPhotos=document.getElementById('skipPhotosCheckbox').checked;
-        if(skipPhotos)return true;
-        var ownerPhoto=document.getElementById('ownerPhotoData').value;
-        var workPhoto1=document.getElementById('workPhoto1Data').value;
-        if(!ownerPhoto||!workPhoto1){document.getElementById('photoValidationMsg').style.display='block';return false;}
-        return true;
+  try{
+    var res=await fetch('/api/submission-created',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    var result=await res.json();
+    document.getElementById('overlay').classList.remove('show');
+    if(result.success){
+      var isPartner = paySelected.value === 'partner';
+      if(!isPartner && planSelected){
+        var stripeUrl = STRIPE_LINKS[planSelected.value];
+        if(stripeUrl){
+          var email = encodeURIComponent(data.email||'');
+          var clientId = encodeURIComponent(data.id||'');
+          window.location.href = stripeUrl + '?prefilled_email=' + email + '&client_reference_id=' + clientId;
+          return;
+        }
+      }
+      document.querySelector('.container').innerHTML='<div class="card" style="text-align:center;padding:60px 40px"><div style="font-size:64px;margin-bottom:20px">🎉</div><h2 style="font-size:28px;color:#00D68F;margin-bottom:12px">We Are Building Your Website!</h2><p style="font-size:16px;color:#374151;line-height:1.8;max-width:480px;margin:0 auto 24px">Check your email at <strong>'+(data.email||'the address you entered')+'</strong> — your preview link will arrive within a few minutes.</p><p style="font-size:14px;color:#6B7280">Questions? Call <strong>(603) 922-2004</strong> or email <a href="mailto:turnkeyaiservices@gmail.com" style="color:#0066FF">turnkeyaiservices@gmail.com</a></p></div>';
+    } else {throw new Error(result.error||'Submission failed');}
+  } catch(e){
+    document.getElementById('overlay').classList.remove('show');
+    btn.disabled=false;
+    alert('Something went wrong: '+e.message+'\n\nPlease call (603) 922-2004 or email turnkeyaiservices@gmail.com');
+  }
+}
+
+// ═══════════════════════════════════════════
+// UPDATE MODE — activated when ?mode=update
+// ═══════════════════════════════════════════
+(function initUpdateMode(){
+  var params = new URLSearchParams(window.location.search);
+  if(params.get('mode') !== 'update') return;
+  window._updateMode = true;
+  var dashToken = params.get('token') || '';
+  var dashPass  = decodeURIComponent(window.location.hash.replace(/^#/,''));
+  if(!dashToken || !dashPass){ console.warn('[UpdateMode] Missing token or password'); return; }
+  fetch('/api/client-auth',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({token: dashToken, password: dashPass})
+  }).then(function(r){ return r.json(); }).then(function(cd){
+    if(!cd || cd.error){ console.warn('[UpdateMode] Auth failed:', cd && cd.error); return; }
+    window._updateData = cd;
+    prefillAllFields(cd, dashToken, dashPass);
+  }).catch(function(e){ console.error('[UpdateMode] fetch error',e); });
+})();
+
+function prefillAllFields(cd, dashToken, dashPass){
+  var d = cd.data || {};
+  document.getElementById('pageTitle').textContent = '✏️ Update Your Website';
+  document.getElementById('pageSubtitle').textContent = 'Review and update your information — changes will redeploy your live site';
+  document.getElementById('overlayMsg').textContent = 'Saving and redeploying your site...';
+  var fields = ['businessName','ownerName','phone','email','city'];
+  fields.forEach(function(f){
+    var el = document.querySelector('[name="'+f+'"]') || document.getElementById(f);
+    if(el && d[f]) el.value = d[f];
+  });
+  ['address','state','zip','yearsInBusiness','targetRadius'].forEach(function(f){
+    var el = document.querySelector('[name="'+f+'"]');
+    if(el && d[f]) el.value = d[f];
+  });
+  if(d.industry && IND[d.industry]){
+    selectedIndustry = d.industry;
+    buildGrid('');
+    document.getElementById('btnInd').disabled = false;
+  }
+  ['aboutUs','competitiveAdvantage','ownerBackground','missionStatement','awards','communityInvolvement'].forEach(function(f){
+    var el = document.querySelector('[name="'+f+'"]');
+    if(el && d[f]) el.value = d[f];
+  });
+  var days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  days.forEach(function(day){
+    var chk = document.querySelector('[name="day_'+day+'"]');
+    var hrs = document.querySelector('[name="hours_'+day+'"]');
+    if(chk){ chk.checked = !!(d['day_'+day]); toggleDay(day); }
+    if(hrs && d['hours_'+day]) hrs.value = d['hours_'+day];
+  });
+  ['cash','card','check','venmo','cashapp','zelle','financing','insurance'].forEach(function(p){
+    var el = document.querySelector('[name="pay_'+p+'"]');
+    if(el) el.checked = !!(d['pay_'+p]);
+  });
+  ['chatName','currentWebsite','googleBusiness','facebook','instagram','referralSource'].forEach(function(f){
+    var el = document.querySelector('[name="'+f+'"]');
+    if(el && d[f]) el.value = d[f];
+  });
+  var chatP = document.querySelector('[name="chatPersonality"]');
+  if(chatP && d.chatPersonality) chatP.value = d.chatPersonality;
+  var pricingD = document.querySelector('[name="pricingDisplay"]');
+  if(pricingD && d.pricingDisplay) pricingD.value = d.pricingDisplay;
+  var hasLogo = document.querySelector('[name="hasLogo"]');
+  if(hasLogo && d.hasLogo) hasLogo.value = d.hasLogo;
+  // Prefill FAQ Q&A pairs
+  for(var qi=1;qi<=5;qi++){
+    var qEl = document.querySelector('[name="faq_q'+qi+'"]');
+    var aEl = document.querySelector('[name="faq_a'+qi+'"]');
+    if(qEl && d['faq_q'+qi]) qEl.value = d['faq_q'+qi];
+    if(aEl && d['faq_a'+qi]) aEl.value = d['faq_a'+qi];
+  }
+  // Prefill IVR fields
+  if(d.ivrOptIn){
+    var ivrR = document.querySelector('input[name="ivrOptIn"][value="'+d.ivrOptIn+'"]');
+    if(ivrR){ ivrR.checked = true; ivrLogic(); }
+  }
+  ['ivrGreeting','ivrForwardingNumber'].forEach(function(f){
+    var el = document.querySelector('[name="'+f+'"]');
+    if(el && d[f]) el.value = d[f];
+  });
+  for(var di=1;di<=3;di++){
+    var dnEl = document.querySelector('[name="ivr_dept'+di+'_name"]');
+    var deEl = document.querySelector('[name="ivr_dept'+di+'_ext"]');
+    if(dnEl && d['ivr_dept'+di+'_name']) dnEl.value = d['ivr_dept'+di+'_name'];
+    if(deEl && d['ivr_dept'+di+'_ext']) deEl.value = d['ivr_dept'+di+'_ext'];
+  }
+  if(d.ivrAfterHours){
+    var ahR = document.querySelector('input[name="ivrAfterHours"][value="'+d.ivrAfterHours+'"]');
+    if(ahR) ahR.checked = true;
+  }
+  if(d.wants_mini_me==='yes'||d.wantsMiniMe==='yes'){ var mm=document.getElementById('chk_miniMe'); if(mm){mm.checked=true; syncAddon('chk_miniMe','addonMiniMe');} }
+  if(d.wants_free_video==='yes'||d.wantsFreeVideo==='yes'){ var fv=document.getElementById('chk_video'); if(fv){fv.checked=true; syncAddon('chk_video','addonVideo');} }
+  if(d.addon_after_hours==='yes'){ var ah=document.getElementById('chk_ah'); if(ah){ah.checked=true; syncAddon('chk_ah','addonAH');} }
+  if(d.addon_missed_call==='yes'){ var mc=document.getElementById('chk_mc'); if(mc){mc.checked=true; syncAddon('chk_mc','addonMC');} }
+  ['colorPreference','additionalNotes'].forEach(function(f){
+    var el = document.querySelector('[name="'+f+'"]');
+    if(el && d[f]) el.value = d[f];
+  });
+  // Prefill domain fields
+  if(d.domainStatus){
+    var dsRadio = document.querySelector('input[name="domainStatus"][value="'+d.domainStatus+'"]');
+    if(dsRadio){ dsRadio.checked = true; domainLogic(); }
+  }
+  ['existingDomain','preferredDomains','emailsToPreserve','registrarUsername'].forEach(function(f){
+    var el = document.querySelector('[name="'+f+'"]');
+    if(el && d[f]) el.value = d[f];
+  });
+  ['domainRegistrar','dnsApproach','hasEmailOnDomain','emailProvider','wantsProfessionalEmail'].forEach(function(f){
+    if(d[f]){
+      var r = document.querySelector('input[name="'+f+'"][value="'+d[f]+'"]');
+      if(r){ r.checked = true; }
     }
-    </script>
+  });
+  if(d.dnsApproach) dnsApproachLogic();
+  if(d.hasEmailOnDomain) emailLogic();
+  // In update mode, auto-check disclosures (they already agreed)
+  ['disc1','disc2','disc3','disc4','disc5'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){ el.checked = true; var card = el.closest('.addon'); if(card) card.classList.add('selected'); }
+  });
+  var paySection = document.getElementById('paymentMethodSection');
+  if(paySection) paySection.style.display = 'none';
+  var planSection = document.getElementById('planGrid');
+  if(planSection) planSection.closest('.card').style.display = 'none';
+  var intro = document.getElementById('submitIntroText');
+  if(intro) intro.textContent = 'What happens when you save:';
+  var stepsList = document.getElementById('submitStepsList');
+  if(stepsList) stepsList.innerHTML = '<li>Your updated information is saved</li><li>Your live site is rebuilt with the new content</li><li>Changes appear on your site within 1–2 minutes</li>';
+  var note = document.getElementById('submitNote');
+  if(note) note.textContent = 'Your dashboard login stays the same.';
+  var btn = document.getElementById('submitBtn');
+  if(btn){
+    btn.textContent = '💾 Save & Redeploy My Site →';
+    btn.onclick = function(){ submitUpdateForm(dashToken, dashPass); };
+  }
+  window._updatePrefillData = d;
+}
+
+function prefillServices(){
+  var d = window._updatePrefillData;
+  if(!d || !selectedIndustry) return;
+  Object.keys(d).forEach(function(k){
+    if(k.startsWith('service_') && d[k]==='on'){
+      var el = document.querySelector('[name="'+k+'"]');
+      if(el) el.checked = true;
+    }
+  });
+  Object.keys(d).forEach(function(k){
+    if(k.startsWith('price_')){
+      var el = document.querySelector('[name="'+k+'"]');
+      if(el && d[k]) el.value = d[k];
+    }
+  });
+  var addlSvc = document.querySelector('[name="additionalServices"]');
+  if(addlSvc && d.additionalServices) addlSvc.value = d.additionalServices;
+  Object.keys(d).forEach(function(k){
+    var el = document.querySelector('[name="'+k+'"]');
+    if(el && el.type === 'radio' && el.value === d[k]) el.checked = true;
+    else if(el && el.type !== 'radio' && el.type !== 'checkbox' && d[k]) el.value = d[k];
+  });
+}
+
+async function submitUpdateForm(dashToken, dashPass){
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  document.getElementById('overlay').classList.add('show');
+  var data = {};
+  document.querySelectorAll('[name]').forEach(function(el){
+    if(el.type==='checkbox'){
+      if(el.checked){
+        if(el.name.endsWith('_cb')){
+          if(data[el.name]) data[el.name] += ', '+el.value;
+          else data[el.name] = el.value;
+        } else {
+          data[el.name]=el.value||'on';
+        }
+      }
+    }
+    else if(el.type==='radio'){ if(el.checked) data[el.name]=el.value; }
+    else if(el.tagName==='SELECT'||el.tagName==='TEXTAREA'||el.type==='text'||el.type==='tel'||el.type==='email'||el.type==='password'){
+      if(el.value.trim()) data[el.name]=el.value.trim();
+    }
+  });
+  data.industry = selectedIndustry;
+  if(selectedIndustry==='other') data.industryOther = document.getElementById('otherInput').value.trim();
+  try {
+    var res = await fetch('/api/client-update',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({token: dashToken, password: dashPass, updateType: 'content_update', updateData: data})
+    });
+    var result = await res.json();
+    document.getElementById('overlay').classList.remove('show');
+    btn.disabled = false;
+    var success = result.success;
+    var msg = success ? (result.message || 'Your site has been updated!') : (result.error || 'Update failed.');
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({type:'content_update_result',success:success,message:success?msg:null,error:success?null:msg},window.location.origin);
+    } else {
+      alert(success ? '✅ ' + msg : '❌ ' + msg);
+    }
+  } catch(e){
+    document.getElementById('overlay').classList.remove('show');
+    btn.disabled = false;
+    var errMsg = 'Connection error: ' + e.message;
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage({type:'content_update_result',success:false,error:errMsg},window.location.origin);
+    } else {
+      alert('❌ ' + errMsg);
+    }
+  }
+}
+</script>
 </body>
 </html>
