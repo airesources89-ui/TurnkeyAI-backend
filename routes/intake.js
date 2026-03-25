@@ -9,7 +9,7 @@ const path = require('path');
 const rateLimit = require('express-rate-limit');
 const { clients, saveClient } = require('../lib/db');
 const { makeToken, validate } = require('../lib/helpers');
-const { sendEmail, ADMIN_EMAIL, sendMiniMeEmail, sendFreeVideoEmail } = require('../lib/email');
+const { sendEmail, ADMIN_EMAIL, sendMiniMeEmail, sendFreeVideoEmail, sendDnsSelfDirectedEmail, sendDnsHandsFreeEmail, sendDomainRegistrationEmail, sendProfessionalEmailSetupEmail } = require('../lib/email');
 const { generateSiteHTML } = require('../lib/site-generator');
 
 const BASE_URL    = process.env.BASE_URL || 'https://turnkeyaiservices.com';
@@ -78,6 +78,8 @@ async function handleIntakeSubmission(data, res) {
       } else if (data.wants_free_video === 'yes' || data.wantsFreeVideo === 'yes') {
         sendFreeVideoEmail(clients[id]).catch(()=>{});
       }
+      // ── DNS / Domain emails (partner path) ──
+      fireDnsDomainEmails(clients[id]).catch(e => console.error('[dns/domain emails]', e.message));
     })();
     return;
   }
@@ -125,9 +127,37 @@ async function handleIntakeSubmission(data, res) {
     } else if (d.wants_free_video==='yes'||d.wantsFreeVideo==='yes') {
       sendFreeVideoEmail(clients[id]).catch(e => console.error('[video email]', e.message));
     }
+    // ── DNS / Domain emails (standard path) ──
+    fireDnsDomainEmails(clients[id]).catch(e => console.error('[dns/domain emails]', e.message));
   }
 
   res.json({ success: true, id, preview: previewUrl });
+}
+
+// ── Fire DNS / domain-related emails based on intake data ──
+async function fireDnsDomainEmails(client) {
+  const d = client.data;
+  if (!d.email) return;
+
+  // Self-directed DNS instructions
+  if (d.dnsApproach === 'self_directed') {
+    await sendDnsSelfDirectedEmail(client).catch(e => console.error('[dns self-directed email]', e.message));
+  }
+
+  // Hands-free DNS confirmation
+  if (d.dnsApproach === 'hands_free') {
+    await sendDnsHandsFreeEmail(client).catch(e => console.error('[dns hands-free email]', e.message));
+  }
+
+  // New domain registration
+  if (d.domainStatus === 'no') {
+    await sendDomainRegistrationEmail(client).catch(e => console.error('[domain registration email]', e.message));
+  }
+
+  // Professional email setup
+  if (d.wantsProfessionalEmail === 'yes') {
+    await sendProfessionalEmailSetupEmail(client).catch(e => console.error('[professional email setup]', e.message));
+  }
 }
 
 // ── POST /api/submission-created ──
