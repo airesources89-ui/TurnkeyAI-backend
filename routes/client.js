@@ -124,8 +124,8 @@ router.post('/api/client-update', async (req, res) => {
       await saveClient(client);
       if (client.status === 'active') {
         const projectName = client.cfProjectName || `turnkeyai-${require('../lib/helpers').makeSlug(client.data.businessName)}`;
-        const liveHTML = generateSiteHTML(client.data, false, client);
-        deployToCloudflarePages(projectName, liveHTML).catch(e => console.error('[hours redeploy]', e.message));
+        const sitePages = generateSiteHTML(client.data, false, client);
+        deployToCloudflarePages(projectName, sitePages).catch(e => console.error('[hours redeploy]', e.message));
       }
       return res.json({ success: true, message: 'Hours saved and site updating.' });
     }
@@ -156,7 +156,8 @@ router.get('/preview/:token', (req, res) => {
   const client = Object.values(clients).find(c => c.previewToken === req.params.token);
   if (!client) return res.status(404).send('<h2>Preview not found or expired.</h2>');
   const data = { ...client.data, _previewToken: client.previewToken, id: client.id };
-  res.send(generateSiteHTML(data, true, null));
+  const pages = generateSiteHTML(data, true, null);
+  res.send(pages.index);
 });
 
 // ── GET /api/mini-me-consent/:id ──
