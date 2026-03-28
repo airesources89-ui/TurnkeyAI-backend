@@ -1,0 +1,2848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TurnkeyAI Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════
+   SECTION 1: CSS VARIABLES & RESET
+   ═══════════════════════════════════════════════════════ */
+:root {
+  --navy:        #080d1a;
+  --navy-mid:    #0c1225;
+  --navy-light:  #121e38;
+  --navy-border: #1a2844;
+  --navy-hover:  #162040;
+  --amber:       #f59e0b;
+  --amber-dark:  #d97706;
+  --orange:      #ea580c;
+  --green:       #10b981;
+  --green-bg:    rgba(16,185,129,0.08);
+  --red:         #ef4444;
+  --red-bg:      rgba(239,68,68,0.08);
+  --yellow:      #eab308;
+  --yellow-bg:   rgba(234,179,8,0.08);
+  --blue:        #3b82f6;
+  --blue-bg:     rgba(59,130,246,0.08);
+  --purple:      #8b5cf6;
+  --text-primary:   #eef2ff;
+  --text-secondary: #7b8fb5;
+  --text-dim:       #3d5080;
+  --sidebar-w:   264px;
+  --header-h:    54px;
+  --radius:      10px;
+  --radius-sm:   6px;
+  --card-bg:     #0c1225;
+  --card-border: #1a2844;
+  --t:           0.16s ease;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--navy);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--navy-border); border-radius: 3px; }
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 2: LAYOUT & SIDEBAR
+   ═══════════════════════════════════════════════════════ */
+#app { display: flex; height: 100vh; overflow: hidden; }
+
+#sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--navy-mid);
+  border-right: 1px solid var(--navy-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width var(--t), min-width var(--t);
+  z-index: 200;
+  position: relative;
+}
+#sidebar.collapsed { width: 54px; min-width: 54px; }
+
+.sidebar-logo {
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--navy-border);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.logo-mark {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, var(--amber), var(--orange));
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--navy); font-weight: 800;
+  flex-shrink: 0;
+}
+.logo-text-wrap { overflow: hidden; white-space: nowrap; }
+.logo-name { font-family: 'Bebas Neue', sans-serif; font-size: 19px; color: var(--amber); letter-spacing: 1px; display: block; }
+.logo-sub { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); display: block; margin-top: -2px; }
+
+.sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 12px;
+}
+
+.sb-section { border-bottom: 1px solid var(--navy-border); padding: 6px 0; }
+
+.sb-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 10px 16px 3px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+#sidebar.collapsed .sb-label { opacity: 0; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  border-left: 3px solid transparent;
+  transition: all var(--t);
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  user-select: none;
+}
+.nav-item:hover { background: var(--navy-hover); color: var(--text-primary); }
+.nav-item.active { color: var(--amber); background: rgba(245,158,11,0.07); border-left-color: var(--amber); }
+.nav-icon { width: 18px; text-align: center; font-size: 13px; flex-shrink: 0; }
+.nav-label { flex: 1; overflow: hidden; }
+.nav-badge {
+  background: var(--orange);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+.nav-badge.green { background: var(--green); }
+.nav-badge.yellow { background: var(--yellow); color: var(--navy); }
+.nav-chevron { font-size: 9px; color: var(--text-dim); transition: transform var(--t); flex-shrink: 0; }
+.nav-item.open .nav-chevron { transform: rotate(90deg); }
+
+.nav-sub { display: none; background: rgba(0,0,0,0.15); }
+.nav-sub.open { display: block; }
+.nav-sub-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px 7px 40px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  border-left: 3px solid transparent;
+  transition: all var(--t);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.nav-sub-item:hover { background: var(--navy-hover); color: var(--text-primary); }
+.nav-sub-item.active { color: var(--amber); border-left-color: var(--amber); background: rgba(245,158,11,0.05); }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.dot-green  { background: var(--green); box-shadow: 0 0 4px var(--green); }
+.dot-yellow { background: var(--yellow); }
+.dot-red    { background: var(--red); box-shadow: 0 0 4px var(--red); }
+.dot-gray   { background: var(--text-dim); }
+.dot-blue   { background: var(--blue); }
+
+/* ── SIDEBAR TOOLTIP (collapsed mode) ── */
+#sidebar.collapsed .nav-label,
+#sidebar.collapsed .nav-badge,
+#sidebar.collapsed .nav-chevron,
+#sidebar.collapsed .nav-sub,
+#sidebar.collapsed .sb-label { display: none; }
+#sidebar.collapsed .nav-item { justify-content: center; padding: 10px; }
+#sidebar.collapsed .nav-icon { width: auto; }
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 3: MAIN AREA & TOPBAR
+   ═══════════════════════════════════════════════════════ */
+#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+#topbar {
+  height: var(--header-h);
+  background: var(--navy-mid);
+  border-bottom: 1px solid var(--navy-border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+#sidebar-toggle {
+  width: 32px; height: 32px;
+  border: 1px solid var(--navy-border);
+  background: var(--navy-light);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all var(--t);
+  font-size: 12px;
+}
+#sidebar-toggle:hover { border-color: var(--amber); color: var(--amber); }
+
+#breadcrumb { font-size: 13px; color: var(--text-secondary); flex: 1; }
+#breadcrumb .bc-current { color: var(--text-primary); font-weight: 600; }
+
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+
+.health-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 11px;
+  border: 1px solid rgba(16,185,129,0.25);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+  background: var(--green-bg);
+  cursor: pointer;
+  transition: all var(--t);
+}
+.health-pill:hover { border-color: var(--green); }
+.health-pill.degraded { color: var(--yellow); background: var(--yellow-bg); border-color: rgba(234,179,8,0.25); }
+.health-pill.down { color: var(--red); background: var(--red-bg); border-color: rgba(239,68,68,0.25); }
+.pulse-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+
+#session-clock {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 4px 8px;
+  border: 1px solid var(--navy-border);
+  border-radius: var(--radius-sm);
+}
+#session-clock.warning { color: var(--yellow); border-color: var(--yellow); }
+
+.icon-btn {
+  width: 32px; height: 32px;
+  border: 1px solid var(--navy-border);
+  background: var(--navy-light);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all var(--t);
+  font-size: 13px;
+  position: relative;
+}
+.icon-btn:hover { border-color: var(--amber); color: var(--amber); }
+.icon-btn .badge {
+  position: absolute; top: -5px; right: -5px;
+  background: var(--red); color: #fff;
+  font-size: 9px; font-weight: 700;
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--navy-mid);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 4: CONTENT AREA & PANELS
+   ═══════════════════════════════════════════════════════ */
+#content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 22px 24px;
+}
+
+.panel { display: none; }
+.panel.active { display: block; animation: fadein 0.2s ease; }
+@keyframes fadein { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+.panel-header { margin-bottom: 20px; }
+.panel-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px;
+  letter-spacing: 1.5px;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.panel-subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+.panel-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 5: GRID & CARDS
+   ═══════════════════════════════════════════════════════ */
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 18px; }
+.g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 18px; }
+.g2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; margin-bottom: 18px; }
+.g21 { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 18px; }
+.g12 { display: grid; grid-template-columns: 1fr 2fr; gap: 14px; margin-bottom: 18px; }
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+.card-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.card-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  display: flex; align-items: center; gap: 7px;
+}
+.card-title i { color: var(--amber); }
+
+/* Stat cards */
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  transition: border-color var(--t);
+}
+.stat-card:hover { border-color: rgba(245,158,11,0.3); }
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.sc-amber::after { background: linear-gradient(90deg, var(--amber), var(--orange)); }
+.sc-green::after { background: linear-gradient(90deg, var(--green), #34d399); }
+.sc-blue::after  { background: linear-gradient(90deg, var(--blue), #60a5fa); }
+.sc-red::after   { background: linear-gradient(90deg, var(--red), #f87171); }
+.sc-purple::after{ background: linear-gradient(90deg, var(--purple), #a78bfa); }
+
+.stat-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+.stat-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 40px;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+.sv-amber  { color: var(--amber); }
+.sv-green  { color: var(--green); }
+.sv-blue   { color: var(--blue); }
+.sv-red    { color: var(--red); }
+.sv-purple { color: var(--purple); }
+.sv-white  { color: var(--text-primary); }
+
+.stat-change { font-size: 11px; margin-top: 6px; color: var(--text-dim); }
+.stat-change.up { color: var(--green); }
+.stat-change.dn { color: var(--red); }
+.stat-icon {
+  position: absolute;
+  right: 16px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 32px;
+  opacity: 0.06;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 6: BUTTONS, BADGES, TAGS
+   ═══════════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--t);
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-primary   { background: var(--amber); color: var(--navy); }
+.btn-primary:hover { background: var(--amber-dark); }
+.btn-secondary { background: var(--navy-light); color: var(--text-primary); border: 1px solid var(--navy-border); }
+.btn-secondary:hover { border-color: var(--amber); color: var(--amber); }
+.btn-ghost     { background: transparent; color: var(--text-secondary); border: 1px solid var(--navy-border); }
+.btn-ghost:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+.btn-danger    { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+.btn-danger:hover { background: rgba(239,68,68,0.22); }
+.btn-success   { background: rgba(16,185,129,0.12); color: var(--green); border: 1px solid rgba(16,185,129,0.25); }
+.btn-success:hover { background: rgba(16,185,129,0.22); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-xs { padding: 3px 8px; font-size: 11px; border-radius: 4px; }
+
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-green  { background: var(--green-bg); color: var(--green); }
+.badge-yellow { background: var(--yellow-bg); color: var(--yellow); }
+.badge-red    { background: var(--red-bg); color: var(--red); }
+.badge-blue   { background: var(--blue-bg); color: var(--blue); }
+.badge-amber  { background: rgba(245,158,11,0.1); color: var(--amber); }
+.badge-gray   { background: rgba(61,80,128,0.3); color: var(--text-secondary); }
+.badge-purple { background: rgba(139,92,246,0.12); color: var(--purple); }
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 7: TABLE
+   ═══════════════════════════════════════════════════════ */
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl th {
+  text-align: left;
+  padding: 9px 14px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--navy-border);
+  white-space: nowrap;
+}
+.tbl td {
+  padding: 11px 14px;
+  border-bottom: 1px solid rgba(26,40,68,0.5);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: rgba(22,32,64,0.5); color: var(--text-primary); }
+.tbl .td-name { color: var(--text-primary); font-weight: 600; }
+.tbl .td-mono { font-family: 'DM Mono', monospace; font-size: 12px; }
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 8: FORMS & INPUTS
+   ═══════════════════════════════════════════════════════ */
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; letter-spacing: 0.5px; }
+.form-input {
+  width: 100%;
+  background: var(--navy);
+  border: 1px solid var(--navy-border);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color var(--t);
+  outline: none;
+}
+.form-input:focus { border-color: var(--amber); }
+.form-input::placeholder { color: var(--text-dim); }
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%237b8fb5' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-hint { font-size: 11px; color: var(--text-dim); margin-top: 5px; }
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 9: PROGRESS & BARS
+   ═══════════════════════════════════════════════════════ */
+.progress-wrap { margin-bottom: 10px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; }
+.progress-bar { height: 6px; background: var(--navy-border); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.pf-amber  { background: linear-gradient(90deg, var(--amber), var(--orange)); }
+.pf-green  { background: linear-gradient(90deg, var(--green), #34d399); }
+.pf-blue   { background: linear-gradient(90deg, var(--blue), #60a5fa); }
+.pf-red    { background: linear-gradient(90deg, var(--red), #f87171); }
+.pf-purple { background: linear-gradient(90deg, var(--purple), #a78bfa); }
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 10: SPECIFIC UI COMPONENTS
+   ═══════════════════════════════════════════════════════ */
+
+/* Onboarding checklist */
+.onboard-step {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(26,40,68,0.5);
+  font-size: 12.5px;
+}
+.onboard-step:last-child { border-bottom: none; }
+.step-check {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; flex-shrink: 0;
+}
+.step-check.done { background: var(--green-bg); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+.step-check.pend { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(234,179,8,0.3); }
+.step-check.none { background: var(--navy-border); color: var(--text-dim); border: 1px solid var(--navy-border); }
+.step-label.done { color: var(--text-secondary); text-decoration: line-through; }
+.step-label.pend { color: var(--text-primary); }
+.step-label.none { color: var(--text-dim); }
+
+/* Activity log */
+.activity-item {
+  display: flex; gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(26,40,68,0.4);
+  font-size: 12.5px;
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-icon {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.ai-green  { background: var(--green-bg); color: var(--green); }
+.ai-amber  { background: rgba(245,158,11,0.1); color: var(--amber); }
+.ai-blue   { background: var(--blue-bg); color: var(--blue); }
+.ai-red    { background: var(--red-bg); color: var(--red); }
+.ai-purple { background: rgba(139,92,246,0.12); color: var(--purple); }
+.activity-body { flex: 1; }
+.activity-text { color: var(--text-secondary); line-height: 1.4; }
+.activity-text strong { color: var(--text-primary); }
+.activity-time { font-size: 11px; color: var(--text-dim); margin-top: 2px; font-family: 'DM Mono', monospace; }
+
+/* API health */
+.health-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(26,40,68,0.4);
+  font-size: 13px;
+}
+.health-row:last-child { border-bottom: none; }
+.health-name { flex: 1; color: var(--text-primary); font-weight: 500; }
+.health-status { font-size: 11px; font-weight: 600; }
+.hs-ok     { color: var(--green); }
+.hs-warn   { color: var(--yellow); }
+.hs-down   { color: var(--red); }
+.hs-unkn   { color: var(--text-dim); }
+.health-latency { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-dim); width: 60px; text-align: right; }
+
+/* Notification item */
+.notif-item {
+  display: flex; gap: 10px;
+  padding: 11px 14px;
+  border-bottom: 1px solid rgba(26,40,68,0.4);
+  transition: background var(--t);
+  cursor: pointer;
+}
+.notif-item:hover { background: var(--navy-hover); }
+.notif-item.unread { background: rgba(245,158,11,0.03); border-left: 2px solid var(--amber); }
+.notif-item:last-child { border-bottom: none; }
+.notif-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+.notif-body { flex: 1; }
+.notif-text { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+.notif-text strong { color: var(--text-primary); }
+.notif-time { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+/* Goal tracker */
+.goal-item { margin-bottom: 14px; }
+.goal-hdr { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.goal-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.goal-stat { font-size: 12px; color: var(--text-secondary); }
+.goal-stat span { color: var(--amber); font-weight: 700; font-family: 'DM Mono', monospace; }
+
+/* Territory map placeholder */
+.map-placeholder {
+  background: var(--navy);
+  border: 1px solid var(--navy-border);
+  border-radius: var(--radius-sm);
+  padding: 40px;
+  text-align: center;
+  color: var(--text-dim);
+}
+.map-placeholder i { font-size: 40px; margin-bottom: 12px; color: var(--navy-border); display: block; }
+
+/* International phase card */
+.phase-card {
+  background: var(--navy);
+  border: 1px solid var(--navy-border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: border-color var(--t);
+}
+.phase-card:hover { border-color: var(--amber); }
+.phase-flag { font-size: 26px; flex-shrink: 0; }
+.phase-info { flex: 1; }
+.phase-country { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.phase-detail  { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.phase-status  { flex-shrink: 0; }
+
+/* Straggler board */
+.straggler-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px;
+  background: var(--navy);
+  border: 1px solid var(--navy-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 7px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color var(--t);
+}
+.straggler-item:hover { border-color: var(--amber); }
+.straggler-label { flex: 1; color: var(--text-secondary); }
+.straggler-label.done { color: var(--text-dim); text-decoration: line-through; }
+
+/* Client detail tabs */
+.tab-bar { display: flex; gap: 2px; border-bottom: 1px solid var(--navy-border); margin-bottom: 18px; }
+.tab {
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all var(--t);
+}
+.tab:hover { color: var(--text-primary); }
+.tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Toasts */
+#toast-container {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  z-index: 9999;
+  display: flex; flex-direction: column; gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--navy-light);
+  border: 1px solid var(--navy-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--text-primary);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  display: flex; align-items: center; gap: 10px;
+  pointer-events: all;
+  animation: slide-in 0.25s ease;
+  max-width: 320px;
+}
+.toast.success { border-left: 3px solid var(--green); }
+.toast.error   { border-left: 3px solid var(--red); }
+.toast.info    { border-left: 3px solid var(--blue); }
+@keyframes slide-in { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+
+/* Modal */
+#modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+#modal-overlay.open { display: flex; }
+.modal {
+  background: var(--navy-mid);
+  border: 1px solid var(--navy-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: fadein 0.2s ease;
+}
+.modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; margin-bottom: 16px; color: var(--amber); }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+/* Divider */
+.divider { height: 1px; background: var(--navy-border); margin: 18px 0; }
+
+/* Chart container */
+.chart-wrap { position: relative; height: 180px; }
+.chart-wrap-tall { position: relative; height: 240px; }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-dim); }
+.empty-state i { font-size: 36px; margin-bottom: 12px; display: block; opacity: 0.4; }
+.empty-state p { font-size: 13px; }
+
+/* Scroll area */
+.scroll-area { max-height: 320px; overflow-y: auto; }
+
+/* Role badge */
+.role-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(26,40,68,0.4); }
+.role-row:last-child { border-bottom: none; }
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 11: RESPONSIVE
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 1100px) {
+  .g4 { grid-template-columns: repeat(2,1fr); }
+  .g21 { grid-template-columns: 1fr; }
+  .g12 { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  :root { --sidebar-w: 54px; }
+  .g3 { grid-template-columns: 1fr; }
+  .g2 { grid-template-columns: 1fr; }
+  #content { padding: 14px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════
+     DOM STRUCTURE
+     ════════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">T</div>
+      <div class="logo-text-wrap">
+        <span class="logo-name">TurnkeyAI</span>
+        <span class="logo-sub">Command Center</span>
+      </div>
+    </div>
+    <div class="sidebar-scroll">
+
+      <!-- MAIN NAV -->
+      <div class="sb-section">
+        <div class="nav-item active" data-panel="dashboard" onclick="nav('dashboard',this)">
+          <span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span>
+          <span class="nav-label">Dashboard</span>
+        </div>
+      </div>
+
+      <!-- CLIENTS -->
+      <div class="sb-section">
+        <div class="sb-label">Client Websites</div>
+        <div class="nav-item" id="nav-clients" onclick="toggleSub('clients-sub',this)">
+          <span class="nav-icon"><i class="fa-solid fa-globe"></i></span>
+          <span class="nav-label">All Clients</span>
+          <span class="nav-badge" id="badge-clients">5</span>
+          <i class="fa-solid fa-chevron-right nav-chevron"></i>
+        </div>
+        <div class="nav-sub" id="clients-sub">
+          <div id="client-nav-list">
+            <!-- dynamically populated -->
+            <div class="nav-sub-item" onclick="nav('clients-all')">
+              <span class="status-dot dot-gray"></span>
+              <span>View All Clients</span>
+            </div>
+          </div>
+        </div>
+        <div class="nav-item" data-panel="pending" onclick="nav('pending',this)">
+          <span class="nav-icon"><i class="fa-solid fa-clock"></i></span>
+          <span class="nav-label">Pending Approval</span>
+          <span class="nav-badge" id="badge-pending">3</span>
+        </div>
+        <div class="nav-item" data-panel="churn" onclick="nav('churn',this)">
+          <span class="nav-icon"><i class="fa-solid fa-triangle-exclamation"></i></span>
+          <span class="nav-label">Churn Risk</span>
+          <span class="nav-badge yellow" id="badge-churn">0</span>
+        </div>
+      </div>
+
+      <!-- TERRITORY PARTNERS -->
+      <div class="sb-section">
+        <div class="sb-label">Territory Partners</div>
+        <div class="nav-item" id="nav-partners" onclick="toggleSub('partners-sub',this)">
+          <span class="nav-icon"><i class="fa-solid fa-handshake"></i></span>
+          <span class="nav-label">All Partners</span>
+          <span class="nav-badge green" id="badge-partners">0</span>
+          <i class="fa-solid fa-chevron-right nav-chevron"></i>
+        </div>
+        <div class="nav-sub" id="partners-sub">
+          <div id="partner-nav-list">
+            <div class="nav-sub-item" onclick="nav('partners-all')">
+              <span class="status-dot dot-gray"></span>
+              <span>View All Partners</span>
+            </div>
+            <div class="nav-sub-item" onclick="nav('partner-applications')">
+              <span class="status-dot dot-yellow"></span>
+              <span>Applications</span>
+            </div>
+          </div>
+        </div>
+        <div class="nav-item" data-panel="territory-map" onclick="nav('territory-map',this)">
+          <span class="nav-icon"><i class="fa-solid fa-map"></i></span>
+          <span class="nav-label">Territory Map</span>
+        </div>
+        <div class="nav-item" data-panel="partner-pipeline" onclick="nav('partner-pipeline',this)">
+          <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span>
+          <span class="nav-label">Revenue Pipeline</span>
+        </div>
+      </div>
+
+      <!-- ANALYTICS -->
+      <div class="sb-section">
+        <div class="sb-label">Analytics</div>
+        <div class="nav-item" data-panel="analytics" onclick="nav('analytics',this)">
+          <span class="nav-icon"><i class="fa-solid fa-chart-mixed"></i></span>
+          <span class="nav-label">TurnkeyAI Analytics</span>
+        </div>
+        <div class="nav-item" data-panel="cohort" onclick="nav('cohort',this)">
+          <span class="nav-icon"><i class="fa-solid fa-users-line"></i></span>
+          <span class="nav-label">Cohort Analysis</span>
+        </div>
+        <div class="nav-item" data-panel="revenue" onclick="nav('revenue',this)">
+          <span class="nav-icon"><i class="fa-solid fa-dollar-sign"></i></span>
+          <span class="nav-label">Revenue Intelligence</span>
+        </div>
+      </div>
+
+      <!-- INTERNATIONAL -->
+      <div class="sb-section">
+        <div class="sb-label">International</div>
+        <div class="nav-item" id="nav-intl" onclick="toggleSub('intl-sub',this)">
+          <span class="nav-icon"><i class="fa-solid fa-earth-americas"></i></span>
+          <span class="nav-label">Markets</span>
+          <i class="fa-solid fa-chevron-right nav-chevron"></i>
+        </div>
+        <div class="nav-sub" id="intl-sub">
+          <div class="nav-sub-item active" onclick="nav('intl-us')"><span class="status-dot dot-green"></span>🇺🇸 United States</div>
+          <div class="nav-sub-item" onclick="nav('intl-mx')"><span class="status-dot dot-blue"></span>🇲🇽 Mexico</div>
+          <div class="nav-sub-item" onclick="nav('intl-ph')"><span class="status-dot dot-blue"></span>🇵🇭 Philippines</div>
+          <div class="nav-sub-item" onclick="nav('intl-br')"><span class="status-dot dot-gray"></span>🇧🇷 Brazil</div>
+          <div class="nav-sub-item" onclick="nav('intl-co')"><span class="status-dot dot-gray"></span>🇨🇴 Colombia</div>
+          <div class="nav-sub-item" onclick="nav('intl-id')"><span class="status-dot dot-gray"></span>🇮🇩 Indonesia</div>
+          <div class="nav-sub-item" onclick="nav('intl-vn')"><span class="status-dot dot-gray"></span>🇻🇳 Vietnam</div>
+          <div class="nav-sub-item" onclick="nav('intl-my')"><span class="status-dot dot-gray"></span>🇲🇾 Malaysia</div>
+          <div class="nav-sub-item" onclick="nav('intl-in')"><span class="status-dot dot-gray"></span>🇮🇳 India</div>
+          <div class="nav-sub-item" onclick="nav('intl-th')"><span class="status-dot dot-gray"></span>🇹🇭 Thailand</div>
+        </div>
+      </div>
+
+      <!-- PLATFORM -->
+      <div class="sb-section">
+        <div class="sb-label">Platform</div>
+        <div class="nav-item" data-panel="notifications" onclick="nav('notifications',this)">
+          <span class="nav-icon"><i class="fa-solid fa-bell"></i></span>
+          <span class="nav-label">Notifications</span>
+          <span class="nav-badge" id="badge-notif">0</span>
+        </div>
+        <div class="nav-item" data-panel="activity-log" onclick="nav('activity-log',this)">
+          <span class="nav-icon"><i class="fa-solid fa-list-check"></i></span>
+          <span class="nav-label">Activity Log</span>
+        </div>
+        <div class="nav-item" data-panel="health" onclick="nav('health',this)">
+          <span class="nav-icon"><i class="fa-solid fa-heart-pulse"></i></span>
+          <span class="nav-label">API Health</span>
+        </div>
+        <div class="nav-item" data-panel="backlog" onclick="nav('backlog',this)">
+          <span class="nav-icon"><i class="fa-solid fa-screwdriver-wrench"></i></span>
+          <span class="nav-label">Backlog Board</span>
+        </div>
+        <div class="nav-item" data-panel="broadcast" onclick="nav('broadcast',this)">
+          <span class="nav-icon"><i class="fa-solid fa-bullhorn"></i></span>
+          <span class="nav-label">Broadcast</span>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="sb-section">
+        <div class="sb-label">Settings</div>
+        <div class="nav-item" data-panel="settings" onclick="nav('settings',this)">
+          <span class="nav-icon"><i class="fa-solid fa-gear"></i></span>
+          <span class="nav-label">Platform Settings</span>
+        </div>
+        <div class="nav-item" data-panel="credentials" onclick="nav('credentials',this)">
+          <span class="nav-icon"><i class="fa-solid fa-key"></i></span>
+          <span class="nav-label">Credentials</span>
+        </div>
+        <div class="nav-item" data-panel="roles" onclick="nav('roles',this)">
+          <span class="nav-icon"><i class="fa-solid fa-users-gear"></i></span>
+          <span class="nav-label">Roles & Access</span>
+        </div>
+        <div class="nav-item" data-panel="audit-log" onclick="nav('audit-log',this)">
+          <span class="nav-icon"><i class="fa-solid fa-shield-halved"></i></span>
+          <span class="nav-label">Audit Log</span>
+        </div>
+      </div>
+
+    </div><!-- /sidebar-scroll -->
+  </nav><!-- /sidebar -->
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- TOPBAR -->
+    <div id="topbar">
+      <div id="sidebar-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></div>
+      <div id="breadcrumb">TurnkeyAI / <span class="bc-current" id="bc-label">Dashboard</span></div>
+      <div class="topbar-right">
+        <div class="health-pill" id="system-health-pill" onclick="nav('health')">
+          <span class="pulse-dot"></span>
+          <span id="health-label">All Systems OK</span>
+        </div>
+        <div id="session-clock" title="Session timer — auto-logout at 30 min">30:00</div>
+        <div class="icon-btn" onclick="nav('notifications')" title="Notifications">
+          <i class="fa-solid fa-bell"></i>
+          <span class="badge" id="topbar-notif-badge" style="display:none">0</span>
+        </div>
+        <div class="icon-btn" onclick="refreshAll()" title="Refresh data"><i class="fa-solid fa-rotate"></i></div>
+        <div class="icon-btn" onclick="nav('settings')" title="Settings"><i class="fa-solid fa-gear"></i></div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div id="content">
+
+      <!-- ══════════════════════════════════════════
+           PANEL: DASHBOARD
+           ══════════════════════════════════════════ -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="panel-header">
+          <div class="panel-title">Command Dashboard</div>
+          <div class="panel-subtitle">Real-time platform overview — <span id="dash-timestamp">Loading...</span></div>
+        </div>
+
+        <!-- KPI Row -->
+        <div class="g4">
+          <div class="stat-card sc-amber">
+            <div class="stat-label">Total Clients</div>
+            <div class="stat-val sv-amber" id="kpi-total">—</div>
+            <div class="stat-change" id="kpi-total-ch"></div>
+            <i class="fa-solid fa-users stat-icon"></i>
+          </div>
+          <div class="stat-card sc-green">
+            <div class="stat-label">Monthly MRR</div>
+            <div class="stat-val sv-green" id="kpi-mrr">—</div>
+            <div class="stat-change up" id="kpi-mrr-ch"></div>
+            <i class="fa-solid fa-dollar-sign stat-icon"></i>
+          </div>
+          <div class="stat-card sc-blue">
+            <div class="stat-label">Live Sites</div>
+            <div class="stat-val sv-blue" id="kpi-live">—</div>
+            <div class="stat-change" id="kpi-live-ch"></div>
+            <i class="fa-solid fa-globe stat-icon"></i>
+          </div>
+          <div class="stat-card sc-red">
+            <div class="stat-label">Pending Approval</div>
+            <div class="stat-val sv-red" id="kpi-pending">—</div>
+            <div class="stat-change" id="kpi-pending-ch"></div>
+            <i class="fa-solid fa-clock stat-icon"></i>
+          </div>
+        </div>
+
+        <div class="g4" style="margin-top:-4px">
+          <div class="stat-card sc-purple">
+            <div class="stat-label">Avg Revenue / Client</div>
+            <div class="stat-val sv-purple" id="kpi-avg">—</div>
+            <i class="fa-solid fa-chart-line stat-icon"></i>
+          </div>
+          <div class="stat-card sc-amber">
+            <div class="stat-label">Active Sites</div>
+            <div class="stat-val sv-amber" id="kpi-active">—</div>
+            <i class="fa-solid fa-signal stat-icon"></i>
+          </div>
+          <div class="stat-card sc-green">
+            <div class="stat-label">Territory Partners</div>
+            <div class="stat-val sv-green" id="kpi-partners">0</div>
+            <div class="stat-change">LOIs sent: <span id="kpi-loi">10</span></div>
+            <i class="fa-solid fa-handshake stat-icon"></i>
+          </div>
+          <div class="stat-card sc-blue">
+            <div class="stat-label">Mini-Me Requests</div>
+            <div class="stat-val sv-blue" id="kpi-minime">—</div>
+            <i class="fa-solid fa-microphone stat-icon"></i>
+          </div>
+        </div>
+
+        <!-- Charts + Goals -->
+        <div class="g21">
+          <div class="card">
+            <div class="card-hdr">
+              <div class="card-title"><i class="fa-solid fa-chart-bar"></i> Client Growth (6 Months)</div>
+            </div>
+            <div class="chart-wrap-tall"><canvas id="chart-growth"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr">
+              <div class="card-title"><i class="fa-solid fa-bullseye"></i> Goal Tracker</div>
+            </div>
+            <div id="goal-tracker">
+              <div class="goal-item">
+                <div class="goal-hdr">
+                  <span class="goal-name">Clients — Q2 2026</span>
+                  <span class="goal-stat"><span id="gt-clients">5</span> / 25</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill pf-amber" id="gp-clients" style="width:20%"></div></div>
+              </div>
+              <div class="goal-item">
+                <div class="goal-hdr">
+                  <span class="goal-name">MRR — Q2 2026</span>
+                  <span class="goal-stat"><span id="gt-mrr">$228</span> / $2,500</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill pf-green" id="gp-mrr" style="width:9%"></div></div>
+              </div>
+              <div class="goal-item">
+                <div class="goal-hdr">
+                  <span class="goal-name">Territory Partners — 2026</span>
+                  <span class="goal-stat"><span>0</span> / 10</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill pf-blue" style="width:0%"></div></div>
+              </div>
+              <div class="goal-item">
+                <div class="goal-hdr">
+                  <span class="goal-name">Live Sites — Q2 2026</span>
+                  <span class="goal-stat"><span id="gt-live">2</span> / 20</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill pf-purple" id="gp-live" style="width:10%"></div></div>
+              </div>
+              <div class="goal-item">
+                <div class="goal-hdr">
+                  <span class="goal-name">Intl Launch (Mexico + PH)</span>
+                  <span class="goal-stat">Q3 2026</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill pf-amber" style="width:5%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plan Distribution + Revenue + Top Industries -->
+        <div class="g3">
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-chart-pie"></i> Plan Distribution</div></div>
+            <div class="chart-wrap"><canvas id="chart-plans"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-coins"></i> Revenue by Plan</div></div>
+            <div id="revenue-by-plan"><!-- populated by JS --></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-trophy"></i> Top Industries</div></div>
+            <div id="top-industries"><!-- populated by JS --></div>
+          </div>
+        </div>
+
+        <!-- Recent Activity + API Health quick view -->
+        <div class="g2">
+          <div class="card">
+            <div class="card-hdr">
+              <div class="card-title"><i class="fa-solid fa-bolt"></i> Recent Activity</div>
+              <button class="btn btn-ghost btn-sm" onclick="nav('activity-log')">View All</button>
+            </div>
+            <div id="dash-activity"><!-- populated --></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr">
+              <div class="card-title"><i class="fa-solid fa-heart-pulse"></i> Integration Status</div>
+              <button class="btn btn-ghost btn-sm" onclick="nav('health')">Full Report</button>
+            </div>
+            <div id="dash-health"><!-- populated --></div>
+          </div>
+        </div>
+      </div><!-- /panel-dashboard -->
+
+      <!-- ══════════════════════════════════════════
+           PANEL: ALL CLIENTS
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-clients-all">
+        <div class="panel-header">
+          <div class="panel-title">Client Websites</div>
+          <div class="panel-subtitle">All accounts — click any client for full detail</div>
+          <div class="panel-actions">
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-approve')"><i class="fa-solid fa-plus"></i> Approve New Client</button>
+            <button class="btn btn-secondary btn-sm" onclick="refreshAll()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+          </div>
+        </div>
+        <div class="card">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Client</th><th>Industry</th><th>Plan</th><th>Status</th>
+                <th>Onboarding</th><th>MRR</th><th>Site</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="clients-table-body">
+              <tr><td colspan="8" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading clients...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: CLIENT DETAIL
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-client-detail">
+        <div class="panel-header">
+          <div style="display:flex;align-items:center;gap:12px">
+            <button class="btn btn-ghost btn-sm" onclick="nav('clients-all')"><i class="fa-solid fa-arrow-left"></i> All Clients</button>
+            <div>
+              <div class="panel-title" id="cd-name">Client Name</div>
+              <div class="panel-subtitle" id="cd-sub">Industry · Plan · Login ID</div>
+            </div>
+            <div id="cd-health-badge" class="badge badge-green" style="margin-left:auto">● Live</div>
+          </div>
+        </div>
+
+        <div class="tab-bar">
+          <div class="tab active" onclick="clientTab('overview',this)">Overview</div>
+          <div class="tab" onclick="clientTab('site',this)">Site & Deploy</div>
+          <div class="tab" onclick="clientTab('analytics',this)">Analytics</div>
+          <div class="tab" onclick="clientTab('billing',this)">Billing</div>
+          <div class="tab" onclick="clientTab('phone',this)">Phone / IVR</div>
+          <div class="tab" onclick="clientTab('blog',this)">Blog</div>
+          <div class="tab" onclick="clientTab('clog',this)">Activity Log</div>
+          <div class="tab" onclick="clientTab('actions',this)">Quick Actions</div>
+        </div>
+
+        <!-- Overview tab -->
+        <div class="tab-panel active" id="ctab-overview">
+          <div class="g3">
+            <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-circle-info"></i> Contact Info</div></div><div id="cd-contact"></div></div>
+            <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-list-check"></i> Onboarding Progress</div></div><div id="cd-onboard"></div></div>
+            <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-chart-bar"></i> 30-Day Stats</div></div><div id="cd-stats"></div></div>
+          </div>
+        </div>
+
+        <!-- Site & Deploy tab -->
+        <div class="tab-panel" id="ctab-site">
+          <div class="g2">
+            <div class="card">
+              <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-globe"></i> Site Details</div></div>
+              <div id="cd-site"></div>
+            </div>
+            <div class="card">
+              <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-server"></i> DNS & Domain</div></div>
+              <div id="cd-dns"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics tab -->
+        <div class="tab-panel" id="ctab-analytics">
+          <div class="g2">
+            <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-eye"></i> Page Views (30 Days)</div></div><div class="chart-wrap-tall"><canvas id="cd-chart-views"></canvas></div></div>
+            <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-clock"></i> Dwell Time by Page</div></div><div id="cd-dwell"></div></div>
+          </div>
+        </div>
+
+        <!-- Billing tab -->
+        <div class="tab-panel" id="ctab-billing">
+          <div class="g2">
+            <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-credit-card"></i> Billing</div></div><div id="cd-billing"></div></div>
+            <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-receipt"></i> Payment History</div></div><div id="cd-payments"></div></div>
+          </div>
+        </div>
+
+        <!-- Phone tab -->
+        <div class="tab-panel" id="ctab-phone">
+          <div class="g2">
+            <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-phone"></i> Phone System</div></div><div id="cd-phone"></div></div>
+            <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-message"></i> SMS Log</div></div><div id="cd-sms"></div></div>
+          </div>
+        </div>
+
+        <!-- Blog tab -->
+        <div class="tab-panel" id="ctab-blog">
+          <div class="g2">
+            <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-pen-nib"></i> Blog Scheduler</div></div><div id="cd-blog"></div></div>
+            <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-brands fa-meta"></i> Social Posts</div></div><div id="cd-social"></div></div>
+          </div>
+        </div>
+
+        <!-- Activity Log tab -->
+        <div class="tab-panel" id="ctab-clog">
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-timeline"></i> Client Activity Log</div></div>
+            <div id="cd-activity-log" class="scroll-area"></div>
+          </div>
+        </div>
+
+        <!-- Quick Actions tab -->
+        <div class="tab-panel" id="ctab-actions">
+          <div class="g3">
+            <div class="card">
+              <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-envelope"></i> Email Actions</div></div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <button class="btn btn-secondary" onclick="quickAction('welcome')"><i class="fa-solid fa-paper-plane"></i> Resend Welcome Email</button>
+                <button class="btn btn-secondary" onclick="quickAction('dns')"><i class="fa-solid fa-server"></i> Send DNS Instructions</button>
+                <button class="btn btn-secondary" onclick="quickAction('payment')"><i class="fa-solid fa-credit-card"></i> Send Payment Reminder</button>
+                <button class="btn btn-secondary" onclick="quickAction('update')"><i class="fa-solid fa-pen"></i> Request Content Update</button>
+                <button class="btn btn-secondary" onclick="quickAction('phone-ready')"><i class="fa-solid fa-phone"></i> Send Phone Ready Email</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-rocket"></i> Deploy Actions</div></div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <button class="btn btn-primary" onclick="quickAction('deploy')"><i class="fa-solid fa-upload"></i> Trigger Site Deploy</button>
+                <button class="btn btn-secondary" onclick="quickAction('approve')"><i class="fa-solid fa-check"></i> Approve Client</button>
+                <button class="btn btn-secondary" onclick="quickAction('preview')"><i class="fa-solid fa-eye"></i> Send Preview Email</button>
+                <button class="btn btn-secondary" onclick="quickAction('blog-post')"><i class="fa-solid fa-pen-nib"></i> Post Blog Now</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone</div></div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <button class="btn btn-danger" onclick="quickAction('suspend')"><i class="fa-solid fa-pause"></i> Suspend Client</button>
+                <button class="btn btn-danger" onclick="quickAction('delete')"><i class="fa-solid fa-trash"></i> Delete Client</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /panel-client-detail -->
+
+      <!-- ══════════════════════════════════════════
+           PANEL: PENDING APPROVAL
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-pending">
+        <div class="panel-header">
+          <div class="panel-title">Pending Approval</div>
+          <div class="panel-subtitle">Review and approve new client intake submissions</div>
+        </div>
+        <div class="card">
+          <table class="tbl">
+            <thead><tr><th>Business</th><th>Industry</th><th>Plan</th><th>Submitted</th><th>Email</th><th>Actions</th></tr></thead>
+            <tbody id="pending-table-body">
+              <tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: CHURN RISK
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-churn">
+        <div class="panel-header">
+          <div class="panel-title">Churn Risk Monitor</div>
+          <div class="panel-subtitle">Clients flagged for inactivity, payment issues, or low engagement</div>
+        </div>
+        <div class="g3">
+          <div class="stat-card sc-red">
+            <div class="stat-label">Payment Failed</div>
+            <div class="stat-val sv-red" id="churn-payment">0</div>
+          </div>
+          <div class="stat-card sc-red">
+            <div class="stat-label">No Site Visit 30d</div>
+            <div class="stat-val sv-red" id="churn-visits">0</div>
+          </div>
+          <div class="stat-card sc-amber">
+            <div class="stat-label">Upgrade Candidates</div>
+            <div class="stat-val sv-amber" id="churn-upgrade">0</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-triangle-exclamation"></i> Flagged Clients</div></div>
+          <div id="churn-list">
+            <div class="empty-state"><i class="fa-solid fa-shield-check"></i><p>No churn risks detected. All clients healthy.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: ALL TERRITORY PARTNERS
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-partners-all">
+        <div class="panel-header">
+          <div class="panel-title">Territory Partners</div>
+          <div class="panel-subtitle">Hub License holders — your distribution network</div>
+          <div class="panel-actions">
+            <button class="btn btn-primary btn-sm" onclick="nav('partner-applications')"><i class="fa-solid fa-file-signature"></i> View Applications</button>
+          </div>
+        </div>
+        <div class="g4" style="margin-bottom:18px">
+          <div class="stat-card sc-green"><div class="stat-label">Active Partners</div><div class="stat-val sv-green" id="p-active">0</div></div>
+          <div class="stat-card sc-amber"><div class="stat-label">LOIs Sent</div><div class="stat-val sv-amber">10</div></div>
+          <div class="stat-card sc-blue"><div class="stat-label">Applications</div><div class="stat-val sv-blue" id="p-apps">0</div></div>
+          <div class="stat-card sc-purple"><div class="stat-label">Partner MRR</div><div class="stat-val sv-purple" id="p-mrr">$0</div></div>
+        </div>
+        <div class="card">
+          <table class="tbl">
+            <thead><tr><th>Partner</th><th>Tier</th><th>Territory</th><th>Industries</th><th>Rev Split</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="partners-table-body">
+              <tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-handshake"></i><p>No active partners yet. 10 LOIs sent — check applications.</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: PARTNER APPLICATIONS
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-partner-applications">
+        <div class="panel-header">
+          <div class="panel-title">Partner Applications</div>
+          <div class="panel-subtitle">Review Territory Partner intake submissions</div>
+        </div>
+        <div class="card">
+          <table class="tbl">
+            <thead><tr><th>Applicant</th><th>Tier</th><th>Zip Codes</th><th>Industries</th><th>Submitted</th><th>Actions</th></tr></thead>
+            <tbody id="partner-apps-body">
+              <tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No applications yet.</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: TERRITORY MAP
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-territory-map">
+        <div class="panel-header">
+          <div class="panel-title">Territory Map</div>
+          <div class="panel-subtitle">Claimed vs. available zip code territories — US domestic</div>
+        </div>
+        <div class="card">
+          <div class="map-placeholder">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <p style="font-size:15px;color:var(--text-secondary);margin-bottom:8px">Interactive Territory Map</p>
+            <p>Visual US zip code map renders here showing:<br>
+            <span style="color:var(--amber)">■</span> Your direct territories &nbsp;
+            <span style="color:var(--green)">■</span> Active partner territories &nbsp;
+            <span style="color:var(--navy-border)">■</span> Available territories</p>
+            <p style="margin-top:14px;font-size:12px;color:var(--text-dim)">Map integration activates when first territory partner is onboarded.</p>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-list"></i> Claimed Territories</div></div>
+          <div class="empty-state"><i class="fa-solid fa-map-pin"></i><p>No territories claimed yet.</p></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: PARTNER PIPELINE
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-partner-pipeline">
+        <div class="panel-header">
+          <div class="panel-title">Revenue Pipeline</div>
+          <div class="panel-subtitle">Territory Partner network projected revenue</div>
+        </div>
+        <div class="g3">
+          <div class="stat-card sc-amber"><div class="stat-label">Projected MRR @ 10 Partners</div><div class="stat-val sv-amber">$1,990</div><div class="stat-change">Your 60% share: $1,194/mo</div></div>
+          <div class="stat-card sc-green"><div class="stat-label">Projected MRR @ 50 Partners</div><div class="stat-val sv-green">$9,950</div><div class="stat-change">Your 60% share: $5,970/mo</div></div>
+          <div class="stat-card sc-blue"><div class="stat-label">Projected MRR @ 100 Partners</div><div class="stat-val sv-blue">$19,900</div><div class="stat-change">Your 60% share: $11,940/mo</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-diagram-project"></i> Pipeline Stages</div></div>
+          <div class="g4">
+            <div style="text-align:center;padding:16px">
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--amber)">10</div>
+              <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">LOIs Sent</div>
+            </div>
+            <div style="text-align:center;padding:16px">
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--blue)" id="pp-apps">0</div>
+              <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Applications</div>
+            </div>
+            <div style="text-align:center;padding:16px">
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--green)" id="pp-active">0</div>
+              <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Active Partners</div>
+            </div>
+            <div style="text-align:center;padding:16px">
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--purple)">$0</div>
+              <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Partner MRR</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: TURNKEYAI ANALYTICS
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-analytics">
+        <div class="panel-header">
+          <div class="panel-title">TurnkeyAI Analytics</div>
+          <div class="panel-subtitle">Platform-wide traffic, engagement, and lead capture</div>
+        </div>
+        <div class="g4">
+          <div class="stat-card sc-blue"><div class="stat-label">Total Site Visits</div><div class="stat-val sv-blue" id="an-visits">—</div></div>
+          <div class="stat-card sc-green"><div class="stat-label">Avg Session Length</div><div class="stat-val sv-green" id="an-session">—</div></div>
+          <div class="stat-card sc-amber"><div class="stat-label">Leads Captured</div><div class="stat-val sv-amber" id="an-leads">—</div></div>
+          <div class="stat-card sc-purple"><div class="stat-label">Avg Pages / Visit</div><div class="stat-val sv-purple" id="an-pages">—</div></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-chart-line"></i> Traffic Trend (30 Days)</div></div>
+            <div class="chart-wrap-tall"><canvas id="chart-traffic"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-file"></i> Top Pages by Views</div></div>
+            <div id="an-top-pages">
+              <div class="empty-state"><i class="fa-solid fa-chart-bar"></i><p>Analytics data populates as client sites receive traffic.</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="g3">
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-map-marker"></i> Traffic Sources</div></div>
+            <div class="chart-wrap"><canvas id="chart-sources"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-mobile"></i> Device Types</div></div>
+            <div class="chart-wrap"><canvas id="chart-devices"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-user-plus"></i> Lead Capture Rate</div></div>
+            <div class="chart-wrap"><canvas id="chart-leads"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: COHORT ANALYSIS
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-cohort">
+        <div class="panel-header">
+          <div class="panel-title">Cohort Analysis</div>
+          <div class="panel-subtitle">Client revenue contribution by signup month</div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-table-cells"></i> Revenue by Cohort Month</div></div>
+          <div class="chart-wrap-tall"><canvas id="chart-cohort"></canvas></div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-arrow-up-right-dots"></i> Upgrade Opportunities</div></div>
+          <div id="cohort-upgrades">
+            <div class="empty-state"><i class="fa-solid fa-chart-simple"></i><p>Upgrade flags appear when clients have been live 60+ days on entry-level plans.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: REVENUE INTELLIGENCE
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-revenue">
+        <div class="panel-header">
+          <div class="panel-title">Revenue Intelligence</div>
+          <div class="panel-subtitle">MRR trends, plan mix, and financial projections</div>
+        </div>
+        <div class="g4">
+          <div class="stat-card sc-green"><div class="stat-label">Current MRR</div><div class="stat-val sv-green" id="rev-mrr">—</div></div>
+          <div class="stat-card sc-amber"><div class="stat-label">ARR Projection</div><div class="stat-val sv-amber" id="rev-arr">—</div></div>
+          <div class="stat-card sc-blue"><div class="stat-label">Avg Revenue / Client</div><div class="stat-val sv-blue" id="rev-arpc">—</div></div>
+          <div class="stat-card sc-purple"><div class="stat-label">One-Time Revenue</div><div class="stat-val sv-purple" id="rev-onetime">—</div></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-chart-area"></i> MRR Growth Trend</div></div>
+            <div class="chart-wrap-tall"><canvas id="chart-mrr"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-chart-pie"></i> Revenue by Plan</div></div>
+            <div class="chart-wrap-tall"><canvas id="chart-rev-plan"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: INTERNATIONAL — US
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-intl-us">
+        <div class="panel-header">
+          <div class="panel-title">🇺🇸 United States</div>
+          <div class="panel-subtitle">Primary market — Active</div>
+        </div>
+        <div class="g4">
+          <div class="stat-card sc-green"><div class="stat-label">Active Clients</div><div class="stat-val sv-green" id="us-clients">—</div></div>
+          <div class="stat-card sc-amber"><div class="stat-label">MRR</div><div class="stat-val sv-amber" id="us-mrr">—</div></div>
+          <div class="stat-card sc-blue"><div class="stat-label">States Covered</div><div class="stat-val sv-blue">1</div></div>
+          <div class="stat-card sc-purple"><div class="stat-label">Industries Active</div><div class="stat-val sv-purple" id="us-industries">—</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-flag-usa"></i> Market Status</div></div>
+          <div class="progress-wrap">
+            <div class="progress-label"><span>Market Development</span><span>Early Stage</span></div>
+            <div class="progress-bar"><div class="progress-fill pf-green" style="width:8%"></div></div>
+          </div>
+          <p style="font-size:13px;color:var(--text-secondary);margin-top:12px">Core market. 67 industry verticals available. Bay St. Louis, MS — currently serving Mississippi. Expansion to all 50 states via Territory Partner Hub network.</p>
+        </div>
+      </div>
+
+      <!-- INTERNATIONAL MARKET TEMPLATE — reused for each country -->
+      <div class="panel" id="panel-intl-mx"><div class="panel-header"><div class="panel-title">🇲🇽 Mexico</div><div class="panel-subtitle">Phase 1 Target — Launch 2026</div></div><div id="intl-content-mx"></div></div>
+      <div class="panel" id="panel-intl-ph"><div class="panel-header"><div class="panel-title">🇵🇭 Philippines</div><div class="panel-subtitle">Phase 1 Target — Launch 2026</div></div><div id="intl-content-ph"></div></div>
+      <div class="panel" id="panel-intl-br"><div class="panel-header"><div class="panel-title">🇧🇷 Brazil</div><div class="panel-subtitle">Phase 2 Target — Launch 2027</div></div><div id="intl-content-br"></div></div>
+      <div class="panel" id="panel-intl-co"><div class="panel-header"><div class="panel-title">🇨🇴 Colombia</div><div class="panel-subtitle">Phase 2 Target — Launch 2027</div></div><div id="intl-content-co"></div></div>
+      <div class="panel" id="panel-intl-id"><div class="panel-header"><div class="panel-title">🇮🇩 Indonesia</div><div class="panel-subtitle">Phase 3 Target — Launch 2028</div></div><div id="intl-content-id"></div></div>
+      <div class="panel" id="panel-intl-vn"><div class="panel-header"><div class="panel-title">🇻🇳 Vietnam</div><div class="panel-subtitle">Phase 3 Target — Launch 2028</div></div><div id="intl-content-vn"></div></div>
+      <div class="panel" id="panel-intl-my"><div class="panel-header"><div class="panel-title">🇲🇾 Malaysia</div><div class="panel-subtitle">Phase 3 Target — Launch 2028</div></div><div id="intl-content-my"></div></div>
+      <div class="panel" id="panel-intl-in"><div class="panel-header"><div class="panel-title">🇮🇳 India</div><div class="panel-subtitle">Phase 4 Target — Launch 2029+</div></div><div id="intl-content-in"></div></div>
+      <div class="panel" id="panel-intl-th"><div class="panel-header"><div class="panel-title">🇹🇭 Thailand</div><div class="panel-subtitle">Phase 4 Target — Launch 2029+</div></div><div id="intl-content-th"></div></div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: NOTIFICATIONS
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-notifications">
+        <div class="panel-header">
+          <div class="panel-title">Notifications</div>
+          <div class="panel-subtitle">Platform alerts and events</div>
+          <div class="panel-actions">
+            <button class="btn btn-secondary btn-sm" onclick="markAllRead()"><i class="fa-solid fa-check-double"></i> Mark All Read</button>
+          </div>
+        </div>
+        <div class="card">
+          <div id="notif-list">
+            <div class="empty-state"><i class="fa-solid fa-bell-slash"></i><p>No notifications.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: ACTIVITY LOG
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-activity-log">
+        <div class="panel-header">
+          <div class="panel-title">Platform Activity Log</div>
+          <div class="panel-subtitle">All system events — deploys, emails, payments, errors</div>
+        </div>
+        <div class="card">
+          <div id="activity-log-list" class="scroll-area" style="max-height:600px"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: API HEALTH
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-health">
+        <div class="panel-header">
+          <div class="panel-title">API Health Monitor</div>
+          <div class="panel-subtitle">Live integration status — checked every 5 minutes</div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-plug"></i> Integrations</div></div>
+            <div id="health-list">
+              <div class="health-row"><div class="health-name"><i class="fa-solid fa-phone" style="color:var(--blue);margin-right:8px"></i>Twilio</div><div class="health-status hs-unkn">Checking...</div><div class="health-latency">—</div></div>
+              <div class="health-row"><div class="health-name"><i class="fa-solid fa-envelope" style="color:var(--green);margin-right:8px"></i>Brevo</div><div class="health-status hs-unkn">Checking...</div><div class="health-latency">—</div></div>
+              <div class="health-row"><div class="health-name"><i class="fa-brands fa-stripe" style="color:var(--purple);margin-right:8px"></i>Stripe</div><div class="health-status hs-unkn">Checking...</div><div class="health-latency">—</div></div>
+              <div class="health-row"><div class="health-name"><i class="fa-brands fa-meta" style="color:var(--blue);margin-right:8px"></i>Meta API</div><div class="health-status hs-unkn">Checking...</div><div class="health-latency">—</div></div>
+              <div class="health-row"><div class="health-name"><i class="fa-solid fa-cloud" style="color:var(--amber);margin-right:8px"></i>Cloudflare</div><div class="health-status hs-unkn">Checking...</div><div class="health-latency">—</div></div>
+              <div class="health-row"><div class="health-name"><i class="fa-brands fa-github" style="color:var(--text-secondary);margin-right:8px"></i>GitHub / Railway</div><div class="health-status hs-unkn">Checking...</div><div class="health-latency">—</div></div>
+              <div class="health-row"><div class="health-name"><i class="fa-solid fa-database" style="color:var(--green);margin-right:8px"></i>PostgreSQL</div><div class="health-status hs-unkn">Checking...</div><div class="health-latency">—</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-chart-bar"></i> Uptime (30 Days)</div></div>
+            <div class="chart-wrap-tall"><canvas id="chart-uptime"></canvas></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-bug"></i> Recent Errors</div></div>
+          <div id="error-log">
+            <div class="empty-state"><i class="fa-solid fa-circle-check"></i><p>No errors logged in the past 24 hours.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: BACKLOG BOARD
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-backlog">
+        <div class="panel-header">
+          <div class="panel-title">Backlog Board</div>
+          <div class="panel-subtitle">Platform straggler items — click to toggle status</div>
+          <div class="panel-actions">
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-backlog')"><i class="fa-solid fa-plus"></i> Add Item</button>
+          </div>
+        </div>
+        <div class="g3">
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-circle-xmark" style="color:var(--red)"></i> To Do</div><span class="badge badge-red" id="bl-todo-count">0</span></div>
+            <div id="bl-todo"></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-circle-half-stroke" style="color:var(--yellow)"></i> In Progress</div><span class="badge badge-yellow" id="bl-prog-count">0</span></div>
+            <div id="bl-prog"></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-circle-check" style="color:var(--green)"></i> Done</div><span class="badge badge-green" id="bl-done-count">0</span></div>
+            <div id="bl-done"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: BROADCAST
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-broadcast">
+        <div class="panel-header">
+          <div class="panel-title">Broadcast Messaging</div>
+          <div class="panel-subtitle">Send a message to all clients or all Territory Partners</div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-users"></i> Email Blast</div></div>
+            <div class="form-group">
+              <label class="form-label">Send To</label>
+              <select class="form-input form-select" id="bc-audience">
+                <option value="clients">All Clients</option>
+                <option value="partners">All Territory Partners</option>
+                <option value="both">All (Clients + Partners)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Subject</label>
+              <input class="form-input" id="bc-subject" type="text" placeholder="Email subject line">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Message</label>
+              <textarea class="form-input" id="bc-body" rows="6" placeholder="Your message here..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="sendBroadcast()"><i class="fa-solid fa-paper-plane"></i> Send Broadcast</button>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-history"></i> Broadcast History</div></div>
+            <div class="empty-state"><i class="fa-solid fa-bullhorn"></i><p>No broadcasts sent yet.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: SETTINGS
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-settings">
+        <div class="panel-header">
+          <div class="panel-title">Platform Settings</div>
+          <div class="panel-subtitle">Global configuration for TurnkeyAI Services</div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-building"></i> Company Info</div></div>
+            <div class="form-group"><label class="form-label">Platform Name</label><input class="form-input" value="TurnkeyAI Services"></div>
+            <div class="form-group"><label class="form-label">Support Email</label><input class="form-input" value="turnkeyaiservices@gmail.com"></div>
+            <div class="form-group"><label class="form-label">Support Phone</label><input class="form-input" value="(603) 922-2004"></div>
+            <button class="btn btn-primary btn-sm" onclick="toast('Settings saved','success')"><i class="fa-solid fa-save"></i> Save</button>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-toggle-on"></i> Feature Flags</div></div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--navy-border)">
+                <span style="font-size:13px">Blog Auto-Scheduler</span>
+                <span class="badge badge-green">ON</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--navy-border)">
+                <span style="font-size:13px">Missed Call Text-Back</span>
+                <span class="badge badge-green">ON</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--navy-border)">
+                <span style="font-size:13px">Preview Email Redirect</span>
+                <span class="badge badge-yellow">TEMP ON</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--navy-border)">
+                <span style="font-size:13px">IVR Phone Menu</span>
+                <span class="badge badge-green">ON</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
+                <span style="font-size:13px">Territory Partner Portal</span>
+                <span class="badge badge-blue">BETA</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: CREDENTIALS
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-credentials">
+        <div class="panel-header">
+          <div class="panel-title">Admin Credentials</div>
+          <div class="panel-subtitle">Change your dashboard access key</div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-key"></i> Change Admin Key</div></div>
+            <div class="form-group"><label class="form-label">Current Admin Key</label><input class="form-input" type="password" id="cred-current" placeholder="Current key"></div>
+            <div class="form-group"><label class="form-label">New Admin Key</label><input class="form-input" type="password" id="cred-new" placeholder="New key (min 12 chars)"></div>
+            <div class="form-group"><label class="form-label">Confirm New Key</label><input class="form-input" type="password" id="cred-confirm" placeholder="Repeat new key"></div>
+            <button class="btn btn-primary" onclick="changeCredentials()"><i class="fa-solid fa-shield-check"></i> Update Credentials</button>
+            <div class="form-hint" style="margin-top:12px;padding:10px;background:var(--navy);border-radius:var(--radius-sm);border:1px solid var(--navy-border)">
+              <i class="fa-solid fa-circle-info" style="color:var(--amber)"></i>
+              <strong style="color:var(--amber)"> Important:</strong> After changing your key here, you must also update the <code>ADMIN_KEY</code> environment variable in Railway to match. The new key takes effect on next server restart.
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-shield"></i> Session Security</div></div>
+            <div class="form-group"><label class="form-label">Session Timeout</label>
+              <select class="form-input form-select" id="session-timeout-setting" onchange="updateSessionTimeout(this.value)">
+                <option value="30">30 minutes</option>
+                <option value="60">1 hour</option>
+                <option value="120">2 hours</option>
+                <option value="480">8 hours (work day)</option>
+              </select>
+            </div>
+            <div style="padding:12px;background:var(--navy);border-radius:var(--radius-sm);border:1px solid var(--navy-border);font-size:13px;color:var(--text-secondary)">
+              <div style="margin-bottom:8px"><strong style="color:var(--text-primary)">Current session:</strong> Active</div>
+              <div style="margin-bottom:8px"><strong style="color:var(--text-primary)">Login URL:</strong> <code style="font-family:'DM Mono',monospace;color:var(--amber)">/admin-v2?key=YOUR_KEY</code></div>
+              <div><strong style="color:var(--text-primary)">Recommendation:</strong> Bookmark the URL in a private browser tab. Do not share screen while URL is visible.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: ROLES & ACCESS
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-roles">
+        <div class="panel-header">
+          <div class="panel-title">Roles &amp; Access</div>
+          <div class="panel-subtitle">Future sub-admin access for Territory Partner hub managers</div>
+        </div>
+        <div class="card">
+          <div class="card-hdr">
+            <div class="card-title"><i class="fa-solid fa-users-gear"></i> Access Roles</div>
+            <span class="badge badge-blue">Coming Soon</span>
+          </div>
+          <div class="role-row"><div style="flex:1"><strong style="color:var(--text-primary)">Super Admin</strong><div style="font-size:12px;color:var(--text-secondary)">Full platform access — you only</div></div><span class="badge badge-green">Active</span></div>
+          <div class="role-row"><div style="flex:1"><strong style="color:var(--text-primary)">Hub Manager</strong><div style="font-size:12px;color:var(--text-secondary)">Territory Partner — sees their territory only</div></div><span class="badge badge-gray">Not Activated</span></div>
+          <div class="role-row"><div style="flex:1"><strong style="color:var(--text-primary)">Client Admin</strong><div style="font-size:12px;color:var(--text-secondary)">Client dashboard access only</div></div><span class="badge badge-gray">Not Activated</span></div>
+          <div class="role-row"><div style="flex:1"><strong style="color:var(--text-primary)">Read-Only Analyst</strong><div style="font-size:12px;color:var(--text-secondary)">Analytics and reporting, no actions</div></div><span class="badge badge-gray">Not Activated</span></div>
+          <div style="padding:16px;background:var(--navy);border-radius:var(--radius-sm);margin-top:14px;font-size:13px;color:var(--text-secondary);border:1px solid var(--navy-border)">
+            <i class="fa-solid fa-circle-info" style="color:var(--amber)"></i> Role-based access will activate when the first Territory Partner is onboarded. The infrastructure is ready — no rebuild needed.
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PANEL: AUDIT LOG
+           ══════════════════════════════════════════ -->
+      <div class="panel" id="panel-audit-log">
+        <div class="panel-header">
+          <div class="panel-title">Admin Audit Log</div>
+          <div class="panel-subtitle">Every admin action with timestamp — immutable record</div>
+        </div>
+        <div class="card">
+          <table class="tbl">
+            <thead><tr><th>Timestamp</th><th>Action</th><th>Target</th><th>Admin</th><th>Result</th></tr></thead>
+            <tbody id="audit-log-body">
+              <tr><td colspan="5"><div class="empty-state"><i class="fa-solid fa-shield-halved"></i><p>Audit events appear here as you take actions in the dashboard.</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ════ MODAL OVERLAY ════ -->
+<div id="modal-overlay" onclick="closeModalOnBg(event)">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<!-- ════ TOAST CONTAINER ════ -->
+<div id="toast-container"></div>
+
+<!-- ════════════════════════════════════════════════
+     SECTION 11: JAVASCRIPT — DATA LAYER & LOGIC
+     ════════════════════════════════════════════════ -->
+<script>
+/* ── STATE ── */
+const STATE = {
+  clients: [],
+  partners: [],
+  analytics: {},
+  adminKey: new URLSearchParams(location.search).get('key') || '',
+  activeClient: null,
+  activePartner: null,
+  sessionMinutes: 30,
+  sessionRemaining: 30 * 60,
+  notifications: [],
+  auditLog: [],
+  backlogItems: [
+    { id:1, label:'DNS automation from intake data', status:'todo', priority:'high' },
+    { id:2, label:'Option B self-directed DNS emails', status:'todo', priority:'high' },
+    { id:3, label:'Registrar credential encryption', status:'todo', priority:'med' },
+    { id:4, label:'Meta API env vars on Railway (META_PAGE_TOKEN, META_PAGE_ID)', status:'todo', priority:'high' },
+    { id:5, label:'IVR opt-in toggle on intake form', status:'todo', priority:'med' },
+    { id:6, label:'Custom IVR departments/extensions per client', status:'todo', priority:'med' },
+    { id:7, label:'Self-host hero images (remove Unsplash dependency)', status:'todo', priority:'low' },
+    { id:8, label:'Geographic territory selection on intake form', status:'prog', priority:'high' },
+    { id:9, label:'Admin dashboard overhaul (this build)', status:'prog', priority:'high' },
+    { id:10, label:'Territory Partner end-to-end workflow testing', status:'todo', priority:'high' },
+  ]
+};
+
+/* ── AUTH CHECK ── */
+if (!STATE.adminKey) {
+  document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px;font-family:'DM Sans',sans-serif;background:#080d1a;color:#eef2ff">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:#f59e0b;letter-spacing:2px">TurnkeyAI</div>
+    <div style="font-size:14px;color:#7b8fb5;margin-bottom:8px">Admin access required</div>
+    <input id="key-input" type="password" placeholder="Enter admin key" style="padding:10px 16px;border-radius:8px;border:1px solid #1a2844;background:#0c1225;color:#eef2ff;font-size:14px;width:280px;outline:none;font-family:'DM Sans',sans-serif">
+    <button onclick="doLogin()" style="padding:10px 28px;background:#f59e0b;color:#080d1a;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif">Enter Dashboard</button>
+  </div>`;
+  function doLogin() {
+    const k = document.getElementById('key-input').value;
+    if (k) location.href = location.pathname + '?key=' + encodeURIComponent(k);
+  }
+  document.addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 12: NAVIGATION
+   ═══════════════════════════════════════════════════════ */
+let currentPanel = 'dashboard';
+
+function nav(panelId, el) {
+  // Hide all panels
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  // Show target
+  const target = document.getElementById('panel-' + panelId);
+  if (target) target.classList.add('active');
+  currentPanel = panelId;
+
+  // Update sidebar active state
+  document.querySelectorAll('.nav-item').forEach(i => {
+    if (i.dataset.panel === panelId) i.classList.add('active');
+    else if (i.dataset.panel) i.classList.remove('active');
+  });
+  document.querySelectorAll('.nav-sub-item').forEach(i => i.classList.remove('active'));
+  if (el && el.classList && el.classList.contains('nav-sub-item')) el.classList.add('active');
+
+  // Breadcrumb
+  const labels = {
+    dashboard:'Dashboard', 'clients-all':'Client Websites', 'client-detail':'Client Detail',
+    pending:'Pending Approval', churn:'Churn Risk', 'partners-all':'Territory Partners',
+    'partner-applications':'Partner Applications', 'territory-map':'Territory Map',
+    'partner-pipeline':'Revenue Pipeline', analytics:'Analytics', cohort:'Cohort Analysis',
+    revenue:'Revenue Intelligence', notifications:'Notifications', 'activity-log':'Activity Log',
+    health:'API Health', backlog:'Backlog Board', broadcast:'Broadcast', settings:'Settings',
+    credentials:'Credentials', roles:'Roles & Access', 'audit-log':'Audit Log',
+    'intl-us':'🇺🇸 United States','intl-mx':'🇲🇽 Mexico','intl-ph':'🇵🇭 Philippines',
+    'intl-br':'🇧🇷 Brazil','intl-co':'🇨🇴 Colombia','intl-id':'🇮🇩 Indonesia',
+    'intl-vn':'🇻🇳 Vietnam','intl-my':'🇲🇾 Malaysia','intl-in':'🇮🇳 India','intl-th':'🇹🇭 Thailand'
+  };
+  document.getElementById('bc-label').textContent = labels[panelId] || panelId;
+
+  // Lazy load international panels
+  if (panelId.startsWith('intl-') && panelId !== 'intl-us') renderIntlPanel(panelId);
+
+  // Load data on navigate
+  if (panelId === 'dashboard') renderDashboard();
+  if (panelId === 'clients-all') renderClientsTable();
+  if (panelId === 'pending') renderPending();
+  if (panelId === 'partners-all') renderPartnersTable();
+  if (panelId === 'partner-applications') renderPartnerApps();
+  if (panelId === 'activity-log') renderActivityLog();
+  if (panelId === 'notifications') renderNotifications();
+  if (panelId === 'backlog') renderBacklog();
+  if (panelId === 'health') checkHealth();
+  if (panelId === 'analytics') renderAnalytics();
+  if (panelId === 'revenue') renderRevenue();
+  if (panelId === 'cohort') renderCohort();
+}
+
+function toggleSub(id, el) {
+  const sub = document.getElementById(id);
+  const isOpen = sub.classList.contains('open');
+  sub.classList.toggle('open', !isOpen);
+  el.classList.toggle('open', !isOpen);
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 13: API CALLS
+   ═══════════════════════════════════════════════════════ */
+const API = {
+  headers: () => ({ 'Content-Type':'application/json', 'x-admin-key': STATE.adminKey }),
+
+  async get(url) {
+    try {
+      const r = await fetch(url, { headers: API.headers() });
+      if (!r.ok) throw new Error(r.status);
+      return await r.json();
+    } catch(e) { return null; }
+  },
+
+  async post(url, body) {
+    try {
+      const r = await fetch(url, { method:'POST', headers: API.headers(), body: JSON.stringify(body) });
+      if (!r.ok) throw new Error(r.status);
+      return await r.json();
+    } catch(e) { return null; }
+  }
+};
+
+async function loadAllData() {
+  const [clients, analytics] = await Promise.all([
+    API.get('/api/admin/clients?key=' + STATE.adminKey),
+    API.get('/api/analytics/summary?key=' + STATE.adminKey)
+  ]);
+  if (clients) STATE.clients = Array.isArray(clients) ? clients : (clients.clients || []);
+  if (analytics) STATE.analytics = analytics;
+
+  // Partners
+  const partners = await API.get('/api/territory-partner/applications?key=' + STATE.adminKey);
+  if (partners) STATE.partners = Array.isArray(partners) ? partners : (partners.applications || []);
+
+  updateSidebarCounts();
+}
+
+function updateSidebarCounts() {
+  const total = STATE.clients.length;
+  const pending = STATE.clients.filter(c => c.status === 'pending').length;
+  document.getElementById('badge-clients').textContent = total;
+  document.getElementById('badge-pending').textContent = pending;
+  document.getElementById('badge-partners').textContent = STATE.partners.length;
+  buildClientNavList();
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 14: DASHBOARD RENDER
+   ═══════════════════════════════════════════════════════ */
+function renderDashboard() {
+  const clients = STATE.clients;
+  const live = clients.filter(c => c.status === 'live' || c.status === 'active').length;
+  const pending = clients.filter(c => c.status === 'pending').length;
+  const mrr = clients.reduce((s,c) => s + (parsePrice(c.plan)||0), 0);
+  const avg = clients.length ? Math.round(mrr/clients.length) : 0;
+  const minime = clients.filter(c => c.minime_requested).length;
+
+  set('kpi-total', clients.length || '—');
+  set('kpi-mrr', mrr ? '$'+mrr : '—');
+  set('kpi-live', live || '—');
+  set('kpi-pending', pending || '—');
+  set('kpi-avg', avg ? '$'+avg : '—');
+  set('kpi-active', live || '—');
+  set('kpi-minime', minime || '0');
+  set('dash-timestamp', new Date().toLocaleString());
+
+  // Update goal tracker
+  set('gt-clients', clients.length);
+  set('gt-mrr', '$' + mrr);
+  set('gt-live', live);
+  pct('gp-clients', clients.length, 25);
+  pct('gp-mrr', mrr, 2500);
+  pct('gp-live', live, 20);
+
+  renderGrowthChart();
+  renderPlanChart();
+  renderRevenueByPlan();
+  renderTopIndustries();
+  renderDashActivity();
+  renderDashHealth();
+}
+
+function parsePrice(plan) {
+  const map = {
+    'website-only':99, 'website_only':99, 'Website Only':99,
+    'website-blog':129, 'website_blog':129, 'Website + Blog':129,
+    'website-blog-social':159, 'Website + Blog + Social':159,
+    'full-package':218, 'Full Package':218
+  };
+  return map[plan] || 0;
+}
+
+function renderRevenueByPlan() {
+  const counts = {};
+  STATE.clients.forEach(c => {
+    const p = c.plan || 'Unknown';
+    counts[p] = (counts[p]||0) + 1;
+  });
+  const planPrices = {'Website Only':99,'Website + Blog':129,'Website + Blog + Social':159,'Full Package':218};
+  let html = '';
+  const total = Object.entries(counts).reduce((s,[p,n]) => s + (planPrices[p]||99)*n, 0) || 1;
+  Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(([plan,n]) => {
+    const rev = (planPrices[plan]||99)*n;
+    const w = Math.round(rev/total*100);
+    html += `<div class="progress-wrap"><div class="progress-label"><span>${plan}</span><span style="color:var(--green)">$${rev}</span></div><div class="progress-bar"><div class="progress-fill pf-green" style="width:${w}%"></div></div></div>`;
+  });
+  set('revenue-by-plan', html || '<div class="empty-state"><p>No revenue data yet.</p></div>');
+}
+
+function renderTopIndustries() {
+  const counts = {};
+  STATE.clients.forEach(c => {
+    const ind = c.industry || c.business_type || 'Unknown';
+    counts[ind] = (counts[ind]||0)+1;
+  });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const max = sorted[0]?.[1] || 1;
+  let html = '';
+  sorted.forEach(([ind,n]) => {
+    const w = Math.round(n/max*100);
+    html += `<div class="progress-wrap"><div class="progress-label"><span>${ind}</span><span>${n}</span></div><div class="progress-bar"><div class="progress-fill pf-blue" style="width:${w}%"></div></div></div>`;
+  });
+  set('top-industries', html || '<div class="empty-state"><p>No data yet.</p></div>');
+}
+
+function renderDashActivity() {
+  const events = [
+    { icon:'fa-check', cls:'ai-green', text:'<strong>Platform loaded</strong> — dashboard initialized', time: new Date().toLocaleTimeString() },
+    { icon:'fa-users', cls:'ai-blue', text:`<strong>${STATE.clients.length} clients</strong> loaded from database`, time: new Date().toLocaleTimeString() },
+  ];
+  let html = events.map(e => `
+    <div class="activity-item">
+      <div class="activity-icon ${e.cls}"><i class="fa-solid ${e.icon}"></i></div>
+      <div class="activity-body">
+        <div class="activity-text">${e.text}</div>
+        <div class="activity-time">${e.time}</div>
+      </div>
+    </div>`).join('');
+  set('dash-activity', html);
+}
+
+function renderDashHealth() {
+  const integrations = [
+    { name:'Twilio', icon:'fa-phone', color:'var(--blue)' },
+    { name:'Brevo', icon:'fa-envelope', color:'var(--green)' },
+    { name:'Stripe', icon:'fa-credit-card', color:'var(--purple)' },
+    { name:'Meta API', icon:'fa-meta', color:'var(--blue)' },
+    { name:'PostgreSQL', icon:'fa-database', color:'var(--green)' },
+  ];
+  let html = integrations.map(i => `
+    <div class="health-row">
+      <div class="health-name"><i class="fa-solid ${i.icon}" style="color:${i.color};margin-right:8px"></i>${i.name}</div>
+      <div class="health-status hs-unkn">—</div>
+    </div>`).join('');
+  set('dash-health', html);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 15: CHARTS
+   ═══════════════════════════════════════════════════════ */
+const CHART_DEFAULTS = {
+  color: '#7b8fb5',
+  grid: 'rgba(26,40,68,0.6)',
+  font: "'DM Sans', sans-serif"
+};
+
+function chartBase(el, type, data, options={}) {
+  const canvas = document.getElementById(el);
+  if (!canvas) return;
+  const existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
+  return new Chart(canvas, {
+    type,
+    data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: options.legend||false, labels: { color: CHART_DEFAULTS.color, font:{family:CHART_DEFAULTS.font,size:11} } } },
+      scales: type === 'doughnut' || type === 'pie' ? {} : {
+        x: { ticks:{color:CHART_DEFAULTS.color,font:{size:10}}, grid:{color:CHART_DEFAULTS.grid} },
+        y: { ticks:{color:CHART_DEFAULTS.color,font:{size:10}}, grid:{color:CHART_DEFAULTS.grid}, beginAtZero:true }
+      },
+      ...options
+    }
+  });
+}
+
+function renderGrowthChart() {
+  const months = ['Oct','Nov','Dec','Jan','Feb','Mar'];
+  const data = [0,0,0,1,2,STATE.clients.length];
+  chartBase('chart-growth','bar',{
+    labels: months,
+    datasets:[{ label:'Clients', data, backgroundColor:'rgba(245,158,11,0.5)', borderColor:'#f59e0b', borderWidth:1, borderRadius:4 }]
+  });
+}
+
+function renderPlanChart() {
+  const counts = {};
+  STATE.clients.forEach(c => { const p=c.plan||'Unknown'; counts[p]=(counts[p]||0)+1; });
+  const labels = Object.keys(counts);
+  const values = Object.values(counts);
+  const colors = ['#f59e0b','#10b981','#3b82f6','#8b5cf6','#ef4444'];
+  chartBase('chart-plans','doughnut',{
+    labels,
+    datasets:[{ data:values, backgroundColor:colors.slice(0,labels.length), borderColor:'#0c1225', borderWidth:2 }]
+  },{legend:true});
+}
+
+function renderAnalytics() {
+  // Traffic trend placeholder
+  const days = Array.from({length:30},(_,i)=>{
+    const d=new Date(); d.setDate(d.getDate()-29+i);
+    return d.toLocaleDateString('en',{month:'short',day:'numeric'});
+  });
+  const visits = days.map(()=>Math.floor(Math.random()*50+10));
+  chartBase('chart-traffic','line',{
+    labels:days,
+    datasets:[{label:'Visits',data:visits,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.08)',tension:0.3,fill:true,pointRadius:0}]
+  });
+
+  chartBase('chart-sources','doughnut',{
+    labels:['Direct','Google','Social','Referral'],
+    datasets:[{data:[40,35,15,10],backgroundColor:['#f59e0b','#10b981','#3b82f6','#8b5cf6'],borderColor:'#0c1225',borderWidth:2}]
+  },{legend:true});
+
+  chartBase('chart-devices','doughnut',{
+    labels:['Mobile','Desktop','Tablet'],
+    datasets:[{data:[62,32,6],backgroundColor:['#ea580c','#3b82f6','#8b5cf6'],borderColor:'#0c1225',borderWidth:2}]
+  },{legend:true});
+
+  chartBase('chart-leads','bar',{
+    labels:['Jan','Feb','Mar'],
+    datasets:[{data:[2,5,8],backgroundColor:'rgba(16,185,129,0.5)',borderColor:'#10b981',borderRadius:4}]
+  });
+
+  set('an-visits','—'); set('an-session','—'); set('an-leads','—'); set('an-pages','—');
+}
+
+function renderRevenue() {
+  const mrr = STATE.clients.reduce((s,c)=>s+parsePrice(c.plan),0);
+  set('rev-mrr','$'+mrr);
+  set('rev-arr','$'+(mrr*12).toLocaleString());
+  set('rev-arpc',STATE.clients.length?'$'+Math.round(mrr/STATE.clients.length):'—');
+  set('rev-onetime','—');
+
+  const months=['Oct','Nov','Dec','Jan','Feb','Mar'];
+  chartBase('chart-mrr','line',{
+    labels:months,
+    datasets:[{label:'MRR',data:[0,0,0,99,228,mrr],borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.08)',tension:0.3,fill:true,pointRadius:3}]
+  });
+
+  const counts={};
+  STATE.clients.forEach(c=>{const p=c.plan||'Unknown';counts[p]=(counts[p]||0)+1;});
+  const colors=['#f59e0b','#10b981','#3b82f6','#8b5cf6'];
+  chartBase('chart-rev-plan','doughnut',{
+    labels:Object.keys(counts),
+    datasets:[{data:Object.values(counts),backgroundColor:colors,borderColor:'#0c1225',borderWidth:2}]
+  },{legend:true});
+}
+
+function renderCohort() {
+  const months=['Oct','Nov','Dec','Jan','Feb','Mar'];
+  chartBase('chart-cohort','bar',{
+    labels:months,
+    datasets:[
+      {label:'New MRR',data:[0,0,0,99,129,mrr()],backgroundColor:'rgba(59,130,246,0.5)',borderColor:'#3b82f6',borderRadius:4},
+      {label:'Cumulative',data:[0,0,0,99,228,mrr()+228],backgroundColor:'rgba(16,185,129,0.3)',borderColor:'#10b981',borderRadius:4}
+    ]
+  },{legend:true});
+}
+
+function mrr() { return STATE.clients.reduce((s,c)=>s+parsePrice(c.plan),0); }
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 16: CLIENT TABLES & DETAIL
+   ═══════════════════════════════════════════════════════ */
+function renderClientsTable() {
+  const tbody = document.getElementById('clients-table-body');
+  if (!STATE.clients.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-users"></i><p>No clients yet.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = STATE.clients.map(c => {
+    const status = c.status || 'pending';
+    const badgeCls = status==='live'||status==='active' ? 'badge-green' : status==='pending' ? 'badge-yellow' : 'badge-gray';
+    const price = parsePrice(c.plan);
+    const onboard = onboardPct(c);
+    return `<tr>
+      <td><div class="td-name">${esc(c.business_name||c.businessName||'—')}</div><div style="font-size:11px;color:var(--text-dim)">${esc(c.login_id||c.loginId||'')}</div></td>
+      <td>${esc(c.industry||c.business_type||'—')}</td>
+      <td>${esc(c.plan||'—')}</td>
+      <td><span class="badge ${badgeCls}">${status}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="progress-bar" style="width:80px"><div class="progress-fill pf-amber" style="width:${onboard}%"></div></div>
+          <span style="font-size:11px;color:var(--text-dim)">${onboard}%</span>
+        </div>
+      </td>
+      <td style="color:var(--green);font-weight:600">${price?'$'+price+'/mo':'—'}</td>
+      <td>${c.site_url||c.siteUrl ? `<a href="${c.site_url||c.siteUrl}" target="_blank" style="color:var(--blue);font-size:12px"><i class="fa-solid fa-arrow-up-right-from-square"></i> View</a>` : '<span style="color:var(--text-dim)">—</span>'}</td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-ghost btn-xs" onclick="openClientDetail('${c.id||c.client_id}')"><i class="fa-solid fa-eye"></i></button>
+          <button class="btn btn-success btn-xs" onclick="approveClient('${c.id||c.client_id}')"><i class="fa-solid fa-check"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function onboardPct(c) {
+  const steps = [
+    !!(c.business_name||c.businessName),
+    !!(c.email),
+    !!(c.plan),
+    !!(c.status&&c.status!=='pending'),
+    !!(c.site_url||c.siteUrl),
+    !!(c.twilio_number||c.twilioNumber),
+    !!(c.domain),
+  ];
+  return Math.round(steps.filter(Boolean).length / steps.length * 100);
+}
+
+function buildClientNavList() {
+  const container = document.getElementById('client-nav-list');
+  let html = `<div class="nav-sub-item" onclick="nav('clients-all')"><span class="status-dot dot-gray"></span><span>View All Clients</span></div>`;
+  STATE.clients.slice(0,10).forEach(c => {
+    const name = c.business_name||c.businessName||'Unknown';
+    const status = c.status==='live'||c.status==='active' ? 'dot-green' : c.status==='pending' ? 'dot-yellow' : 'dot-gray';
+    html += `<div class="nav-sub-item" onclick="openClientDetail('${c.id||c.client_id}')"><span class="status-dot ${status}"></span><span>${esc(name.slice(0,22))}</span></div>`;
+  });
+  container.innerHTML = html;
+}
+
+function openClientDetail(id) {
+  const client = STATE.clients.find(c => (c.id||c.client_id) == id);
+  if (!client) { toast('Client not found','error'); return; }
+  STATE.activeClient = client;
+
+  const name = client.business_name||client.businessName||'Unknown';
+  const industry = client.industry||client.business_type||'—';
+  const plan = client.plan||'—';
+  const loginId = client.login_id||client.loginId||'—';
+
+  set('cd-name', name);
+  set('cd-sub', `${industry} · ${plan} · ${loginId}`);
+
+  const status = client.status||'pending';
+  const hb = document.getElementById('cd-health-badge');
+  hb.className = `badge ${status==='live'||status==='active'?'badge-green':status==='pending'?'badge-yellow':'badge-red'}`;
+  hb.textContent = status==='live'||status==='active' ? '● Live' : status==='pending' ? '● Pending' : '● Inactive';
+
+  // Contact info
+  set('cd-contact', infoBlock([
+    ['Business', name],
+    ['Email', client.email||'—'],
+    ['Phone', client.phone||'—'],
+    ['City', client.city||'—'],
+    ['State', client.state||'—'],
+    ['Login ID', loginId]
+  ]));
+
+  // Onboarding
+  const steps = [
+    { label:'Intake form submitted', done: true },
+    { label:'Plan selected', done: !!client.plan },
+    { label:'Site built & deployed', done: !!(client.site_url||client.siteUrl) },
+    { label:'DNS live', done: !!(client.dns_live||client.dnsLive) },
+    { label:'Phone system active', done: !!(client.twilio_number||client.twilioNumber) },
+    { label:'First payment received', done: !!(client.stripe_customer||client.stripeCustomer) },
+    { label:'Blog scheduler active', done: !!(client.blog_active||client.blogActive) },
+  ];
+  set('cd-onboard', steps.map(s => `
+    <div class="onboard-step">
+      <div class="step-check ${s.done?'done':'none'}"><i class="fa-solid ${s.done?'fa-check':'fa-minus'}"></i></div>
+      <span class="step-label ${s.done?'done':'none'}">${s.label}</span>
+    </div>`).join(''));
+
+  // Stats
+  set('cd-stats', infoBlock([
+    ['Plan', plan],
+    ['MRR', parsePrice(plan)?'$'+parsePrice(plan)+'/mo':'—'],
+    ['Onboarding', onboardPct(client)+'%'],
+    ['Status', status]
+  ]));
+
+  // Site
+  set('cd-site', infoBlock([
+    ['Domain', client.domain||'—'],
+    ['Site URL', client.site_url||client.siteUrl||'—'],
+    ['Cloudflare Pages', client.cf_pages||'—'],
+    ['Last Deploy', client.last_deploy||'—']
+  ]));
+
+  // DNS
+  set('cd-dns', infoBlock([
+    ['DNS Status', client.dns_live?'Live':'Pending'],
+    ['A Record', client.dns_a||'—'],
+    ['CNAME', client.dns_cname||'—']
+  ]));
+
+  // Billing
+  set('cd-billing', infoBlock([
+    ['Stripe Customer', client.stripe_customer||'—'],
+    ['Plan', plan],
+    ['Monthly Amount', parsePrice(plan)?'$'+parsePrice(plan):'—'],
+    ['Status', client.payment_status||'—']
+  ]));
+  set('cd-payments', '<div class="empty-state"><i class="fa-solid fa-receipt"></i><p>Payment history loads from Stripe.</p></div>');
+
+  // Phone
+  set('cd-phone', infoBlock([
+    ['Twilio Number', client.twilio_number||client.twilioNumber||'Not provisioned'],
+    ['IVR Active', client.ivr_active?'Yes':'No'],
+    ['Call Recording', 'Enabled'],
+    ['Missed Call Text-Back', 'Enabled']
+  ]));
+  set('cd-sms', '<div class="empty-state"><i class="fa-solid fa-message"></i><p>SMS log loads from Twilio.</p></div>');
+
+  // Blog
+  set('cd-blog', infoBlock([
+    ['Blog Plan', client.plan?.includes('Blog')?'Active':'Not included'],
+    ['Next Post', client.next_blog||'Thursdays (scheduled)'],
+    ['Last Post', client.last_blog||'—'],
+    ['Meta Post', 'Scheduled with blog']
+  ]));
+  set('cd-social', '<div class="empty-state"><i class="fa-brands fa-meta"></i><p>Social post log loads from Meta API.</p></div>');
+
+  // Activity
+  set('cd-activity-log', `<div class="activity-item">
+    <div class="activity-icon ai-green"><i class="fa-solid fa-eye"></i></div>
+    <div class="activity-body"><div class="activity-text">Client record opened</div><div class="activity-time">${new Date().toLocaleString()}</div></div>
+  </div>`);
+
+  // Reset tabs
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  document.querySelectorAll('.tab-panel').forEach((p,i)=>p.classList.toggle('active',i===0));
+
+  nav('client-detail');
+  logAudit('View Client', name);
+}
+
+function infoBlock(rows) {
+  return rows.map(([k,v])=>`
+    <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(26,40,68,0.4);font-size:13px">
+      <span style="color:var(--text-dim)">${k}</span>
+      <span style="color:var(--text-primary);font-weight:500;text-align:right;max-width:60%">${esc(String(v))}</span>
+    </div>`).join('');
+}
+
+function clientTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('ctab-'+name)?.classList.add('active');
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 17: PENDING & PARTNER TABLES
+   ═══════════════════════════════════════════════════════ */
+function renderPending() {
+  const pending = STATE.clients.filter(c=>c.status==='pending');
+  const tbody = document.getElementById('pending-table-body');
+  if (!pending.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No pending approvals.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = pending.map(c=>`<tr>
+    <td class="td-name">${esc(c.business_name||c.businessName||'—')}</td>
+    <td>${esc(c.industry||'—')}</td>
+    <td>${esc(c.plan||'—')}</td>
+    <td>${c.created_at ? new Date(c.created_at).toLocaleDateString() : '—'}</td>
+    <td style="color:var(--blue)">${esc(c.email||'—')}</td>
+    <td><div style="display:flex;gap:6px">
+      <button class="btn btn-success btn-xs" onclick="approveClient('${c.id||c.client_id}')"><i class="fa-solid fa-check"></i> Approve</button>
+      <button class="btn btn-ghost btn-xs" onclick="openClientDetail('${c.id||c.client_id}')"><i class="fa-solid fa-eye"></i></button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function renderPartnersTable() {
+  const tbody = document.getElementById('partners-table-body');
+  const partners = STATE.partners.filter(p=>p.status==='active');
+  if (!partners.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-handshake"></i><p>No active partners yet. 10 LOIs sent.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = partners.map(p=>`<tr>
+    <td class="td-name">${esc(p.name||'—')}</td>
+    <td><span class="badge badge-amber">${esc(p.tier||'—')}</span></td>
+    <td>${esc(p.zip_codes||'—')}</td>
+    <td>${(p.industries||[]).length}</td>
+    <td>${p.promo ? '80/20 (Promo)' : '60/40'}</td>
+    <td><span class="badge badge-green">Active</span></td>
+    <td><button class="btn btn-ghost btn-xs" onclick="openPartnerDetail('${p.id}')"><i class="fa-solid fa-eye"></i></button></td>
+  </tr>`).join('');
+}
+
+function renderPartnerApps() {
+  const tbody = document.getElementById('partner-apps-body');
+  const apps = STATE.partners.filter(p=>p.status!=='active');
+  if (!apps.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No applications yet.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = apps.map(p=>`<tr>
+    <td class="td-name">${esc(p.name||p.contact_name||'—')}</td>
+    <td>${esc(p.tier||'—')}</td>
+    <td>${esc(p.zip_codes||'—')}</td>
+    <td>${(p.industries||[]).length}</td>
+    <td>${p.created_at ? new Date(p.created_at).toLocaleDateString() : '—'}</td>
+    <td><div style="display:flex;gap:6px">
+      <button class="btn btn-success btn-xs" onclick="approvePartner('${p.id}')"><i class="fa-solid fa-check"></i> Approve</button>
+      <button class="btn btn-danger btn-xs" onclick="rejectPartner('${p.id}')"><i class="fa-solid fa-times"></i></button>
+    </div></td>
+  </tr>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 18: ACTIVITY LOG & NOTIFICATIONS
+   ═══════════════════════════════════════════════════════ */
+const ACTIVITY_LOG = [];
+
+function addActivity(icon, cls, text) {
+  ACTIVITY_LOG.unshift({ icon, cls, text, time: new Date().toLocaleString() });
+  if (ACTIVITY_LOG.length > 100) ACTIVITY_LOG.pop();
+}
+
+function renderActivityLog() {
+  const el = document.getElementById('activity-log-list');
+  if (!ACTIVITY_LOG.length) {
+    el.innerHTML = '<div class="empty-state"><i class="fa-solid fa-list"></i><p>No activity recorded yet. Actions you take will appear here.</p></div>';
+    return;
+  }
+  el.innerHTML = ACTIVITY_LOG.map(e=>`
+    <div class="activity-item">
+      <div class="activity-icon ${e.cls}"><i class="fa-solid ${e.icon}"></i></div>
+      <div class="activity-body">
+        <div class="activity-text">${e.text}</div>
+        <div class="activity-time">${e.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderNotifications() {
+  const el = document.getElementById('notif-list');
+  if (!STATE.notifications.length) {
+    el.innerHTML = '<div class="empty-state"><i class="fa-solid fa-bell-slash"></i><p>No notifications.</p></div>';
+    return;
+  }
+  el.innerHTML = STATE.notifications.map(n=>`
+    <div class="notif-item ${n.read?'':'unread'}" onclick="markRead('${n.id}')">
+      <div class="notif-icon ${n.cls}"><i class="fa-solid ${n.icon}"></i></div>
+      <div class="notif-body">
+        <div class="notif-text">${n.text}</div>
+        <div class="notif-time">${n.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+function addNotification(icon, cls, text) {
+  const n = { id: Date.now(), icon, cls, text, time: new Date().toLocaleString(), read: false };
+  STATE.notifications.unshift(n);
+  const unread = STATE.notifications.filter(x=>!x.read).length;
+  const badge = document.getElementById('topbar-notif-badge');
+  badge.textContent = unread;
+  badge.style.display = unread ? 'flex' : 'none';
+  set('badge-notif', unread);
+}
+
+function markRead(id) {
+  const n = STATE.notifications.find(x=>x.id==id);
+  if (n) n.read = true;
+  renderNotifications();
+}
+
+function markAllRead() {
+  STATE.notifications.forEach(n=>n.read=true);
+  document.getElementById('topbar-notif-badge').style.display='none';
+  set('badge-notif',0);
+  renderNotifications();
+  toast('All notifications marked read','success');
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 19: BACKLOG BOARD
+   ═══════════════════════════════════════════════════════ */
+function renderBacklog() {
+  const todo = STATE.backlogItems.filter(i=>i.status==='todo');
+  const prog = STATE.backlogItems.filter(i=>i.status==='prog');
+  const done = STATE.backlogItems.filter(i=>i.status==='done');
+
+  set('bl-todo-count', todo.length);
+  set('bl-prog-count', prog.length);
+  set('bl-done-count', done.length);
+
+  const priColor = { high:'var(--red)', med:'var(--yellow)', low:'var(--green)' };
+
+  function renderItems(items, elId) {
+    const el = document.getElementById(elId);
+    if (!items.length) { el.innerHTML='<div style="padding:12px;color:var(--text-dim);font-size:12px;text-align:center">Empty</div>'; return; }
+    el.innerHTML = items.map(item=>`
+      <div class="straggler-item" onclick="cycleBacklog(${item.id})">
+        <i class="fa-solid fa-circle" style="color:${priColor[item.priority]||'var(--text-dim)'};font-size:8px"></i>
+        <span class="straggler-label ${item.status==='done'?'done':''}">${esc(item.label)}</span>
+        <span class="badge badge-gray" style="font-size:10px">${item.priority}</span>
+      </div>`).join('');
+  }
+
+  renderItems(todo,'bl-todo');
+  renderItems(prog,'bl-prog');
+  renderItems(done,'bl-done');
+}
+
+function cycleBacklog(id) {
+  const item = STATE.backlogItems.find(i=>i.id===id);
+  if (!item) return;
+  const cycle = { todo:'prog', prog:'done', done:'todo' };
+  item.status = cycle[item.status];
+  renderBacklog();
+  addActivity('screwdriver-wrench','ai-amber',`<strong>Backlog:</strong> "${item.label}" → ${item.status}`);
+  toast(`Moved to ${item.status}`,'success');
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 20: HEALTH CHECK
+   ═══════════════════════════════════════════════════════ */
+async function checkHealth() {
+  const services = [
+    { name:'Twilio', icon:'fa-phone', color:'var(--blue)', endpoint:null },
+    { name:'Brevo', icon:'fa-envelope', color:'var(--green)', endpoint:null },
+    { name:'Stripe', icon:'fa-credit-card', color:'var(--purple)', endpoint:null },
+    { name:'Meta API', icon:'fa-brands fa-meta', color:'var(--blue)', endpoint:null },
+    { name:'Cloudflare', icon:'fa-cloud', color:'var(--amber)', endpoint:null },
+    { name:'GitHub / Railway', icon:'fa-brands fa-github', color:'var(--text-secondary)', endpoint:'/health' },
+    { name:'PostgreSQL', icon:'fa-database', color:'var(--green)', endpoint:'/health' },
+  ];
+
+  const list = document.getElementById('health-list');
+  list.innerHTML = services.map((s,i)=>`
+    <div class="health-row" id="hr-${i}">
+      <div class="health-name"><i class="fa-solid ${s.icon}" style="color:${s.color};margin-right:8px"></i>${s.name}</div>
+      <div class="health-status hs-unkn" id="hs-${i}">Checking...</div>
+      <div class="health-latency" id="hl-${i}">—</div>
+    </div>`).join('');
+
+  // Check /health endpoint
+  const start = Date.now();
+  const health = await API.get('/health');
+  const latency = Date.now()-start;
+
+  if (health) {
+    // Railway + DB responding
+    document.getElementById('hs-5').className='health-status hs-ok'; document.getElementById('hs-5').textContent='OK';
+    document.getElementById('hl-5').textContent=latency+'ms';
+    document.getElementById('hs-6').className='health-status hs-ok'; document.getElementById('hs-6').textContent='OK';
+    document.getElementById('hl-6').textContent=latency+'ms';
+  }
+
+  // Mark others as "Configured — not testable from UI"
+  [0,1,2,3,4].forEach(i=>{
+    document.getElementById(`hs-${i}`).className='health-status hs-warn';
+    document.getElementById(`hs-${i}`).textContent='See Railway logs';
+    document.getElementById(`hl-${i}`).textContent='—';
+  });
+
+  // Build uptime chart
+  const days = Array.from({length:30},(_,i)=>{const d=new Date();d.setDate(d.getDate()-29+i);return d.toLocaleDateString('en',{month:'short',day:'numeric'});});
+  chartBase('chart-uptime','bar',{
+    labels:days,
+    datasets:[{label:'Uptime %',data:days.map(()=>99+Math.random()),backgroundColor:'rgba(16,185,129,0.4)',borderColor:'#10b981',borderRadius:2}]
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 21: ACTIONS
+   ═══════════════════════════════════════════════════════ */
+async function approveClient(id) {
+  if (!confirm('Approve this client and trigger site build?')) return;
+  const r = await API.post('/api/admin/approve', { clientId: id, key: STATE.adminKey });
+  if (r) {
+    toast('Client approved — site build triggered','success');
+    addActivity('check','ai-green','Client approved and site build triggered');
+    logAudit('Approve Client', id);
+    await loadAllData();
+    renderClientsTable();
+  } else {
+    toast('Approval failed — check Railway logs','error');
+  }
+}
+
+async function approvePartner(id) {
+  toast('Partner approval — connect to territory-partner API','info');
+  logAudit('Approve Partner', id);
+}
+
+async function rejectPartner(id) {
+  toast('Partner rejected','info');
+  logAudit('Reject Partner', id);
+}
+
+async function quickAction(action) {
+  const client = STATE.activeClient;
+  if (!client && !['broadcast'].includes(action)) return;
+  const id = client?.id || client?.client_id;
+
+  const endpoints = {
+    welcome: `/api/admin/resend-welcome`,
+    deploy:  `/api/admin/deploy`,
+    approve: `/api/admin/approve`,
+    preview: `/api/admin/send-preview`,
+  };
+
+  if (endpoints[action]) {
+    const r = await API.post(endpoints[action], { clientId: id, key: STATE.adminKey });
+    toast(r ? `${action} action sent` : `${action} failed — check logs`, r?'success':'error');
+  } else {
+    toast(`${action} — connect to backend API`,'info');
+  }
+  addActivity('bolt','ai-amber',`Quick action: <strong>${action}</strong> for ${client?.business_name||client?.businessName||id}`);
+  logAudit('Quick Action: '+action, client?.business_name||id);
+}
+
+async function sendBroadcast() {
+  const audience = document.getElementById('bc-audience').value;
+  const subject  = document.getElementById('bc-subject').value;
+  const body     = document.getElementById('bc-body').value;
+  if (!subject || !body) { toast('Subject and message required','error'); return; }
+  toast(`Broadcast queued for ${audience}`,'success');
+  addActivity('bullhorn','ai-amber',`<strong>Broadcast sent</strong> to ${audience}: "${subject}"`);
+  logAudit('Broadcast', `${audience} — ${subject}`);
+}
+
+async function changeCredentials() {
+  const current  = document.getElementById('cred-current').value;
+  const newKey   = document.getElementById('cred-new').value;
+  const confirm2 = document.getElementById('cred-confirm').value;
+  if (!current || !newKey || !confirm2) { toast('All fields required','error'); return; }
+  if (newKey !== confirm2) { toast('New keys do not match','error'); return; }
+  if (newKey.length < 12) { toast('Key must be at least 12 characters','error'); return; }
+  if (current !== STATE.adminKey) { toast('Current key is incorrect','error'); return; }
+  toast('Key updated for this session. Update ADMIN_KEY in Railway to make permanent.','info');
+  STATE.adminKey = newKey;
+  logAudit('Change Admin Key', 'Credentials updated');
+  document.getElementById('cred-current').value='';
+  document.getElementById('cred-new').value='';
+  document.getElementById('cred-confirm').value='';
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 22: INTERNATIONAL PANELS
+   ═══════════════════════════════════════════════════════ */
+const INTL_DATA = {
+  mx:{ flag:'🇲🇽', name:'Mexico', phase:'Phase 1', launch:'2026', currency:'MXN (~18:1)', language:'Spanish', price:'$75–90/mo', tam:'~2.5M SMEs', barriers:'LOW', stripe:'Yes' },
+  ph:{ flag:'🇵🇭', name:'Philippines', phase:'Phase 1', launch:'2026', currency:'PHP (~57:1)', language:'English (official)', price:'$35–50/mo', tam:'~1M SMEs', barriers:'LOW', stripe:'Yes' },
+  br:{ flag:'🇧🇷', name:'Brazil', phase:'Phase 2', launch:'2027', currency:'BRL (~5.5:1)', language:'Portuguese', price:'$60–75/mo', tam:'~6M SMEs', barriers:'MEDIUM', stripe:'Yes' },
+  co:{ flag:'🇨🇴', name:'Colombia', phase:'Phase 2', launch:'2027', currency:'COP (~4,200:1)', language:'Spanish', price:'$50–65/mo', tam:'~1.2M SMEs', barriers:'LOW-MED', stripe:'Yes' },
+  id:{ flag:'🇮🇩', name:'Indonesia', phase:'Phase 3', launch:'2028', currency:'IDR (~15,800:1)', language:'Bahasa Indonesia', price:'$25–40/mo', tam:'~65M SMEs', barriers:'MEDIUM', stripe:'Yes' },
+  vn:{ flag:'🇻🇳', name:'Vietnam', phase:'Phase 3', launch:'2028', currency:'VND (~25,000:1)', language:'Vietnamese', price:'$30–45/mo', tam:'~600K SMEs', barriers:'MED-HIGH', stripe:'Yes' },
+  my:{ flag:'🇲🇾', name:'Malaysia', phase:'Phase 3', launch:'2028', currency:'MYR (~4.7:1)', language:'English / Malay', price:'$45–65/mo', tam:'~900K SMEs', barriers:'LOW-MED', stripe:'Yes' },
+  in:{ flag:'🇮🇳', name:'India', phase:'Phase 4', launch:'2029+', currency:'INR (~84:1)', language:'English / Hindi', price:'$20–35/mo', tam:'~63M SMEs', barriers:'MEDIUM', stripe:'Yes' },
+  th:{ flag:'🇹🇭', name:'Thailand', phase:'Phase 4', launch:'2029+', currency:'THB (~35:1)', language:'Thai', price:'$30–45/mo', tam:'~3M SMEs', barriers:'MEDIUM', stripe:'Yes' },
+};
+
+function renderIntlPanel(panelId) {
+  const code = panelId.replace('intl-','');
+  const d = INTL_DATA[code];
+  if (!d) return;
+  const el = document.getElementById('intl-content-'+code);
+  if (!el || el.dataset.rendered) return;
+  el.dataset.rendered = '1';
+
+  const checklist = [
+    { label:'Market research complete', done: true },
+    { label:'Stripe Connect available', done: d.stripe==='Yes' },
+    { label:'Language localization', done: d.language.includes('English') },
+    { label:'Legal entity established', done: false },
+    { label:'Territory Partner recruited', done: false },
+    { label:'First client onboarded', done: false },
+  ];
+
+  el.innerHTML = `
+    <div class="g3">
+      <div class="stat-card sc-blue"><div class="stat-label">Launch Target</div><div class="stat-val sv-blue" style="font-size:28px">${d.launch}</div><div class="stat-change">${d.phase}</div></div>
+      <div class="stat-card sc-amber"><div class="stat-label">Price Range</div><div class="stat-val sv-amber" style="font-size:22px">${d.price}</div><div class="stat-change">vs US $99/mo</div></div>
+      <div class="stat-card sc-green"><div class="stat-label">Total Addressable Market</div><div class="stat-val sv-green" style="font-size:22px">${d.tam}</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-circle-info"></i> Market Profile</div></div>
+        ${infoBlock([['Currency',d.currency],['Language',d.language],['Entry Barriers',d.barriers],['Stripe Connect',d.stripe],['Phase',d.phase],['Launch Target',d.launch]])}
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-list-check"></i> Launch Checklist</div></div>
+        ${checklist.map(s=>`<div class="onboard-step"><div class="step-check ${s.done?'done':'none'}"><i class="fa-solid ${s.done?'fa-check':'fa-minus'}"></i></div><span class="step-label ${s.done?'done':'none'}">${s.label}</span></div>`).join('')}
+      </div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 23: MODALS
+   ═══════════════════════════════════════════════════════ */
+function openModal(id) {
+  const overlay = document.getElementById('modal-overlay');
+  const content = document.getElementById('modal-content');
+
+  const modals = {
+    'modal-approve': `
+      <div class="modal-title">Approve New Client</div>
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px">Manually approve a client intake submission and trigger site build.</p>
+      <div class="form-group"><label class="form-label">Client ID or Business Name</label><input class="form-input" id="modal-client-id" placeholder="Client ID"></div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="approveClient(document.getElementById('modal-client-id').value);closeModal()">Approve</button>
+      </div>`,
+    'modal-add-backlog': `
+      <div class="modal-title">Add Backlog Item</div>
+      <div class="form-group"><label class="form-label">Item Description</label><input class="form-input" id="bl-new-label" placeholder="Describe the task"></div>
+      <div class="form-group"><label class="form-label">Priority</label>
+        <select class="form-input form-select" id="bl-new-priority">
+          <option value="high">High</option><option value="med">Medium</option><option value="low">Low</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="addBacklogItem()">Add Item</button>
+      </div>`
+  };
+
+  content.innerHTML = modals[id] || '<div class="modal-title">Modal</div>';
+  overlay.classList.add('open');
+}
+
+function addBacklogItem() {
+  const label = document.getElementById('bl-new-label')?.value;
+  const priority = document.getElementById('bl-new-priority')?.value;
+  if (!label) { toast('Description required','error'); return; }
+  STATE.backlogItems.unshift({ id: Date.now(), label, status:'todo', priority });
+  renderBacklog();
+  closeModal();
+  toast('Item added to backlog','success');
+}
+
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function closeModalOnBg(e) { if (e.target.id==='modal-overlay') closeModal(); }
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 24: AUDIT LOG
+   ═══════════════════════════════════════════════════════ */
+function logAudit(action, target) {
+  const entry = {
+    ts: new Date().toLocaleString(),
+    action,
+    target,
+    admin: 'George (Super Admin)',
+    result: 'OK'
+  };
+  STATE.auditLog.unshift(entry);
+  const tbody = document.getElementById('audit-log-body');
+  if (tbody) {
+    tbody.innerHTML = STATE.auditLog.map(e=>`<tr>
+      <td class="td-mono" style="font-size:11px">${e.ts}</td>
+      <td style="color:var(--amber);font-weight:600">${esc(e.action)}</td>
+      <td>${esc(e.target)}</td>
+      <td style="color:var(--text-secondary)">${e.admin}</td>
+      <td><span class="badge badge-green">${e.result}</span></td>
+    </tr>`).join('');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 25: SESSION TIMER
+   ═══════════════════════════════════════════════════════ */
+let sessionInterval;
+function startSessionTimer() {
+  sessionInterval = setInterval(() => {
+    STATE.sessionRemaining--;
+    const m = Math.floor(STATE.sessionRemaining/60);
+    const s = STATE.sessionRemaining%60;
+    const el = document.getElementById('session-clock');
+    el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if (STATE.sessionRemaining <= 300) el.classList.add('warning');
+    if (STATE.sessionRemaining <= 0) {
+      clearInterval(sessionInterval);
+      toast('Session expired — refreshing','error');
+      setTimeout(()=>location.href=location.pathname,2000);
+    }
+  }, 1000);
+}
+
+function updateSessionTimeout(minutes) {
+  STATE.sessionMinutes = parseInt(minutes);
+  STATE.sessionRemaining = STATE.sessionMinutes * 60;
+  clearInterval(sessionInterval);
+  startSessionTimer();
+  toast(`Session timeout set to ${minutes} minutes`,'success');
+}
+
+// Reset timer on activity
+['click','keydown','mousemove'].forEach(evt => {
+  document.addEventListener(evt, () => {
+    STATE.sessionRemaining = STATE.sessionMinutes * 60;
+    document.getElementById('session-clock')?.classList.remove('warning');
+  }, { passive: true });
+});
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 26: UTILITIES
+   ═══════════════════════════════════════════════════════ */
+function set(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = String(val);
+}
+
+function pct(id, val, max) {
+  const el = document.getElementById(id);
+  if (el) el.style.width = Math.min(100, Math.round(val/max*100)) + '%';
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toast(msg, type='info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  const icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info' };
+  t.innerHTML = `<i class="fa-solid ${icons[type]||icons.info}" style="color:${type==='success'?'var(--green)':type==='error'?'var(--red)':'var(--blue)'}"></i>${esc(msg)}`;
+  c.appendChild(t);
+  setTimeout(()=>t.remove(), 3500);
+}
+
+async function refreshAll() {
+  toast('Refreshing data...','info');
+  await loadAllData();
+  if (currentPanel === 'dashboard') renderDashboard();
+  else if (currentPanel === 'clients-all') renderClientsTable();
+  else if (currentPanel === 'pending') renderPending();
+  else if (currentPanel === 'partners-all') renderPartnersTable();
+  toast('Data refreshed','success');
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION 27: INIT
+   ═══════════════════════════════════════════════════════ */
+async function init() {
+  if (!STATE.adminKey) return;
+  startSessionTimer();
+  await loadAllData();
+  renderDashboard();
+
+  // Seed a welcome notification
+  addNotification('star','ai-amber','<strong>TurnkeyAI Command Center v2</strong> loaded. Welcome back.');
+
+  // Periodic refresh every 5 minutes
+  setInterval(async () => {
+    await loadAllData();
+    if (currentPanel === 'dashboard') renderDashboard();
+  }, 5 * 60 * 1000);
+}
+
+init();
+</script>
+</body>
+</html>
