@@ -58,8 +58,9 @@ app.use('/', require('./routes/board'));
 app.use('/', require('./routes/stripe-webhook'));
 app.use('/', require('./routes/territory-partner'));
 // ── Static admin pages ──
-app.get('/admin', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'admin.html')); });
+app.get('/admin', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'admin-v2.html')); });
 app.get('/admin-v2', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'admin-v2.html')); });
+app.get('/admin-legacy', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'admin-legacy.html')); });
 // ── Health check ──
 app.get('/health', (req, res) => {
   const { clients } = require('./lib/db');
