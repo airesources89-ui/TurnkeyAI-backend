@@ -8,9 +8,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
+
     :root {
       --navy: #0A1128;
       --amber: #FF6F00;
@@ -18,529 +20,201 @@
       --white: #FFFFFF;
       --light-gray: #F5F5F5;
       --border-gray: #DDD;
+      --red: #D32F2F;
+      --red-bg: #FFE5E5;
     }
-    
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--light-gray);
-      color: var(--navy);
-      line-height: 1.6;
-    }
-    
+
+    body { font-family: 'DM Sans', sans-serif; background: var(--light-gray); color: var(--navy); line-height: 1.6; }
+
     h1, h2, h3 { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; }
-    
-    /* Header */
-    header {
-      background: var(--navy);
-      color: var(--white);
-      padding: 1.5rem 2rem;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    
-    .header-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
+
+    header { background: var(--navy); color: var(--white); padding: 1.5rem 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+
+    .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+
     .logo { font-size: 1.8rem; font-family: 'Bebas Neue', sans-serif; color: var(--amber); }
-    
+
     .contact-info { font-size: 0.9rem; }
     .contact-info a { color: var(--white); text-decoration: none; margin-left: 1rem; }
     .contact-info a:hover { color: var(--amber); }
-    
-    /* Progress Bar */
-    .progress-container {
-      background: var(--white);
-      padding: 1rem 0;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    
-    .progress-bar {
-      max-width: 800px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: relative;
-      padding: 0 2rem;
-    }
-    
-    .progress-line {
-      position: absolute;
-      top: 20px;
-      left: 2rem;
-      right: 2rem;
-      height: 2px;
-      background: var(--border-gray);
-      z-index: 0;
-    }
-    
-    .progress-fill {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      background: var(--amber);
-      transition: width 0.3s ease;
-    }
-    
-    .step {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      flex: 1;
-    }
-    
-    .step-circle {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--white);
-      border: 2px solid var(--border-gray);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 0.5rem;
-      font-weight: bold;
-      transition: all 0.3s ease;
-    }
-    
-    .step.active .step-circle {
-      background: var(--amber);
-      color: var(--white);
-      border-color: var(--amber);
-    }
-    
-    .step.completed .step-circle {
-      background: var(--navy);
-      color: var(--white);
-      border-color: var(--navy);
-    }
-    
-    .step-label {
-      font-size: 0.85rem;
-      color: var(--navy);
-      font-weight: 500;
-    }
-    
-    /* Main Content */
-    .container {
-      max-width: 800px;
-      margin: 3rem auto;
-      padding: 0 2rem;
-    }
-    
-    .page {
-      display: none;
-      background: var(--white);
-      padding: 3rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    }
-    
+
+    .progress-container { background: var(--white); padding: 1rem 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+    .progress-bar { max-width: 860px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; position: relative; padding: 0 2rem; }
+
+    .progress-line { position: absolute; top: 20px; left: 2rem; right: 2rem; height: 2px; background: var(--border-gray); z-index: 0; }
+
+    .progress-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--amber); transition: width 0.3s ease; }
+
+    .step { position: relative; z-index: 1; text-align: center; flex: 1; }
+
+    .step-circle { width: 40px; height: 40px; border-radius: 50%; background: var(--white); border: 2px solid var(--border-gray); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem; font-weight: bold; transition: all 0.3s ease; }
+
+    .step.active .step-circle { background: var(--amber); color: var(--white); border-color: var(--amber); }
+
+    .step.completed .step-circle { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
+    .step-label { font-size: 0.78rem; color: var(--navy); font-weight: 500; }
+
+    .container { max-width: 800px; margin: 3rem auto; padding: 0 2rem; }
+
+    .page { display: none; background: var(--white); padding: 3rem; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+
     .page.active { display: block; }
-    
-    .page-title {
-      font-size: 2.5rem;
-      color: var(--navy);
-      margin-bottom: 1rem;
-    }
-    
-    .page-subtitle {
-      color: #666;
-      margin-bottom: 2rem;
-      font-size: 1.1rem;
-    }
-    
-    /* Promo Banner */
-    .promo-banner {
-      background: linear-gradient(135deg, var(--amber), var(--orange));
-      color: var(--white);
-      padding: 1.5rem;
-      border-radius: 8px;
-      margin-bottom: 2rem;
-      display: none;
-    }
-    
+
+    .page-title { font-size: 2.5rem; color: var(--navy); margin-bottom: 1rem; }
+    .page-subtitle { color: #666; margin-bottom: 2rem; font-size: 1.1rem; }
+
+    .promo-banner { background: linear-gradient(135deg, var(--amber), var(--orange)); color: var(--white); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; display: none; }
     .promo-banner.visible { display: block; }
-    
-    .promo-banner h3 {
-      font-size: 1.8rem;
-      margin-bottom: 0.5rem;
+    .promo-banner h3 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .promo-banner ul { list-style: none; margin-top: 1rem; }
+    .promo-banner li { padding: 0.3rem 0; padding-left: 1.5rem; position: relative; }
+    .promo-banner li:before { content: "✓"; position: absolute; left: 0; font-weight: bold; }
+
+    .form-group { margin-bottom: 1.5rem; }
+
+    label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--navy); }
+
+    input[type="text"], input[type="email"], input[type="tel"], input[type="url"], input[type="number"], select, textarea {
+      width: 100%; padding: 0.75rem; border: 1px solid var(--border-gray); border-radius: 4px; font-size: 1rem; font-family: 'DM Sans', sans-serif; transition: border-color 0.3s ease;
     }
-    
-    .promo-banner ul {
-      list-style: none;
-      margin-top: 1rem;
-    }
-    
-    .promo-banner li {
-      padding: 0.3rem 0;
-      padding-left: 1.5rem;
-      position: relative;
-    }
-    
-    .promo-banner li:before {
-      content: "✓";
-      position: absolute;
-      left: 0;
-      font-weight: bold;
-    }
-    
-    /* Form Elements */
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-    
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: var(--navy);
-    }
-    
-    input[type="text"],
-    input[type="email"],
-    input[type="tel"],
-    input[type="url"],
-    textarea {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid var(--border-gray);
-      border-radius: 4px;
-      font-size: 1rem;
-      font-family: 'DM Sans', sans-serif;
-      transition: border-color 0.3s ease;
-    }
-    
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--amber);
-    }
-    
-    textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-    
-    /* Tier Selection */
-    .tier-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    
-    .tier-card {
-      border: 2px solid var(--border-gray);
-      border-radius: 8px;
-      padding: 1.5rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-    
-    .tier-card:hover {
-      border-color: var(--amber);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    
-    .tier-card.selected {
-      border-color: var(--amber);
-      background: rgba(255, 111, 0, 0.05);
-    }
-    
-    .tier-card input[type="radio"] {
-      position: absolute;
-      opacity: 0;
-    }
-    
-    .tier-name {
-      font-size: 1.4rem;
-      font-family: 'Bebas Neue', sans-serif;
-      color: var(--navy);
-      margin-bottom: 0.5rem;
-    }
-    
-    .tier-price {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--amber);
-      margin-bottom: 0.5rem;
-    }
-    
-    .tier-industries {
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 0.5rem;
-    }
-    
-    .tier-setup {
-      font-size: 0.85rem;
-      color: #888;
-    }
-    
-    /* Industry Selection */
-    .industry-search {
-      margin-bottom: 1.5rem;
-    }
-    
-    .industry-search input {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid var(--border-gray);
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-    
-    .industry-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 0.75rem;
-      max-height: 500px;
-      overflow-y: auto;
-      padding: 1rem;
-      border: 1px solid var(--border-gray);
-      border-radius: 4px;
-      background: #FAFAFA;
-    }
-    
-    .industry-item {
-      display: flex;
-      align-items: center;
-      padding: 0.5rem;
-      background: var(--white);
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-    
-    .industry-item:hover {
-      background: rgba(255, 111, 0, 0.05);
-    }
-    
-    .industry-item input[type="checkbox"] {
-      margin-right: 0.5rem;
-      cursor: pointer;
-    }
-    
-    .industry-item label {
-      margin: 0;
-      cursor: pointer;
-      font-weight: 400;
-      font-size: 0.9rem;
-    }
-    
-    .selected-count {
-      font-weight: 600;
-      color: var(--amber);
-      margin-top: 1rem;
-    }
-    
-    /* Review Section */
-    .review-section {
-      background: #FAFAFA;
-      padding: 1.5rem;
-      border-radius: 8px;
-      margin-bottom: 1.5rem;
-    }
-    
-    .review-section h3 {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-      color: var(--navy);
-    }
-    
-    .review-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid var(--border-gray);
-    }
-    
+
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--amber); }
+
+    textarea { resize: vertical; min-height: 100px; }
+
+    /* Territory type cards */
+    .territory-type-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+
+    .territory-type-card { border: 2px solid var(--border-gray); border-radius: 8px; padding: 1.25rem; cursor: pointer; transition: all 0.3s ease; position: relative; }
+
+    .territory-type-card:hover { border-color: var(--amber); box-shadow: 0 2px 8px rgba(255,111,0,0.15); }
+
+    .territory-type-card.selected { border-color: var(--amber); background: rgba(255,111,0,0.05); }
+
+    .territory-type-card input[type="radio"] { position: absolute; opacity: 0; }
+
+    .territory-type-icon { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--navy); }
+
+    .territory-type-card.selected .territory-type-icon { color: var(--amber); }
+
+    .territory-type-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; color: var(--navy); margin-bottom: 0.25rem; }
+
+    .territory-type-desc { font-size: 0.85rem; color: #666; }
+
+    /* ZIP chip input */
+    .zip-chip-container { border: 1px solid var(--border-gray); border-radius: 4px; padding: 0.5rem; min-height: 52px; display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; cursor: text; transition: border-color 0.3s ease; background: var(--white); }
+
+    .zip-chip-container:focus-within { border-color: var(--amber); }
+
+    .zip-chip { background: var(--navy); color: var(--white); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.9rem; display: flex; align-items: center; gap: 0.35rem; }
+
+    .zip-chip-remove { cursor: pointer; font-size: 0.8rem; opacity: 0.7; transition: opacity 0.2s; border: none; background: none; color: var(--white); padding: 0; line-height: 1; }
+
+    .zip-chip-remove:hover { opacity: 1; }
+
+    .zip-chip-input { border: none !important; outline: none !important; padding: 0.25rem !important; min-width: 80px; flex: 1; font-size: 0.95rem; }
+
+    .zip-count { font-size: 0.85rem; color: #888; margin-top: 0.4rem; }
+
+    .zip-count.at-limit { color: var(--red); font-weight: 600; }
+
+    /* Territory map */
+    .territory-map-box { height: 280px; border-radius: 6px; border: 1px solid var(--border-gray); margin-top: 1rem; background: #e8edf2; }
+
+    .map-hint { font-size: 0.8rem; color: #888; margin-top: 0.4rem; text-align: center; }
+
+    /* Conflict warning */
+    .conflict-warning { background: #FFF3E0; border: 1px solid var(--amber); color: #7B3800; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; display: none; }
+    .conflict-warning.visible { display: block; }
+    .conflict-warning strong { display: block; margin-bottom: 0.4rem; }
+
+    /* Territory section panels */
+    .territory-section { display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-gray); }
+    .territory-section.visible { display: block; }
+    .territory-section.always-visible { display: block; border-top: none; padding-top: 0; margin-top: 1.5rem; }
+
+    /* Tier cards */
+    .tier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+
+    .tier-card { border: 2px solid var(--border-gray); border-radius: 8px; padding: 1.5rem; cursor: pointer; transition: all 0.3s ease; position: relative; }
+
+    .tier-card:hover { border-color: var(--amber); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+    .tier-card.selected { border-color: var(--amber); background: rgba(255,111,0,0.05); }
+
+    .tier-card input[type="radio"] { position: absolute; opacity: 0; }
+
+    .tier-name { font-size: 1.4rem; font-family: 'Bebas Neue', sans-serif; color: var(--navy); margin-bottom: 0.5rem; }
+    .tier-price { font-size: 1.1rem; font-weight: 700; color: var(--amber); margin-bottom: 0.5rem; }
+    .tier-industries { font-size: 0.9rem; color: #666; margin-bottom: 0.5rem; }
+    .tier-setup { font-size: 0.85rem; color: #888; }
+
+    /* Industry grid */
+    .industry-search { margin-bottom: 1.5rem; }
+    .industry-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; max-height: 500px; overflow-y: auto; padding: 1rem; border: 1px solid var(--border-gray); border-radius: 4px; background: #FAFAFA; }
+    .industry-item { display: flex; align-items: center; padding: 0.5rem; background: var(--white); border-radius: 4px; cursor: pointer; transition: background 0.2s ease; }
+    .industry-item:hover { background: rgba(255,111,0,0.05); }
+    .industry-item input[type="checkbox"] { margin-right: 0.5rem; cursor: pointer; }
+    .industry-item label { margin: 0; cursor: pointer; font-weight: 400; font-size: 0.9rem; }
+    .selected-count { font-weight: 600; color: var(--amber); margin-top: 1rem; }
+
+    /* Review */
+    .review-section { background: #FAFAFA; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; }
+    .review-section h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--navy); }
+    .review-item { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-gray); }
     .review-item:last-child { border-bottom: none; }
-    
-    .review-label {
-      font-weight: 600;
-      color: #666;
-    }
-    
-    .review-value {
-      color: var(--navy);
-      text-align: right;
-      max-width: 60%;
-    }
-    
+    .review-label { font-weight: 600; color: #666; }
+    .review-value { color: var(--navy); text-align: right; max-width: 60%; word-break: break-word; }
+
     /* Buttons */
-    .button-group {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 2rem;
-      gap: 1rem;
-    }
-    
-    .btn {
-      padding: 0.75rem 2rem;
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: 'DM Sans', sans-serif;
-    }
-    
-    .btn-primary {
-      background: var(--amber);
-      color: var(--white);
-    }
-    
-    .btn-primary:hover {
-      background: var(--orange);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255, 111, 0, 0.3);
-    }
-    
-    .btn-secondary {
-      background: var(--white);
-      color: var(--navy);
-      border: 2px solid var(--navy);
-    }
-    
-    .btn-secondary:hover {
-      background: var(--navy);
-      color: var(--white);
-    }
-    
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    /* Error Message */
-    .error-message {
-      background: #FFE5E5;
-      color: #D32F2F;
-      padding: 1rem;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-      display: none;
-    }
-    
+    .button-group { display: flex; justify-content: space-between; margin-top: 2rem; gap: 1rem; }
+
+    .btn { padding: 0.75rem 2rem; border: none; border-radius: 4px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-family: 'DM Sans', sans-serif; }
+
+    .btn-primary { background: var(--amber); color: var(--white); }
+    .btn-primary:hover { background: var(--orange); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,111,0,0.3); }
+
+    .btn-secondary { background: var(--white); color: var(--navy); border: 2px solid var(--navy); }
+    .btn-secondary:hover { background: var(--navy); color: var(--white); }
+
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+    /* Error */
+    .error-message { background: var(--red-bg); color: var(--red); padding: 1rem; border-radius: 4px; margin-bottom: 1rem; display: none; }
     .error-message.visible { display: block; }
-    
-    /* Success Page */
-    .success-icon {
-      text-align: center;
-      font-size: 4rem;
-      color: #4CAF50;
-      margin-bottom: 1rem;
-    }
-    
-    .success-message {
-      text-align: center;
-    }
-    
-    .success-message h2 {
-      font-size: 2.5rem;
-      color: var(--navy);
-      margin-bottom: 1rem;
-    }
-    
-    .success-message p {
-      font-size: 1.1rem;
-      color: #666;
-      margin-bottom: 1rem;
-    }
-    
-    .next-steps {
-      background: #FAFAFA;
-      padding: 2rem;
-      border-radius: 8px;
-      margin-top: 2rem;
-      text-align: left;
-    }
-    
-    .next-steps h3 {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
-    }
-    
-    .next-steps ol {
-      margin-left: 1.5rem;
-    }
-    
-    .next-steps li {
-      margin-bottom: 0.75rem;
-      font-size: 1.05rem;
-    }
-    
-    /* Footer */
-    footer {
-      background: var(--navy);
-      color: var(--white);
-      text-align: center;
-      padding: 2rem;
-      margin-top: 4rem;
-    }
-    
-    footer p {
-      margin-bottom: 0.5rem;
-    }
-    
-    footer a {
-      color: var(--amber);
-      text-decoration: none;
-    }
-    
-    footer a:hover {
-      text-decoration: underline;
-    }
-    
-    /* Responsive */
+
+    /* Success */
+    .success-icon { text-align: center; font-size: 4rem; color: #4CAF50; margin-bottom: 1rem; }
+    .success-message { text-align: center; }
+    .success-message h2 { font-size: 2.5rem; color: var(--navy); margin-bottom: 1rem; }
+    .success-message p { font-size: 1.1rem; color: #666; margin-bottom: 1rem; }
+    .next-steps { background: #FAFAFA; padding: 2rem; border-radius: 8px; margin-top: 2rem; text-align: left; }
+    .next-steps h3 { font-size: 1.8rem; margin-bottom: 1rem; }
+    .next-steps ol { margin-left: 1.5rem; }
+    .next-steps li { margin-bottom: 0.75rem; font-size: 1.05rem; }
+
+    footer { background: var(--navy); color: var(--white); text-align: center; padding: 2rem; margin-top: 4rem; }
+    footer p { margin-bottom: 0.5rem; }
+    footer a { color: var(--amber); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
     @media (max-width: 768px) {
-      .header-content {
-        flex-direction: column;
-        text-align: center;
-      }
-      
-      .contact-info {
-        margin-top: 1rem;
-      }
-      
-      .contact-info a {
-        display: block;
-        margin: 0.5rem 0;
-      }
-      
-      .progress-bar {
-        padding: 0 1rem;
-      }
-      
-      .step-label {
-        font-size: 0.7rem;
-      }
-      
-      .tier-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .page {
-        padding: 2rem 1.5rem;
-      }
-      
-      .container {
-        padding: 0 1rem;
-      }
+      .header-content { flex-direction: column; text-align: center; }
+      .contact-info { margin-top: 1rem; }
+      .contact-info a { display: block; margin: 0.5rem 0; }
+      .progress-bar { padding: 0 1rem; }
+      .step-label { font-size: 0.65rem; }
+      .tier-grid { grid-template-columns: 1fr; }
+      .territory-type-grid { grid-template-columns: 1fr; }
+      .page { padding: 2rem 1.5rem; }
+      .container { padding: 0 1rem; }
     }
   </style>
 </head>
 <body>
-  <!-- Header -->
+
   <header>
     <div class="header-content">
       <div class="logo">TurnkeyAI Services</div>
@@ -551,67 +225,150 @@
     </div>
   </header>
 
-  <!-- Progress Bar -->
   <div class="progress-container">
     <div class="progress-bar">
-      <div class="progress-line">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
-      <div class="step active" data-step="1">
-        <div class="step-circle">1</div>
-        <div class="step-label">Partner Info</div>
-      </div>
-      <div class="step" data-step="2">
-        <div class="step-circle">2</div>
-        <div class="step-label">Select Tier</div>
-      </div>
-      <div class="step" data-step="3">
-        <div class="step-circle">3</div>
-        <div class="step-label">Industries</div>
-      </div>
-      <div class="step" data-step="4">
-        <div class="step-circle">4</div>
-        <div class="step-label">Contact</div>
-      </div>
-      <div class="step" data-step="5">
-        <div class="step-circle">5</div>
-        <div class="step-label">Review</div>
-      </div>
+      <div class="progress-line"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="step active" data-step="1"><div class="step-circle">1</div><div class="step-label">Partner Info</div></div>
+      <div class="step" data-step="2"><div class="step-circle">2</div><div class="step-label">Territory</div></div>
+      <div class="step" data-step="3"><div class="step-circle">3</div><div class="step-label">Select Tier</div></div>
+      <div class="step" data-step="4"><div class="step-circle">4</div><div class="step-label">Industries</div></div>
+      <div class="step" data-step="5"><div class="step-circle">5</div><div class="step-label">Contact</div></div>
+      <div class="step" data-step="6"><div class="step-circle">6</div><div class="step-label">Review</div></div>
     </div>
   </div>
 
-  <!-- Main Content -->
   <div class="container">
     <div class="error-message" id="errorMessage"></div>
 
-    <!-- Page 1: Partner Info -->
+    <!-- PAGE 1: Partner Info -->
     <div class="page active" id="page1">
       <h1 class="page-title">Territory Partner Application</h1>
       <p class="page-subtitle">Join TurnkeyAI's growing network of Territory Partners and build a recurring revenue stream by serving local businesses in your area.</p>
-
       <div class="form-group">
         <label for="fullName">Full Name *</label>
         <input type="text" id="fullName" required>
       </div>
-
       <div class="form-group">
         <label for="email">Email Address *</label>
         <input type="email" id="email" required>
       </div>
-
       <div class="form-group">
         <label for="companyName">Company Name (if applicable)</label>
         <input type="text" id="companyName">
       </div>
-
       <div class="button-group">
         <div></div>
         <button class="btn btn-primary" onclick="nextPage(1)">Next <i class="fas fa-arrow-right"></i></button>
       </div>
     </div>
 
-    <!-- Page 2: Tier Selection -->
+    <!-- PAGE 2: Territory Definition -->
     <div class="page" id="page2">
+      <h1 class="page-title">Define Your Territory</h1>
+      <p class="page-subtitle">Choose how you want to define your exclusive service territory. This determines the geographic area you will own.</p>
+
+      <div class="conflict-warning" id="conflictWarning">
+        <strong><i class="fas fa-exclamation-triangle"></i> Territory Conflict Detected</strong>
+        <span id="conflictMessage"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="territoryName">Territory Name *</label>
+        <input type="text" id="territoryName" placeholder="e.g. Greater Jackson Metro, Coast ZIP Belt, Hancock County">
+        <div style="font-size:0.85rem;color:#888;margin-top:0.3rem">Give your territory a name you will recognize in your partner dashboard.</div>
+      </div>
+
+      <label style="margin-bottom:0.75rem;display:block;">Territory Type *</label>
+      <div class="territory-type-grid">
+        <div class="territory-type-card" id="ttcard-zip" onclick="selectTerritoryType('zip')">
+          <input type="radio" name="territoryType" value="zip" id="ttZip">
+          <div class="territory-type-icon"><i class="fas fa-map-pin"></i></div>
+          <div class="territory-type-name">ZIP Codes</div>
+          <div class="territory-type-desc">Enter specific ZIP codes (up to 50). Most precise option.</div>
+        </div>
+        <div class="territory-type-card" id="ttcard-city" onclick="selectTerritoryType('city')">
+          <input type="radio" name="territoryType" value="city" id="ttCity">
+          <div class="territory-type-icon"><i class="fas fa-city"></i></div>
+          <div class="territory-type-name">City / State</div>
+          <div class="territory-type-desc">Claim one or more cities within a state.</div>
+        </div>
+        <div class="territory-type-card" id="ttcard-county" onclick="selectTerritoryType('county')">
+          <input type="radio" name="territoryType" value="county" id="ttCounty">
+          <div class="territory-type-icon"><i class="fas fa-draw-polygon"></i></div>
+          <div class="territory-type-name">County</div>
+          <div class="territory-type-desc">Claim one or more full counties.</div>
+        </div>
+        <div class="territory-type-card" id="ttcard-radius" onclick="selectTerritoryType('radius')">
+          <input type="radio" name="territoryType" value="radius" id="ttRadius">
+          <div class="territory-type-icon"><i class="fas fa-circle-dot"></i></div>
+          <div class="territory-type-name">Radius</div>
+          <div class="territory-type-desc">Define a mile radius around a city or ZIP code.</div>
+        </div>
+      </div>
+
+      <!-- ZIP section -->
+      <div class="territory-section" id="section-zip">
+        <label>ZIP Codes * <span style="font-weight:400;color:#888">(type and press Enter or comma — max 50)</span></label>
+        <div class="zip-chip-container" id="zipChipContainer" onclick="document.getElementById('zipInput').focus()">
+          <input type="text" class="zip-chip-input" id="zipInput" placeholder="39520" maxlength="5" inputmode="numeric">
+        </div>
+        <div class="zip-count" id="zipCount">0 / 50 ZIP codes added</div>
+        <div class="territory-map-box" id="map-zip"></div>
+        <div class="map-hint"><i class="fas fa-info-circle"></i> Map updates as you add ZIP codes</div>
+      </div>
+
+      <!-- City section -->
+      <div class="territory-section" id="section-city">
+        <div class="form-group">
+          <label for="territoryCities">City / State *</label>
+          <input type="text" id="territoryCities" placeholder="e.g. Bay St. Louis, MS; Waveland, MS">
+          <div style="font-size:0.85rem;color:#888;margin-top:0.3rem">Separate multiple cities with semicolons.</div>
+        </div>
+        <div class="territory-map-box" id="map-city"></div>
+        <div class="map-hint"><i class="fas fa-info-circle"></i> Map previews first city entered</div>
+      </div>
+
+      <!-- County section -->
+      <div class="territory-section" id="section-county">
+        <div class="form-group">
+          <label for="territoryCounties">County / Counties *</label>
+          <input type="text" id="territoryCounties" placeholder="e.g. Hancock County, MS; Harrison County, MS">
+          <div style="font-size:0.85rem;color:#888;margin-top:0.3rem">Include state. Separate multiple counties with semicolons.</div>
+        </div>
+        <div class="territory-map-box" id="map-county"></div>
+        <div class="map-hint"><i class="fas fa-info-circle"></i> Map previews first county entered</div>
+      </div>
+
+      <!-- Radius section -->
+      <div class="territory-section" id="section-radius">
+        <div class="form-group">
+          <label for="territoryRadiusCenter">Center Point (City or ZIP) *</label>
+          <input type="text" id="territoryRadiusCenter" placeholder="e.g. Bay St. Louis, MS  or  39520">
+        </div>
+        <div class="form-group">
+          <label for="territoryRadiusMiles">Radius in Miles *</label>
+          <input type="number" id="territoryRadiusMiles" placeholder="25" min="1" max="200">
+        </div>
+        <div class="territory-map-box" id="map-radius"></div>
+        <div class="map-hint"><i class="fas fa-info-circle"></i> Map renders after center point and radius are entered</div>
+      </div>
+
+      <!-- Notes always visible -->
+      <div class="territory-section always-visible">
+        <div class="form-group">
+          <label for="territoryNotes">Territory Notes (optional)</label>
+          <textarea id="territoryNotes" rows="2" placeholder="Any notes about your territory boundaries or exclusions..."></textarea>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn btn-secondary" onclick="prevPage(2)"><i class="fas fa-arrow-left"></i> Back</button>
+        <button class="btn btn-primary" onclick="nextPage(2)">Next <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- PAGE 3: Tier Selection -->
+    <div class="page" id="page3">
       <h1 class="page-title">Choose Your Partnership Tier</h1>
       <p class="page-subtitle">Select the tier that matches your business goals. You can upgrade anytime.</p>
 
@@ -622,35 +379,32 @@
           <li>FREE 5 industries for life</li>
           <li>80/20 revenue split for life (you keep 80%)</li>
         </ul>
-        <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.9;">After 12 months, standard $99/mo applies. Your 5 industries and 80/20 split remain permanent.</p>
+        <p style="margin-top:1rem;font-size:0.9rem;opacity:0.9;">After 12 months, standard $99/mo applies. Your 5 industries and 80/20 split remain permanent.</p>
       </div>
 
       <div class="tier-grid">
-        <div class="tier-card" onclick="selectTier('starter')">
+        <div class="tier-card" id="tiercard-starter" onclick="selectTier('starter')">
           <input type="radio" name="tier" value="starter" id="tierStarter">
           <div class="tier-name">Starter</div>
           <div class="tier-price">$99/mo</div>
-          <div class="tier-industries">1-5 industries</div>
+          <div class="tier-industries">1–5 industries</div>
           <div class="tier-setup">$99 one-time setup</div>
         </div>
-
-        <div class="tier-card" onclick="selectTier('professional')">
+        <div class="tier-card" id="tiercard-professional" onclick="selectTier('professional')">
           <input type="radio" name="tier" value="professional" id="tierProfessional">
           <div class="tier-name">Professional</div>
           <div class="tier-price">$199/mo</div>
-          <div class="tier-industries">6-15 industries</div>
+          <div class="tier-industries">6–15 industries</div>
           <div class="tier-setup">$199 one-time setup</div>
         </div>
-
-        <div class="tier-card" onclick="selectTier('enterprise')">
+        <div class="tier-card" id="tiercard-enterprise" onclick="selectTier('enterprise')">
           <input type="radio" name="tier" value="enterprise" id="tierEnterprise">
           <div class="tier-name">Enterprise</div>
           <div class="tier-price">$199/mo</div>
-          <div class="tier-industries">16-30 industries</div>
+          <div class="tier-industries">16–30 industries</div>
           <div class="tier-setup">$299 one-time setup</div>
         </div>
-
-        <div class="tier-card" onclick="selectTier('unlimited')">
+        <div class="tier-card" id="tiercard-unlimited" onclick="selectTier('unlimited')">
           <input type="radio" name="tier" value="unlimited" id="tierUnlimited">
           <div class="tier-name">Unlimited</div>
           <div class="tier-price">$199/mo</div>
@@ -660,409 +414,476 @@
       </div>
 
       <div class="button-group">
-        <button class="btn btn-secondary" onclick="prevPage(2)"><i class="fas fa-arrow-left"></i> Back</button>
-        <button class="btn btn-primary" onclick="nextPage(2)">Next <i class="fas fa-arrow-right"></i></button>
-      </div>
-    </div>
-
-    <!-- Page 3: Industry Selection -->
-    <div class="page" id="page3">
-      <h1 class="page-title">Select Your Industries</h1>
-      <p class="page-subtitle">Choose the industries you want to serve. You can add more later by upgrading your tier.</p>
-
-      <div class="industry-search">
-        <input type="text" id="industrySearch" placeholder="Search industries..." onkeyup="filterIndustries()">
-      </div>
-
-      <div class="selected-count" id="selectedCount">Selected: 0 / 0</div>
-
-      <div class="industry-grid" id="industryGrid">
-        <!-- Industries will be populated by JavaScript -->
-      </div>
-
-      <div class="button-group">
         <button class="btn btn-secondary" onclick="prevPage(3)"><i class="fas fa-arrow-left"></i> Back</button>
         <button class="btn btn-primary" onclick="nextPage(3)">Next <i class="fas fa-arrow-right"></i></button>
       </div>
     </div>
 
-    <!-- Page 4: Contact & Business Info -->
+    <!-- PAGE 4: Industry Selection -->
     <div class="page" id="page4">
-      <h1 class="page-title">Contact & Business Information</h1>
-      <p class="page-subtitle">Tell us a bit more about yourself and your business.</p>
-
-      <div class="form-group">
-        <label for="phone">Phone Number *</label>
-        <input type="tel" id="phone" required>
+      <h1 class="page-title">Select Your Industries</h1>
+      <p class="page-subtitle">Choose the industries you want to serve. You can add more later by upgrading your tier.</p>
+      <div class="industry-search">
+        <input type="text" id="industrySearch" placeholder="Search industries..." onkeyup="filterIndustries()">
       </div>
-
-      <div class="form-group">
-        <label for="address">Business Address *</label>
-        <input type="text" id="address" required>
-      </div>
-
-      <div class="form-group">
-        <label for="city">City *</label>
-        <input type="text" id="city" required>
-      </div>
-
-      <div class="form-group">
-        <label for="state">State *</label>
-        <input type="text" id="state" required>
-      </div>
-
-      <div class="form-group">
-        <label for="zip">ZIP Code *</label>
-        <input type="text" id="zip" required>
-      </div>
-
-      <div class="form-group">
-        <label for="website">Website (if applicable)</label>
-        <input type="url" id="website">
-      </div>
-
-      <div class="form-group">
-        <label for="businessDescription">Tell us about your business background (optional)</label>
-        <textarea id="businessDescription" placeholder="Share your experience in sales, marketing, or working with local businesses..."></textarea>
-      </div>
-
+      <div class="selected-count" id="selectedCount">Selected: 0 / 0</div>
+      <div class="industry-grid" id="industryGrid"></div>
       <div class="button-group">
         <button class="btn btn-secondary" onclick="prevPage(4)"><i class="fas fa-arrow-left"></i> Back</button>
         <button class="btn btn-primary" onclick="nextPage(4)">Next <i class="fas fa-arrow-right"></i></button>
       </div>
     </div>
 
-    <!-- Page 5: Review & Submit -->
+    <!-- PAGE 5: Contact & Business Info -->
     <div class="page" id="page5">
+      <h1 class="page-title">Contact & Business Information</h1>
+      <p class="page-subtitle">Tell us a bit more about yourself and your business.</p>
+      <div class="form-group"><label for="phone">Phone Number *</label><input type="tel" id="phone" required></div>
+      <div class="form-group"><label for="address">Business Address *</label><input type="text" id="address" required></div>
+      <div class="form-group"><label for="city">City *</label><input type="text" id="city" required></div>
+      <div class="form-group"><label for="state">State *</label><input type="text" id="state" required></div>
+      <div class="form-group"><label for="zip">ZIP Code *</label><input type="text" id="zip" required></div>
+      <div class="form-group"><label for="website">Website (if applicable)</label><input type="url" id="website"></div>
+      <div class="form-group">
+        <label for="businessDescription">Tell us about your business background (optional)</label>
+        <textarea id="businessDescription" placeholder="Share your experience in sales, marketing, or working with local businesses..."></textarea>
+      </div>
+      <div class="button-group">
+        <button class="btn btn-secondary" onclick="prevPage(5)"><i class="fas fa-arrow-left"></i> Back</button>
+        <button class="btn btn-primary" onclick="nextPage(5)">Next <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- PAGE 6: Review & Submit -->
+    <div class="page" id="page6">
       <h1 class="page-title">Review Your Application</h1>
       <p class="page-subtitle">Please review your information before submitting.</p>
 
       <div class="review-section">
         <h3>Partner Information</h3>
-        <div class="review-item">
-          <span class="review-label">Name:</span>
-          <span class="review-value" id="reviewName"></span>
-        </div>
-        <div class="review-item">
-          <span class="review-label">Email:</span>
-          <span class="review-value" id="reviewEmail"></span>
-        </div>
-        <div class="review-item">
-          <span class="review-label">Company:</span>
-          <span class="review-value" id="reviewCompany"></span>
-        </div>
-        <div class="review-item">
-          <span class="review-label">Phone:</span>
-          <span class="review-value" id="reviewPhone"></span>
-        </div>
+        <div class="review-item"><span class="review-label">Name:</span><span class="review-value" id="reviewName"></span></div>
+        <div class="review-item"><span class="review-label">Email:</span><span class="review-value" id="reviewEmail"></span></div>
+        <div class="review-item"><span class="review-label">Company:</span><span class="review-value" id="reviewCompany"></span></div>
+        <div class="review-item"><span class="review-label">Phone:</span><span class="review-value" id="reviewPhone"></span></div>
+      </div>
+
+      <div class="review-section">
+        <h3>Territory</h3>
+        <div class="review-item"><span class="review-label">Territory Name:</span><span class="review-value" id="reviewTerritoryName"></span></div>
+        <div class="review-item"><span class="review-label">Territory Type:</span><span class="review-value" id="reviewTerritoryType"></span></div>
+        <div class="review-item"><span class="review-label">Coverage:</span><span class="review-value" id="reviewTerritoryCoverage"></span></div>
       </div>
 
       <div class="review-section">
         <h3>Partnership Details</h3>
-        <div class="review-item">
-          <span class="review-label">Tier:</span>
-          <span class="review-value" id="reviewTier"></span>
-        </div>
-        <div class="review-item">
-          <span class="review-label">Industries Selected:</span>
-          <span class="review-value" id="reviewIndustries"></span>
-        </div>
+        <div class="review-item"><span class="review-label">Tier:</span><span class="review-value" id="reviewTier"></span></div>
+        <div class="review-item"><span class="review-label">Industries Selected:</span><span class="review-value" id="reviewIndustries"></span></div>
       </div>
 
       <div class="review-section">
         <h3>Business Information</h3>
-        <div class="review-item">
-          <span class="review-label">Address:</span>
-          <span class="review-value" id="reviewAddress"></span>
-        </div>
-        <div class="review-item">
-          <span class="review-label">Website:</span>
-          <span class="review-value" id="reviewWebsite"></span>
-        </div>
+        <div class="review-item"><span class="review-label">Address:</span><span class="review-value" id="reviewAddress"></span></div>
+        <div class="review-item"><span class="review-label">Website:</span><span class="review-value" id="reviewWebsite"></span></div>
       </div>
 
       <div class="button-group">
-        <button class="btn btn-secondary" onclick="prevPage(5)"><i class="fas fa-arrow-left"></i> Back</button>
+        <button class="btn btn-secondary" onclick="prevPage(6)"><i class="fas fa-arrow-left"></i> Back</button>
         <button class="btn btn-primary" onclick="submitApplication()" id="submitBtn">Submit Application <i class="fas fa-check"></i></button>
       </div>
     </div>
 
-    <!-- Success Page -->
+    <!-- SUCCESS PAGE -->
     <div class="page" id="successPage">
-      <div class="success-icon">
-        <i class="fas fa-check-circle"></i>
-      </div>
+      <div class="success-icon"><i class="fas fa-check-circle"></i></div>
       <div class="success-message">
         <h2>Application Submitted Successfully!</h2>
         <p>Thank you for applying to become a TurnkeyAI Territory Partner.</p>
-        <p>We've received your application and will review it within 1-2 business days.</p>
+        <p>We've received your application and will review it within 1–2 business days.</p>
       </div>
-
       <div class="next-steps">
         <h3>What Happens Next?</h3>
         <ol>
-          <li><strong>Review:</strong> Our team will review your application and territory selection.</li>
+          <li><strong>Territory Check:</strong> We verify your selected territory has no conflicts with existing partners.</li>
+          <li><strong>Review:</strong> Our team reviews your application and territory selection.</li>
           <li><strong>Approval:</strong> You'll receive an email confirmation once approved.</li>
-          <li><strong>Onboarding:</strong> We'll send you your Territory Partner Hub login credentials and training materials.</li>
+          <li><strong>Onboarding:</strong> We'll send your Territory Partner Hub login credentials and training materials.</li>
           <li><strong>Launch:</strong> Start serving clients in your selected industries and building recurring revenue!</li>
         </ol>
       </div>
-
-      <div style="text-align: center; margin-top: 2rem;">
+      <div style="text-align:center;margin-top:2rem;">
         <p><strong>Questions?</strong> Contact us at <a href="mailto:turnkeyaiservices@gmail.com">turnkeyaiservices@gmail.com</a> or <a href="tel:6039222004">(603) 922-2004</a></p>
       </div>
     </div>
+
   </div>
 
-  <!-- Footer -->
   <footer>
     <p>&copy; 2026 TurnkeyAI Services. All rights reserved.</p>
-    <p>
-      <a href="tel:6039222004">(603) 922-2004</a> | 
-      <a href="mailto:turnkeyaiservices@gmail.com">turnkeyaiservices@gmail.com</a>
-    </p>
+    <p><a href="tel:6039222004">(603) 922-2004</a> | <a href="mailto:turnkeyaiservices@gmail.com">turnkeyaiservices@gmail.com</a></p>
   </footer>
 
   <script>
-    // 67 Industries
+    // ════════════════════════════════════════════
+    // DATA
+    // ════════════════════════════════════════════
     const industries = [
-      "Plumbing", "HVAC", "Electrical", "Roofing", "Landscaping", "Pest Control",
-      "House Cleaning", "Carpet Cleaning", "Window Cleaning", "Pressure Washing",
-      "Painting", "Flooring", "Kitchen Remodeling", "Bathroom Remodeling",
-      "General Contracting", "Handyman Services", "Appliance Repair",
-      "Garage Door Repair", "Locksmith", "Tree Service", "Lawn Care",
-      "Pool Service", "Septic Service", "Chimney Sweep", "Gutter Cleaning",
-      "Deck Building", "Fence Installation", "Concrete Work", "Masonry",
-      "Drywall", "Insulation", "Siding", "Windows & Doors", "Solar Installation",
-      "Home Security", "Moving Services", "Junk Removal", "Storage Units",
-      "Auto Detailing", "Auto Repair", "Oil Change", "Tire Shop", "Towing",
-      "Pet Grooming", "Dog Training", "Veterinary", "Daycare", "Tutoring",
-      "Music Lessons", "Dance Studio", "Martial Arts", "Yoga Studio",
-      "Personal Training", "Massage Therapy", "Hair Salon", "Barber Shop",
-      "Nail Salon", "Spa Services", "Tanning Salon", "Tattoo Parlor",
-      "Photography", "Video Production", "Event Planning", "Catering",
-      "Bakery", "Coffee Shop", "Restaurant", "Food Truck", "IT Support",
-      "Web Design", "Accounting"
+      "Plumbing","HVAC","Electrical","Roofing","Landscaping","Pest Control",
+      "House Cleaning","Carpet Cleaning","Window Cleaning","Pressure Washing",
+      "Painting","Flooring","Kitchen Remodeling","Bathroom Remodeling",
+      "General Contracting","Handyman Services","Appliance Repair",
+      "Garage Door Repair","Locksmith","Tree Service","Lawn Care",
+      "Pool Service","Septic Service","Chimney Sweep","Gutter Cleaning",
+      "Deck Building","Fence Installation","Concrete Work","Masonry",
+      "Drywall","Insulation","Siding","Windows & Doors","Solar Installation",
+      "Home Security","Moving Services","Junk Removal","Storage Units",
+      "Auto Detailing","Auto Repair","Oil Change","Tire Shop","Towing",
+      "Pet Grooming","Dog Training","Veterinary","Daycare","Tutoring",
+      "Music Lessons","Dance Studio","Martial Arts","Yoga Studio",
+      "Personal Training","Massage Therapy","Hair Salon","Barber Shop",
+      "Nail Salon","Spa Services","Tanning Salon","Tattoo Parlor",
+      "Photography","Video Production","Event Planning","Catering",
+      "Bakery","Coffee Shop","Restaurant","Food Truck","IT Support",
+      "Web Design","Accounting"
     ];
 
+    // ════════════════════════════════════════════
+    // STATE
+    // ════════════════════════════════════════════
     let currentPage = 1;
     let selectedTier = '';
     let selectedIndustries = [];
-    let tierLimits = {
-      'starter': 5,
-      'professional': 15,
-      'enterprise': 30,
-      'unlimited': 67
-    };
+    let selectedTerritoryType = '';
+    let zipCodes = [];
+    const tierLimits = { starter:5, professional:15, enterprise:30, unlimited:67 };
+    const maps = {};
+    const geocodeCache = {};
+    const zipMarkers = {};
 
-    // Initialize
+    // ════════════════════════════════════════════
+    // INIT
+    // ════════════════════════════════════════════
     window.onload = function() {
       populateIndustries();
       checkPromoEligibility();
+      initZipInput();
     };
 
-    // Check if eligible for First 10 Promo
+    // ════════════════════════════════════════════
+    // PROMO CHECK
+    // ════════════════════════════════════════════
     async function checkPromoEligibility() {
       try {
-        const response = await fetch('/api/territory-partner/applications');
-        const data = await response.json();
-        const approvedCount = data.applications.filter(app => app.status === 'approved').length;
-        
-        if (approvedCount < 10) {
-          document.getElementById('promoBanner').classList.add('visible');
-        }
-      } catch (error) {
-        console.error('Error checking promo eligibility:', error);
+        const r = await fetch('/api/territory-partner/applications');
+        const data = await r.json();
+        const approved = (data.applications || []).filter(a => a.status === 'approved').length;
+        if (approved < 10) document.getElementById('promoBanner').classList.add('visible');
+      } catch(e) { /* non-critical */ }
+    }
+
+    // ════════════════════════════════════════════
+    // TERRITORY TYPE
+    // ════════════════════════════════════════════
+    function selectTerritoryType(type) {
+      selectedTerritoryType = type;
+      ['zip','city','county','radius'].forEach(t => {
+        document.getElementById('ttcard-' + t).classList.toggle('selected', t === type);
+        document.getElementById('section-' + t).classList.toggle('visible', t === type);
+      });
+      document.getElementById('tt' + type.charAt(0).toUpperCase() + type.slice(1)).checked = true;
+      initMapForType(type);
+    }
+
+    // ════════════════════════════════════════════
+    // LEAFLET MAP INIT
+    // ════════════════════════════════════════════
+    function initMapForType(type) {
+      if (maps[type]) return;
+      const mapIds = { zip:'map-zip', city:'map-city', county:'map-county', radius:'map-radius' };
+      const el = document.getElementById(mapIds[type]);
+      if (!el) return;
+      const m = L.map(el, { zoomControl: true, scrollWheelZoom: false }).setView([37.8, -96], 4);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors', maxZoom: 18
+      }).addTo(m);
+      maps[type] = m;
+
+      if (type === 'city') {
+        document.getElementById('territoryCities').addEventListener('blur', () => geocodeAndPlot('city', document.getElementById('territoryCities').value));
+      }
+      if (type === 'county') {
+        document.getElementById('territoryCounties').addEventListener('blur', () => geocodeAndPlot('county', document.getElementById('territoryCounties').value));
+      }
+      if (type === 'radius') {
+        document.getElementById('territoryRadiusCenter').addEventListener('blur', tryGeocodeRadius);
+        document.getElementById('territoryRadiusMiles').addEventListener('change', tryGeocodeRadius);
       }
     }
 
-    // Populate industries
+    // ════════════════════════════════════════════
+    // GEOCODING
+    // ════════════════════════════════════════════
+    async function geocodeQuery(query) {
+      if (geocodeCache[query]) return geocodeCache[query];
+      try {
+        const url = 'https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(query) + '&format=json&limit=1&countrycodes=us';
+        const r = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+        const data = await r.json();
+        if (data && data.length > 0) {
+          const result = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+          geocodeCache[query] = result;
+          return result;
+        }
+      } catch(e) { /* silently ignore */ }
+      return null;
+    }
+
+    async function geocodeAndPlot(type, raw) {
+      if (!raw || !raw.trim()) return;
+      const first = raw.split(';')[0].trim();
+      const coords = await geocodeQuery(first);
+      if (!coords || !maps[type]) return;
+      const m = maps[type];
+      m.eachLayer(l => { if (l instanceof L.Marker) m.removeLayer(l); });
+      L.marker([coords.lat, coords.lon]).addTo(m).bindPopup(first).openPopup();
+      m.setView([coords.lat, coords.lon], 10);
+    }
+
+    async function tryGeocodeRadius() {
+      const center = document.getElementById('territoryRadiusCenter').value.trim();
+      const miles = parseFloat(document.getElementById('territoryRadiusMiles').value);
+      if (!center || !miles || miles <= 0) return;
+      const coords = await geocodeQuery(center);
+      if (!coords || !maps['radius']) return;
+      const m = maps['radius'];
+      m.eachLayer(l => { if (l instanceof L.Marker || l instanceof L.Circle) m.removeLayer(l); });
+      const meters = miles * 1609.34;
+      const circle = L.circle([coords.lat, coords.lon], { radius: meters, color: '#FF6F00', fillColor: '#FF8C42', fillOpacity: 0.15, weight: 2 }).addTo(m);
+      L.marker([coords.lat, coords.lon]).addTo(m).bindPopup(center).openPopup();
+      m.fitBounds(circle.getBounds());
+    }
+
+    // ════════════════════════════════════════════
+    // ZIP CHIP INPUT
+    // ════════════════════════════════════════════
+    function initZipInput() {
+      const input = document.getElementById('zipInput');
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ',') {
+          e.preventDefault();
+          addZipChip(this.value.trim());
+          this.value = '';
+        } else if (e.key === 'Backspace' && this.value === '' && zipCodes.length > 0) {
+          removeZipChip(zipCodes[zipCodes.length - 1]);
+        }
+      });
+      input.addEventListener('blur', function() {
+        if (this.value.trim()) { addZipChip(this.value.trim()); this.value = ''; }
+      });
+    }
+
+    function addZipChip(zip) {
+      if (!zip) return;
+      if (!/^\d{5}$/.test(zip)) { showError('ZIP codes must be exactly 5 digits.'); return; }
+      if (zipCodes.includes(zip)) { showError('ZIP code ' + zip + ' is already added.'); return; }
+      if (zipCodes.length >= 50) { showError('Maximum 50 ZIP codes allowed.'); return; }
+      zipCodes.push(zip);
+      renderZipChips();
+      plotZipOnMap(zip);
+    }
+
+    function removeZipChip(zip) {
+      zipCodes = zipCodes.filter(z => z !== zip);
+      renderZipChips();
+      if (maps['zip'] && zipMarkers[zip]) {
+        maps['zip'].removeLayer(zipMarkers[zip]);
+        delete zipMarkers[zip];
+      }
+      const remaining = Object.values(zipMarkers).map(m => m.getLatLng());
+      if (remaining.length > 0 && maps['zip']) maps['zip'].fitBounds(L.latLngBounds(remaining).pad(0.2));
+      else if (maps['zip']) maps['zip'].setView([37.8, -96], 4);
+    }
+
+    function renderZipChips() {
+      const container = document.getElementById('zipChipContainer');
+      const input = document.getElementById('zipInput');
+      container.querySelectorAll('.zip-chip').forEach(c => c.remove());
+      zipCodes.forEach(zip => {
+        const chip = document.createElement('span');
+        chip.className = 'zip-chip';
+        chip.innerHTML = zip + '<button class="zip-chip-remove" onclick="removeZipChip(\'' + zip + '\')" title="Remove">&times;</button>';
+        container.insertBefore(chip, input);
+      });
+      const countEl = document.getElementById('zipCount');
+      countEl.textContent = zipCodes.length + ' / 50 ZIP codes added';
+      countEl.classList.toggle('at-limit', zipCodes.length >= 50);
+      input.disabled = zipCodes.length >= 50;
+      input.placeholder = zipCodes.length >= 50 ? 'Limit reached' : '39520';
+    }
+
+    async function plotZipOnMap(zip) {
+      if (!maps['zip']) initMapForType('zip');
+      const coords = await geocodeQuery(zip + ', USA');
+      if (!coords) return;
+      const marker = L.marker([coords.lat, coords.lon]).addTo(maps['zip']).bindPopup(zip);
+      zipMarkers[zip] = marker;
+      const allLatLngs = Object.values(zipMarkers).map(m => m.getLatLng());
+      if (allLatLngs.length === 1) maps['zip'].setView(allLatLngs[0], 11);
+      else maps['zip'].fitBounds(L.latLngBounds(allLatLngs).pad(0.2));
+    }
+
+    // ════════════════════════════════════════════
+    // TIER SELECTION
+    // ════════════════════════════════════════════
+    function selectTier(tier) {
+      selectedTier = tier;
+      document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('selected'));
+      document.getElementById('tiercard-' + tier).classList.add('selected');
+      document.getElementById('tier' + tier.charAt(0).toUpperCase() + tier.slice(1)).checked = true;
+      updateSelectedCount();
+    }
+
+    // ════════════════════════════════════════════
+    // INDUSTRY GRID
+    // ════════════════════════════════════════════
     function populateIndustries() {
       const grid = document.getElementById('industryGrid');
       grid.innerHTML = '';
-      
-      industries.forEach(industry => {
+      industries.forEach(ind => {
+        const safeId = 'ind_' + ind.replace(/[^a-zA-Z0-9]/g, '_');
         const div = document.createElement('div');
         div.className = 'industry-item';
-        div.innerHTML = `
-          <input type="checkbox" id="ind_${industry.replace(/\s+/g, '_')}" value="${industry}" onchange="updateSelectedCount()">
-          <label for="ind_${industry.replace(/\s+/g, '_')}">${industry}</label>
-        `;
+        div.innerHTML = '<input type="checkbox" id="' + safeId + '" value="' + ind + '" onchange="updateSelectedCount()"><label for="' + safeId + '">' + ind + '</label>';
         grid.appendChild(div);
       });
     }
 
-    // Filter industries
     function filterIndustries() {
       const search = document.getElementById('industrySearch').value.toLowerCase();
-      const items = document.querySelectorAll('.industry-item');
-      
-      items.forEach(item => {
+      document.querySelectorAll('.industry-item').forEach(item => {
         const label = item.querySelector('label').textContent.toLowerCase();
         item.style.display = label.includes(search) ? 'flex' : 'none';
       });
     }
 
-    // Update selected count
     function updateSelectedCount() {
-      const checkboxes = document.querySelectorAll('#industryGrid input[type="checkbox"]:checked');
+      const checked = document.querySelectorAll('#industryGrid input[type="checkbox"]:checked');
       const limit = tierLimits[selectedTier] || 0;
-      
-      selectedIndustries = Array.from(checkboxes).map(cb => cb.value);
-      
-      document.getElementById('selectedCount').textContent = `Selected: ${selectedIndustries.length} / ${limit}`;
-      
-      // Disable unchecked boxes if limit reached
-      if (selectedIndustries.length >= limit && selectedTier !== 'unlimited') {
-        document.querySelectorAll('#industryGrid input[type="checkbox"]:not(:checked)').forEach(cb => {
-          cb.disabled = true;
-        });
-      } else {
-        document.querySelectorAll('#industryGrid input[type="checkbox"]').forEach(cb => {
-          cb.disabled = false;
-        });
-      }
+      selectedIndustries = Array.from(checked).map(cb => cb.value);
+      document.getElementById('selectedCount').textContent = 'Selected: ' + selectedIndustries.length + ' / ' + limit;
+      const atLimit = selectedIndustries.length >= limit && selectedTier !== 'unlimited';
+      document.querySelectorAll('#industryGrid input[type="checkbox"]:not(:checked)').forEach(cb => { cb.disabled = atLimit; });
     }
 
-    // Select tier
-    function selectTier(tier) {
-      selectedTier = tier;
-      
-      // Update UI
-      document.querySelectorAll('.tier-card').forEach(card => card.classList.remove('selected'));
-      event.currentTarget.classList.add('selected');
-      document.getElementById('tier' + tier.charAt(0).toUpperCase() + tier.slice(1)).checked = true;
-      
-      // Update industry selection limit
-      updateSelectedCount();
-    }
-
-    // Navigation
+    // ════════════════════════════════════════════
+    // NAVIGATION
+    // ════════════════════════════════════════════
     function nextPage(page) {
-      // Validation
+      hideError();
+
       if (page === 1) {
         const name = document.getElementById('fullName').value.trim();
         const email = document.getElementById('email').value.trim();
-        
-        if (!name || !email) {
-          showError('Please fill in all required fields.');
-          return;
-        }
-        
-        if (!validateEmail(email)) {
-          showError('Please enter a valid email address.');
-          return;
-        }
+        if (!name || !email) { showError('Please fill in all required fields.'); return; }
+        if (!validateEmail(email)) { showError('Please enter a valid email address.'); return; }
       }
-      
+
       if (page === 2) {
-        if (!selectedTier) {
-          showError('Please select a partnership tier.');
-          return;
+        if (!document.getElementById('territoryName').value.trim()) { showError('Please enter a territory name.'); return; }
+        if (!selectedTerritoryType) { showError('Please select a territory type.'); return; }
+        if (selectedTerritoryType === 'zip' && zipCodes.length === 0) { showError('Please add at least one ZIP code.'); return; }
+        if (selectedTerritoryType === 'city' && !document.getElementById('territoryCities').value.trim()) { showError('Please enter at least one city.'); return; }
+        if (selectedTerritoryType === 'county' && !document.getElementById('territoryCounties').value.trim()) { showError('Please enter at least one county.'); return; }
+        if (selectedTerritoryType === 'radius') {
+          if (!document.getElementById('territoryRadiusCenter').value.trim()) { showError('Please enter a center point.'); return; }
+          const m = parseFloat(document.getElementById('territoryRadiusMiles').value);
+          if (!m || m <= 0) { showError('Please enter a valid radius in miles.'); return; }
         }
       }
-      
+
       if (page === 3) {
-        const limit = tierLimits[selectedTier];
-        if (selectedIndustries.length === 0) {
-          showError('Please select at least one industry.');
-          return;
-        }
-        if (selectedIndustries.length > limit) {
-          showError(`You can select up to ${limit} industries for the ${selectedTier} tier.`);
-          return;
-        }
+        if (!selectedTier) { showError('Please select a partnership tier.'); return; }
       }
-      
+
       if (page === 4) {
+        const limit = tierLimits[selectedTier];
+        if (selectedIndustries.length === 0) { showError('Please select at least one industry.'); return; }
+        if (selectedIndustries.length > limit) { showError('You can select up to ' + limit + ' industries for the ' + selectedTier + ' tier.'); return; }
+      }
+
+      if (page === 5) {
         const phone = document.getElementById('phone').value.trim();
         const address = document.getElementById('address').value.trim();
         const city = document.getElementById('city').value.trim();
         const state = document.getElementById('state').value.trim();
         const zip = document.getElementById('zip').value.trim();
-        
-        if (!phone || !address || !city || !state || !zip) {
-          showError('Please fill in all required fields.');
-          return;
-        }
-      }
-      
-      if (page === 4) {
+        if (!phone || !address || !city || !state || !zip) { showError('Please fill in all required fields.'); return; }
         populateReview();
       }
-      
-      // Hide current page
-      document.getElementById(`page${page}`).classList.remove('active');
-      
-      // Show next page
+
+      document.getElementById('page' + page).classList.remove('active');
       currentPage = page + 1;
-      document.getElementById(`page${currentPage}`).classList.add('active');
-      
-      // Update progress
+      document.getElementById('page' + currentPage).classList.add('active');
       updateProgress();
-      
-      // Scroll to top
       window.scrollTo(0, 0);
     }
 
     function prevPage(page) {
-      document.getElementById(`page${page}`).classList.remove('active');
+      hideError();
+      document.getElementById('page' + page).classList.remove('active');
       currentPage = page - 1;
-      document.getElementById(`page${currentPage}`).classList.add('active');
+      document.getElementById('page' + currentPage).classList.add('active');
       updateProgress();
       window.scrollTo(0, 0);
     }
 
     function updateProgress() {
-      const steps = document.querySelectorAll('.step');
-      const progressFill = document.getElementById('progressFill');
-      
-      steps.forEach((step, index) => {
-        if (index < currentPage - 1) {
-          step.classList.add('completed');
-          step.classList.remove('active');
-        } else if (index === currentPage - 1) {
-          step.classList.add('active');
-          step.classList.remove('completed');
-        } else {
-          step.classList.remove('active', 'completed');
-        }
+      document.querySelectorAll('.step').forEach((step, idx) => {
+        const n = idx + 1;
+        if (n < currentPage) { step.classList.add('completed'); step.classList.remove('active'); }
+        else if (n === currentPage) { step.classList.add('active'); step.classList.remove('completed'); }
+        else { step.classList.remove('active', 'completed'); }
       });
-      
-      const progress = ((currentPage - 1) / 4) * 100;
-      progressFill.style.width = progress + '%';
+      document.getElementById('progressFill').style.width = ((currentPage - 1) / 5 * 100) + '%';
     }
 
-    // Populate review
+    // ════════════════════════════════════════════
+    // REVIEW
+    // ════════════════════════════════════════════
     function populateReview() {
       document.getElementById('reviewName').textContent = document.getElementById('fullName').value;
       document.getElementById('reviewEmail').textContent = document.getElementById('email').value;
       document.getElementById('reviewCompany').textContent = document.getElementById('companyName').value || 'N/A';
       document.getElementById('reviewPhone').textContent = document.getElementById('phone').value;
-      
-      const tierNames = {
-        'starter': 'Starter ($99/mo)',
-        'professional': 'Professional ($199/mo)',
-        'enterprise': 'Enterprise ($199/mo)',
-        'unlimited': 'Unlimited ($199/mo)'
-      };
+
+      document.getElementById('reviewTerritoryName').textContent = document.getElementById('territoryName').value;
+      const typeLabels = { zip:'ZIP Codes', city:'City / State', county:'County', radius:'Radius' };
+      document.getElementById('reviewTerritoryType').textContent = typeLabels[selectedTerritoryType] || 'N/A';
+
+      let coverage = 'N/A';
+      if (selectedTerritoryType === 'zip') coverage = zipCodes.length + ' ZIP code(s): ' + zipCodes.join(', ');
+      if (selectedTerritoryType === 'city') coverage = document.getElementById('territoryCities').value;
+      if (selectedTerritoryType === 'county') coverage = document.getElementById('territoryCounties').value;
+      if (selectedTerritoryType === 'radius') coverage = document.getElementById('territoryRadiusMiles').value + ' mile radius from ' + document.getElementById('territoryRadiusCenter').value;
+      document.getElementById('reviewTerritoryCoverage').textContent = coverage;
+
+      const tierNames = { starter:'Starter ($99/mo)', professional:'Professional ($199/mo)', enterprise:'Enterprise ($199/mo)', unlimited:'Unlimited ($199/mo)' };
       document.getElementById('reviewTier').textContent = tierNames[selectedTier] || 'N/A';
-      
       document.getElementById('reviewIndustries').textContent = selectedIndustries.join(', ');
-      
-      const address = `${document.getElementById('address').value}, ${document.getElementById('city').value}, ${document.getElementById('state').value} ${document.getElementById('zip').value}`;
-      document.getElementById('reviewAddress').textContent = address;
-      
+
+      const addr = document.getElementById('address').value + ', ' + document.getElementById('city').value + ', ' + document.getElementById('state').value + ' ' + document.getElementById('zip').value;
+      document.getElementById('reviewAddress').textContent = addr;
       document.getElementById('reviewWebsite').textContent = document.getElementById('website').value || 'N/A';
     }
 
-    // Submit application
+    // ════════════════════════════════════════════
+    // SUBMIT
+    // ════════════════════════════════════════════
     async function submitApplication() {
       const submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = true;
       submitBtn.textContent = 'Submitting...';
-      
-      const applicationData = {
+
+      const payload = {
         fullName: document.getElementById('fullName').value.trim(),
         email: document.getElementById('email').value.trim(),
         companyName: document.getElementById('companyName').value.trim(),
@@ -1074,21 +895,42 @@
         website: document.getElementById('website').value.trim(),
         businessDescription: document.getElementById('businessDescription').value.trim(),
         tier: selectedTier,
-        industries: selectedIndustries
+        industries: selectedIndustries,
+        territoryName: document.getElementById('territoryName').value.trim(),
+        territoryType: selectedTerritoryType,
+        territoryZips: selectedTerritoryType === 'zip' ? zipCodes : [],
+        territoryCities: document.getElementById('territoryCities').value.trim(),
+        territoryCounties: document.getElementById('territoryCounties').value.trim(),
+        territoryRadiusCenter: document.getElementById('territoryRadiusCenter').value.trim(),
+        territoryRadiusMiles: document.getElementById('territoryRadiusMiles').value ? parseFloat(document.getElementById('territoryRadiusMiles').value) : null,
+        territoryNotes: document.getElementById('territoryNotes').value.trim()
       };
-      
+
       try {
         const response = await fetch('/api/territory-partner/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(applicationData)
+          body: JSON.stringify(payload)
         });
-        
+
         const result = await response.json();
-        
+
+        if (response.status === 409) {
+          // Return to territory page with conflict warning
+          document.getElementById('page6').classList.remove('active');
+          currentPage = 2;
+          document.getElementById('page2').classList.add('active');
+          updateProgress();
+          window.scrollTo(0, 0);
+          document.getElementById('conflictMessage').textContent = ' ' + (result.message || 'Some ZIP codes are already claimed. Please adjust your territory.');
+          document.getElementById('conflictWarning').classList.add('visible');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Submit Application <i class="fas fa-check"></i>';
+          return;
+        }
+
         if (response.ok) {
-          // Show success page
-          document.getElementById('page5').classList.remove('active');
+          document.getElementById('page6').classList.remove('active');
           document.getElementById('successPage').classList.add('active');
           window.scrollTo(0, 0);
         } else {
@@ -1096,24 +938,27 @@
           submitBtn.disabled = false;
           submitBtn.innerHTML = 'Submit Application <i class="fas fa-check"></i>';
         }
-      } catch (error) {
-        console.error('Error submitting application:', error);
+
+      } catch(error) {
         showError('Network error. Please check your connection and try again.');
         submitBtn.disabled = false;
         submitBtn.innerHTML = 'Submit Application <i class="fas fa-check"></i>';
       }
     }
 
-    // Utilities
-    function showError(message) {
-      const errorDiv = document.getElementById('errorMessage');
-      errorDiv.textContent = message;
-      errorDiv.classList.add('visible');
+    // ════════════════════════════════════════════
+    // UTILITIES
+    // ════════════════════════════════════════════
+    function showError(msg) {
+      const el = document.getElementById('errorMessage');
+      el.textContent = msg;
+      el.classList.add('visible');
       window.scrollTo(0, 0);
-      
-      setTimeout(() => {
-        errorDiv.classList.remove('visible');
-      }, 5000);
+      setTimeout(() => el.classList.remove('visible'), 6000);
+    }
+
+    function hideError() {
+      document.getElementById('errorMessage').classList.remove('visible');
     }
 
     function validateEmail(email) {
