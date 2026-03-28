@@ -39,7 +39,7 @@ router.post('/api/stripe-webhook', async (req, res) => {
     event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET);
   } catch (err) {
     console.error('[stripe-webhook] Signature verification failed:', err.message);
-    return res.status(400).send(\`Webhook signature verification failed: \${err.message}\`);
+    return res.status(400).send('Webhook signature verification failed: ' + err.message);
   }
 
   console.log('[stripe-webhook] Received event:', event.type, 'ID:', event.id);
@@ -73,12 +73,12 @@ router.post('/api/stripe-webhook', async (req, res) => {
     await sendEmail({
       to: ADMIN_EMAIL,
       subject: '⚠️ Stripe Payment Received — Client Not Found',
-      html: \`<p><strong>Stripe checkout completed but client not found in database.</strong></p>
-        <p><strong>Session ID:</strong> \${session.id}</p>
-        <p><strong>Customer Email:</strong> \${customerEmail || '(none)'}</p>
-        <p><strong>Metadata Client ID:</strong> \${clientId || '(none)'}</p>
-        <p><strong>Amount:</strong> $\${(session.amount_total / 100).toFixed(2)}</p>
-        <p>This customer paid but we don't have a matching client record. They may have paid before completing intake.</p>\`
+      html: '<p><strong>Stripe checkout completed but client not found in database.</strong></p>' +
+        '<p><strong>Session ID:</strong> ' + session.id + '</p>' +
+        '<p><strong>Customer Email:</strong> ' + (customerEmail || '(none)') + '</p>' +
+        '<p><strong>Metadata Client ID:</strong> ' + (clientId || '(none)') + '</p>' +
+        '<p><strong>Amount:</strong> $' + (session.amount_total / 100).toFixed(2) + '</p>' +
+        '<p>This customer paid but we don\'t have a matching client record. They may have paid before completing intake.</p>'
     }).catch(err => console.error('[stripe-webhook] Admin notification failed:', err.message));
     
     // Return 200 OK anyway — don't block Stripe
@@ -106,14 +106,14 @@ router.post('/api/stripe-webhook', async (req, res) => {
     // Send admin notification
     await sendEmail({
       to: ADMIN_EMAIL,
-      subject: \`💰 Payment Confirmed: \${client.data.businessName || client.data.email}\`,
-      html: \`<p><strong>\${client.data.businessName || '(unnamed)'}</strong> payment confirmed via Stripe.</p>
-        <p><strong>Client ID:</strong> \${client.id}</p>
-        <p><strong>Email:</strong> \${client.data.email}</p>
-        <p><strong>Plan:</strong> \${client.data.selectedPlan || client.data.plan || '(unknown)'}</p>
-        <p><strong>Amount:</strong> $\${(session.amount_total / 100).toFixed(2)}</p>
-        <p><strong>Status:</strong> \${client.status}</p>
-        <p>Welcome email sent automatically.</p>\`
+      subject: '💰 Payment Confirmed: ' + (client.data.businessName || client.data.email),
+      html: '<p><strong>' + (client.data.businessName || '(unnamed)') + '</strong> payment confirmed via Stripe.</p>' +
+        '<p><strong>Client ID:</strong> ' + client.id + '</p>' +
+        '<p><strong>Email:</strong> ' + client.data.email + '</p>' +
+        '<p><strong>Plan:</strong> ' + (client.data.selectedPlan || client.data.plan || '(unknown)') + '</p>' +
+        '<p><strong>Amount:</strong> $' + (session.amount_total / 100).toFixed(2) + '</p>' +
+        '<p><strong>Status:</strong> ' + client.status + '</p>' +
+        '<p>Welcome email sent automatically.</p>'
     }).catch(err => console.error('[stripe-webhook] Admin notification failed:', err.message));
 
     res.json({ received: true, emailSent: true });
