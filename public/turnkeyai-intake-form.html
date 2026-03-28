@@ -92,9 +92,9 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
 .plan-item-name{font-weight:700;font-size:14px;color:#1f2937}
 .plan-item-desc{font-size:13px;color:#6B7280;margin-top:2px}
 .plan-item-price{font-size:13px;font-weight:700;color:#0066FF;margin-top:3px}
-/* FAQ Q&A pair styling */
+/* FAQ builder styling */
 .faq-pair{background:#f9fafb;border:2px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px}
-.faq-pair-num{font-size:12px;font-weight:700;color:#0066FF;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.faq-pair-num{font-size:12px;font-weight:700;color:#0066FF;text-transform:uppercase;letter-spacing:1px}
 .faq-pair input,.faq-pair textarea{width:100%;padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;color:#1f2937;background:white;outline:none;transition:border-color .2s}
 .faq-pair input:focus,.faq-pair textarea:focus{border-color:#0066FF}
 .faq-pair textarea{resize:vertical;min-height:60px}
@@ -136,7 +136,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
   </div>
   <!-- STEP 1: BUSINESS INFO -->
   <div class="step-page" id="page1">
-    <!-- ═══ INTERSTITIAL: Why Your Answers Matter ═══ -->
     <div class="card" style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:2px solid #0066FF;">
       <div style="font-size:17px;font-weight:700;color:#0052CC;margin-bottom:12px;">💡 Help Us Build the Best Website for Your Business</div>
       <p style="font-size:14px;color:#1e3a5f;line-height:1.75;margin-bottom:12px;">The questions you're about to answer are the foundation of everything we build for you — your website, your online chatbot, and your visibility on Google. The more detail you provide, the better everything works.</p>
@@ -243,45 +242,12 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           </select>
         </div>
       </div>
-      <!-- ═══ CHANGE 2: Structured FAQ Q&A Pairs ═══ -->
+      <!-- ═══ Dynamic FAQ Builder ═══ -->
       <div class="field">
         <label>Frequently Asked Questions &amp; Answers</label>
         <p style="font-size:13px;color:#6B7280;margin-bottom:14px">List the questions customers ask you most often, along with the answer you'd want your chatbot to give. The more detail in your answers, the smarter your chatbot will be.</p>
-        <div class="faq-pair">
-          <div class="faq-pair-num">Question 1</div>
-          <label>Question</label>
-          <input type="text" name="faq_q1" placeholder="e.g. Do you offer free estimates?">
-          <label style="margin-top:10px">Answer</label>
-          <textarea name="faq_a1" placeholder="e.g. Yes! We offer free estimates for all jobs. Just call us or fill out the form and we'll get back to you within a few hours." style="min-height:60px"></textarea>
-        </div>
-        <div class="faq-pair">
-          <div class="faq-pair-num">Question 2</div>
-          <label>Question</label>
-          <input type="text" name="faq_q2" placeholder="e.g. How soon can you come out?">
-          <label style="margin-top:10px">Answer</label>
-          <textarea name="faq_a2" placeholder="e.g. Most jobs we can schedule within 24-48 hours. Emergencies we try to get to same day." style="min-height:60px"></textarea>
-        </div>
-        <div class="faq-pair">
-          <div class="faq-pair-num">Question 3</div>
-          <label>Question</label>
-          <input type="text" name="faq_q3" placeholder="e.g. Do you work on weekends?">
-          <label style="margin-top:10px">Answer</label>
-          <textarea name="faq_a3" placeholder="e.g. Yes, we're available Saturday mornings 9am-2pm. Sundays by appointment only for emergencies." style="min-height:60px"></textarea>
-        </div>
-        <div class="faq-pair">
-          <div class="faq-pair-num">Question 4</div>
-          <label>Question</label>
-          <input type="text" name="faq_q4" placeholder="e.g. What areas do you serve?">
-          <label style="margin-top:10px">Answer</label>
-          <textarea name="faq_a4" placeholder="e.g. We serve all of Hancock County, Harrison County, and Pearl River County — about a 50-mile radius from Bay St. Louis." style="min-height:60px"></textarea>
-        </div>
-        <div class="faq-pair">
-          <div class="faq-pair-num">Question 5</div>
-          <label>Question</label>
-          <input type="text" name="faq_q5" placeholder="e.g. Are you licensed and insured?">
-          <label style="margin-top:10px">Answer</label>
-          <textarea name="faq_a5" placeholder="e.g. Yes, we are fully licensed and insured. We carry $1M in liability coverage and all our technicians are background checked." style="min-height:60px"></textarea>
-        </div>
+        <div id="faqBuilder"></div>
+        <button type="button" onclick="addFaqPair()" style="margin-top:4px;background:#f0f7ff;border:2px dashed #0066FF;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;color:#0066FF;cursor:pointer;font-family:inherit;width:100%;transition:background .15s;" onmouseover="this.style.background='#e0f0ff'" onmouseout="this.style.background='#f0f7ff'">+ Add Another Question</button>
         <p style="font-size:12px;color:#9CA3AF;margin-top:8px">Fill in as many as you can — leave any blank that don't apply. You can always add more later through your dashboard.</p>
       </div>
       <div class="field"><label>How should pricing be shown in chat?</label>
@@ -313,7 +279,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
         <div class="field"><label>How did you hear about us?</label><input type="text" name="referralSource" placeholder="e.g. Facebook, friend, Google"></div>
       </div>
     </div>
-    <!-- ═══ CHANGE 3: IVR / Phone System Setup ═══ -->
+    <!-- ═══ IVR / Phone System Setup ═══ -->
     <div class="card">
       <div class="sec-title">📞 Phone System Setup (IVR)</div>
       <p style="font-size:13px;color:#6B7280;margin-bottom:16px">We can set up a professional phone system for your business — with a dedicated business number, automated greeting, and department routing. This is included with your plan at no extra charge.</p>
@@ -373,10 +339,8 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
   <!-- STEP 5: DOMAIN & TECHNICAL SETUP -->
   <div class="step-page" id="page5">
     <div class="card">
-      <div class="sec-title">🌐 Domain & Technical Setup</div>
+      <div class="sec-title">🌐 Domain &amp; Technical Setup</div>
       <p style="font-size:13px;color:#6B7280;margin-bottom:16px">We need to understand your current domain situation to set up your site correctly.</p>
-
-      <!-- Q1: Domain Status -->
       <div class="field">
         <label>Do you currently have a website and/or domain name? <span class="req">*</span></label>
         <div class="radio-group">
@@ -386,12 +350,10 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <label class="radio-item"><input type="radio" name="domainStatus" value="not_sure" onchange="domainLogic()"> I'm not sure</label>
         </div>
       </div>
-
       <div class="field hidden" id="domainNameField">
         <label>What is your domain name?</label>
         <input type="text" name="existingDomain" placeholder="e.g. joesplumbing.com">
       </div>
-
       <div class="field hidden" id="registrarField">
         <label>Where is your domain registered?</label>
         <div class="radio-group">
@@ -405,7 +367,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <label class="radio-item"><input type="radio" name="domainRegistrar" value="dont_know"> I don't know</label>
         </div>
       </div>
-
       <div class="field hidden" id="dnsApproachField">
         <label>How would you like us to handle DNS setup?</label>
         <div class="radio-group">
@@ -414,7 +375,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <label class="radio-item" style="align-items:flex-start"><input type="radio" name="dnsApproach" value="need_help" onchange="dnsApproachLogic()" style="margin-top:3px"> <span><strong>I need help</strong> — I'm not sure, please contact me to discuss</span></label>
         </div>
       </div>
-
       <div class="field hidden" id="registrarCredsField" style="background:#fff8ed;border:1px solid #fbbf24;border-radius:10px;padding:16px;margin-bottom:18px">
         <p style="font-size:13px;color:#92400e;font-weight:600;margin-bottom:10px">🔒 Your credentials will only be used for DNS setup and are stored securely.</p>
         <div class="row2">
@@ -422,7 +382,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <div class="field"><label>Registrar Password</label><input type="password" name="registrarPassword" placeholder="Your registrar password"></div>
         </div>
       </div>
-
       <div class="field hidden" id="emailOnDomainField">
         <label>Do you have email addresses using your domain? (e.g. joe@joesplumbing.com)</label>
         <div class="radio-group">
@@ -431,7 +390,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <label class="radio-item"><input type="radio" name="hasEmailOnDomain" value="not_sure_email" onchange="emailLogic()"> Not sure</label>
         </div>
       </div>
-
       <div class="field hidden" id="emailProviderField">
         <label>Who provides your email?</label>
         <div class="radio-group">
@@ -442,17 +400,14 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <label class="radio-item"><input type="radio" name="emailProvider" value="dont_know_email"> I don't know</label>
         </div>
       </div>
-
       <div class="field hidden" id="emailListField">
         <label>List all email addresses that must keep working</label>
         <textarea name="emailsToPreserve" placeholder="e.g.&#10;joe@joesplumbing.com&#10;office@joesplumbing.com" style="min-height:70px"></textarea>
       </div>
-
       <div class="field hidden" id="newDomainField">
         <label>What domain name would you like? (Give us your top 2–3 choices)</label>
         <textarea name="preferredDomains" placeholder="e.g.&#10;joesplumbing.com&#10;joesplumbingms.com&#10;joesplumbingbiloxi.com" style="min-height:70px"></textarea>
       </div>
-
       <div class="field hidden" id="wantEmailField">
         <label>Would you like a professional email address with your new domain? (e.g. joe@joesplumbing.com)</label>
         <div class="radio-group">
@@ -462,7 +417,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
         </div>
       </div>
     </div>
-
     <div class="card" style="padding:20px 32px">
       <div class="nav-btns">
         <button type="button" class="btn-back" onclick="goStep(4)">← Back</button>
@@ -785,6 +739,64 @@ function validateDomainStep(){
   goStep(6);
 }
 
+// ═══════════════════════════════════════════
+// FAQ BUILDER — Dynamic Q&A Pairs
+// ═══════════════════════════════════════════
+var faqCount = 0;
+
+function addFaqPair(q, a) {
+  faqCount++;
+  var n = faqCount;
+  var builder = document.getElementById('faqBuilder');
+  var div = document.createElement('div');
+  div.className = 'faq-pair';
+  div.id = 'faq_block_' + n;
+  div.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
+      '<div class="faq-pair-num" id="faq_label_' + n + '">Question ' + n + '</div>' +
+      (n > 1 ? '<button type="button" onclick="removeFaqPair(' + n + ')" style="background:none;border:none;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;padding:0;">✕ Remove</button>' : '') +
+    '</div>' +
+    '<label>Question</label>' +
+    '<input type="text" id="faq_q_' + n + '" placeholder="e.g. Do you offer free estimates?" style="margin-bottom:10px;">' +
+    '<label>Answer</label>' +
+    '<textarea id="faq_a_' + n + '" placeholder="e.g. Yes! We offer free estimates for all jobs. Just call us or fill out the form and we\'ll get back to you within a few hours." style="min-height:60px"></textarea>';
+  builder.appendChild(div);
+  if (q) document.getElementById('faq_q_' + n).value = q;
+  if (a) document.getElementById('faq_a_' + n).value = a;
+}
+
+function removeFaqPair(n) {
+  var el = document.getElementById('faq_block_' + n);
+  if (el) el.remove();
+  renumberFaq();
+}
+
+function renumberFaq() {
+  var pairs = document.getElementById('faqBuilder').querySelectorAll('.faq-pair');
+  pairs.forEach(function(pair, i) {
+    var lbl = pair.querySelector('[id^="faq_label_"]');
+    if (lbl) lbl.textContent = 'Question ' + (i + 1);
+  });
+}
+
+function collectFaqArray() {
+  var pairs = document.getElementById('faqBuilder').querySelectorAll('.faq-pair');
+  var arr = [];
+  pairs.forEach(function(pair) {
+    var qEl = pair.querySelector('input[id^="faq_q_"]');
+    var aEl = pair.querySelector('textarea[id^="faq_a_"]');
+    var q = qEl ? qEl.value.trim() : '';
+    var a = aEl ? aEl.value.trim() : '';
+    if (q || a) arr.push({ question: q, answer: a });
+  });
+  return arr;
+}
+
+// Seed with 3 blank pairs on load
+addFaqPair();
+addFaqPair();
+addFaqPair();
+
 var cur=0;
 function goStep(n){
   document.querySelectorAll('.step-page').forEach(function(p,i){p.classList.toggle('active',i===n);});
@@ -841,6 +853,7 @@ async function submitForm(){
   });
   data.industry=selectedIndustry;
   if(selectedIndustry==='other')data.industryOther=document.getElementById('otherInput').value.trim();
+  data.faq=collectFaqArray();
   data.id='client_'+Date.now();
 
   try{
@@ -931,13 +944,24 @@ function prefillAllFields(cd, dashToken, dashPass){
   if(pricingD && d.pricingDisplay) pricingD.value = d.pricingDisplay;
   var hasLogo = document.querySelector('[name="hasLogo"]');
   if(hasLogo && d.hasLogo) hasLogo.value = d.hasLogo;
-  // Prefill FAQ Q&A pairs
-  for(var qi=1;qi<=5;qi++){
-    var qEl = document.querySelector('[name="faq_q'+qi+'"]');
-    var aEl = document.querySelector('[name="faq_a'+qi+'"]');
-    if(qEl && d['faq_q'+qi]) qEl.value = d['faq_q'+qi];
-    if(aEl && d['faq_a'+qi]) aEl.value = d['faq_a'+qi];
+
+  // ── Prefill FAQ pairs — supports new array format and legacy flat fields ──
+  document.getElementById('faqBuilder').innerHTML = '';
+  faqCount = 0;
+  var faqArr = d.faq;
+  if (Array.isArray(faqArr) && faqArr.length) {
+    faqArr.forEach(function(pair) { addFaqPair(pair.question || '', pair.answer || ''); });
+  } else {
+    var seeded = false;
+    for (var qi = 1; qi <= 10; qi++) {
+      if (d['faq_q' + qi] || d['faq_a' + qi]) {
+        addFaqPair(d['faq_q' + qi] || '', d['faq_a' + qi] || '');
+        seeded = true;
+      }
+    }
+    if (!seeded) { addFaqPair(); addFaqPair(); addFaqPair(); }
   }
+
   // Prefill IVR fields
   if(d.ivrOptIn){
     var ivrR = document.querySelector('input[name="ivrOptIn"][value="'+d.ivrOptIn+'"]');
@@ -965,7 +989,6 @@ function prefillAllFields(cd, dashToken, dashPass){
     var el = document.querySelector('[name="'+f+'"]');
     if(el && d[f]) el.value = d[f];
   });
-  // Prefill domain fields
   if(d.domainStatus){
     var dsRadio = document.querySelector('input[name="domainStatus"][value="'+d.domainStatus+'"]');
     if(dsRadio){ dsRadio.checked = true; domainLogic(); }
@@ -982,7 +1005,6 @@ function prefillAllFields(cd, dashToken, dashPass){
   });
   if(d.dnsApproach) dnsApproachLogic();
   if(d.hasEmailOnDomain) emailLogic();
-  // In update mode, auto-check disclosures (they already agreed)
   ['disc1','disc2','disc3','disc4','disc5'].forEach(function(id){
     var el = document.getElementById(id);
     if(el){ el.checked = true; var card = el.closest('.addon'); if(card) card.classList.add('selected'); }
@@ -1052,6 +1074,7 @@ async function submitUpdateForm(dashToken, dashPass){
   });
   data.industry = selectedIndustry;
   if(selectedIndustry==='other') data.industryOther = document.getElementById('otherInput').value.trim();
+  data.faq = collectFaqArray();
   try {
     var res = await fetch('/api/client-update',{
       method:'POST', headers:{'Content-Type':'application/json'},
