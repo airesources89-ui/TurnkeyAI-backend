@@ -56,6 +56,7 @@ app.use('/', require('./routes/telephony-webhooks'));
 app.use('/', require('./routes/analytics'));
 app.use('/', require('./routes/board'));
 app.use('/', require('./routes/stripe-webhook'));
+app.use('/', require('./routes/territory-partner'));
 // ── Static admin page ──
 app.get('/admin', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'admin.html')); });
 // ── Health check ──
