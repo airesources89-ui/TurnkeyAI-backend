@@ -92,6 +92,18 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
 .plan-item-name{font-weight:700;font-size:14px;color:#1f2937}
 .plan-item-desc{font-size:13px;color:#6B7280;margin-top:2px}
 .plan-item-price{font-size:13px;font-weight:700;color:#0066FF;margin-top:3px}
+/* FAQ builder styling */
+.faq-pair{background:#f9fafb;border:2px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px}
+.faq-pair-num{font-size:12px;font-weight:700;color:#0066FF;text-transform:uppercase;letter-spacing:1px}
+.faq-pair input,.faq-pair textarea{width:100%;padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;color:#1f2937;background:white;outline:none;transition:border-color .2s}
+.faq-pair input:focus,.faq-pair textarea:focus{border-color:#0066FF}
+.faq-pair textarea{resize:vertical;min-height:60px}
+.faq-pair label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:4px}
+/* IVR section styling */
+.ivr-dept-row{display:grid;grid-template-columns:1fr 100px;gap:10px;margin-bottom:8px;align-items:center}
+@media(max-width:580px){.ivr-dept-row{grid-template-columns:1fr}}
+.ivr-dept-row input{padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;color:#1f2937;background:white;outline:none;transition:border-color .2s}
+.ivr-dept-row input:focus{border-color:#0066FF}
 </style>
 </head>
 <body>
@@ -124,6 +136,13 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
   </div>
   <!-- STEP 1: BUSINESS INFO -->
   <div class="step-page" id="page1">
+    <div class="card" style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:2px solid #0066FF;">
+      <div style="font-size:17px;font-weight:700;color:#0052CC;margin-bottom:12px;">💡 Help Us Build the Best Website for Your Business</div>
+      <p style="font-size:14px;color:#1e3a5f;line-height:1.75;margin-bottom:12px;">The questions you're about to answer are the foundation of everything we build for you — your website, your online chatbot, and your visibility on Google. The more detail you provide, the better everything works.</p>
+      <p style="font-size:14px;color:#1e3a5f;line-height:1.75;margin-bottom:12px;">When a potential customer visits your site and asks your chatbot a question — like what services you offer, your hours, or your service area — the chatbot pulls its answers directly from what you tell us here. More detail means smarter, more helpful answers that keep customers engaged instead of clicking away.</p>
+      <p style="font-size:14px;color:#1e3a5f;line-height:1.75;margin-bottom:12px;">The same information also helps your website show up higher in Google searches. Search engines reward websites that have specific, detailed content about what a business does, where it operates, and what makes it different. Every answer you give here becomes content that works for you around the clock.</p>
+      <p style="font-size:14px;color:#1e3a5f;line-height:1.75;margin:0;">You don't have to fill out every single field, but the more you give us, the harder your website works from day one — without you lifting a finger.</p>
+    </div>
     <div class="card">
       <div class="sec-title">📋 Your Business Information</div>
       <div class="row2">
@@ -207,7 +226,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
       </div>
     </div>
   </div>
-  <!-- STEP 4: CHAT + ONLINE PRESENCE -->
+  <!-- STEP 4: CHAT + ONLINE PRESENCE + IVR -->
   <div class="step-page" id="page4">
     <div class="card">
       <div class="sec-title">🤖 AI Chat Assistant Setup</div>
@@ -223,7 +242,14 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           </select>
         </div>
       </div>
-      <div class="field"><label>Common Questions Customers Ask You</label><textarea name="faqQuestions" placeholder="e.g.:&#10;Do you offer free estimates?&#10;How soon can you come out?&#10;Do you work on weekends?" style="min-height:90px"></textarea></div>
+      <!-- ═══ Dynamic FAQ Builder ═══ -->
+      <div class="field">
+        <label>Frequently Asked Questions &amp; Answers</label>
+        <p style="font-size:13px;color:#6B7280;margin-bottom:14px">List the questions customers ask you most often, along with the answer you'd want your chatbot to give. The more detail in your answers, the smarter your chatbot will be.</p>
+        <div id="faqBuilder"></div>
+        <button type="button" onclick="addFaqPair()" style="margin-top:4px;background:#f0f7ff;border:2px dashed #0066FF;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;color:#0066FF;cursor:pointer;font-family:inherit;width:100%;transition:background .15s;" onmouseover="this.style.background='#e0f0ff'" onmouseout="this.style.background='#f0f7ff'">+ Add Another Question</button>
+        <p style="font-size:12px;color:#9CA3AF;margin-top:8px">Fill in as many as you can — leave any blank that don't apply. You can always add more later through your dashboard.</p>
+      </div>
       <div class="field"><label>How should pricing be shown in chat?</label>
         <select name="pricingDisplay">
           <option value="ranges">Show price ranges</option>
@@ -253,6 +279,56 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
         <div class="field"><label>How did you hear about us?</label><input type="text" name="referralSource" placeholder="e.g. Facebook, friend, Google"></div>
       </div>
     </div>
+    <!-- ═══ IVR / Phone System Setup ═══ -->
+    <div class="card">
+      <div class="sec-title">📞 Phone System Setup (IVR)</div>
+      <p style="font-size:13px;color:#6B7280;margin-bottom:16px">We can set up a professional phone system for your business — with a dedicated business number, automated greeting, and department routing. This is included with your plan at no extra charge.</p>
+      <div class="field">
+        <label>Would you like a professional phone system for your business?</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="ivrOptIn" value="yes" onchange="ivrLogic()"> Yes — set it up for me</label>
+          <label class="radio-item"><input type="radio" name="ivrOptIn" value="no" onchange="ivrLogic()"> No thanks — I'll just use my personal number</label>
+          <label class="radio-item"><input type="radio" name="ivrOptIn" value="tell_me_more" onchange="ivrLogic()"> Tell me more first</label>
+        </div>
+      </div>
+      <div id="ivrDetailsSection" class="hidden">
+        <div class="field">
+          <label>Custom Phone Greeting</label>
+          <p style="font-size:12px;color:#6B7280;margin-bottom:6px">What should callers hear when they call your business number? Leave blank and we'll create one for you.</p>
+          <textarea name="ivrGreeting" placeholder="e.g. Thank you for calling Joe's Plumbing! For service requests, press 1. For billing, press 2. To speak with someone, press 0." style="min-height:70px"></textarea>
+        </div>
+        <div class="field">
+          <label>Phone Departments / Extensions</label>
+          <p style="font-size:12px;color:#6B7280;margin-bottom:10px">If you want callers to choose a department ("Press 1 for Sales, Press 2 for Service"), list them below. Leave blank if you just want calls to ring your main number.</p>
+          <div class="ivr-dept-row">
+            <input type="text" name="ivr_dept1_name" placeholder="e.g. Sales / New Customers">
+            <input type="text" name="ivr_dept1_ext" placeholder="Press 1">
+          </div>
+          <div class="ivr-dept-row">
+            <input type="text" name="ivr_dept2_name" placeholder="e.g. Service / Repairs">
+            <input type="text" name="ivr_dept2_ext" placeholder="Press 2">
+          </div>
+          <div class="ivr-dept-row">
+            <input type="text" name="ivr_dept3_name" placeholder="e.g. Billing / Accounts">
+            <input type="text" name="ivr_dept3_ext" placeholder="Press 3">
+          </div>
+          <p style="font-size:12px;color:#9CA3AF;margin-top:4px">Each department can forward to a different phone number. We'll set this up with you after onboarding.</p>
+        </div>
+        <div class="field">
+          <label>What should happen when someone calls after hours?</label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="ivrAfterHours" value="voicemail"> Go to voicemail</label>
+            <label class="radio-item"><input type="radio" name="ivrAfterHours" value="text_back"> Send them an automatic text message</label>
+            <label class="radio-item"><input type="radio" name="ivrAfterHours" value="ai_sms"> Let the AI handle it via text (recommended)</label>
+            <label class="radio-item"><input type="radio" name="ivrAfterHours" value="ring_anyway"> Ring my phone anyway — I'll answer if I can</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Phone number to forward calls to (if different from business phone above)</label>
+          <input type="tel" name="ivrForwardingNumber" placeholder="(228) 555-1234 — leave blank to use your main business phone">
+        </div>
+      </div>
+    </div>
     <div class="card" style="padding:20px 32px">
       <div class="nav-btns">
         <button type="button" class="btn-back" onclick="goStep(3)">← Back</button>
@@ -260,13 +336,11 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
       </div>
     </div>
   </div>
-  <!-- STEP 5: DOMAIN & TECHNICAL SETUP (NEW) -->
+  <!-- STEP 5: DOMAIN & TECHNICAL SETUP -->
   <div class="step-page" id="page5">
     <div class="card">
-      <div class="sec-title">🌐 Domain & Technical Setup</div>
+      <div class="sec-title">🌐 Domain &amp; Technical Setup</div>
       <p style="font-size:13px;color:#6B7280;margin-bottom:16px">We need to understand your current domain situation to set up your site correctly.</p>
-
-      <!-- Q1: Domain Status -->
       <div class="field">
         <label>Do you currently have a website and/or domain name? <span class="req">*</span></label>
         <div class="radio-group">
@@ -276,14 +350,10 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <label class="radio-item"><input type="radio" name="domainStatus" value="not_sure" onchange="domainLogic()"> I'm not sure</label>
         </div>
       </div>
-
-      <!-- Q2: Domain Name (conditional: has domain) -->
       <div class="field hidden" id="domainNameField">
         <label>What is your domain name?</label>
         <input type="text" name="existingDomain" placeholder="e.g. joesplumbing.com">
       </div>
-
-      <!-- Q3: Registrar (conditional: has domain) -->
       <div class="field hidden" id="registrarField">
         <label>Where is your domain registered?</label>
         <div class="radio-group">
@@ -297,8 +367,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <label class="radio-item"><input type="radio" name="domainRegistrar" value="dont_know"> I don't know</label>
         </div>
       </div>
-
-      <!-- Q4: DNS approach (conditional: has domain) -->
       <div class="field hidden" id="dnsApproachField">
         <label>How would you like us to handle DNS setup?</label>
         <div class="radio-group">
@@ -307,8 +375,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <label class="radio-item" style="align-items:flex-start"><input type="radio" name="dnsApproach" value="need_help" onchange="dnsApproachLogic()" style="margin-top:3px"> <span><strong>I need help</strong> — I'm not sure, please contact me to discuss</span></label>
         </div>
       </div>
-
-      <!-- Registrar credentials (conditional: hands_free) -->
       <div class="field hidden" id="registrarCredsField" style="background:#fff8ed;border:1px solid #fbbf24;border-radius:10px;padding:16px;margin-bottom:18px">
         <p style="font-size:13px;color:#92400e;font-weight:600;margin-bottom:10px">🔒 Your credentials will only be used for DNS setup and are stored securely.</p>
         <div class="row2">
@@ -316,8 +382,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <div class="field"><label>Registrar Password</label><input type="password" name="registrarPassword" placeholder="Your registrar password"></div>
         </div>
       </div>
-
-      <!-- Q5: Email on Domain (conditional: has domain) -->
       <div class="field hidden" id="emailOnDomainField">
         <label>Do you have email addresses using your domain? (e.g. joe@joesplumbing.com)</label>
         <div class="radio-group">
@@ -326,8 +390,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <label class="radio-item"><input type="radio" name="hasEmailOnDomain" value="not_sure_email" onchange="emailLogic()"> Not sure</label>
         </div>
       </div>
-
-      <!-- Q6: Email Provider (conditional: has email on domain) -->
       <div class="field hidden" id="emailProviderField">
         <label>Who provides your email?</label>
         <div class="radio-group">
@@ -338,20 +400,14 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <label class="radio-item"><input type="radio" name="emailProvider" value="dont_know_email"> I don't know</label>
         </div>
       </div>
-
-      <!-- Q7: Email Addresses to Preserve (conditional: has email on domain) -->
       <div class="field hidden" id="emailListField">
         <label>List all email addresses that must keep working</label>
         <textarea name="emailsToPreserve" placeholder="e.g.&#10;joe@joesplumbing.com&#10;office@joesplumbing.com" style="min-height:70px"></textarea>
       </div>
-
-      <!-- Q8: New Domain Preference (conditional: no domain) -->
       <div class="field hidden" id="newDomainField">
         <label>What domain name would you like? (Give us your top 2–3 choices)</label>
         <textarea name="preferredDomains" placeholder="e.g.&#10;joesplumbing.com&#10;joesplumbingms.com&#10;joesplumbingbiloxi.com" style="min-height:70px"></textarea>
       </div>
-
-      <!-- Q9: Professional Email Setup (conditional: no domain) -->
       <div class="field hidden" id="wantEmailField">
         <label>Would you like a professional email address with your new domain? (e.g. joe@joesplumbing.com)</label>
         <div class="radio-group">
@@ -361,7 +417,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
         </div>
       </div>
     </div>
-
     <div class="card" style="padding:20px 32px">
       <div class="nav-btns">
         <button type="button" class="btn-back" onclick="goStep(4)">← Back</button>
@@ -428,7 +483,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
         <div><div class="addon-title">📱 Missed Call Text Return</div><div class="addon-desc">Miss a call? They get a text from you within seconds — works 24/7.</div><div class="addon-price">Included free</div></div>
       </div>
     </div>
-    <!-- DISCLOSURES (NEW) -->
+    <!-- DISCLOSURES -->
     <div class="card" id="disclosuresCard">
       <div class="sec-title">📜 Required Disclosures</div>
       <p style="font-size:13px;color:#6B7280;margin-bottom:16px">Please review and acknowledge the following before we build your site.</p>
@@ -635,6 +690,15 @@ function highlightPlanLabel(){
 }
 
 // ═══════════════════════════════════════════
+// IVR SECTION — Conditional Logic
+// ═══════════════════════════════════════════
+function ivrLogic(){
+  var val = (document.querySelector('input[name="ivrOptIn"]:checked')||{}).value||'';
+  var show = (val === 'yes' || val === 'tell_me_more');
+  toggle('ivrDetailsSection', show);
+}
+
+// ═══════════════════════════════════════════
 // DOMAIN & TECHNICAL SETUP — Conditional Logic
 // ═══════════════════════════════════════════
 function domainLogic(){
@@ -674,6 +738,64 @@ function validateDomainStep(){
   if(!domStatus){ alert('Please select your current domain situation before continuing.'); return; }
   goStep(6);
 }
+
+// ═══════════════════════════════════════════
+// FAQ BUILDER — Dynamic Q&A Pairs
+// ═══════════════════════════════════════════
+var faqCount = 0;
+
+function addFaqPair(q, a) {
+  faqCount++;
+  var n = faqCount;
+  var builder = document.getElementById('faqBuilder');
+  var div = document.createElement('div');
+  div.className = 'faq-pair';
+  div.id = 'faq_block_' + n;
+  div.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
+      '<div class="faq-pair-num" id="faq_label_' + n + '">Question ' + n + '</div>' +
+      (n > 1 ? '<button type="button" onclick="removeFaqPair(' + n + ')" style="background:none;border:none;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;padding:0;">✕ Remove</button>' : '') +
+    '</div>' +
+    '<label>Question</label>' +
+    '<input type="text" id="faq_q_' + n + '" placeholder="e.g. Do you offer free estimates?" style="margin-bottom:10px;">' +
+    '<label>Answer</label>' +
+    '<textarea id="faq_a_' + n + '" placeholder="e.g. Yes! We offer free estimates for all jobs. Just call us or fill out the form and we\'ll get back to you within a few hours." style="min-height:60px"></textarea>';
+  builder.appendChild(div);
+  if (q) document.getElementById('faq_q_' + n).value = q;
+  if (a) document.getElementById('faq_a_' + n).value = a;
+}
+
+function removeFaqPair(n) {
+  var el = document.getElementById('faq_block_' + n);
+  if (el) el.remove();
+  renumberFaq();
+}
+
+function renumberFaq() {
+  var pairs = document.getElementById('faqBuilder').querySelectorAll('.faq-pair');
+  pairs.forEach(function(pair, i) {
+    var lbl = pair.querySelector('[id^="faq_label_"]');
+    if (lbl) lbl.textContent = 'Question ' + (i + 1);
+  });
+}
+
+function collectFaqArray() {
+  var pairs = document.getElementById('faqBuilder').querySelectorAll('.faq-pair');
+  var arr = [];
+  pairs.forEach(function(pair) {
+    var qEl = pair.querySelector('input[id^="faq_q_"]');
+    var aEl = pair.querySelector('textarea[id^="faq_a_"]');
+    var q = qEl ? qEl.value.trim() : '';
+    var a = aEl ? aEl.value.trim() : '';
+    if (q || a) arr.push({ question: q, answer: a });
+  });
+  return arr;
+}
+
+// Seed with 3 blank pairs on load
+addFaqPair();
+addFaqPair();
+addFaqPair();
 
 var cur=0;
 function goStep(n){
@@ -731,6 +853,7 @@ async function submitForm(){
   });
   data.industry=selectedIndustry;
   if(selectedIndustry==='other')data.industryOther=document.getElementById('otherInput').value.trim();
+  data.faq=collectFaqArray();
   data.id='client_'+Date.now();
 
   try{
@@ -811,7 +934,7 @@ function prefillAllFields(cd, dashToken, dashPass){
     var el = document.querySelector('[name="pay_'+p+'"]');
     if(el) el.checked = !!(d['pay_'+p]);
   });
-  ['chatName','faqQuestions','currentWebsite','googleBusiness','facebook','instagram','referralSource'].forEach(function(f){
+  ['chatName','currentWebsite','googleBusiness','facebook','instagram','referralSource'].forEach(function(f){
     var el = document.querySelector('[name="'+f+'"]');
     if(el && d[f]) el.value = d[f];
   });
@@ -821,6 +944,43 @@ function prefillAllFields(cd, dashToken, dashPass){
   if(pricingD && d.pricingDisplay) pricingD.value = d.pricingDisplay;
   var hasLogo = document.querySelector('[name="hasLogo"]');
   if(hasLogo && d.hasLogo) hasLogo.value = d.hasLogo;
+
+  // ── Prefill FAQ pairs — supports new array format and legacy flat fields ──
+  document.getElementById('faqBuilder').innerHTML = '';
+  faqCount = 0;
+  var faqArr = d.faq;
+  if (Array.isArray(faqArr) && faqArr.length) {
+    faqArr.forEach(function(pair) { addFaqPair(pair.question || '', pair.answer || ''); });
+  } else {
+    var seeded = false;
+    for (var qi = 1; qi <= 10; qi++) {
+      if (d['faq_q' + qi] || d['faq_a' + qi]) {
+        addFaqPair(d['faq_q' + qi] || '', d['faq_a' + qi] || '');
+        seeded = true;
+      }
+    }
+    if (!seeded) { addFaqPair(); addFaqPair(); addFaqPair(); }
+  }
+
+  // Prefill IVR fields
+  if(d.ivrOptIn){
+    var ivrR = document.querySelector('input[name="ivrOptIn"][value="'+d.ivrOptIn+'"]');
+    if(ivrR){ ivrR.checked = true; ivrLogic(); }
+  }
+  ['ivrGreeting','ivrForwardingNumber'].forEach(function(f){
+    var el = document.querySelector('[name="'+f+'"]');
+    if(el && d[f]) el.value = d[f];
+  });
+  for(var di=1;di<=3;di++){
+    var dnEl = document.querySelector('[name="ivr_dept'+di+'_name"]');
+    var deEl = document.querySelector('[name="ivr_dept'+di+'_ext"]');
+    if(dnEl && d['ivr_dept'+di+'_name']) dnEl.value = d['ivr_dept'+di+'_name'];
+    if(deEl && d['ivr_dept'+di+'_ext']) deEl.value = d['ivr_dept'+di+'_ext'];
+  }
+  if(d.ivrAfterHours){
+    var ahR = document.querySelector('input[name="ivrAfterHours"][value="'+d.ivrAfterHours+'"]');
+    if(ahR) ahR.checked = true;
+  }
   if(d.wants_mini_me==='yes'||d.wantsMiniMe==='yes'){ var mm=document.getElementById('chk_miniMe'); if(mm){mm.checked=true; syncAddon('chk_miniMe','addonMiniMe');} }
   if(d.wants_free_video==='yes'||d.wantsFreeVideo==='yes'){ var fv=document.getElementById('chk_video'); if(fv){fv.checked=true; syncAddon('chk_video','addonVideo');} }
   if(d.addon_after_hours==='yes'){ var ah=document.getElementById('chk_ah'); if(ah){ah.checked=true; syncAddon('chk_ah','addonAH');} }
@@ -829,7 +989,6 @@ function prefillAllFields(cd, dashToken, dashPass){
     var el = document.querySelector('[name="'+f+'"]');
     if(el && d[f]) el.value = d[f];
   });
-  // Prefill domain fields
   if(d.domainStatus){
     var dsRadio = document.querySelector('input[name="domainStatus"][value="'+d.domainStatus+'"]');
     if(dsRadio){ dsRadio.checked = true; domainLogic(); }
@@ -846,7 +1005,6 @@ function prefillAllFields(cd, dashToken, dashPass){
   });
   if(d.dnsApproach) dnsApproachLogic();
   if(d.hasEmailOnDomain) emailLogic();
-  // In update mode, auto-check disclosures (they already agreed)
   ['disc1','disc2','disc3','disc4','disc5'].forEach(function(id){
     var el = document.getElementById(id);
     if(el){ el.checked = true; var card = el.closest('.addon'); if(card) card.classList.add('selected'); }
@@ -916,6 +1074,7 @@ async function submitUpdateForm(dashToken, dashPass){
   });
   data.industry = selectedIndustry;
   if(selectedIndustry==='other') data.industryOther = document.getElementById('otherInput').value.trim();
+  data.faq = collectFaqArray();
   try {
     var res = await fetch('/api/client-update',{
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -940,88 +1099,6 @@ async function submitUpdateForm(dashToken, dashPass){
     } else {
       alert('❌ ' + errMsg);
     }
-  }
-}
-
-// ═══════════════════════════════════════════
-// PREVIEW UPDATE MODE — activated when ?update=ID&token=TOKEN
-// (from preview page "Edit My Information" button)
-// ═══════════════════════════════════════════
-(function initPreviewUpdateMode(){
-  var params = new URLSearchParams(window.location.search);
-  var clientId = params.get('update');
-  var token = params.get('token');
-  if(!clientId || !token) return;
-  // Don't run if the dashboard update mode already triggered
-  if(params.get('mode') === 'update') return;
-
-  window._updateMode = true;
-
-  fetch('/api/prefill/' + encodeURIComponent(clientId) + '?token=' + encodeURIComponent(token))
-    .then(function(r){ return r.json(); })
-    .then(function(result){
-      if(!result || !result.success || !result.data){
-        console.warn('[PreviewUpdateMode] Prefill failed:', result && result.error);
-        return;
-      }
-      // Build the shape that prefillAllFields expects: {data: {...}}
-      var cd = { data: result.data };
-      // Pass null for dashToken/dashPass — those are only used by the dashboard submit path
-      prefillAllFields(cd, null, null);
-      // Override the submit button to use the preview update endpoint
-      var btn = document.getElementById('submitBtn');
-      if(btn){
-        btn.textContent = '💾 Save & Update My Site →';
-        btn.onclick = function(){ submitPreviewUpdateForm(clientId, token); };
-      }
-    })
-    .catch(function(e){ console.error('[PreviewUpdateMode] fetch error', e); });
-})();
-
-async function submitPreviewUpdateForm(clientId, token){
-  var btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  document.getElementById('overlay').classList.add('show');
-
-  var data = {};
-  document.querySelectorAll('[name]').forEach(function(el){
-    if(el.type==='checkbox'){
-      if(el.checked){
-        if(el.name.endsWith('_cb')){
-          if(data[el.name]) data[el.name] += ', '+el.value;
-          else data[el.name] = el.value;
-        } else {
-          data[el.name]=el.value||'on';
-        }
-      }
-    }
-    else if(el.type==='radio'){ if(el.checked) data[el.name]=el.value; }
-    else if(el.tagName==='SELECT'||el.tagName==='TEXTAREA'||el.type==='text'||el.type==='tel'||el.type==='email'||el.type==='password'){
-      if(el.value.trim()) data[el.name]=el.value.trim();
-    }
-  });
-  data.industry = selectedIndustry;
-  if(selectedIndustry==='other') data.industryOther = document.getElementById('otherInput').value.trim();
-
-  try {
-    var res = await fetch('/api/client-update-intake/' + encodeURIComponent(clientId) + '?token=' + encodeURIComponent(token), {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(data)
-    });
-    var result = await res.json();
-    document.getElementById('overlay').classList.remove('show');
-    btn.disabled = false;
-
-    if(result.success){
-      document.querySelector('.container').innerHTML = '<div class="card" style="text-align:center;padding:60px 40px"><div style="font-size:64px;margin-bottom:20px">✅</div><h2 style="font-size:24px;color:#00D68F;margin-bottom:12px">Your Information Has Been Updated!</h2><p style="font-size:16px;color:#374151;line-height:1.8;max-width:480px;margin:0 auto 24px">' + (result.message || 'Your changes have been saved.') + '</p><p style="font-size:14px;color:#6B7280">Questions? Call <strong>(603) 922-2004</strong> or email <a href="mailto:turnkeyaiservices@gmail.com" style="color:#0066FF">turnkeyaiservices@gmail.com</a></p></div>';
-    } else {
-      alert('❌ ' + (result.error || 'Update failed. Please try again.'));
-    }
-  } catch(e){
-    document.getElementById('overlay').classList.remove('show');
-    btn.disabled = false;
-    alert('❌ Connection error: ' + e.message + '\n\nPlease call (603) 922-2004');
   }
 }
 </script>
