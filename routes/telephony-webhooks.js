@@ -21,7 +21,6 @@ function buildSpokenHours(data) {
   const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
   const dayLabels = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const parts = [];
-  // Group consecutive days with the same hours
   let i = 0;
   while (i < days.length) {
     if (!data['day_' + days[i]]) { i++; continue; }
@@ -37,6 +36,68 @@ function buildSpokenHours(data) {
   }
   if (!parts.length) return 'Please call during normal business hours.';
   return 'We are open ' + parts.join('. ') + '.';
+}
+
+// ══════════════════════════════════════
+// ── Helper: Check if client has custom IVR departments ──
+// ══════════════════════════════════════
+function hasCustomDepts(data) {
+  return !!(data && data.ivr_dept1_name && data.ivr_dept1_name.trim());
+}
+
+// ══════════════════════════════════════
+// ── Helper: Extract digit from dept ext field ──
+// ── Handles "Press 1", "1", "Press 2", "2", etc.
+// ══════════════════════════════════════
+function extractDigit(extField) {
+  if (!extField) return null;
+  const match = String(extField).match(/\d/);
+  return match ? match[0] : null;
+}
+
+// ══════════════════════════════════════
+// ── Helper: Build custom department list from intake data ──
+// ── Returns array of { digit, name } for populated depts ──
+// ══════════════════════════════════════
+function getCustomDepts(data) {
+  const depts = [];
+  for (let i = 1; i <= 3; i++) {
+    const name = data[`ivr_dept${i}_name`] ? data[`ivr_dept${i}_name`].trim() : '';
+    const extRaw = data[`ivr_dept${i}_ext`] || '';
+    const digit = extractDigit(extRaw) || String(i); // fall back to sequential digit
+    if (name) depts.push({ digit, name });
+  }
+  return depts;
+}
+
+// ══════════════════════════════════════
+// ── Helper: Build custom department TwiML menu ──
+// ══════════════════════════════════════
+function buildCustomMenuTwiml(client, depts) {
+  const biz = client.data.businessName || 'the business';
+  const lastDigit = depts[depts.length - 1].digit;
+
+  // Build greeting
+  let greetingTwiml;
+  if (client.ivrGreetingFile) {
+    greetingTwiml = `<Play>${BASE_URL}/uploads/${client.ivrGreetingFile}</Play>`;
+  } else {
+    greetingTwiml = `<Say voice="alice">Thank you for calling ${biz}.</Say>`;
+  }
+
+  // Build menu prompt from dept names
+  const menuLines = depts.map(d => `Press ${d.digit} for ${d.name}.`).join(' ');
+  const connectLine = `Press ${Number(lastDigit) + 1}, or stay on the line, to speak with someone directly.`;
+  const menuPrompt = `<Say voice="alice">${menuLines} ${connectLine}</Say>`;
+
+  // Total digits to gather = last dept digit + 1 for direct connect
+  return (
+    `<Gather numDigits="1" action="${BASE_URL}/api/telephony/ivr-action" method="POST" timeout="6">` +
+    greetingTwiml +
+    menuPrompt +
+    `</Gather>` +
+    `<Redirect method="POST">${BASE_URL}/api/telephony/ivr-action?Digits=${Number(lastDigit) + 1}</Redirect>`
+  );
 }
 
 // ── POST /api/telephony/voice ──
@@ -86,27 +147,46 @@ router.post('/api/telephony/voice', async (req, res) => {
       sendEmail({ to: ADMIN_EMAIL, subject: `📞 After-Hours Call: ${biz} — ${callerNumber}`, html: `<p>After-hours call to <strong>${biz}</strong> from <strong>${callerNumber}</strong>. Voicemail recorded. Auto-text sent to caller.</p>` }).catch(() => {});
     } else {
       // ═══════════════════════════════════
-      // ── BUSINESS HOURS: IVR Menu ──
+      // ── BUSINESS HOURS: IVR opt-out check first ──
       // ═══════════════════════════════════
-      console.log(`[Telephony/voice] IVR menu for ${biz} — call from ${callerNumber}`);
 
-      // Build greeting: custom audio if available, otherwise text-to-speech
-      let greetingTwiml;
-      if (client.ivrGreetingFile) {
-        greetingTwiml = `<Play>${BASE_URL}/uploads/${client.ivrGreetingFile}</Play>`;
-      } else {
-        greetingTwiml = `<Say voice="alice">Thank you for calling ${biz}.</Say>`;
+      // ── If client opted out of IVR, forward directly ──
+      if (client.data.ivrOptIn === 'no') {
+        console.log(`[Telephony/voice] IVR opt-out for ${biz} — forwarding directly to ${client.forwardingNumber}`);
+        const forwardTo = (client.forwardingNumber || '').replace(/\D/g, '');
+        const e164Forward = forwardTo.length === 10 ? `+1${forwardTo}` : `+${forwardTo}`;
+        res.type('text/xml').send(twiml(
+          `<Dial callerId="${client.twilioNumber}" timeout="25" record="record-from-answer-dual" recordingStatusCallback="${BASE_URL}/api/telephony/transcription" action="${BASE_URL}/api/telephony/voice-status">` +
+          `<Number>${e164Forward}</Number></Dial>`
+        ));
+        return;
       }
 
-      const menuPrompt = `<Say voice="alice">Press 1 to schedule an appointment. Press 2 for our business hours. Press 3 to send us a message. Press 4, or simply stay on the line, to speak with someone directly.</Say>`;
+      // ── IVR active: custom departments or standard menu ──
+      console.log(`[Telephony/voice] IVR menu for ${biz} — call from ${callerNumber}`);
 
-      res.type('text/xml').send(twiml(
-        `<Gather numDigits="1" action="${BASE_URL}/api/telephony/ivr-action" method="POST" timeout="6">` +
-        greetingTwiml +
-        menuPrompt +
-        `</Gather>` +
-        `<Redirect method="POST">${BASE_URL}/api/telephony/ivr-action?Digits=4</Redirect>`
-      ));
+      if (hasCustomDepts(client.data)) {
+        // ── Custom department menu ──
+        const depts = getCustomDepts(client.data);
+        console.log(`[Telephony/voice] Using custom dept menu for ${biz}:`, depts.map(d => `${d.digit}=${d.name}`).join(', '));
+        res.type('text/xml').send(twiml(buildCustomMenuTwiml(client, depts)));
+      } else {
+        // ── Standard 4-option menu (unchanged) ──
+        let greetingTwiml;
+        if (client.ivrGreetingFile) {
+          greetingTwiml = `<Play>${BASE_URL}/uploads/${client.ivrGreetingFile}</Play>`;
+        } else {
+          greetingTwiml = `<Say voice="alice">Thank you for calling ${biz}.</Say>`;
+        }
+        const menuPrompt = `<Say voice="alice">Press 1 to schedule an appointment. Press 2 for our business hours. Press 3 to send us a message. Press 4, or simply stay on the line, to speak with someone directly.</Say>`;
+        res.type('text/xml').send(twiml(
+          `<Gather numDigits="1" action="${BASE_URL}/api/telephony/ivr-action" method="POST" timeout="6">` +
+          greetingTwiml +
+          menuPrompt +
+          `</Gather>` +
+          `<Redirect method="POST">${BASE_URL}/api/telephony/ivr-action?Digits=4</Redirect>`
+        ));
+      }
     }
   } catch (err) {
     console.error('[Telephony/voice] Error:', err);
@@ -132,6 +212,46 @@ router.post('/api/telephony/ivr-action', async (req, res) => {
     const biz = client.data.businessName || 'the business';
     const siteUrl = client.liveUrl || `https://${client.cfProjectName || 'turnkeyai'}.pages.dev`;
 
+    // ── Custom department routing ──
+    if (hasCustomDepts(client.data)) {
+      const depts = getCustomDepts(client.data);
+      const lastDigit = depts[depts.length - 1].digit;
+      const directDigit = String(Number(lastDigit) + 1);
+      const matchedDept = depts.find(d => d.digit === digit);
+
+      if (matchedDept) {
+        // ── Matched a custom department: announce and forward ──
+        console.log(`[IVR] ${biz}: Caller ${callerNumber} pressed ${digit} — dept: ${matchedDept.name}`);
+        const forwardTo = (client.forwardingNumber || '').replace(/\D/g, '');
+        const e164Forward = forwardTo.length === 10 ? `+1${forwardTo}` : `+${forwardTo}`;
+        res.type('text/xml').send(twiml(
+          `<Say voice="alice">Connecting you to ${matchedDept.name}. Please hold.</Say>` +
+          `<Dial callerId="${client.twilioNumber}" timeout="25" record="record-from-answer-dual" recordingStatusCallback="${BASE_URL}/api/telephony/transcription" action="${BASE_URL}/api/telephony/voice-status">` +
+          `<Number>${e164Forward}</Number></Dial>`
+        ));
+        return;
+      }
+
+      if (digit === directDigit) {
+        // ── Direct connect digit for custom menu ──
+        console.log(`[IVR] ${biz}: Caller ${callerNumber} pressed ${digit} — direct connect (custom menu)`);
+        const forwardTo = (client.forwardingNumber || '').replace(/\D/g, '');
+        const e164Forward = forwardTo.length === 10 ? `+1${forwardTo}` : `+${forwardTo}`;
+        res.type('text/xml').send(twiml(
+          `<Say voice="alice">Connecting you now. Please hold.</Say>` +
+          `<Dial callerId="${client.twilioNumber}" timeout="25" record="record-from-answer-dual" recordingStatusCallback="${BASE_URL}/api/telephony/transcription" action="${BASE_URL}/api/telephony/voice-status">` +
+          `<Number>${e164Forward}</Number></Dial>`
+        ));
+        return;
+      }
+
+      // ── Invalid digit for custom menu: replay ──
+      console.log(`[IVR] ${biz}: Caller ${callerNumber} pressed invalid digit ${digit} (custom menu)`);
+      res.type('text/xml').send(twiml(buildCustomMenuTwiml(client, depts)));
+      return;
+    }
+
+    // ── Standard 4-option menu routing (unchanged) ──
     switch (digit) {
       case '1': {
         // ── Schedule an appointment: send SMS with link ──
@@ -167,7 +287,7 @@ router.post('/api/telephony/ivr-action', async (req, res) => {
         break;
       }
       case '4': {
-        // ── Speak with someone: forward to real phone (existing behavior) ──
+        // ── Speak with someone: forward to real phone ──
         console.log(`[IVR] ${biz}: Caller ${callerNumber} pressed 4 — forwarding to ${client.forwardingNumber}`);
         const forwardTo = (client.forwardingNumber || '').replace(/\D/g, '');
         const e164Forward = forwardTo.length === 10 ? `+1${forwardTo}` : `+${forwardTo}`;
