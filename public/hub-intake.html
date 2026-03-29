@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get Your Business Online | TurnkeyAI Services</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --navy: #0A1128; --amber: #FF6F00; --orange: #FF8C42;
+      --white: #FFFFFF; --light-gray: #F5F5F5; --border-gray: #DDD; --red: #D32F2F;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--light-gray); color: var(--navy); line-height: 1.6; }
+    h1, h2, h3 { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; }
+
+    /* Header */
+    header { background: var(--navy); color: var(--white); padding: 1.5rem 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.8rem; font-family: 'Bebas Neue', sans-serif; color: var(--amber); }
+    .contact-info { font-size: 0.9rem; }
+    .contact-info a { color: var(--white); text-decoration: none; margin-left: 1rem; }
+    .contact-info a:hover { color: var(--amber); }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #1a2844 100%);
+      color: var(--white);
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    .hero h1 { font-size: 3.5rem; color: var(--amber); margin-bottom: 1rem; }
+    .hero p { font-size: 1.2rem; color: rgba(255,255,255,0.85); max-width: 600px; margin: 0 auto 2rem; }
+    .hero-badges { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-top: 1.5rem; }
+    .hero-badge { background: rgba(255,111,0,0.15); border: 1px solid rgba(255,111,0,0.4); color: var(--amber); padding: 0.5rem 1.2rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
+
+    /* Progress */
+    .progress-container { background: var(--white); padding: 1rem 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .progress-bar { max-width: 700px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; position: relative; padding: 0 2rem; }
+    .progress-line { position: absolute; top: 20px; left: 2rem; right: 2rem; height: 2px; background: var(--border-gray); z-index: 0; }
+    .progress-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--amber); transition: width 0.3s ease; }
+    .step { position: relative; z-index: 1; text-align: center; flex: 1; }
+    .step-circle { width: 40px; height: 40px; border-radius: 50%; background: var(--white); border: 2px solid var(--border-gray); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem; font-weight: bold; transition: all 0.3s ease; }
+    .step.active .step-circle { background: var(--amber); color: var(--white); border-color: var(--amber); }
+    .step.completed .step-circle { background: var(--navy); color: var(--white); border-color: var(--navy); }
+    .step-label { font-size: 0.78rem; color: var(--navy); font-weight: 500; }
+
+    /* Container */
+    .container { max-width: 760px; margin: 3rem auto; padding: 0 2rem; }
+    .page { display: none; background: var(--white); padding: 3rem; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .page.active { display: block; }
+    .page-title { font-size: 2.2rem; color: var(--navy); margin-bottom: 0.75rem; }
+    .page-subtitle { color: #666; margin-bottom: 2rem; font-size: 1rem; }
+
+    /* Forms */
+    .form-group { margin-bottom: 1.5rem; }
+    label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--navy); }
+    input[type="text"], input[type="email"], input[type="tel"], input[type="url"], textarea, select {
+      width: 100%; padding: 0.75rem; border: 1px solid var(--border-gray); border-radius: 4px;
+      font-size: 1rem; font-family: 'DM Sans', sans-serif; transition: border-color 0.3s ease;
+    }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--amber); }
+    textarea { resize: vertical; min-height: 100px; }
+
+    /* Plan cards */
+    .plan-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1rem; margin-bottom: 2rem; }
+    .plan-card { border: 2px solid var(--border-gray); border-radius: 8px; padding: 1.5rem; cursor: pointer; transition: all 0.3s ease; position: relative; }
+    .plan-card:hover { border-color: var(--amber); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .plan-card.selected { border-color: var(--amber); background: rgba(255,111,0,0.04); }
+    .plan-card input[type="radio"] { position: absolute; opacity: 0; }
+    .plan-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--navy); margin-bottom: 0.3rem; }
+    .plan-price { font-size: 1.3rem; font-weight: 700; color: var(--amber); margin-bottom: 0.5rem; }
+    .plan-features { font-size: 0.85rem; color: #666; line-height: 1.8; }
+    .plan-features li { list-style: none; padding-left: 1.2rem; position: relative; }
+    .plan-features li:before { content: "✓"; position: absolute; left: 0; color: var(--amber); font-weight: 700; }
+
+    /* Industry grid */
+    .industry-search { margin-bottom: 1rem; }
+    .industry-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 0.6rem; max-height: 420px; overflow-y: auto; padding: 1rem; border: 1px solid var(--border-gray); border-radius: 4px; background: #FAFAFA; }
+    .industry-item { display: flex; align-items: center; padding: 0.4rem 0.5rem; background: var(--white); border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+    .industry-item:hover { background: rgba(255,111,0,0.05); }
+    .industry-item input { margin-right: 0.5rem; cursor: pointer; }
+    .industry-item label { margin: 0; cursor: pointer; font-weight: 400; font-size: 0.88rem; }
+    .selected-count { font-weight: 600; color: var(--amber); margin-top: 0.75rem; font-size: 0.9rem; }
+
+    /* Buttons */
+    .button-group { display: flex; justify-content: space-between; margin-top: 2rem; gap: 1rem; }
+    .btn { padding: 0.75rem 2rem; border: none; border-radius: 4px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-family: 'DM Sans', sans-serif; }
+    .btn-primary { background: var(--amber); color: var(--white); }
+    .btn-primary:hover { background: var(--orange); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,111,0,0.3); }
+    .btn-secondary { background: var(--white); color: var(--navy); border: 2px solid var(--navy); }
+    .btn-secondary:hover { background: var(--navy); color: var(--white); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+    /* Error */
+    .error-message { background: #FFE5E5; color: var(--red); padding: 1rem; border-radius: 4px; margin-bottom: 1rem; display: none; }
+    .error-message.visible { display: block; }
+
+    /* Review */
+    .review-section { background: #FAFAFA; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; }
+    .review-section h3 { font-size: 1.4rem; margin-bottom: 1rem; color: var(--navy); }
+    .review-item { display: flex; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px solid var(--border-gray); font-size: 0.95rem; }
+    .review-item:last-child { border-bottom: none; }
+    .review-label { font-weight: 600; color: #666; }
+    .review-value { color: var(--navy); text-align: right; max-width: 60%; word-break: break-word; }
+
+    /* Success */
+    .success-icon { text-align: center; font-size: 4rem; color: #4CAF50; margin-bottom: 1rem; }
+    .success-message { text-align: center; }
+    .success-message h2 { font-size: 2.2rem; color: var(--navy); margin-bottom: 1rem; }
+    .success-message p { font-size: 1rem; color: #666; margin-bottom: 0.75rem; }
+    .next-steps { background: #FAFAFA; padding: 1.5rem 2rem; border-radius: 8px; margin-top: 1.5rem; text-align: left; }
+    .next-steps h3 { font-size: 1.6rem; margin-bottom: 0.75rem; }
+    .next-steps ol { margin-left: 1.5rem; }
+    .next-steps li { margin-bottom: 0.6rem; font-size: 0.95rem; }
+
+    /* Trust bar */
+    .trust-bar { background: var(--navy); color: rgba(255,255,255,0.7); padding: 1rem 2rem; text-align: center; font-size: 0.85rem; }
+    .trust-bar span { margin: 0 1rem; }
+    .trust-bar strong { color: var(--amber); }
+
+    /* Footer */
+    footer { background: var(--navy); color: var(--white); text-align: center; padding: 2rem; margin-top: 4rem; }
+    footer p { margin-bottom: 0.5rem; font-size: 0.9rem; }
+    footer a { color: var(--amber); text-decoration: none; }
+
+    @media(max-width:768px) {
+      .header-content { flex-direction: column; text-align: center; }
+      .contact-info { margin-top: 1rem; }
+      .contact-info a { display: block; margin: 0.25rem 0; }
+      .hero h1 { font-size: 2.5rem; }
+      .plan-grid { grid-template-columns: 1fr; }
+      .page { padding: 2rem 1.5rem; }
+      .container { padding: 0 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-content">
+      <div class="logo">TurnkeyAI Services</div>
+      <div class="contact-info">
+        <a href="tel:6039222004"><i class="fas fa-phone"></i> (603) 922-2004</a>
+        <a href="mailto:turnkeyaiservices@gmail.com"><i class="fas fa-envelope"></i> turnkeyaiservices@gmail.com</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="hero">
+    <h1>Get Your Business Online</h1>
+    <p>AI-powered websites for local service businesses — built in 24 hours, live in 48. No tech skills needed.</p>
+    <div class="hero-badges">
+      <span class="hero-badge"><i class="fas fa-bolt"></i> Live in 48 Hours</span>
+      <span class="hero-badge"><i class="fas fa-phone"></i> Business Phone Included</span>
+      <span class="hero-badge"><i class="fas fa-robot"></i> AI-Powered</span>
+      <span class="hero-badge"><i class="fas fa-shield-halved"></i> No Contracts</span>
+    </div>
+  </div>
+
+  <div class="trust-bar">
+    <span>✓ <strong>67 Industries</strong> Served</span>
+    <span>✓ <strong>Automatic</strong> SEO</span>
+    <span>✓ <strong>Blog + Social</strong> Automation</span>
+    <span>✓ <strong>Missed Call</strong> Text-Back</span>
+  </div>
+
+  <div class="progress-container">
+    <div class="progress-bar">
+      <div class="progress-line"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="step active" data-step="1"><div class="step-circle">1</div><div class="step-label">Your Business</div></div>
+      <div class="step" data-step="2"><div class="step-circle">2</div><div class="step-label">Choose Plan</div></div>
+      <div class="step" data-step="3"><div class="step-circle">3</div><div class="step-label">Your Services</div></div>
+      <div class="step" data-step="4"><div class="step-circle">4</div><div class="step-label">Review</div></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="error-message" id="errorMessage"></div>
+
+    <!-- PAGE 1: Business Info -->
+    <div class="page active" id="page1">
+      <h1 class="page-title">Tell Us About Your Business</h1>
+      <p class="page-subtitle">We'll build your custom website based on your business details.</p>
+      <div class="form-group"><label for="businessName">Business Name *</label><input type="text" id="businessName" required placeholder="e.g. Gulf Coast Plumbing"></div>
+      <div class="form-group"><label for="ownerName">Your Name *</label><input type="text" id="ownerName" required placeholder="First and last name"></div>
+      <div class="form-group"><label for="email">Email Address *</label><input type="email" id="email" required placeholder="your@email.com"></div>
+      <div class="form-group"><label for="phone">Phone Number *</label><input type="tel" id="phone" required placeholder="(228) 555-0100"></div>
+      <div class="form-group"><label for="city">City *</label><input type="text" id="city" required placeholder="e.g. Bay St. Louis"></div>
+      <div class="form-group"><label for="state">State *</label><input type="text" id="state" required placeholder="e.g. MS"></div>
+      <div class="form-group"><label for="industry">Industry / Business Type *</label>
+        <select id="industry" required>
+          <option value="">Select your industry...</option>
+          <option>Plumbing</option><option>HVAC</option><option>Electrical</option><option>Roofing</option>
+          <option>Landscaping</option><option>Pest Control</option><option>House Cleaning</option>
+          <option>Carpet Cleaning</option><option>Window Cleaning</option><option>Pressure Washing</option>
+          <option>Painting</option><option>Flooring</option><option>Kitchen Remodeling</option>
+          <option>Bathroom Remodeling</option><option>General Contracting</option><option>Handyman Services</option>
+          <option>Appliance Repair</option><option>Garage Door Repair</option><option>Locksmith</option>
+          <option>Tree Service</option><option>Lawn Care</option><option>Pool Service</option>
+          <option>Septic Service</option><option>Chimney Sweep</option><option>Gutter Cleaning</option>
+          <option>Deck Building</option><option>Fence Installation</option><option>Concrete Work</option>
+          <option>Masonry</option><option>Drywall</option><option>Insulation</option><option>Siding</option>
+          <option>Windows &amp; Doors</option><option>Solar Installation</option><option>Home Security</option>
+          <option>Moving Services</option><option>Junk Removal</option><option>Storage Units</option>
+          <option>Auto Detailing</option><option>Auto Repair</option><option>Oil Change</option>
+          <option>Tire Shop</option><option>Towing</option><option>Pet Grooming</option>
+          <option>Dog Training</option><option>Veterinary</option><option>Daycare</option>
+          <option>Tutoring</option><option>Music Lessons</option><option>Dance Studio</option>
+          <option>Martial Arts</option><option>Yoga Studio</option><option>Personal Training</option>
+          <option>Massage Therapy</option><option>Hair Salon</option><option>Barber Shop</option>
+          <option>Nail Salon</option><option>Spa Services</option><option>Tanning Salon</option>
+          <option>Tattoo Parlor</option><option>Photography</option><option>Video Production</option>
+          <option>Event Planning</option><option>Catering</option><option>Bakery</option>
+          <option>Coffee Shop</option><option>Restaurant</option><option>Food Truck</option>
+          <option>IT Support</option><option>Web Design</option><option>Accounting</option>
+        </select>
+      </div>
+      <div class="button-group"><div></div><button class="btn btn-primary" onclick="nextPage(1)">Next <i class="fas fa-arrow-right"></i></button></div>
+    </div>
+
+    <!-- PAGE 2: Choose Plan -->
+    <div class="page" id="page2">
+      <h1 class="page-title">Choose Your Plan</h1>
+      <p class="page-subtitle">All plans include your custom website, business phone number, and AI chatbot. No contracts — cancel anytime.</p>
+      <div class="plan-grid">
+        <div class="plan-card" id="plancard-website_only" onclick="selectPlan('website_only')">
+          <input type="radio" name="plan" value="website_only">
+          <div class="plan-name">Website Only</div>
+          <div class="plan-price">$99/mo</div>
+          <ul class="plan-features">
+            <li>Custom AI website</li>
+            <li>Business phone number</li>
+            <li>Missed call text-back</li>
+            <li>AI chatbot</li>
+            <li>Mobile-optimized</li>
+          </ul>
+        </div>
+        <div class="plan-card" id="plancard-website_blog" onclick="selectPlan('website_blog')">
+          <input type="radio" name="plan" value="website_blog">
+          <div class="plan-name">Website + Blog</div>
+          <div class="plan-price">$129/mo</div>
+          <ul class="plan-features">
+            <li>Everything in Website Only</li>
+            <li>Weekly AI blog posts</li>
+            <li>SEO optimization</li>
+            <li>Google ranking boost</li>
+          </ul>
+        </div>
+        <div class="plan-card" id="plancard-website_blog_social" onclick="selectPlan('website_blog_social')">
+          <input type="radio" name="plan" value="website_blog_social">
+          <div class="plan-name">Website + Blog + Social</div>
+          <div class="plan-price">$159/mo</div>
+          <ul class="plan-features">
+            <li>Everything in Website + Blog</li>
+            <li>Facebook auto-posting</li>
+            <li>Social media presence</li>
+            <li>More leads, more visibility</li>
+          </ul>
+        </div>
+        <div class="plan-card" id="plancard-full_package" onclick="selectPlan('full_package')">
+          <input type="radio" name="plan" value="full_package">
+          <div class="plan-name">Full Package</div>
+          <div class="plan-price">$218/mo</div>
+          <ul class="plan-features">
+            <li>Everything included</li>
+            <li>Priority support</li>
+            <li>Monthly analytics report</li>
+            <li>Best value</li>
+          </ul>
+        </div>
+      </div>
+      <div class="button-group">
+        <button class="btn btn-secondary" onclick="prevPage(2)"><i class="fas fa-arrow-left"></i> Back</button>
+        <button class="btn btn-primary" onclick="nextPage(2)">Next <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- PAGE 3: Services / Keywords -->
+    <div class="page" id="page3">
+      <h1 class="page-title">Tell Us About Your Services</h1>
+      <p class="page-subtitle">This helps us build your website content and set up your SEO correctly.</p>
+      <div class="form-group">
+        <label for="services">What services do you offer? *</label>
+        <textarea id="services" rows="4" placeholder="e.g. Drain cleaning, water heater installation, pipe repair, emergency plumbing..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="serviceArea">What areas do you serve? *</label>
+        <input type="text" id="serviceArea" placeholder="e.g. Bay St. Louis, Waveland, Pass Christian, Gulfport" required>
+      </div>
+      <div class="form-group">
+        <label for="tagline">Business tagline or motto (optional)</label>
+        <input type="text" id="tagline" placeholder="e.g. Fast, Reliable, Affordable">
+      </div>
+      <div class="form-group">
+        <label for="existingDomain">Do you have an existing website domain? (optional)</label>
+        <input type="text" id="existingDomain" placeholder="e.g. gulfcoastplumbing.com">
+      </div>
+      <div class="button-group">
+        <button class="btn btn-secondary" onclick="prevPage(3)"><i class="fas fa-arrow-left"></i> Back</button>
+        <button class="btn btn-primary" onclick="nextPage(3)">Next <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- PAGE 4: Review & Submit -->
+    <div class="page" id="page4">
+      <h1 class="page-title">Review Your Order</h1>
+      <p class="page-subtitle">Please confirm your details before we get started building your website.</p>
+      <div class="review-section">
+        <h3>Your Business</h3>
+        <div class="review-item"><span class="review-label">Business Name:</span><span class="review-value" id="r-business"></span></div>
+        <div class="review-item"><span class="review-label">Owner:</span><span class="review-value" id="r-owner"></span></div>
+        <div class="review-item"><span class="review-label">Email:</span><span class="review-value" id="r-email"></span></div>
+        <div class="review-item"><span class="review-label">Phone:</span><span class="review-value" id="r-phone"></span></div>
+        <div class="review-item"><span class="review-label">Location:</span><span class="review-value" id="r-location"></span></div>
+        <div class="review-item"><span class="review-label">Industry:</span><span class="review-value" id="r-industry"></span></div>
+      </div>
+      <div class="review-section">
+        <h3>Your Plan</h3>
+        <div class="review-item"><span class="review-label">Plan:</span><span class="review-value" id="r-plan"></span></div>
+        <div class="review-item"><span class="review-label">Monthly:</span><span class="review-value" id="r-price"></span></div>
+      </div>
+      <div class="review-section">
+        <h3>Your Services</h3>
+        <div class="review-item"><span class="review-label">Services:</span><span class="review-value" id="r-services"></span></div>
+        <div class="review-item"><span class="review-label">Service Area:</span><span class="review-value" id="r-area"></span></div>
+      </div>
+      <div class="button-group">
+        <button class="btn btn-secondary" onclick="prevPage(4)"><i class="fas fa-arrow-left"></i> Back</button>
+        <button class="btn btn-primary" id="submitBtn" onclick="submitForm()">Get Started <i class="fas fa-rocket"></i></button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="page" id="successPage">
+      <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+      <div class="success-message">
+        <h2>You're On Your Way!</h2>
+        <p>Thank you — we've received your information and we're building your website now.</p>
+        <p>Check your email for your order confirmation and next steps.</p>
+      </div>
+      <div class="next-steps">
+        <h3>What Happens Next</h3>
+        <ol>
+          <li><strong>Within 24 hours:</strong> You'll receive a preview link to review your new website</li>
+          <li><strong>Your feedback:</strong> Request any changes — we'll update it until you're happy</li>
+          <li><strong>Go live:</strong> Once approved, your site goes live and your phone number activates</li>
+          <li><strong>Dashboard access:</strong> You'll receive your client dashboard login to monitor everything</li>
+        </ol>
+      </div>
+      <div style="text-align:center;margin-top:2rem">
+        <p>Questions? Call <a href="tel:6039222004" style="color:var(--amber)">(603) 922-2004</a> or email <a href="mailto:turnkeyaiservices@gmail.com" style="color:var(--amber)">turnkeyaiservices@gmail.com</a></p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 TurnkeyAI Services. All rights reserved.</p>
+    <p><a href="tel:6039222004">(603) 922-2004</a> | <a href="mailto:turnkeyaiservices@gmail.com">turnkeyaiservices@gmail.com</a></p>
+  </footer>
+
+  <script>
+    // ── Get partner ID from URL path ──
+    const pathParts = window.location.pathname.split('/');
+    const PARTNER_ID = pathParts[pathParts.length - 1] || '';
+
+    let currentPage = 1;
+    let selectedPlan = '';
+
+    const planNames = {
+      website_only: 'Website Only',
+      website_blog: 'Website + Blog',
+      website_blog_social: 'Website + Blog + Social',
+      full_package: 'Full Package'
+    };
+    const planPrices = {
+      website_only: '$99/mo',
+      website_blog: '$129/mo',
+      website_blog_social: '$159/mo',
+      full_package: '$218/mo'
+    };
+
+    function selectPlan(plan) {
+      selectedPlan = plan;
+      document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+      document.getElementById('plancard-' + plan).classList.add('selected');
+    }
+
+    function nextPage(page) {
+      hideError();
+      if (page === 1) {
+        const biz  = document.getElementById('businessName').value.trim();
+        const own  = document.getElementById('ownerName').value.trim();
+        const em   = document.getElementById('email').value.trim();
+        const ph   = document.getElementById('phone').value.trim();
+        const ct   = document.getElementById('city').value.trim();
+        const st   = document.getElementById('state').value.trim();
+        const ind  = document.getElementById('industry').value;
+        if (!biz || !own || !em || !ph || !ct || !st || !ind) { showError('Please fill in all required fields.'); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { showError('Please enter a valid email address.'); return; }
+      }
+      if (page === 2) {
+        if (!selectedPlan) { showError('Please select a plan.'); return; }
+      }
+      if (page === 3) {
+        const svc  = document.getElementById('services').value.trim();
+        const area = document.getElementById('serviceArea').value.trim();
+        if (!svc || !area) { showError('Please fill in your services and service area.'); return; }
+        populateReview();
+      }
+      document.getElementById('page' + page).classList.remove('active');
+      currentPage = page + 1;
+      document.getElementById('page' + currentPage).classList.add('active');
+      updateProgress();
+      window.scrollTo(0, 0);
+    }
+
+    function prevPage(page) {
+      hideError();
+      document.getElementById('page' + page).classList.remove('active');
+      currentPage = page - 1;
+      document.getElementById('page' + currentPage).classList.add('active');
+      updateProgress();
+      window.scrollTo(0, 0);
+    }
+
+    function updateProgress() {
+      document.querySelectorAll('.step').forEach((s, i) => {
+        const n = i + 1;
+        if (n < currentPage) { s.classList.add('completed'); s.classList.remove('active'); }
+        else if (n === currentPage) { s.classList.add('active'); s.classList.remove('completed'); }
+        else { s.classList.remove('active', 'completed'); }
+      });
+      document.getElementById('progressFill').style.width = ((currentPage - 1) / 3 * 100) + '%';
+    }
+
+    function populateReview() {
+      document.getElementById('r-business').textContent  = document.getElementById('businessName').value;
+      document.getElementById('r-owner').textContent     = document.getElementById('ownerName').value;
+      document.getElementById('r-email').textContent     = document.getElementById('email').value;
+      document.getElementById('r-phone').textContent     = document.getElementById('phone').value;
+      document.getElementById('r-location').textContent  = document.getElementById('city').value + ', ' + document.getElementById('state').value;
+      document.getElementById('r-industry').textContent  = document.getElementById('industry').value;
+      document.getElementById('r-plan').textContent      = planNames[selectedPlan] || selectedPlan;
+      document.getElementById('r-price').textContent     = planPrices[selectedPlan] || '—';
+      document.getElementById('r-services').textContent  = document.getElementById('services').value;
+      document.getElementById('r-area').textContent      = document.getElementById('serviceArea').value;
+    }
+
+    async function submitForm() {
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+
+      const payload = {
+        businessName:    document.getElementById('businessName').value.trim(),
+        ownerName:       document.getElementById('ownerName').value.trim(),
+        email:           document.getElementById('email').value.trim(),
+        phone:           document.getElementById('phone').value.trim(),
+        city:            document.getElementById('city').value.trim(),
+        state:           document.getElementById('state').value.trim(),
+        industry:        document.getElementById('industry').value,
+        selectedPlan:    selectedPlan,
+        services:        document.getElementById('services').value.trim(),
+        serviceArea:     document.getElementById('serviceArea').value.trim(),
+        tagline:         document.getElementById('tagline').value.trim(),
+        existingDomain:  document.getElementById('existingDomain').value.trim(),
+        partnerId:       PARTNER_ID,
+        source:          'hub'
+      };
+
+      try {
+        const r = await fetch('/api/client/intake', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await r.json();
+        if (r.ok) {
+          document.getElementById('page4').classList.remove('active');
+          document.getElementById('successPage').classList.add('active');
+          window.scrollTo(0, 0);
+        } else {
+          showError(result.error || 'Submission failed. Please try again.');
+          btn.disabled = false;
+          btn.innerHTML = 'Get Started <i class="fas fa-rocket"></i>';
+        }
+      } catch(e) {
+        showError('Network error. Please check your connection and try again.');
+        btn.disabled = false;
+        btn.innerHTML = 'Get Started <i class="fas fa-rocket"></i>';
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('errorMessage');
+      el.textContent = msg;
+      el.classList.add('visible');
+      window.scrollTo(0, 0);
+      setTimeout(() => el.classList.remove('visible'), 6000);
+    }
+
+    function hideError() {
+      document.getElementById('errorMessage').classList.remove('visible');
+    }
+  </script>
+</body>
+</html>
