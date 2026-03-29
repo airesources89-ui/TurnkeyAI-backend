@@ -19,6 +19,8 @@ const {
 } = require('../lib/db');
 const { sendEmail } = require('../lib/email');
 const path = require('path');
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 
 // ── Admin authentication middleware ──
 function requireAdmin(req, res, next) {
@@ -179,8 +181,6 @@ router.get('/api/territory-partner/applications/:id', requireAdmin, async (req, 
 });
 
 // ── Credential generators (cryptographically secure) ──
-const crypto = require('crypto');
-
 function generateHubLoginId() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const bytes = crypto.randomBytes(6);
@@ -211,10 +211,11 @@ router.post('/api/territory-partner/approve/:id', requireAdmin, async (req, res)
     }
 
     // Generate Hub credentials
-    const hubLoginId  = generateHubLoginId();
-    const hubPassword = generatePassword();
-    const hubToken    = generateToken();
-    await savePartnerCredentials(application.id, hubLoginId, hubPassword, hubToken);
+    const hubLoginId      = generateHubLoginId();
+    const hubPassword     = generatePassword();
+    const hubToken        = generateToken();
+    const hubPasswordHash = await bcrypt.hash(hubPassword, 12);
+    await savePartnerCredentials(application.id, hubLoginId, hubPasswordHash, hubToken);
 
     const BASE_URL = process.env.BASE_URL || 'https://turnkeyaiservices.com';
     const hubDashUrl   = `${BASE_URL}/pages/hub-dashboard.html?loginId=${encodeURIComponent(hubLoginId)}`;
@@ -225,7 +226,7 @@ router.post('/api/territory-partner/approve/:id', requireAdmin, async (req, res)
       enterprise: 'Enterprise ($199/mo)', unlimited: 'Unlimited ($199/mo)'
     };
 
-    // Send approval + credentials email
+    // Send approval + credentials email (uses plaintext hubPassword — never stored)
     try {
       await sendEmail({
         to: application.email,
@@ -345,7 +346,7 @@ router.post('/api/hub/auth', async (req, res) => {
       return res.status(400).json({ error: 'Email and password required' });
     }
     const partner = await getPartnerByEmail(email);
-    if (!partner || partner.hub_password !== password) {
+    if (!partner || !(await bcrypt.compare(password, partner.hub_password))) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     res.json({
