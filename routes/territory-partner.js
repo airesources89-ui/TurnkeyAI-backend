@@ -12,6 +12,7 @@ const {
   approveTerritoryPartnerApplication,
   rejectTerritoryPartnerApplication,
 } = require('../lib/db');
+const { sendEmail } = require('../lib/email');
 
 // ── Admin authentication middleware ──
 function requireAdmin(req, res, next) {
@@ -180,6 +181,50 @@ router.post('/api/territory-partner/approve/:id', requireAdmin, async (req, res)
       return res.status(404).json({ error: 'Application not found' });
     }
 
+    // Send approval email — non-blocking, failure does not affect response
+    try {
+      const tierNames = {
+        starter: 'Starter ($99/mo)',
+        professional: 'Professional ($199/mo)',
+        enterprise: 'Enterprise ($199/mo)',
+        unlimited: 'Unlimited ($199/mo)'
+      };
+      await sendEmail({
+        to: application.email,
+        subject: `🎉 Welcome to TurnkeyAI Territory Partners — You're Approved!`,
+        html: `<div style="font-family:sans-serif;max-width:620px;margin:0 auto;">
+          <div style="background:linear-gradient(135deg,#f59e0b,#ea580c);padding:32px;text-align:center;border-radius:12px 12px 0 0;">
+            <h1 style="color:#fff;margin:0;font-size:28px;">🎉 You're Approved!</h1>
+            <p style="color:rgba(255,255,255,.9);margin:8px 0 0;font-size:16px;">Welcome to the TurnkeyAI Territory Partner Network</p>
+          </div>
+          <div style="padding:32px;">
+            <p>Hi ${application.full_name},</p>
+            <p>Congratulations — your Territory Partner application has been <strong>approved</strong>. You are now an official TurnkeyAI Territory Partner.</p>
+            <div style="background:#f0fff4;border:2px solid #10b981;border-radius:12px;padding:24px;margin:24px 0;">
+              <h3 style="margin:0 0 16px;color:#065f46;">📋 Your Partnership Details</h3>
+              <p style="margin:0 0 8px;"><strong>Territory:</strong> ${application.territory_name || '—'}</p>
+              <p style="margin:0 0 8px;"><strong>Tier:</strong> ${tierNames[application.tier] || application.tier}</p>
+              <p style="margin:0 0 8px;"><strong>Revenue Split:</strong> 60/40 — you keep 60% of every client you bring in</p>
+              <p style="margin:0;"><strong>Approved:</strong> ${new Date().toLocaleDateString()}</p>
+            </div>
+            <div style="background:#f0f9ff;border:2px solid #3b82f6;border-radius:12px;padding:24px;margin:24px 0;">
+              <h3 style="margin:0 0 16px;color:#1e40af;">📋 Next Steps</h3>
+              <ol style="padding-left:20px;line-height:2.4;font-size:14px;color:#374151;">
+                <li>Our team will reach out within 1–2 business days with your Hub login credentials</li>
+                <li>You will receive onboarding materials and training resources</li>
+                <li>Once set up, you can start signing clients in your territory immediately</li>
+                <li>Stripe Connect will be configured to automatically split revenue on every payment</li>
+              </ol>
+            </div>
+            <p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(603) 922-2004</strong> or email <a href="mailto:turnkeyaiservices@gmail.com" style="color:#f59e0b;">turnkeyaiservices@gmail.com</a></p>
+            <p>— The TurnkeyAI Services Team</p>
+          </div>
+        </div>`
+      });
+    } catch (emailErr) {
+      console.error('[territory-partner approve email error]', emailErr.message);
+    }
+
     res.json({
       success: true,
       message: 'Application approved',
@@ -198,6 +243,31 @@ router.post('/api/territory-partner/reject/:id', requireAdmin, async (req, res) 
 
     if (!application) {
       return res.status(404).json({ error: 'Application not found' });
+    }
+
+    // Send rejection email — non-blocking, failure does not affect response
+    try {
+      await sendEmail({
+        to: application.email,
+        subject: `Your TurnkeyAI Territory Partner Application — Update`,
+        html: `<div style="font-family:sans-serif;max-width:620px;margin:0 auto;">
+          <div style="background:linear-gradient(135deg,#0A1128,#1a2844);padding:32px;text-align:center;border-radius:12px 12px 0 0;">
+            <h1 style="color:#f59e0b;margin:0;font-size:26px;">TurnkeyAI Territory Partners</h1>
+            <p style="color:rgba(255,255,255,.8);margin:8px 0 0;">Application Status Update</p>
+          </div>
+          <div style="padding:32px;">
+            <p>Hi ${application.full_name},</p>
+            <p>Thank you for your interest in becoming a TurnkeyAI Territory Partner. After reviewing your application, we are not able to move forward at this time.</p>
+            <div style="background:#fafafa;border:1px solid #e5e7eb;border-radius:10px;padding:20px;margin:24px 0;">
+              <p style="margin:0;font-size:14px;color:#374151;line-height:1.7;">This may be due to territory availability, tier fit, or timing. TurnkeyAI is growing quickly and new opportunities open regularly. We encourage you to reapply in the future or contact us directly to discuss alternative options.</p>
+            </div>
+            <p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(603) 922-2004</strong> or email <a href="mailto:turnkeyaiservices@gmail.com" style="color:#f59e0b;">turnkeyaiservices@gmail.com</a></p>
+            <p>— The TurnkeyAI Services Team</p>
+          </div>
+        </div>`
+      });
+    } catch (emailErr) {
+      console.error('[territory-partner reject email error]', emailErr.message);
     }
 
     res.json({
