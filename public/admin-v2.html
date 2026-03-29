@@ -323,7 +323,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
   <div class="card"><table class="tbl"><thead><tr><th>Partner</th><th>Tier</th><th>Territory</th><th>Industries</th><th>Rev Split</th><th>Status</th><th>Actions</th></tr></thead><tbody id="partners-table-body"><tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-handshake"></i><p>No active partners yet. 10 LOIs sent — check applications.</p></div></td></tr></tbody></table></div>
 </div>
 
-<!-- PARTNER APPLICATIONS — 7 columns with Territory -->
+<!-- PARTNER APPLICATIONS -->
 <div class="panel" id="panel-partner-applications">
   <div class="panel-header"><div class="panel-title">Partner Applications</div><div class="panel-subtitle">Review Territory Partner intake submissions</div></div>
   <div class="card">
@@ -359,35 +359,14 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
     </div>
   </div>
   <div class="g3">
-    <!-- Contact Info -->
-    <div class="card">
-      <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-user"></i> Applicant Info</div></div>
-      <div id="pd-contact"></div>
-    </div>
-    <!-- Territory -->
-    <div class="card">
-      <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-map-location-dot"></i> Territory Definition</div></div>
-      <div id="pd-territory"></div>
-    </div>
-    <!-- Partnership -->
-    <div class="card">
-      <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-handshake"></i> Partnership Details</div></div>
-      <div id="pd-partnership"></div>
-    </div>
+    <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-user"></i> Applicant Info</div></div><div id="pd-contact"></div></div>
+    <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-map-location-dot"></i> Territory Definition</div></div><div id="pd-territory"></div></div>
+    <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-handshake"></i> Partnership Details</div></div><div id="pd-partnership"></div></div>
   </div>
   <div class="g2">
-    <!-- Industries -->
-    <div class="card">
-      <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-list-check"></i> Selected Industries</div></div>
-      <div id="pd-industries"></div>
-    </div>
-    <!-- Business Background -->
-    <div class="card">
-      <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-briefcase"></i> Business Background</div></div>
-      <div id="pd-background"></div>
-    </div>
+    <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-list-check"></i> Selected Industries</div></div><div id="pd-industries"></div></div>
+    <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-briefcase"></i> Business Background</div></div><div id="pd-background"></div></div>
   </div>
-  <!-- Actions -->
   <div class="card" style="margin-top:0">
     <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-gavel"></i> Decision</div></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -399,9 +378,9 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
   </div>
 </div>
 
-<!-- TERRITORY MAP — LIVE LEAFLET -->
+<!-- TERRITORY MAP -->
 <div class="panel" id="panel-territory-map">
-  <div class="panel-header"><div class="panel-title">Territory Map</div><div class="panel-subtitle">Claimed vs. available territories — US domestic partners</div></div>
+  <div class="panel-header"><div class="panel-title">Territory Map</div><div class="panel-subtitle">All partner territories — approved (green) and pending (amber) — loading progressively</div></div>
   <div class="card">
     <div class="card-hdr">
       <div class="card-title"><i class="fa-solid fa-map-location-dot"></i> Partner Territory Coverage</div>
@@ -622,9 +601,9 @@ const STATE = {
   notifications: [],
   auditLog: [],
   backlogItems: [
-    { id:1,  label:'DNS automation from intake data',                     status:'todo', priority:'high' },
-    { id:2,  label:'Option B self-directed DNS emails',                   status:'todo', priority:'high' },
-    { id:3,  label:'Registrar credential encryption',                     status:'todo', priority:'med'  },
+    { id:1,  label:'DNS automation from intake data',                     status:'done', priority:'high' },
+    { id:2,  label:'Option B self-directed DNS emails',                   status:'done', priority:'high' },
+    { id:3,  label:'Registrar credential encryption',                     status:'done', priority:'med'  },
     { id:4,  label:'Meta API env vars on Railway (META_PAGE_TOKEN, etc)', status:'todo', priority:'high' },
     { id:5,  label:'IVR opt-in toggle on intake form',                    status:'todo', priority:'med'  },
     { id:6,  label:'Custom IVR departments/extensions per client',        status:'todo', priority:'med'  },
@@ -635,13 +614,14 @@ const STATE = {
     { id:11, label:'Hub custom domain per partner (DNS/Cloudflare)',      status:'todo', priority:'high' },
     { id:12, label:'Hub white-label branding per partner',                status:'todo', priority:'med'  },
     { id:13, label:'Stripe Connect revenue auto-splitting',               status:'todo', priority:'high' },
-    { id:14, label:'Hub password hashing (bcrypt)',                       status:'todo', priority:'high' },
-    { id:15, label:'Partner password reset flow (email link)',            status:'todo', priority:'high' },
+    { id:14, label:'Hub password hashing (bcrypt)',                       status:'done', priority:'high' },
+    { id:15, label:'Partner password reset + change password flow',       status:'done', priority:'high' },
     { id:16, label:'Hub client attribution — verify partnerId saves via intake route', status:'done', priority:'high' },
-    { id:17, label:'Territory conflict check in admin before approve',    status:'todo', priority:'high' },
+    { id:17, label:'Territory conflict check — city/county/radius',       status:'done', priority:'high' },
     { id:18, label:'Partner LOI promo tracking (80/20 first 10)',        status:'todo', priority:'high' },
-    { id:19, label:'Hub session token expiry / rotation',                 status:'todo', priority:'med'  },
+    { id:19, label:'Hub session token expiry / rotation',                 status:'done', priority:'med'  },
     { id:20, label:'Partner-facing client approval workflow',             status:'todo', priority:'med'  },
+    { id:21, label:'Admin territory overlay map (all partners simultaneous)', status:'done', priority:'high' },
   ]
 };
 
@@ -678,7 +658,8 @@ function nav(panelId, el) {
   if (panelId === 'analytics') renderAnalytics();
   if (panelId === 'revenue') renderRevenue();
   if (panelId === 'cohort') renderCohort();
-  if (panelId === 'territory-map') renderTerritoryMap();
+  // CHANGE 1: Always force-refresh the territory map on every panel entry
+  if (panelId === 'territory-map') renderTerritoryMap(true);
 }
 
 function toggleSub(id, el) { const s=document.getElementById(id); const o=s.classList.contains('open'); s.classList.toggle('open',!o); el.classList.toggle('open',!o); }
@@ -716,6 +697,11 @@ function updateSidebarCounts() {
 let adminMap = null;
 const adminGeoCache = {};
 
+// CHANGE 3: Throttle helper — waits 1 second between Nominatim calls to respect rate limit
+function geocodeThrottle() {
+  return new Promise(resolve => setTimeout(resolve, 1000));
+}
+
 async function geocodeAdmin(query) {
   if (adminGeoCache[query]) return adminGeoCache[query];
   try {
@@ -741,13 +727,19 @@ function renderTerritoryMap(force) {
       attribution: '&copy; OpenStreetMap contributors', maxZoom: 18
     }).addTo(adminMap);
   } else if (force) {
-    adminMap.eachLayer(l => { if (l instanceof L.Marker || l instanceof L.Circle || l instanceof L.CircleMarker) adminMap.removeLayer(l); });
+    // Clear all partner markers and circles on force refresh
+    adminMap.eachLayer(l => {
+      if (l instanceof L.Marker || l instanceof L.Circle || l instanceof L.CircleMarker) {
+        adminMap.removeLayer(l);
+      }
+    });
   }
 
   plotPartnerTerritories();
   updateTerritoryList();
 }
 
+// CHANGE 3: Sequential geocoding with 1-second throttle between calls
 async function plotPartnerTerritories() {
   if (!adminMap) return;
   for (const p of STATE.partners) {
@@ -764,14 +756,17 @@ async function plotPartnerTerritory(p) {
   const tName = p.territory_name || 'Territory';
 
   if (tType === 'zip' && p.territory_zips) {
+    // CHANGE 2: No cap — plot all ZIP pins with throttle between each geocode call
     const zips = Array.isArray(p.territory_zips) ? p.territory_zips : JSON.parse(p.territory_zips || '[]');
-    for (const zip of zips.slice(0, 10)) { // max 10 pins per partner for performance
+    for (const zip of zips) {
       const coords = await geocodeAdmin(zip + ', USA');
       if (coords) {
         L.circleMarker([coords.lat, coords.lon], { radius: 8, color, fillColor: color, fillOpacity: 0.7, weight: 2 })
           .addTo(adminMap)
           .bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>ZIP: ' + zip + '<br>Status: ' + p.status);
       }
+      // Throttle between ZIP geocode calls to respect Nominatim 1 req/sec limit
+      if (!adminGeoCache[zip + ', USA']) await geocodeThrottle();
     }
   } else if (tType === 'city' && p.territory_cities) {
     const first = p.territory_cities.split(';')[0].trim();
@@ -781,6 +776,7 @@ async function plotPartnerTerritory(p) {
         .addTo(adminMap)
         .bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>City: ' + esc(first) + '<br>Status: ' + p.status);
     }
+    if (!adminGeoCache[first]) await geocodeThrottle();
   } else if (tType === 'county' && p.territory_counties) {
     const first = p.territory_counties.split(';')[0].trim();
     const coords = await geocodeAdmin(first);
@@ -789,6 +785,7 @@ async function plotPartnerTerritory(p) {
         .addTo(adminMap)
         .bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>County: ' + esc(first) + '<br>Status: ' + p.status);
     }
+    if (!adminGeoCache[first]) await geocodeThrottle();
   } else if (tType === 'radius' && p.territory_radius_center) {
     const coords = await geocodeAdmin(p.territory_radius_center);
     if (coords && p.territory_radius_miles) {
@@ -797,15 +794,16 @@ async function plotPartnerTerritory(p) {
         color, fillColor: color, fillOpacity: 0.15, weight: 2
       }).addTo(adminMap).bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>' + p.territory_radius_miles + ' mi radius<br>Status: ' + p.status);
     }
+    if (!adminGeoCache[p.territory_radius_center]) await geocodeThrottle();
   }
 }
 
 function focusPartnerOnMap(partnerId) {
   nav('territory-map');
-  // Map renders on nav; partner marker will be visible
   toast('Map opened — locate partner pin', 'info');
 }
 
+// CHANGE 4: Add industry count to each territory list item
 function updateTerritoryList() {
   const el = document.getElementById('territory-claimed-list');
   if (!el) return;
@@ -826,7 +824,23 @@ function updateTerritoryList() {
     } else if (tType === 'city') coverage = p.territory_cities || '—';
     else if (tType === 'county') coverage = p.territory_counties || '—';
     else if (tType === 'radius') coverage = (p.territory_radius_miles || '?') + ' mi from ' + (p.territory_radius_center || '?');
-    return '<div class="territory-list-item"><div><div style="font-weight:600;color:var(--text-primary)">' + esc(name) + ' — ' + esc(tName) + '</div><div style="font-size:11px;color:var(--text-dim);margin-top:2px">' + esc(tType) + ' · ' + esc(coverage) + '</div></div><div style="display:flex;align-items:center;gap:8px"><span class="badge ' + badgeCls + '">' + p.status + '</span><button class="btn btn-ghost btn-xs" onclick="focusPartnerOnMap(' + p.id + ')"><i class="fa-solid fa-map-pin"></i></button></div></div>';
+
+    // Industry count for at-a-glance overlap assessment
+    let industries = p.industries || [];
+    if (typeof industries === 'string') { try { industries = JSON.parse(industries); } catch(e) { industries = []; } }
+    const indCount = Array.isArray(industries) ? industries.length : 0;
+
+    return '<div class="territory-list-item">' +
+      '<div>' +
+        '<div style="font-weight:600;color:var(--text-primary)">' + esc(name) + ' — ' + esc(tName) + '</div>' +
+        '<div style="font-size:11px;color:var(--text-dim);margin-top:2px">' + esc(tType) + ' · ' + esc(coverage) + ' · ' + indCount + ' ' + (indCount === 1 ? 'industry' : 'industries') + '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<span class="badge ' + badgeCls + '">' + p.status + '</span>' +
+        '<button class="btn btn-ghost btn-xs" onclick="renderPartnerDetail(' + p.id + ')" title="View detail"><i class="fa-solid fa-eye"></i></button>' +
+        '<button class="btn btn-ghost btn-xs" onclick="focusPartnerOnMap(' + p.id + ')" title="Map"><i class="fa-solid fa-map-pin"></i></button>' +
+      '</div>' +
+    '</div>';
   }).join('');
 }
 
@@ -885,13 +899,9 @@ function chartBase(el,type,data,options={}) {
 }
 
 function renderGrowthChart(){const months=['Oct','Nov','Dec','Jan','Feb','Mar'];const data=[0,0,0,1,2,STATE.clients.length];chartBase('chart-growth','bar',{labels:months,datasets:[{label:'Clients',data,backgroundColor:'rgba(245,158,11,0.5)',borderColor:'#f59e0b',borderWidth:1,borderRadius:4}]});}
-
 function renderPlanChart(){const counts={};STATE.clients.forEach(c=>{const p=c.plan||'Unknown';counts[p]=(counts[p]||0)+1;});const labels=Object.keys(counts);const values=Object.values(counts);const colors=['#f59e0b','#10b981','#3b82f6','#8b5cf6','#ef4444'];chartBase('chart-plans','doughnut',{labels,datasets:[{data:values,backgroundColor:colors.slice(0,labels.length),borderColor:'#0c1225',borderWidth:2}]},{legend:true});}
-
 function renderAnalytics(){const days=Array.from({length:30},(_,i)=>{const d=new Date();d.setDate(d.getDate()-29+i);return d.toLocaleDateString('en',{month:'short',day:'numeric'});});const visits=days.map(()=>Math.floor(Math.random()*50+10));chartBase('chart-traffic','line',{labels:days,datasets:[{label:'Visits',data:visits,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.08)',tension:0.3,fill:true,pointRadius:0}]});chartBase('chart-sources','doughnut',{labels:['Direct','Google','Social','Referral'],datasets:[{data:[40,35,15,10],backgroundColor:['#f59e0b','#10b981','#3b82f6','#8b5cf6'],borderColor:'#0c1225',borderWidth:2}]},{legend:true});chartBase('chart-devices','doughnut',{labels:['Mobile','Desktop','Tablet'],datasets:[{data:[62,32,6],backgroundColor:['#ea580c','#3b82f6','#8b5cf6'],borderColor:'#0c1225',borderWidth:2}]},{legend:true});chartBase('chart-leads','bar',{labels:['Jan','Feb','Mar'],datasets:[{data:[2,5,8],backgroundColor:'rgba(16,185,129,0.5)',borderColor:'#10b981',borderRadius:4}]});set('an-visits','—');set('an-session','—');set('an-leads','—');set('an-pages','—');}
-
 function renderRevenue(){const mrrVal=STATE.clients.reduce((s,c)=>s+parsePrice(c.plan),0);set('rev-mrr','$'+mrrVal);set('rev-arr','$'+(mrrVal*12).toLocaleString());set('rev-arpc',STATE.clients.length?'$'+Math.round(mrrVal/STATE.clients.length):'—');set('rev-onetime','—');const months=['Oct','Nov','Dec','Jan','Feb','Mar'];chartBase('chart-mrr','line',{labels:months,datasets:[{label:'MRR',data:[0,0,0,99,228,mrrVal],borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.08)',tension:0.3,fill:true,pointRadius:3}]});const counts={};STATE.clients.forEach(c=>{const p=c.plan||'Unknown';counts[p]=(counts[p]||0)+1;});const colors=['#f59e0b','#10b981','#3b82f6','#8b5cf6'];chartBase('chart-rev-plan','doughnut',{labels:Object.keys(counts),datasets:[{data:Object.values(counts),backgroundColor:colors,borderColor:'#0c1225',borderWidth:2}]},{legend:true});}
-
 function renderCohort(){const months=['Oct','Nov','Dec','Jan','Feb','Mar'];const mrrVal=STATE.clients.reduce((s,c)=>s+parsePrice(c.plan),0);chartBase('chart-cohort','bar',{labels:months,datasets:[{label:'New MRR',data:[0,0,0,99,129,mrrVal],backgroundColor:'rgba(59,130,246,0.5)',borderColor:'#3b82f6',borderRadius:4},{label:'Cumulative',data:[0,0,0,99,228,mrrVal+228],backgroundColor:'rgba(16,185,129,0.3)',borderColor:'#10b981',borderRadius:4}]},{legend:true});}
 
 /* ── CLIENT TABLES ── */
@@ -948,7 +958,6 @@ function openClientDetail(id){
 }
 
 function infoBlock(rows){return rows.map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(26,40,68,0.4);font-size:13px"><span style="color:var(--text-dim)">${k}</span><span style="color:var(--text-primary);font-weight:500;text-align:right;max-width:60%">${esc(String(v))}</span></div>`).join('');}
-
 function clientTab(name,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));el.classList.add('active');document.getElementById('ctab-'+name)?.classList.add('active');}
 
 /* ── PENDING & PARTNER TABLES ── */
@@ -1015,7 +1024,6 @@ function renderPartnerDetail(id) {
   badge.className = 'badge ' + cls;
   badge.textContent = label;
 
-  // Show/hide approve+reject based on current status
   const approveBtn = document.getElementById('pd-approve-btn');
   const rejectBtn  = document.getElementById('pd-reject-btn');
   if (p.status === 'approved') {
@@ -1030,7 +1038,6 @@ function renderPartnerDetail(id) {
     set('pd-decision-note', '');
   }
 
-  // Contact info
   set('pd-contact', infoBlock([
     ['Full Name', name],
     ['Email', p.email || '—'],
@@ -1041,7 +1048,6 @@ function renderPartnerDetail(id) {
     ['Applied', submitted],
   ]));
 
-  // Territory
   const tType = p.territory_type || '—';
   const tName = p.territory_name || '—';
   let coverage = '—';
@@ -1059,7 +1065,6 @@ function renderPartnerDetail(id) {
     ['Notes', p.territory_notes || '—'],
   ]));
 
-  // Partnership
   const tierPrices = { starter:'$99/mo + $99 setup', professional:'$199/mo + $199 setup', enterprise:'$199/mo + $299 setup', unlimited:'$199/mo + $499 setup' };
   set('pd-partnership', infoBlock([
     ['Tier', tier.charAt(0).toUpperCase() + tier.slice(1)],
@@ -1069,7 +1074,6 @@ function renderPartnerDetail(id) {
     ['Approved', p.approved_at ? new Date(p.approved_at).toLocaleDateString() : '—'],
   ]));
 
-  // Industries
   let industries = p.industries || [];
   if (typeof industries === 'string') { try { industries = JSON.parse(industries); } catch(e) { industries = []; } }
   if (!Array.isArray(industries)) industries = [];
@@ -1084,7 +1088,6 @@ function renderPartnerDetail(id) {
     );
   }
 
-  // Business background
   const bg = p.business_description;
   set('pd-background',
     bg
@@ -1096,17 +1099,9 @@ function renderPartnerDetail(id) {
   nav('partner-detail');
 }
 
-function approvePartnerFromDetail() {
-  if (activePartnerId) approvePartner(activePartnerId, true);
-}
-
-function rejectPartnerFromDetail() {
-  if (activePartnerId) rejectPartner(activePartnerId, true);
-}
-
-function focusPartnerOnMapFromDetail() {
-  if (activePartnerId) focusPartnerOnMap(activePartnerId);
-}
+function approvePartnerFromDetail() { if (activePartnerId) approvePartner(activePartnerId, true); }
+function rejectPartnerFromDetail() { if (activePartnerId) rejectPartner(activePartnerId, true); }
+function focusPartnerOnMapFromDetail() { if (activePartnerId) focusPartnerOnMap(activePartnerId); }
 
 async function approvePartner(id, fromDetail) {
   if (!confirm('Approve this Territory Partner application? An approval email will be sent to the applicant.')) return;
@@ -1175,7 +1170,6 @@ async function checkHealth(){
 
 /* ── ACTIONS ── */
 async function approveClient(id){if(!confirm('Approve this client and trigger site build?'))return;const r=await API.post('/api/admin/approve',{clientId:id,key:STATE.adminKey});if(r){toast('Client approved','success');addActivity('check','ai-green','Client approved and site build triggered');logAudit('Approve Client',id);await loadAllData();renderClientsTable();}else{toast('Approval failed — check Railway logs','error');}}
-
 async function quickAction(action){const client=STATE.activeClient;if(!client&&!['broadcast'].includes(action))return;const id=client?.id||client?.client_id;const endpoints={welcome:'/api/admin/resend-welcome',deploy:'/api/admin/deploy',approve:'/api/admin/approve',preview:'/api/admin/send-preview'};if(endpoints[action]){const r=await API.post(endpoints[action],{clientId:id,key:STATE.adminKey});toast(r?`${action} action sent`:`${action} failed — check logs`,r?'success':'error');}else{toast(`${action} — connect to backend API`,'info');}addActivity('bolt','ai-amber',`Quick action: <strong>${action}</strong>`);logAudit('Quick Action: '+action,client?.business_name||id);}
 async function sendBroadcast(){const audience=document.getElementById('bc-audience').value;const subject=document.getElementById('bc-subject').value;const body=document.getElementById('bc-body').value;if(!subject||!body){toast('Subject and message required','error');return;}toast(`Broadcast queued for ${audience}`,'success');addActivity('bullhorn','ai-amber',`<strong>Broadcast sent</strong> to ${audience}: "${subject}"`);logAudit('Broadcast',`${audience} — ${subject}`);}
 async function changeCredentials(){const current=document.getElementById('cred-current').value;const newKey=document.getElementById('cred-new').value;const confirm2=document.getElementById('cred-confirm').value;if(!current||!newKey||!confirm2){toast('All fields required','error');return;}if(newKey!==confirm2){toast('New keys do not match','error');return;}if(newKey.length<12){toast('Key must be at least 12 characters','error');return;}if(current!==STATE.adminKey){toast('Current key is incorrect','error');return;}toast('Key updated. Update ADMIN_KEY in Railway to make permanent.','info');STATE.adminKey=newKey;logAudit('Change Admin Key','Credentials updated');['cred-current','cred-new','cred-confirm'].forEach(id=>{document.getElementById(id).value='';});}
