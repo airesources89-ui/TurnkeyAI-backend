@@ -11,6 +11,8 @@ const { clients, saveClient } = require('../lib/db');
 const { makeToken, validate } = require('../lib/helpers');
 const { sendEmail, ADMIN_EMAIL, sendMiniMeEmail, sendFreeVideoEmail, sendDnsSelfDirectedEmail, sendDnsHandsFreeEmail, sendDomainRegistrationEmail, sendProfessionalEmailSetupEmail } = require('../lib/email');
 const { generateSiteHTML } = require('../lib/site-generator');
+const { encrypt } = require('../lib/crypto-helpers');
+const { triggerCloudflareDnsSetup } = require('../lib/dns-automation');
 
 const BASE_URL    = process.env.BASE_URL || 'https://turnkeyaiservices.com';
 const ADMIN_KEY   = process.env.ADMIN_KEY;
@@ -43,6 +45,21 @@ async function handleIntakeSubmission(data, res) {
     twilioNumber: null, forwardingNumber: null, businessHoursJson: null, telephonyEnabled: false,
     createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
   };
+
+  // ── Encrypt registrar credentials before storing ──
+  // Remove plaintext from both the client.data payload AND the raw data reference
+  // so credentials never appear in the DB, in-memory cache, or admin email
+  if (clients[id].data.registrarUsername) {
+    clients[id].registrarUsernameEnc = encrypt(clients[id].data.registrarUsername);
+    delete clients[id].data.registrarUsername;
+    delete data.registrarUsername;
+  }
+  if (clients[id].data.registrarPassword) {
+    clients[id].registrarPasswordEnc = encrypt(clients[id].data.registrarPassword);
+    delete clients[id].data.registrarPassword;
+    delete data.registrarPassword;
+  }
+
   await saveClient(clients[id]);
 
   if (data.logoBase64 && data.logoFileName) {
@@ -80,6 +97,8 @@ async function handleIntakeSubmission(data, res) {
       }
       // ── DNS / Domain emails (partner path) ──
       fireDnsDomainEmails(clients[id]).catch(e => console.error('[dns/domain emails]', e.message));
+      // ── Cloudflare DNS automation (partner path) ──
+      triggerDnsAutomation(clients[id]);
     })();
     return;
   }
@@ -129,6 +148,8 @@ async function handleIntakeSubmission(data, res) {
     }
     // ── DNS / Domain emails (standard path) ──
     fireDnsDomainEmails(clients[id]).catch(e => console.error('[dns/domain emails]', e.message));
+    // ── Cloudflare DNS automation (standard path) ──
+    triggerDnsAutomation(clients[id]);
   }
 
   res.json({ success: true, id, preview: previewUrl });
@@ -158,6 +179,25 @@ async function fireDnsDomainEmails(client) {
   if (d.wantsProfessionalEmail === 'yes') {
     await sendProfessionalEmailSetupEmail(client).catch(e => console.error('[professional email setup]', e.message));
   }
+}
+
+// ── Trigger Cloudflare DNS automation for hands-free clients ──
+// Non-fatal: runs in background, never blocks the intake response
+function triggerDnsAutomation(client) {
+  const d = client.data;
+  const isHandsFree = d.dnsSetupPreference === 'hands_free' || d.dnsApproach === 'hands_free';
+  const domain = d.existingDomain;
+  if (!isHandsFree || !domain) return;
+
+  triggerCloudflareDnsSetup(domain)
+    .then(result => {
+      if (result.success) {
+        console.log(`[dns-automation] ✅ DNS configured for ${domain} — zone: ${result.zoneId}`);
+      } else {
+        console.warn(`[dns-automation] ⚠️ DNS setup incomplete for ${domain}: ${result.error}`);
+      }
+    })
+    .catch(err => console.error('[dns-automation] Unexpected error for', domain, err.message));
 }
 
 // ── POST /api/submission-created ──
