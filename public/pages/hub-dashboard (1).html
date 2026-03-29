@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TurnkeyAI Hub Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--navy:#080d1a;--navy-mid:#0c1225;--navy-light:#121e38;--navy-border:#1a2844;--navy-hover:#162040;--amber:#f59e0b;--amber-dark:#d97706;--orange:#ea580c;--green:#10b981;--green-bg:rgba(16,185,129,0.08);--red:#ef4444;--red-bg:rgba(239,68,68,0.08);--yellow:#eab308;--yellow-bg:rgba(234,179,8,0.08);--blue:#3b82f6;--blue-bg:rgba(59,130,246,0.08);--purple:#8b5cf6;--text-primary:#eef2ff;--text-secondary:#7b8fb5;--text-dim:#3d5080;--sidebar-w:240px;--header-h:54px;--radius:10px;--radius-sm:6px;--card-bg:#0c1225;--card-border:#1a2844;--t:0.16s ease}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--text-primary);font-size:14px;line-height:1.5;overflow:hidden}
+a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--navy-border);border-radius:3px}
+
+#app{display:flex;height:100vh;overflow:hidden}
+
+/* Sidebar */
+#sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--navy-mid);border-right:1px solid var(--navy-border);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-logo{height:var(--header-h);display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid var(--navy-border);flex-shrink:0}
+.logo-mark{width:28px;height:28px;background:linear-gradient(135deg,var(--amber),var(--orange));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--navy);font-weight:800;flex-shrink:0}
+.logo-text-wrap{overflow:hidden;white-space:nowrap}
+.logo-name{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--amber);letter-spacing:1px;display:block}
+.logo-sub{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);display:block;margin-top:-2px}
+.sidebar-scroll{flex:1;overflow-y:auto;padding:8px 0}
+.sb-section{border-bottom:1px solid var(--navy-border);padding:6px 0}
+.sb-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);padding:10px 16px 3px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 16px;cursor:pointer;color:var(--text-secondary);font-size:13px;font-weight:500;border-left:3px solid transparent;transition:all var(--t)}
+.nav-item:hover{background:var(--navy-hover);color:var(--text-primary)}
+.nav-item.active{color:var(--amber);background:rgba(245,158,11,0.07);border-left-color:var(--amber)}
+.nav-icon{width:18px;text-align:center;font-size:13px;flex-shrink:0}
+.nav-label{flex:1}
+.nav-badge{background:var(--orange);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px}
+.nav-badge.green{background:var(--green)}
+
+/* Partner info card in sidebar */
+.partner-card{margin:12px;padding:14px;background:var(--navy);border:1px solid var(--navy-border);border-radius:var(--radius-sm)}
+.partner-name{font-weight:700;color:var(--text-primary);font-size:13px;margin-bottom:4px}
+.partner-meta{font-size:11px;color:var(--text-dim);line-height:1.6}
+.partner-tier{display:inline-block;background:rgba(245,158,11,0.1);color:var(--amber);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:4px}
+
+/* Main */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#topbar{height:var(--header-h);background:var(--navy-mid);border-bottom:1px solid var(--navy-border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
+#breadcrumb{font-size:13px;color:var(--text-secondary);flex:1}
+#breadcrumb .bc-current{color:var(--text-primary);font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.icon-btn{width:32px;height:32px;border:1px solid var(--navy-border);background:var(--navy-light);border-radius:var(--radius-sm);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--t);font-size:13px}
+.icon-btn:hover{border-color:var(--amber);color:var(--amber)}
+#content{flex:1;overflow-y:auto;overflow-x:hidden;padding:22px 24px}
+
+/* Panels */
+.panel{display:none}.panel.active{display:block;animation:fadein 0.2s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.panel-header{margin-bottom:20px}
+.panel-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1.5px;color:var(--text-primary);line-height:1}
+.panel-subtitle{font-size:13px;color:var(--text-secondary);margin-top:4px}
+.panel-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+
+/* Grids */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:18px}
+
+/* Cards */
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;gap:7px}
+.card-title i{color:var(--amber)}
+
+/* Stat cards */
+.stat-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden;cursor:default;transition:border-color var(--t)}
+.stat-card:hover{border-color:rgba(245,158,11,0.3)}
+.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.sc-amber::after{background:linear-gradient(90deg,var(--amber),var(--orange))}
+.sc-green::after{background:linear-gradient(90deg,var(--green),#34d399)}
+.sc-blue::after{background:linear-gradient(90deg,var(--blue),#60a5fa)}
+.sc-purple::after{background:linear-gradient(90deg,var(--purple),#a78bfa)}
+.stat-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1px;line-height:1}
+.sv-amber{color:var(--amber)}.sv-green{color:var(--green)}.sv-blue{color:var(--blue)}.sv-purple{color:var(--purple)}
+.stat-change{font-size:11px;margin-top:6px;color:var(--text-dim)}
+.stat-icon{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;opacity:0.06}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;transition:all var(--t);border:none;font-family:'DM Sans',sans-serif}
+.btn-primary{background:var(--amber);color:var(--navy)}.btn-primary:hover{background:var(--amber-dark)}
+.btn-secondary{background:var(--navy-light);color:var(--text-primary);border:1px solid var(--navy-border)}.btn-secondary:hover{border-color:var(--amber);color:var(--amber)}
+.btn-ghost{background:transparent;color:var(--text-secondary);border:1px solid var(--navy-border)}.btn-ghost:hover{color:var(--text-primary);border-color:var(--text-secondary)}
+.btn-sm{padding:5px 10px;font-size:12px}.btn-xs{padding:3px 8px;font-size:11px;border-radius:4px}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-bg);color:var(--green)}.badge-yellow{background:var(--yellow-bg);color:var(--yellow)}.badge-red{background:var(--red-bg);color:var(--red)}.badge-blue{background:var(--blue-bg);color:var(--blue)}.badge-amber{background:rgba(245,158,11,0.1);color:var(--amber)}.badge-gray{background:rgba(61,80,128,0.3);color:var(--text-secondary)}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;padding:9px 14px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid var(--navy-border);white-space:nowrap}
+.tbl td{padding:11px 14px;border-bottom:1px solid rgba(26,40,68,0.5);color:var(--text-secondary);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(22,32,64,0.5);color:var(--text-primary)}
+.tbl .td-name{color:var(--text-primary);font-weight:600}
+
+/* Info block */
+.info-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(26,40,68,0.4);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-key{color:var(--text-dim)}
+.info-val{color:var(--text-primary);font-weight:500;text-align:right;max-width:60%}
+
+/* Progress */
+.progress-wrap{margin-bottom:10px}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:5px}
+.progress-bar{height:6px;background:var(--navy-border);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width 0.6s ease}
+.pf-amber{background:linear-gradient(90deg,var(--amber),var(--orange))}.pf-green{background:linear-gradient(90deg,var(--green),#34d399)}.pf-blue{background:linear-gradient(90deg,var(--blue),#60a5fa)}
+
+/* Signup link box */
+.signup-link-box{background:var(--navy);border:2px solid var(--amber);border-radius:var(--radius-sm);padding:16px;margin-top:8px}
+.signup-link-url{font-family:'DM Mono',monospace;font-size:12px;color:var(--amber);word-break:break-all;margin-bottom:8px}
+.copy-btn{background:rgba(245,158,11,0.1);color:var(--amber);border:1px solid rgba(245,158,11,0.3);border-radius:var(--radius-sm);padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:all var(--t)}
+.copy-btn:hover{background:rgba(245,158,11,0.2)}
+
+/* Empty state */
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-dim)}
+.empty-state i{font-size:36px;margin-bottom:12px;display:block;opacity:0.4}
+.empty-state p{font-size:13px}
+
+/* Toasts */
+#toast-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--navy-light);border:1px solid var(--navy-border);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;color:var(--text-primary);box-shadow:0 8px 24px rgba(0,0,0,0.4);display:flex;align-items:center;gap:10px;pointer-events:all;animation:slide-in 0.25s ease;max-width:320px}
+.toast.success{border-left:3px solid var(--green)}.toast.error{border-left:3px solid var(--red)}.toast.info{border-left:3px solid var(--blue)}
+@keyframes slide-in{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+@media(max-width:1100px){.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){:root{--sidebar-w:0px}#sidebar{display:none}#content{padding:14px}.g3,.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">T</div>
+      <div class="logo-text-wrap">
+        <span class="logo-name">TurnkeyAI</span>
+        <span class="logo-sub">Hub Partner</span>
+      </div>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="partner-card">
+        <div class="partner-name" id="sb-partner-name">Loading...</div>
+        <div class="partner-meta" id="sb-partner-meta">—</div>
+        <div class="partner-tier" id="sb-partner-tier">—</div>
+      </div>
+      <div class="sb-section">
+        <div class="nav-item active" onclick="nav('dashboard',this)"><span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span><span class="nav-label">Dashboard</span></div>
+        <div class="nav-item" onclick="nav('clients',this)"><span class="nav-icon"><i class="fa-solid fa-users"></i></span><span class="nav-label">My Clients</span><span class="nav-badge green" id="sb-client-count">0</span></div>
+        <div class="nav-item" onclick="nav('revenue',this)"><span class="nav-icon"><i class="fa-solid fa-dollar-sign"></i></span><span class="nav-label">Revenue</span></div>
+        <div class="nav-item" onclick="nav('signup',this)"><span class="nav-icon"><i class="fa-solid fa-link"></i></span><span class="nav-label">Client Signup Page</span></div>
+      </div>
+      <div class="sb-section">
+        <div class="nav-item" onclick="nav('territory',this)"><span class="nav-icon"><i class="fa-solid fa-map-location-dot"></i></span><span class="nav-label">My Territory</span></div>
+        <div class="nav-item" onclick="nav('industries',this)"><span class="nav-icon"><i class="fa-solid fa-list-check"></i></span><span class="nav-label">My Industries</span></div>
+      </div>
+      <div class="sb-section">
+        <div class="nav-item" onclick="doLogout()"><span class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i></span><span class="nav-label">Sign Out</span></div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div id="main">
+    <div id="topbar">
+      <div id="breadcrumb">TurnkeyAI Hub / <span class="bc-current" id="bc-label">Dashboard</span></div>
+      <div class="topbar-right">
+        <div class="icon-btn" onclick="loadDashboard()" title="Refresh"><i class="fa-solid fa-rotate"></i></div>
+      </div>
+    </div>
+
+    <div id="content">
+
+      <!-- DASHBOARD -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="panel-header">
+          <div class="panel-title">Hub Dashboard</div>
+          <div class="panel-subtitle" id="dash-subtitle">Welcome back</div>
+          <div class="panel-actions">
+            <button class="btn btn-primary" onclick="nav('signup')"><i class="fa-solid fa-link"></i> Get Client Signup Link</button>
+          </div>
+        </div>
+        <div class="g4">
+          <div class="stat-card sc-blue"><div class="stat-label">Total Clients</div><div class="stat-val sv-blue" id="kpi-clients">0</div><i class="fa-solid fa-users stat-icon"></i></div>
+          <div class="stat-card sc-green"><div class="stat-label">Active Sites</div><div class="stat-val sv-green" id="kpi-active">0</div><i class="fa-solid fa-globe stat-icon"></i></div>
+          <div class="stat-card sc-amber"><div class="stat-label">Your Monthly Revenue</div><div class="stat-val sv-amber" id="kpi-mrr">$0</div><div class="stat-change">Your 60% share</div><i class="fa-solid fa-dollar-sign stat-icon"></i></div>
+          <div class="stat-card sc-purple"><div class="stat-label">Pending Sites</div><div class="stat-val sv-purple" id="kpi-pending">0</div><i class="fa-solid fa-clock stat-icon"></i></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-users"></i> Recent Clients</div><button class="btn btn-ghost btn-sm" onclick="nav('clients')">View All</button></div>
+            <div id="dash-clients"></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-chart-line"></i> Revenue Summary</div></div>
+            <div id="dash-revenue"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLIENTS -->
+      <div class="panel" id="panel-clients">
+        <div class="panel-header">
+          <div class="panel-title">My Clients</div>
+          <div class="panel-subtitle">All businesses signed up through your Hub</div>
+          <div class="panel-actions">
+            <button class="btn btn-primary" onclick="nav('signup')"><i class="fa-solid fa-plus"></i> Add New Client</button>
+          </div>
+        </div>
+        <div class="card">
+          <table class="tbl">
+            <thead><tr><th>Business</th><th>Industry</th><th>Plan</th><th>Status</th><th>MRR</th><th>Joined</th></tr></thead>
+            <tbody id="clients-tbody">
+              <tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading...</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- REVENUE -->
+      <div class="panel" id="panel-revenue">
+        <div class="panel-header">
+          <div class="panel-title">Revenue</div>
+          <div class="panel-subtitle">Your 60% share of all client subscriptions</div>
+        </div>
+        <div class="g3">
+          <div class="stat-card sc-green"><div class="stat-label">Monthly Revenue (Your 60%)</div><div class="stat-val sv-green" id="rev-mrr">$0</div></div>
+          <div class="stat-card sc-amber"><div class="stat-label">Annual Projection</div><div class="stat-val sv-amber" id="rev-arr">$0</div></div>
+          <div class="stat-card sc-blue"><div class="stat-label">Avg Revenue / Client</div><div class="stat-val sv-blue" id="rev-avg">$0</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-coins"></i> Revenue by Plan</div></div>
+          <div id="rev-by-plan"></div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-circle-info"></i> Revenue Split Notes</div></div>
+          <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;padding:4px 0">
+            <p>You receive <strong style="color:var(--amber)">60%</strong> of every client's monthly subscription payment.</p>
+            <p style="margin-top:8px">Stripe Connect automatic revenue splitting will be configured in the next platform update. Until then, your revenue is tracked here and reconciled monthly.</p>
+            <p style="margin-top:8px">Questions about payments? Call <strong style="color:var(--text-primary)">(603) 922-2004</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIGNUP LINK -->
+      <div class="panel" id="panel-signup">
+        <div class="panel-header">
+          <div class="panel-title">Client Signup Page</div>
+          <div class="panel-subtitle">Share this link with businesses in your territory. When they sign up, they're automatically attributed to you.</div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-link"></i> Your Unique Signup Link</div></div>
+          <div class="signup-link-box">
+            <div class="signup-link-url" id="signup-url">Loading...</div>
+            <button class="copy-btn" onclick="copySignupLink()"><i class="fa-solid fa-copy"></i> Copy Link</button>
+          </div>
+          <p style="font-size:12px;color:var(--text-dim);margin-top:12px">Every client who uses this link is tied to your account automatically. You earn 60% of their monthly subscription for as long as they remain a client.</p>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-lightbulb"></i> How to Share Your Link</div></div>
+          <div style="font-size:13px;color:var(--text-secondary);line-height:2">
+            <p>✓ Add it to your own website or social media profiles</p>
+            <p>✓ Include it in emails to local business owners</p>
+            <p>✓ Use it in flyers, business cards, or ads</p>
+            <p>✓ Share it directly with businesses you meet in your territory</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TERRITORY -->
+      <div class="panel" id="panel-territory">
+        <div class="panel-header">
+          <div class="panel-title">My Territory</div>
+          <div class="panel-subtitle">Your exclusive geographic service area</div>
+        </div>
+        <div class="card" id="territory-card">
+          <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-map-location-dot"></i> Territory Definition</div></div>
+          <div id="territory-details"></div>
+        </div>
+      </div>
+
+      <!-- INDUSTRIES -->
+      <div class="panel" id="panel-industries">
+        <div class="panel-header">
+          <div class="panel-title">My Industries</div>
+          <div class="panel-subtitle">Industries you can serve in your territory</div>
+        </div>
+        <div class="card">
+          <div class="card-hdr">
+            <div class="card-title"><i class="fa-solid fa-list-check"></i> Selected Industries</div>
+            <span class="badge badge-amber" id="industry-count">0 industries</span>
+          </div>
+          <div id="industry-list"></div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<div id="toast-container"></div>
+
+<script>
+/* ── STATE ── */
+const STATE = {
+  token: null,
+  partner: null,
+  clients: [],
+  totalMRR: 0,
+  partnerMRR: 0
+};
+
+const planPrices = {
+  'website-only':99,'website_only':99,'Website Only':99,
+  'website-blog':129,'website_blog':129,'Website + Blog':129,
+  'website-blog-social':159,'Website + Blog + Social':159,
+  'full-package':218,'Full Package':218
+};
+
+const planLabels = {
+  website_only:'Website Only',website_blog:'Website + Blog',
+  website_blog_social:'Website + Blog + Social',full_package:'Full Package'
+};
+
+/* ── AUTH GATE ── */
+function showLoginScreen() {
+  document.body.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px;font-family:'DM Sans',sans-serif;background:#080d1a;color:#eef2ff">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:#f59e0b;letter-spacing:2px">TurnkeyAI Hub</div>
+      <div style="font-size:14px;color:#7b8fb5;margin-bottom:4px">Partner Dashboard — Authorized Access Only</div>
+      <input id="email-input" type="email" placeholder="Email address" style="padding:10px 16px;border-radius:8px;border:1px solid #1a2844;background:#0c1225;color:#eef2ff;font-size:14px;width:300px;outline:none;font-family:'DM Sans',sans-serif;">
+      <input id="pw-input" type="password" placeholder="Password" style="padding:10px 16px;border-radius:8px;border:1px solid #1a2844;background:#0c1225;color:#eef2ff;font-size:14px;width:300px;outline:none;font-family:'DM Sans',sans-serif">
+      <button onclick="doLogin()" style="padding:10px 32px;background:#f59e0b;color:#080d1a;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;width:300px">Sign In to Hub</button>
+      <div id="login-error" style="color:#ef4444;font-size:13px;display:none"></div>
+      <div style="font-size:12px;color:#3d5080;margin-top:8px">Questions? Call (603) 922-2004</div>
+    </div>`;
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+}
+
+async function doLogin() {
+  const email    = document.getElementById('email-input').value.trim();
+  const password = document.getElementById('pw-input').value;
+  const errEl    = document.getElementById('login-error');
+  if (!email || !password) { errEl.textContent = 'Please enter your email and password.'; errEl.style.display = 'block'; return; }
+
+  try {
+    const r = await fetch('/api/hub/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await r.json();
+    if (!r.ok) { errEl.textContent = data.error || 'Invalid credentials.'; errEl.style.display = 'block'; return; }
+
+    STATE.token   = data.token;
+    STATE.partner = data.partner;
+    sessionStorage.setItem('hub_token', data.token);
+    location.reload();
+  } catch(e) {
+    errEl.textContent = 'Connection error. Please try again.';
+    errEl.style.display = 'block';
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('hub_token');
+  location.href = location.pathname;
+}
+
+/* ── INIT ── */
+async function init() {
+  const savedToken = sessionStorage.getItem('hub_token');
+  if (!savedToken) { showLoginScreen(); return; }
+  STATE.token = savedToken;
+  await loadDashboard();
+}
+
+async function loadDashboard() {
+  try {
+    const r = await fetch('/api/hub/dashboard', {
+      headers: { 'x-hub-token': STATE.token }
+    });
+    if (r.status === 401) { sessionStorage.removeItem('hub_token'); showLoginScreen(); return; }
+    const data = await r.json();
+    STATE.partner    = data.partner;
+    STATE.clients    = data.clients || [];
+    STATE.totalMRR   = data.totalMRR || 0;
+    STATE.partnerMRR = data.partnerMRR || 0;
+    renderAll();
+  } catch(e) {
+    toast('Failed to load dashboard data', 'error');
+  }
+}
+
+function renderAll() {
+  const p = STATE.partner;
+  if (!p) return;
+
+  // Sidebar
+  set('sb-partner-name', p.name || '—');
+  set('sb-partner-meta', (p.territory_name || '—') + '<br>' + p.email);
+  set('sb-partner-tier', (p.tier || '—').charAt(0).toUpperCase() + (p.tier || '').slice(1) + ' Tier');
+  set('sb-client-count', STATE.clients.length);
+
+  // Dashboard KPIs
+  const active  = STATE.clients.filter(c => c.status === 'live' || c.status === 'active').length;
+  const pending = STATE.clients.filter(c => c.status === 'pending').length;
+  set('kpi-clients', STATE.clients.length);
+  set('kpi-active',  active);
+  set('kpi-mrr',     '$' + STATE.partnerMRR);
+  set('kpi-pending', pending);
+  set('dash-subtitle', 'Welcome back, ' + (p.name || 'Partner') + ' — ' + new Date().toLocaleDateString());
+
+  // Signup URL
+  const BASE_URL = location.origin;
+  const signupUrl = BASE_URL + '/hub/' + p.id;
+  set('signup-url', signupUrl);
+
+  // Territory
+  const tType = p.territory_type || '—';
+  let coverage = '—';
+  if (tType === 'zip' && p.territory_zips) {
+    const zips = Array.isArray(p.territory_zips) ? p.territory_zips : JSON.parse(p.territory_zips || '[]');
+    coverage = zips.join(', ');
+  } else if (tType === 'city')   coverage = p.territory_cities   || '—';
+  else if (tType === 'county')   coverage = p.territory_counties  || '—';
+  else if (tType === 'radius')   coverage = (p.territory_radius_miles || '?') + ' mile radius from ' + (p.territory_radius_center || '?');
+
+  set('territory-details', infoRows([
+    ['Territory Name', p.territory_name || '—'],
+    ['Territory Type', tType],
+    ['Coverage', coverage],
+    ['Status', 'Exclusive — Active'],
+    ['Approved', p.approved_at ? new Date(p.approved_at).toLocaleDateString() : '—']
+  ]));
+
+  // Industries
+  let inds = p.industries || [];
+  if (typeof inds === 'string') { try { inds = JSON.parse(inds); } catch(e) { inds = []; } }
+  set('industry-count', inds.length + ' industries');
+  set('industry-list', inds.length === 0
+    ? '<div class="empty-state"><p>No industries loaded.</p></div>'
+    : '<div style="display:flex;flex-wrap:wrap;gap:6px;padding:4px 0">' + inds.map(i => '<span class="badge badge-blue" style="font-size:11px">' + esc(i) + '</span>').join('') + '</div>'
+  );
+
+  renderClients();
+  renderRevenue();
+  renderDashClients();
+  renderDashRevenue();
+}
+
+function renderClients() {
+  const tbody = document.getElementById('clients-tbody');
+  if (!STATE.clients.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-users"></i><p>No clients yet. Share your signup link to get started.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = STATE.clients.map(c => {
+    const d = c.data || {};
+    const biz    = d.businessName || c.id || '—';
+    const ind    = d.industry || d.business_type || '—';
+    const plan   = d.selectedPlan || d.plan || '—';
+    const status = c.status || 'pending';
+    const price  = planPrices[plan] || 0;
+    const partnerShare = Math.round(price * 0.6);
+    const badgeCls = status==='live'||status==='active'?'badge-green':status==='pending'?'badge-yellow':'badge-gray';
+    const joined = c.created_at ? new Date(c.created_at).toLocaleDateString() : '—';
+    return `<tr>
+      <td class="td-name">${esc(biz)}</td>
+      <td>${esc(ind)}</td>
+      <td>${esc(planLabels[plan] || plan)}</td>
+      <td><span class="badge ${badgeCls}">${status}</span></td>
+      <td style="color:var(--green);font-weight:600">${partnerShare ? '$' + partnerShare + '/mo' : '—'}</td>
+      <td>${joined}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderDashClients() {
+  const el = document.getElementById('dash-clients');
+  const recent = STATE.clients.slice(0, 5);
+  if (!recent.length) { el.innerHTML = '<div class="empty-state"><i class="fa-solid fa-users"></i><p>No clients yet.</p></div>'; return; }
+  el.innerHTML = recent.map(c => {
+    const d = c.data || {};
+    const biz = d.businessName || c.id || '—';
+    const status = c.status || 'pending';
+    const badgeCls = status==='live'||status==='active'?'badge-green':status==='pending'?'badge-yellow':'badge-gray';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(26,40,68,0.4);font-size:13px">
+      <span style="color:var(--text-primary);font-weight:600">${esc(biz)}</span>
+      <span class="badge ${badgeCls}">${status}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderRevenue() {
+  set('rev-mrr', '$' + STATE.partnerMRR);
+  set('rev-arr', '$' + (STATE.partnerMRR * 12).toLocaleString());
+  set('rev-avg', STATE.clients.length ? '$' + Math.round(STATE.partnerMRR / STATE.clients.length) : '$0');
+
+  const counts = {};
+  STATE.clients.forEach(c => {
+    const plan = c.data?.selectedPlan || c.data?.plan || 'Unknown';
+    counts[plan] = (counts[plan] || 0) + 1;
+  });
+  const total = Object.entries(counts).reduce((s, [p, n]) => s + (planPrices[p] || 0) * n, 0) || 1;
+  let html = '';
+  Object.entries(counts).sort((a, b) => b[1] - a[1]).forEach(([plan, n]) => {
+    const rev = Math.round((planPrices[plan] || 0) * n * 0.6);
+    const w = Math.round((planPrices[plan] || 0) * n / total * 100);
+    html += `<div class="progress-wrap"><div class="progress-label"><span>${planLabels[plan] || plan}</span><span style="color:var(--green)">$${rev}/mo (your share)</span></div><div class="progress-bar"><div class="progress-fill pf-green" style="width:${w}%"></div></div></div>`;
+  });
+  set('rev-by-plan', html || '<div class="empty-state"><p>No revenue data yet.</p></div>');
+}
+
+function renderDashRevenue() {
+  const el = document.getElementById('dash-revenue');
+  el.innerHTML = infoRows([
+    ['Total Client MRR', '$' + STATE.totalMRR + '/mo'],
+    ['Your Share (60%)', '$' + STATE.partnerMRR + '/mo'],
+    ['Annual Projection', '$' + (STATE.partnerMRR * 12).toLocaleString()],
+    ['Active Clients', STATE.clients.filter(c => c.status === 'live' || c.status === 'active').length],
+    ['Pending Clients', STATE.clients.filter(c => c.status === 'pending').length]
+  ]);
+}
+
+/* ── NAVIGATION ── */
+let currentPanel = 'dashboard';
+function nav(panelId, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + panelId)?.classList.add('active');
+  currentPanel = panelId;
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const labels = { dashboard:'Dashboard', clients:'My Clients', revenue:'Revenue', signup:'Client Signup Page', territory:'My Territory', industries:'My Industries' };
+  set('bc-label', labels[panelId] || panelId);
+}
+
+/* ── UTILITIES ── */
+function set(id, val) { const el = document.getElementById(id); if (el) el.innerHTML = String(val); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function infoRows(rows) {
+  return rows.map(([k, v]) => `<div class="info-row"><span class="info-key">${k}</span><span class="info-val">${esc(String(v))}</span></div>`).join('');
+}
+
+function copySignupLink() {
+  const url = document.getElementById('signup-url').textContent;
+  navigator.clipboard.writeText(url).then(() => toast('Signup link copied!', 'success')).catch(() => {
+    const el = document.getElementById('signup-url');
+    const range = document.createRange();
+    range.selectNode(el);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    toast('Select and copy the link above', 'info');
+  });
+}
+
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  const icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info' };
+  t.innerHTML = `<i class="fa-solid ${icons[type]||icons.info}" style="color:${type==='success'?'var(--green)':type==='error'?'var(--red)':'var(--blue)'}"></i>${esc(msg)}`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+init();
+</script>
+</body>
+</html>
