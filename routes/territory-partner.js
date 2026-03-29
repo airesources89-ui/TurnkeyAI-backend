@@ -11,8 +11,14 @@ const {
   getTerritoryPartnerApplicationById,
   approveTerritoryPartnerApplication,
   rejectTerritoryPartnerApplication,
+  savePartnerCredentials,
+  getPartnerByLoginId,
+  getPartnerByEmail,
+  getPartnerByHubToken,
+  getClientsByPartnerId,
 } = require('../lib/db');
 const { sendEmail } = require('../lib/email');
+const path = require('path');
 
 // ── Admin authentication middleware ──
 function requireAdmin(req, res, next) {
@@ -172,6 +178,29 @@ router.get('/api/territory-partner/applications/:id', requireAdmin, async (req, 
   }
 });
 
+// ── Credential generators (cryptographically secure) ──
+const crypto = require('crypto');
+
+function generateHubLoginId() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const bytes = crypto.randomBytes(6);
+  let id = 'TK-HUB-';
+  for (let i = 0; i < 6; i++) id += chars[bytes[i] % chars.length];
+  return id;
+}
+
+function generatePassword() {
+  const chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$';
+  const bytes = crypto.randomBytes(12);
+  let pw = '';
+  for (let i = 0; i < 12; i++) pw += chars[bytes[i] % chars.length];
+  return pw;
+}
+
+function generateToken() {
+  return crypto.randomBytes(36).toString('hex');
+}
+
 // Approve application
 router.post('/api/territory-partner/approve/:id', requireAdmin, async (req, res) => {
   try {
@@ -181,14 +210,23 @@ router.post('/api/territory-partner/approve/:id', requireAdmin, async (req, res)
       return res.status(404).json({ error: 'Application not found' });
     }
 
-    // Send approval email — non-blocking, failure does not affect response
+    // Generate Hub credentials
+    const hubLoginId  = generateHubLoginId();
+    const hubPassword = generatePassword();
+    const hubToken    = generateToken();
+    await savePartnerCredentials(application.id, hubLoginId, hubPassword, hubToken);
+
+    const BASE_URL = process.env.BASE_URL || 'https://turnkeyaiservices.com';
+    const hubDashUrl   = `${BASE_URL}/pages/hub-dashboard.html?loginId=${encodeURIComponent(hubLoginId)}`;
+    const hubIntakeUrl = `${BASE_URL}/hub/${application.id}`;
+
+    const tierNames = {
+      starter: 'Starter ($99/mo)', professional: 'Professional ($199/mo)',
+      enterprise: 'Enterprise ($199/mo)', unlimited: 'Unlimited ($199/mo)'
+    };
+
+    // Send approval + credentials email
     try {
-      const tierNames = {
-        starter: 'Starter ($99/mo)',
-        professional: 'Professional ($199/mo)',
-        enterprise: 'Enterprise ($199/mo)',
-        unlimited: 'Unlimited ($199/mo)'
-      };
       await sendEmail({
         to: application.email,
         subject: `🎉 Welcome to TurnkeyAI Territory Partners — You're Approved!`,
@@ -199,22 +237,26 @@ router.post('/api/territory-partner/approve/:id', requireAdmin, async (req, res)
           </div>
           <div style="padding:32px;">
             <p>Hi ${application.full_name},</p>
-            <p>Congratulations — your Territory Partner application has been <strong>approved</strong>. You are now an official TurnkeyAI Territory Partner.</p>
+            <p>Your Territory Partner application has been <strong>approved</strong>. Your Hub is live and ready to go.</p>
             <div style="background:#f0fff4;border:2px solid #10b981;border-radius:12px;padding:24px;margin:24px 0;">
               <h3 style="margin:0 0 16px;color:#065f46;">📋 Your Partnership Details</h3>
               <p style="margin:0 0 8px;"><strong>Territory:</strong> ${application.territory_name || '—'}</p>
               <p style="margin:0 0 8px;"><strong>Tier:</strong> ${tierNames[application.tier] || application.tier}</p>
-              <p style="margin:0 0 8px;"><strong>Revenue Split:</strong> 60/40 — you keep 60% of every client you bring in</p>
+              <p style="margin:0 0 8px;"><strong>Revenue Split:</strong> You keep 60% of every client payment</p>
               <p style="margin:0;"><strong>Approved:</strong> ${new Date().toLocaleDateString()}</p>
             </div>
             <div style="background:#f0f9ff;border:2px solid #3b82f6;border-radius:12px;padding:24px;margin:24px 0;">
-              <h3 style="margin:0 0 16px;color:#1e40af;">📋 Next Steps</h3>
-              <ol style="padding-left:20px;line-height:2.4;font-size:14px;color:#374151;">
-                <li>Our team will reach out within 1–2 business days with your Hub login credentials</li>
-                <li>You will receive onboarding materials and training resources</li>
-                <li>Once set up, you can start signing clients in your territory immediately</li>
-                <li>Stripe Connect will be configured to automatically split revenue on every payment</li>
-              </ol>
+              <h3 style="margin:0 0 16px;color:#1e40af;">🔐 Your Hub Dashboard Login</h3>
+              <p style="margin:0 0 8px;"><strong>Dashboard URL:</strong><br><a href="${hubDashUrl}" style="color:#3b82f6;word-break:break-all;">${hubDashUrl}</a></p>
+              <p style="margin:8px 0 0;"><strong>Email:</strong> ${application.email}</p>
+              <p style="margin:16px 0 0;"><strong>Password:</strong></p>
+              <div style="background:#080d1a;color:#f59e0b;font-size:24px;font-weight:700;letter-spacing:6px;text-align:center;padding:14px;border-radius:8px;margin-top:8px;font-family:monospace;">${hubPassword}</div>
+              <p style="margin:12px 0 0;font-size:12px;color:#6b7280;">Log in with your email address and the password above.</p>
+            </div>
+            <div style="background:#fff8ed;border:2px solid #f59e0b;border-radius:12px;padding:24px;margin:24px 0;">
+              <h3 style="margin:0 0 12px;color:#92400e;">🌐 Your Client Signup Page</h3>
+              <p style="font-size:14px;color:#92400e;margin:0 0 12px;">Share this URL with local businesses in your territory. When they sign up, they are automatically attributed to you and your 60% activates on their subscription.</p>
+              <a href="${hubIntakeUrl}" style="display:block;text-align:center;background:#f59e0b;color:#080d1a;padding:12px 24px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;">${hubIntakeUrl}</a>
             </div>
             <p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(603) 922-2004</strong> or email <a href="mailto:turnkeyaiservices@gmail.com" style="color:#f59e0b;">turnkeyaiservices@gmail.com</a></p>
             <p>— The TurnkeyAI Services Team</p>
@@ -228,7 +270,10 @@ router.post('/api/territory-partner/approve/:id', requireAdmin, async (req, res)
     res.json({
       success: true,
       message: 'Application approved',
-      application
+      application,
+      hubLoginId,
+      hubDashUrl,
+      hubIntakeUrl
     });
   } catch (error) {
     console.error('[territory-partner approve error]', error);
@@ -282,5 +327,96 @@ router.post('/api/territory-partner/reject/:id', requireAdmin, async (req, res) 
 });
 
 console.log('[module] routes/territory-partner.js loaded');
+
+// ════════════════════════════════════════════════
+// ── HUB PUBLIC & API ROUTES
+// ════════════════════════════════════════════════
+
+// Serve Hub intake page with partner ID
+router.get('/hub/:partnerId', async (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'hub-intake.html'));
+});
+
+// Hub authentication — email + password
+router.post('/api/hub/auth', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password required' });
+    }
+    const partner = await getPartnerByEmail(email);
+    if (!partner || partner.hub_password !== password) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    res.json({
+      success: true,
+      token: partner.hub_token,
+      partner: {
+        id: partner.id,
+        name: partner.full_name,
+        email: partner.email,
+        tier: partner.tier,
+        territory_name: partner.territory_name,
+        territory_type: partner.territory_type,
+        territory_zips: partner.territory_zips,
+        territory_cities: partner.territory_cities,
+        territory_counties: partner.territory_counties,
+        territory_radius_center: partner.territory_radius_center,
+        territory_radius_miles: partner.territory_radius_miles,
+        industries: partner.industries,
+        approved_at: partner.approved_at
+      }
+    });
+  } catch (error) {
+    console.error('[hub auth error]', error);
+    res.status(500).json({ error: 'Authentication failed' });
+  }
+});
+
+// Hub dashboard data
+router.get('/api/hub/dashboard', async (req, res) => {
+  try {
+    const token = req.headers['x-hub-token'];
+    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+    const partner = await getPartnerByHubToken(token);
+    if (!partner) return res.status(401).json({ error: 'Invalid or expired token' });
+
+    const clients = await getClientsByPartnerId(partner.id);
+
+    // Calculate partner MRR (60% of client subscriptions)
+    const planPrices = { 'website-only':99,'website_only':99,'Website Only':99,'website-blog':129,'website_blog':129,'Website + Blog':129,'website-blog-social':159,'Website + Blog + Social':159,'full-package':218,'Full Package':218 };
+    const totalMRR = clients.reduce((s, c) => {
+      const plan = c.data?.selectedPlan || c.data?.plan || '';
+      return s + (planPrices[plan] || 0);
+    }, 0);
+    const partnerMRR = Math.round(totalMRR * 0.6);
+
+    res.json({
+      partner: {
+        id: partner.id,
+        name: partner.full_name,
+        email: partner.email,
+        tier: partner.tier,
+        territory_name: partner.territory_name,
+        territory_type: partner.territory_type,
+        territory_zips: partner.territory_zips,
+        territory_cities: partner.territory_cities,
+        territory_counties: partner.territory_counties,
+        territory_radius_center: partner.territory_radius_center,
+        territory_radius_miles: partner.territory_radius_miles,
+        industries: partner.industries,
+        approved_at: partner.approved_at,
+        hub_login_id: partner.hub_login_id
+      },
+      clients,
+      totalMRR,
+      partnerMRR
+    });
+  } catch (error) {
+    console.error('[hub dashboard error]', error);
+    res.status(500).json({ error: 'Failed to load dashboard' });
+  }
+});
 
 module.exports = router;
