@@ -17,6 +17,8 @@ const {
   getPartnerByHubToken,
   getClientsByPartnerId,
   refreshPartnerToken,
+  resetPartnerPassword,
+  changePartnerPassword,
 } = require('../lib/db');
 const { sendEmail } = require('../lib/email');
 const path = require('path');
@@ -118,11 +120,41 @@ router.post('/api/territory-partner/submit', async (req, res) => {
       if (!territoryCities || !territoryCities.trim()) {
         return res.status(400).json({ error: 'City/State is required for City territory type' });
       }
+
+      // ── City conflict check against approved partners ──
+      const cityConflict = await pool.query(`
+        SELECT id, full_name, territory_cities
+        FROM territory_partner_applications
+        WHERE status = 'approved'
+          AND territory_type = 'city'
+          AND LOWER(territory_cities) = LOWER($1)
+      `, [territoryCities.trim()]);
+      if (cityConflict.rows.length > 0) {
+        return res.status(409).json({
+          error: 'Territory conflict',
+          message: `The city territory "${territoryCities.trim()}" is already claimed by an existing partner. Please contact us at turnkeyaiservices@gmail.com to discuss available options.`
+        });
+      }
     }
 
     if (territoryType === 'county') {
       if (!territoryCounties || !territoryCounties.trim()) {
         return res.status(400).json({ error: 'County is required for County territory type' });
+      }
+
+      // ── County conflict check against approved partners ──
+      const countyConflict = await pool.query(`
+        SELECT id, full_name, territory_counties
+        FROM territory_partner_applications
+        WHERE status = 'approved'
+          AND territory_type = 'county'
+          AND LOWER(territory_counties) = LOWER($1)
+      `, [territoryCounties.trim()]);
+      if (countyConflict.rows.length > 0) {
+        return res.status(409).json({
+          error: 'Territory conflict',
+          message: `The county territory "${territoryCounties.trim()}" is already claimed by an existing partner. Please contact us at turnkeyaiservices@gmail.com to discuss available options.`
+        });
       }
     }
 
@@ -132,6 +164,21 @@ router.post('/api/territory-partner/submit', async (req, res) => {
       }
       if (!territoryRadiusMiles || isNaN(territoryRadiusMiles) || territoryRadiusMiles <= 0) {
         return res.status(400).json({ error: 'A valid radius in miles is required' });
+      }
+
+      // ── Radius conflict check against approved partners (center point match) ──
+      const radiusConflict = await pool.query(`
+        SELECT id, full_name, territory_radius_center
+        FROM territory_partner_applications
+        WHERE status = 'approved'
+          AND territory_type = 'radius'
+          AND LOWER(territory_radius_center) = LOWER($1)
+      `, [territoryRadiusCenter.trim()]);
+      if (radiusConflict.rows.length > 0) {
+        return res.status(409).json({
+          error: 'Territory conflict',
+          message: `A radius territory centered on "${territoryRadiusCenter.trim()}" is already claimed by an existing partner. Please contact us at turnkeyaiservices@gmail.com to discuss available options.`
+        });
       }
     }
 
@@ -219,7 +266,7 @@ router.post('/api/territory-partner/approve/:id', requireAdmin, async (req, res)
     await savePartnerCredentials(application.id, hubLoginId, hubPasswordHash, hubToken);
 
     const BASE_URL = process.env.BASE_URL || 'https://turnkeyaiservices.com';
-    const hubDashUrl   = `${BASE_URL}/pages/hub-dashboard.html?loginId=${encodeURIComponent(hubLoginId)}`;
+    const hubDashUrl   = `${BASE_URL}/pages/hub-dashboard.html`;
     const hubIntakeUrl = `${BASE_URL}/hub/${application.id}`;
 
     const tierNames = {
@@ -251,9 +298,9 @@ router.post('/api/territory-partner/approve/:id', requireAdmin, async (req, res)
               <h3 style="margin:0 0 16px;color:#1e40af;">🔐 Your Hub Dashboard Login</h3>
               <p style="margin:0 0 8px;"><strong>Dashboard URL:</strong><br><a href="${hubDashUrl}" style="color:#3b82f6;word-break:break-all;">${hubDashUrl}</a></p>
               <p style="margin:8px 0 0;"><strong>Email:</strong> ${application.email}</p>
-              <p style="margin:16px 0 0;"><strong>Password:</strong></p>
+              <p style="margin:16px 0 0;"><strong>Temporary Password:</strong></p>
               <div style="background:#080d1a;color:#f59e0b;font-size:24px;font-weight:700;letter-spacing:6px;text-align:center;padding:14px;border-radius:8px;margin-top:8px;font-family:monospace;">${hubPassword}</div>
-              <p style="margin:12px 0 0;font-size:12px;color:#6b7280;">Log in with your email address and the password above.</p>
+              <p style="margin:12px 0 0;font-size:12px;color:#6b7280;">Log in with your email address and the temporary password above. You can change your password from inside the dashboard after logging in.</p>
             </div>
             <div style="background:#fff8ed;border:2px solid #f59e0b;border-radius:12px;padding:24px;margin:24px 0;">
               <h3 style="margin:0 0 12px;color:#92400e;">🌐 Your Client Signup Page</h3>
@@ -377,6 +424,96 @@ router.post('/api/hub/auth', async (req, res) => {
   } catch (error) {
     console.error('[hub auth error]', error);
     res.status(500).json({ error: 'Authentication failed' });
+  }
+});
+
+// Hub password reset — public, no auth required
+router.post('/api/hub/reset-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || !email.trim()) {
+      return res.status(400).json({ error: 'Email address is required' });
+    }
+
+    // Always return success to prevent email enumeration
+    const partner = await getPartnerByEmail(email.trim());
+    if (partner) {
+      const tempPassword    = generatePassword();
+      const hashedPassword  = await bcrypt.hash(tempPassword, 12);
+      await resetPartnerPassword(email.trim(), hashedPassword);
+
+      const BASE_URL   = process.env.BASE_URL || 'https://turnkeyaiservices.com';
+      const hubDashUrl = `${BASE_URL}/pages/hub-dashboard.html`;
+
+      try {
+        await sendEmail({
+          to: partner.email,
+          subject: `TurnkeyAI Hub — Your Temporary Password`,
+          html: `<div style="font-family:sans-serif;max-width:620px;margin:0 auto;">
+            <div style="background:linear-gradient(135deg,#0A1128,#1a2844);padding:32px;text-align:center;border-radius:12px 12px 0 0;">
+              <h1 style="color:#f59e0b;margin:0;font-size:26px;">TurnkeyAI Hub</h1>
+              <p style="color:rgba(255,255,255,.8);margin:8px 0 0;">Password Reset</p>
+            </div>
+            <div style="padding:32px;">
+              <p>Hi ${partner.full_name},</p>
+              <p>We received a password reset request for your Hub account. Here is your temporary password:</p>
+              <div style="background:#080d1a;color:#f59e0b;font-size:24px;font-weight:700;letter-spacing:6px;text-align:center;padding:14px;border-radius:8px;margin:24px 0;font-family:monospace;">${tempPassword}</div>
+              <p style="font-size:14px;color:#374151;">Log in with your email and this temporary password, then change it immediately from the <strong>Change Password</strong> section in your dashboard.</p>
+              <div style="text-align:center;margin:24px 0;">
+                <a href="${hubDashUrl}" style="display:inline-block;background:#f59e0b;color:#080d1a;padding:12px 32px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;">Go to Hub Dashboard</a>
+              </div>
+              <p style="font-size:13px;color:#6B7280;">If you did not request this reset, please contact us immediately.</p>
+              <p style="font-size:14px;color:#6B7280;">Questions? Call <strong>(603) 922-2004</strong> or email <a href="mailto:turnkeyaiservices@gmail.com" style="color:#f59e0b;">turnkeyaiservices@gmail.com</a></p>
+              <p>— The TurnkeyAI Services Team</p>
+            </div>
+          </div>`
+        });
+      } catch (emailErr) {
+        console.error('[hub reset-password email error]', emailErr.message);
+      }
+    }
+
+    // Always return success regardless of whether email was found
+    res.json({ success: true, message: 'If that email is registered, a temporary password has been sent.' });
+
+  } catch (error) {
+    console.error('[hub reset-password error]', error);
+    res.status(500).json({ error: 'Password reset failed' });
+  }
+});
+
+// Hub change password — requires valid session token
+router.post('/api/hub/change-password', async (req, res) => {
+  try {
+    const token = req.headers['x-hub-token'];
+    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+    const partner = await getPartnerByHubToken(token);
+    if (!partner) return res.status(401).json({ error: 'Invalid or expired token' });
+
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ error: 'All password fields are required' });
+    }
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ error: 'New passwords do not match' });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters' });
+    }
+    if (!(await bcrypt.compare(currentPassword, partner.hub_password))) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    await changePartnerPassword(partner.id, hashedPassword);
+
+    res.json({ success: true, message: 'Password updated successfully' });
+
+  } catch (error) {
+    console.error('[hub change-password error]', error);
+    res.status(500).json({ error: 'Password change failed' });
   }
 });
 
