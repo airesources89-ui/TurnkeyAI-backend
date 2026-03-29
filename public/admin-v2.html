@@ -346,6 +346,59 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
   </div>
 </div>
 
+<!-- PARTNER DETAIL -->
+<div class="panel" id="panel-partner-detail">
+  <div class="panel-header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="btn btn-ghost btn-sm" onclick="nav('partner-applications')"><i class="fa-solid fa-arrow-left"></i> Applications</button>
+      <div>
+        <div class="panel-title" id="pd-name">Partner Name</div>
+        <div class="panel-subtitle" id="pd-sub">Tier · Submitted</div>
+      </div>
+      <div id="pd-status-badge" class="badge badge-yellow" style="margin-left:auto">● Pending</div>
+    </div>
+  </div>
+  <div class="g3">
+    <!-- Contact Info -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-user"></i> Applicant Info</div></div>
+      <div id="pd-contact"></div>
+    </div>
+    <!-- Territory -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-map-location-dot"></i> Territory Definition</div></div>
+      <div id="pd-territory"></div>
+    </div>
+    <!-- Partnership -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-handshake"></i> Partnership Details</div></div>
+      <div id="pd-partnership"></div>
+    </div>
+  </div>
+  <div class="g2">
+    <!-- Industries -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-list-check"></i> Selected Industries</div></div>
+      <div id="pd-industries"></div>
+    </div>
+    <!-- Business Background -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-briefcase"></i> Business Background</div></div>
+      <div id="pd-background"></div>
+    </div>
+  </div>
+  <!-- Actions -->
+  <div class="card" style="margin-top:0">
+    <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-gavel"></i> Decision</div></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-success" id="pd-approve-btn" onclick="approvePartnerFromDetail()"><i class="fa-solid fa-check"></i> Approve Partner</button>
+      <button class="btn btn-danger" id="pd-reject-btn" onclick="rejectPartnerFromDetail()"><i class="fa-solid fa-times"></i> Reject Application</button>
+      <button class="btn btn-ghost" onclick="focusPartnerOnMapFromDetail()"><i class="fa-solid fa-map-pin"></i> View on Territory Map</button>
+    </div>
+    <div id="pd-decision-note" style="font-size:12px;color:var(--text-dim);margin-top:10px"></div>
+  </div>
+</div>
+
 <!-- TERRITORY MAP — LIVE LEAFLET -->
 <div class="panel" id="panel-territory-map">
   <div class="panel-header"><div class="panel-title">Territory Map</div><div class="panel-subtitle">Claimed vs. available territories — US domestic partners</div></div>
@@ -599,7 +652,7 @@ function nav(panelId, el) {
   document.querySelectorAll('.nav-item').forEach(i=>{ if(i.dataset.panel===panelId) i.classList.add('active'); else if(i.dataset.panel) i.classList.remove('active'); });
   document.querySelectorAll('.nav-sub-item').forEach(i=>i.classList.remove('active'));
   if (el && el.classList && el.classList.contains('nav-sub-item')) el.classList.add('active');
-  const labels = {dashboard:'Dashboard','clients-all':'Client Websites','client-detail':'Client Detail',pending:'Pending Approval',churn:'Churn Risk','partners-all':'Territory Partners','partner-applications':'Partner Applications','territory-map':'Territory Map','partner-pipeline':'Revenue Pipeline',analytics:'Analytics',cohort:'Cohort Analysis',revenue:'Revenue Intelligence',notifications:'Notifications','activity-log':'Activity Log',health:'API Health',backlog:'Backlog Board',broadcast:'Broadcast',settings:'Settings',credentials:'Credentials',roles:'Roles & Access','audit-log':'Audit Log','intl-us':'🇺🇸 United States','intl-mx':'🇲🇽 Mexico','intl-ph':'🇵🇭 Philippines','intl-br':'🇧🇷 Brazil','intl-co':'🇨🇴 Colombia','intl-id':'🇮🇩 Indonesia','intl-vn':'🇻🇳 Vietnam','intl-my':'🇲🇾 Malaysia','intl-in':'🇮🇳 India','intl-th':'🇹🇭 Thailand'};
+  const labels = {dashboard:'Dashboard','clients-all':'Client Websites','client-detail':'Client Detail',pending:'Pending Approval',churn:'Churn Risk','partners-all':'Territory Partners','partner-applications':'Partner Applications','partner-detail':'Partner Detail','territory-map':'Territory Map','partner-pipeline':'Revenue Pipeline',analytics:'Analytics',cohort:'Cohort Analysis',revenue:'Revenue Intelligence',notifications:'Notifications','activity-log':'Activity Log',health:'API Health',backlog:'Backlog Board',broadcast:'Broadcast',settings:'Settings',credentials:'Credentials',roles:'Roles & Access','audit-log':'Audit Log','intl-us':'🇺🇸 United States','intl-mx':'🇲🇽 Mexico','intl-ph':'🇵🇭 Philippines','intl-br':'🇧🇷 Brazil','intl-co':'🇨🇴 Colombia','intl-id':'🇮🇩 Indonesia','intl-vn':'🇻🇳 Vietnam','intl-my':'🇲🇾 Malaysia','intl-in':'🇮🇳 India','intl-th':'🇹🇭 Thailand'};
   document.getElementById('bc-label').textContent = labels[panelId] || panelId;
   if (panelId.startsWith('intl-') && panelId !== 'intl-us') renderIntlPanel(panelId);
   if (panelId === 'dashboard') renderDashboard();
@@ -607,6 +660,7 @@ function nav(panelId, el) {
   if (panelId === 'pending') renderPending();
   if (panelId === 'partners-all') renderPartnersTable();
   if (panelId === 'partner-applications') renderPartnerApps();
+  if (panelId === 'partner-detail') { /* populated by renderPartnerDetail() before nav */ }
   if (panelId === 'activity-log') renderActivityLog();
   if (panelId === 'notifications') renderNotifications();
   if (panelId === 'backlog') renderBacklog();
@@ -926,8 +980,153 @@ function renderPartnerApps(){
     else if(tType==='county')coverage=p.territory_counties||'—';
     else if(tType==='radius')coverage=(p.territory_radius_miles||'?')+' mi radius';
     const statusBadge=p.status==='approved'?'badge-green':p.status==='rejected'?'badge-red':'badge-yellow';
-    return `<tr><td class="td-name">${esc(p.full_name||p.contact_name||'—')}</td><td>${esc(p.tier||'—')}</td><td><div style="font-weight:600;color:var(--text-primary)">${esc(tName)}</div><div style="font-size:11px;margin-top:2px;display:flex;gap:4px;align-items:center"><span class="badge ${typeBadge}" style="font-size:9px">${tType}</span><span style="color:var(--text-dim)">${esc(coverage)}</span></div></td><td>${(p.industries||[]).length}</td><td>${p.created_at?new Date(p.created_at).toLocaleDateString():'—'}</td><td><span class="badge ${statusBadge}">${p.status}</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-success btn-xs" onclick="approvePartner(${p.id})"><i class="fa-solid fa-check"></i></button><button class="btn btn-danger btn-xs" onclick="rejectPartner(${p.id})"><i class="fa-solid fa-times"></i></button><button class="btn btn-ghost btn-xs" onclick="focusPartnerOnMap(${p.id})"><i class="fa-solid fa-map-pin"></i></button></div></td></tr>`;
+    return `<tr><td class="td-name" style="cursor:pointer" onclick="renderPartnerDetail(${p.id})">${esc(p.full_name||p.contact_name||'—')}</td><td>${esc(p.tier||'—')}</td><td><div style="font-weight:600;color:var(--text-primary)">${esc(tName)}</div><div style="font-size:11px;margin-top:2px;display:flex;gap:4px;align-items:center"><span class="badge ${typeBadge}" style="font-size:9px">${tType}</span><span style="color:var(--text-dim)">${esc(coverage)}</span></div></td><td>${(p.industries||[]).length}</td><td>${p.created_at?new Date(p.created_at).toLocaleDateString():'—'}</td><td><span class="badge ${statusBadge}">${p.status}</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="renderPartnerDetail(${p.id})" title="View detail"><i class="fa-solid fa-eye"></i></button><button class="btn btn-success btn-xs" onclick="approvePartner(${p.id})" title="Approve"><i class="fa-solid fa-check"></i></button><button class="btn btn-danger btn-xs" onclick="rejectPartner(${p.id})" title="Reject"><i class="fa-solid fa-times"></i></button><button class="btn btn-ghost btn-xs" onclick="focusPartnerOnMap(${p.id})" title="Map"><i class="fa-solid fa-map-pin"></i></button></div></td></tr>`;
   }).join('');
+}
+
+/* ── PARTNER DETAIL ── */
+let activePartnerId = null;
+
+function renderPartnerDetail(id) {
+  const p = STATE.partners.find(x => x.id == id);
+  if (!p) { toast('Application not found', 'error'); return; }
+  activePartnerId = id;
+
+  const name = p.full_name || p.contact_name || '—';
+  const tier = p.tier || '—';
+  const submitted = p.created_at ? new Date(p.created_at).toLocaleDateString() : '—';
+
+  set('pd-name', name);
+  set('pd-sub', tier.charAt(0).toUpperCase() + tier.slice(1) + ' Tier · Submitted ' + submitted);
+
+  const badge = document.getElementById('pd-status-badge');
+  const statusMap = { approved:['badge-green','● Approved'], rejected:['badge-red','● Rejected'], pending:['badge-yellow','● Pending'] };
+  const [cls, label] = statusMap[p.status] || ['badge-gray', p.status];
+  badge.className = 'badge ' + cls;
+  badge.textContent = label;
+
+  // Show/hide approve+reject based on current status
+  const approveBtn = document.getElementById('pd-approve-btn');
+  const rejectBtn  = document.getElementById('pd-reject-btn');
+  if (p.status === 'approved') {
+    approveBtn.style.display = 'none';
+    set('pd-decision-note', 'This application has been approved. Partner has been notified by email.');
+  } else if (p.status === 'rejected') {
+    rejectBtn.style.display = 'none';
+    set('pd-decision-note', 'This application has been rejected. Applicant has been notified by email.');
+  } else {
+    approveBtn.style.display = '';
+    rejectBtn.style.display = '';
+    set('pd-decision-note', '');
+  }
+
+  // Contact info
+  set('pd-contact', infoBlock([
+    ['Full Name', name],
+    ['Email', p.email || '—'],
+    ['Phone', p.phone || '—'],
+    ['Company', p.company_name || '—'],
+    ['Address', p.address ? p.address + ', ' + (p.city||'') + ', ' + (p.state||'') + ' ' + (p.zip||'') : '—'],
+    ['Website', p.website || '—'],
+    ['Applied', submitted],
+  ]));
+
+  // Territory
+  const tType = p.territory_type || '—';
+  const tName = p.territory_name || '—';
+  let coverage = '—';
+  if (tType === 'zip' && p.territory_zips) {
+    const zips = Array.isArray(p.territory_zips) ? p.territory_zips : (JSON.parse(p.territory_zips || '[]'));
+    coverage = zips.join(', ') || '—';
+  } else if (tType === 'city')   coverage = p.territory_cities   || '—';
+  else if (tType === 'county')   coverage = p.territory_counties  || '—';
+  else if (tType === 'radius')   coverage = (p.territory_radius_miles || '?') + ' mile radius from ' + (p.territory_radius_center || '?');
+
+  set('pd-territory', infoBlock([
+    ['Territory Name', tName],
+    ['Territory Type', tType],
+    ['Coverage', coverage],
+    ['Notes', p.territory_notes || '—'],
+  ]));
+
+  // Partnership
+  const tierPrices = { starter:'$99/mo + $99 setup', professional:'$199/mo + $199 setup', enterprise:'$199/mo + $299 setup', unlimited:'$199/mo + $499 setup' };
+  set('pd-partnership', infoBlock([
+    ['Tier', tier.charAt(0).toUpperCase() + tier.slice(1)],
+    ['Pricing', tierPrices[tier] || '—'],
+    ['Revenue Split', '60/40 (Partner keeps 60%)'],
+    ['Status', p.status || 'pending'],
+    ['Approved', p.approved_at ? new Date(p.approved_at).toLocaleDateString() : '—'],
+  ]));
+
+  // Industries
+  let industries = p.industries || [];
+  if (typeof industries === 'string') { try { industries = JSON.parse(industries); } catch(e) { industries = []; } }
+  if (!Array.isArray(industries)) industries = [];
+  if (industries.length === 0) {
+    set('pd-industries', '<div class="empty-state" style="padding:20px"><p>No industries selected.</p></div>');
+  } else {
+    set('pd-industries',
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;padding:4px 0">' +
+      industries.map(i => '<span class="badge badge-blue" style="font-size:11px">' + esc(i) + '</span>').join('') +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--text-dim);margin-top:8px">' + industries.length + ' industry / industries selected</div>'
+    );
+  }
+
+  // Business background
+  const bg = p.business_description;
+  set('pd-background',
+    bg
+      ? '<p style="font-size:13px;color:var(--text-secondary);line-height:1.7">' + esc(bg) + '</p>'
+      : '<div class="empty-state" style="padding:20px"><p>No background provided.</p></div>'
+  );
+
+  logAudit('View Partner Application', name);
+  nav('partner-detail');
+}
+
+function approvePartnerFromDetail() {
+  if (activePartnerId) approvePartner(activePartnerId, true);
+}
+
+function rejectPartnerFromDetail() {
+  if (activePartnerId) rejectPartner(activePartnerId, true);
+}
+
+function focusPartnerOnMapFromDetail() {
+  if (activePartnerId) focusPartnerOnMap(activePartnerId);
+}
+
+async function approvePartner(id, fromDetail) {
+  if (!confirm('Approve this Territory Partner application? An approval email will be sent to the applicant.')) return;
+  const r = await API.post('/api/territory-partner/approve/' + id, {});
+  if (r && r.success) {
+    toast('Partner approved — confirmation email sent', 'success');
+    addActivity('check', 'ai-green', '<strong>Territory Partner approved</strong> — ID ' + id);
+    addNotification('handshake', 'ai-green', '<strong>Territory Partner approved</strong> — application ID ' + id);
+    logAudit('Approve Territory Partner', 'ID ' + id);
+    await loadAllData();
+    if (fromDetail) renderPartnerDetail(id);
+    else renderPartnerApps();
+  } else {
+    toast('Approval failed — check Railway logs', 'error');
+  }
+}
+
+async function rejectPartner(id, fromDetail) {
+  if (!confirm('Reject this application? A rejection email will be sent to the applicant.')) return;
+  const r = await API.post('/api/territory-partner/reject/' + id, {});
+  if (r && r.success) {
+    toast('Application rejected — applicant notified', 'info');
+    addActivity('times', 'ai-red', '<strong>Territory Partner application rejected</strong> — ID ' + id);
+    logAudit('Reject Territory Partner', 'ID ' + id);
+    await loadAllData();
+    if (fromDetail) renderPartnerDetail(id);
+    else renderPartnerApps();
+  } else {
+    toast('Rejection failed — check Railway logs', 'error');
+  }
 }
 
 /* ── ACTIVITY LOG & NOTIFICATIONS ── */
