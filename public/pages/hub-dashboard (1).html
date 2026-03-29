@@ -102,6 +102,15 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}
 .tbl tr:hover td{background:rgba(22,32,64,0.5);color:var(--text-primary)}
 .tbl .td-name{color:var(--text-primary);font-weight:600}
 
+/* Form fields */
+.field-group{margin-bottom:16px}
+.field-label{display:block;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;letter-spacing:0.5px}
+.field-input{width:100%;padding:10px 14px;background:var(--navy);border:1px solid var(--navy-border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color var(--t)}
+.field-input:focus{border-color:var(--amber)}
+.field-input::placeholder{color:var(--text-dim)}
+.field-error{font-size:12px;color:var(--red);margin-top:5px;display:none}
+.field-success{font-size:12px;color:var(--green);margin-top:5px;display:none}
+
 /* Info block */
 .info-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(26,40,68,0.4);font-size:13px}
 .info-row:last-child{border-bottom:none}
@@ -155,14 +164,15 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}
         <div class="partner-tier" id="sb-partner-tier">—</div>
       </div>
       <div class="sb-section">
-        <div class="nav-item active" onclick="nav('dashboard',this)"><span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span><span class="nav-label">Dashboard</span></div>
-        <div class="nav-item" onclick="nav('clients',this)"><span class="nav-icon"><i class="fa-solid fa-users"></i></span><span class="nav-label">My Clients</span><span class="nav-badge green" id="sb-client-count">0</span></div>
-        <div class="nav-item" onclick="nav('revenue',this)"><span class="nav-icon"><i class="fa-solid fa-dollar-sign"></i></span><span class="nav-label">Revenue</span></div>
-        <div class="nav-item" onclick="nav('signup',this)"><span class="nav-icon"><i class="fa-solid fa-link"></i></span><span class="nav-label">Client Signup Page</span></div>
+        <div class="nav-item active" onclick="nav('dashboard',this)" data-panel="dashboard"><span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span><span class="nav-label">Dashboard</span></div>
+        <div class="nav-item" onclick="nav('clients',this)" data-panel="clients"><span class="nav-icon"><i class="fa-solid fa-users"></i></span><span class="nav-label">My Clients</span><span class="nav-badge green" id="sb-client-count">0</span></div>
+        <div class="nav-item" onclick="nav('revenue',this)" data-panel="revenue"><span class="nav-icon"><i class="fa-solid fa-dollar-sign"></i></span><span class="nav-label">Revenue</span></div>
+        <div class="nav-item" onclick="nav('signup',this)" data-panel="signup"><span class="nav-icon"><i class="fa-solid fa-link"></i></span><span class="nav-label">Client Signup Page</span></div>
       </div>
       <div class="sb-section">
-        <div class="nav-item" onclick="nav('territory',this)"><span class="nav-icon"><i class="fa-solid fa-map-location-dot"></i></span><span class="nav-label">My Territory</span></div>
-        <div class="nav-item" onclick="nav('industries',this)"><span class="nav-icon"><i class="fa-solid fa-list-check"></i></span><span class="nav-label">My Industries</span></div>
+        <div class="nav-item" onclick="nav('territory',this)" data-panel="territory"><span class="nav-icon"><i class="fa-solid fa-map-location-dot"></i></span><span class="nav-label">My Territory</span></div>
+        <div class="nav-item" onclick="nav('industries',this)" data-panel="industries"><span class="nav-icon"><i class="fa-solid fa-list-check"></i></span><span class="nav-label">My Industries</span></div>
+        <div class="nav-item" onclick="nav('password',this)" data-panel="password"><span class="nav-icon"><i class="fa-solid fa-lock"></i></span><span class="nav-label">Change Password</span></div>
       </div>
       <div class="sb-section">
         <div class="nav-item" onclick="doLogout()"><span class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i></span><span class="nav-label">Sign Out</span></div>
@@ -304,6 +314,34 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}
         </div>
       </div>
 
+      <!-- CHANGE PASSWORD -->
+      <div class="panel" id="panel-password">
+        <div class="panel-header">
+          <div class="panel-title">Change Password</div>
+          <div class="panel-subtitle">Update your Hub dashboard login password</div>
+        </div>
+        <div class="card" style="max-width:480px">
+          <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-lock"></i> Update Password</div></div>
+          <div class="field-group">
+            <label class="field-label" for="pw-current">Current Password</label>
+            <input class="field-input" type="password" id="pw-current" placeholder="Enter your current password">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="pw-new">New Password</label>
+            <input class="field-input" type="password" id="pw-new" placeholder="Minimum 8 characters">
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="pw-confirm">Confirm New Password</label>
+            <input class="field-input" type="password" id="pw-confirm" placeholder="Re-enter new password">
+            <div class="field-error" id="pw-error"></div>
+            <div class="field-success" id="pw-success"></div>
+          </div>
+          <button class="btn btn-primary" onclick="doChangePassword()" id="pw-submit-btn" style="width:100%;justify-content:center;margin-top:4px">
+            <i class="fa-solid fa-key"></i> Update Password
+          </button>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -338,13 +376,37 @@ function showLoginScreen() {
     <div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px;font-family:'DM Sans',sans-serif;background:#080d1a;color:#eef2ff">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:#f59e0b;letter-spacing:2px">TurnkeyAI Hub</div>
       <div style="font-size:14px;color:#7b8fb5;margin-bottom:4px">Partner Dashboard — Authorized Access Only</div>
-      <input id="email-input" type="email" placeholder="Email address" style="padding:10px 16px;border-radius:8px;border:1px solid #1a2844;background:#0c1225;color:#eef2ff;font-size:14px;width:300px;outline:none;font-family:'DM Sans',sans-serif;">
-      <input id="pw-input" type="password" placeholder="Password" style="padding:10px 16px;border-radius:8px;border:1px solid #1a2844;background:#0c1225;color:#eef2ff;font-size:14px;width:300px;outline:none;font-family:'DM Sans',sans-serif">
-      <button onclick="doLogin()" style="padding:10px 32px;background:#f59e0b;color:#080d1a;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;width:300px">Sign In to Hub</button>
-      <div id="login-error" style="color:#ef4444;font-size:13px;display:none"></div>
+      <div id="login-form" style="display:flex;flex-direction:column;gap:12px;width:300px">
+        <input id="email-input" type="email" placeholder="Email address" style="padding:10px 16px;border-radius:8px;border:1px solid #1a2844;background:#0c1225;color:#eef2ff;font-size:14px;width:100%;outline:none;font-family:'DM Sans',sans-serif;">
+        <input id="pw-input" type="password" placeholder="Password" style="padding:10px 16px;border-radius:8px;border:1px solid #1a2844;background:#0c1225;color:#eef2ff;font-size:14px;width:100%;outline:none;font-family:'DM Sans',sans-serif">
+        <button onclick="doLogin()" style="padding:10px 32px;background:#f59e0b;color:#080d1a;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%">Sign In to Hub</button>
+        <div id="login-error" style="color:#ef4444;font-size:13px;display:none;text-align:center"></div>
+        <div style="text-align:center">
+          <span onclick="toggleForgotPassword()" style="font-size:12px;color:#7b8fb5;cursor:pointer;text-decoration:underline">Forgot Password?</span>
+        </div>
+      </div>
+      <div id="forgot-form" style="display:none;flex-direction:column;gap:12px;width:300px">
+        <div style="font-size:13px;color:#7b8fb5;text-align:center">Enter your email address and we will send you a temporary password.</div>
+        <input id="reset-email-input" type="email" placeholder="Email address" style="padding:10px 16px;border-radius:8px;border:1px solid #1a2844;background:#0c1225;color:#eef2ff;font-size:14px;width:100%;outline:none;font-family:'DM Sans',sans-serif;">
+        <button onclick="doResetPassword()" style="padding:10px 32px;background:#f59e0b;color:#080d1a;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%">Send Temporary Password</button>
+        <div id="reset-msg" style="font-size:13px;display:none;text-align:center"></div>
+        <div style="text-align:center">
+          <span onclick="toggleForgotPassword()" style="font-size:12px;color:#7b8fb5;cursor:pointer;text-decoration:underline">Back to Sign In</span>
+        </div>
+      </div>
       <div style="font-size:12px;color:#3d5080;margin-top:8px">Questions? Call (603) 922-2004</div>
     </div>`;
-  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') { if (document.getElementById('forgot-form').style.display !== 'none') doResetPassword(); else doLogin(); } });
+}
+
+function toggleForgotPassword() {
+  const loginForm  = document.getElementById('login-form');
+  const forgotForm = document.getElementById('forgot-form');
+  const showing    = forgotForm.style.display !== 'none';
+  loginForm.style.display  = showing ? 'flex' : 'none';
+  forgotForm.style.display = showing ? 'none' : 'flex';
+  const resetMsg = document.getElementById('reset-msg');
+  if (resetMsg) { resetMsg.style.display = 'none'; resetMsg.textContent = ''; }
 }
 
 async function doLogin() {
@@ -372,9 +434,84 @@ async function doLogin() {
   }
 }
 
+async function doResetPassword() {
+  const email  = document.getElementById('reset-email-input').value.trim();
+  const msgEl  = document.getElementById('reset-msg');
+  if (!email) { msgEl.textContent = 'Please enter your email address.'; msgEl.style.color = '#ef4444'; msgEl.style.display = 'block'; return; }
+
+  try {
+    const r = await fetch('/api/hub/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    // Always show success message regardless of response to prevent email enumeration
+    msgEl.textContent = 'If that email is registered, a temporary password has been sent. Check your inbox.';
+    msgEl.style.color = '#10b981';
+    msgEl.style.display = 'block';
+    document.getElementById('reset-email-input').value = '';
+  } catch(e) {
+    msgEl.textContent = 'Connection error. Please try again.';
+    msgEl.style.color = '#ef4444';
+    msgEl.style.display = 'block';
+  }
+}
+
 function doLogout() {
   sessionStorage.removeItem('hub_token');
   location.href = location.pathname;
+}
+
+/* ── CHANGE PASSWORD ── */
+async function doChangePassword() {
+  const currentPassword = document.getElementById('pw-current').value;
+  const newPassword     = document.getElementById('pw-new').value;
+  const confirmPassword = document.getElementById('pw-confirm').value;
+  const errEl           = document.getElementById('pw-error');
+  const successEl       = document.getElementById('pw-success');
+  const submitBtn       = document.getElementById('pw-submit-btn');
+
+  errEl.style.display     = 'none';
+  successEl.style.display = 'none';
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    errEl.textContent = 'All fields are required.'; errEl.style.display = 'block'; return;
+  }
+  if (newPassword !== confirmPassword) {
+    errEl.textContent = 'New passwords do not match.'; errEl.style.display = 'block'; return;
+  }
+  if (newPassword.length < 8) {
+    errEl.textContent = 'New password must be at least 8 characters.'; errEl.style.display = 'block'; return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Updating...';
+
+  try {
+    const r = await fetch('/api/hub/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-hub-token': STATE.token },
+      body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      errEl.textContent = data.error || 'Password change failed.';
+      errEl.style.display = 'block';
+    } else {
+      successEl.textContent = 'Password updated successfully.';
+      successEl.style.display = 'block';
+      document.getElementById('pw-current').value = '';
+      document.getElementById('pw-new').value = '';
+      document.getElementById('pw-confirm').value = '';
+      toast('Password updated successfully', 'success');
+    }
+  } catch(e) {
+    errEl.textContent = 'Connection error. Please try again.';
+    errEl.style.display = 'block';
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fa-solid fa-key"></i> Update Password';
+  }
 }
 
 /* ── INIT ── */
@@ -422,7 +559,7 @@ function renderAll() {
   set('dash-subtitle', 'Welcome back, ' + (p.name || 'Partner') + ' — ' + new Date().toLocaleDateString());
 
   // Signup URL
-  const BASE_URL = location.origin;
+  const BASE_URL  = location.origin;
   const signupUrl = BASE_URL + '/hub/' + p.id;
   set('signup-url', signupUrl);
 
@@ -541,7 +678,11 @@ function nav(panelId, el) {
   currentPanel = panelId;
   document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
   if (el) el.classList.add('active');
-  const labels = { dashboard:'Dashboard', clients:'My Clients', revenue:'Revenue', signup:'Client Signup Page', territory:'My Territory', industries:'My Industries' };
+  const labels = {
+    dashboard:'Dashboard', clients:'My Clients', revenue:'Revenue',
+    signup:'Client Signup Page', territory:'My Territory',
+    industries:'My Industries', password:'Change Password'
+  };
   set('bc-label', labels[panelId] || panelId);
 }
 
