@@ -16,6 +16,7 @@ const {
   getPartnerByEmail,
   getPartnerByHubToken,
   getClientsByPartnerId,
+  refreshPartnerToken,
 } = require('../lib/db');
 const { sendEmail } = require('../lib/email');
 const path = require('path');
@@ -349,9 +350,14 @@ router.post('/api/hub/auth', async (req, res) => {
     if (!partner || !(await bcrypt.compare(password, partner.hub_password))) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+
+    // Refresh token on every successful login — resets 24-hour expiry window
+    const refreshed = await refreshPartnerToken(partner.id);
+    const token = refreshed ? refreshed.hub_token : partner.hub_token;
+
     res.json({
       success: true,
-      token: partner.hub_token,
+      token,
       partner: {
         id: partner.id,
         name: partner.full_name,
