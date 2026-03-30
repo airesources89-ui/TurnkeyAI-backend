@@ -945,19 +945,18 @@ function openClientDetail(id){
   set('cd-stats',infoBlock([['Plan',plan],['MRR',parsePrice(plan)?'$'+parsePrice(plan)+'/mo':'—'],['Onboarding',onboardPct(client)+'%'],['Status',status]]));
   // ── Site Details with View Site / Preview buttons ──
   const siteURL = client.liveUrl || client.live_url || client.site_url || client.siteUrl || '';
-  const cfProjectName = client.cfProjectName || client.domainStatus?.cfProjectName || '';
-  const cfURL   = cfProjectName ? 'https://' + cfProjectName + '.pages.dev' : '';
+  const previewURL = client.previewToken ? (window.location.origin + '/preview/' + client.previewToken) : '';
   const liveBtn = siteURL
     ? `<a href="${siteURL}" target="_blank" class="btn btn-success btn-sm" style="margin-top:10px"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Live Site</a>`
     : '';
-  const previewBtn = cfURL
-    ? `<a href="${cfURL}" target="_blank" class="btn btn-secondary btn-sm" style="margin-top:10px"><i class="fa-solid fa-eye"></i> Preview on Cloudflare</a>`
+  const previewBtn = previewURL
+    ? `<a href="${previewURL}" target="_blank" class="btn btn-secondary btn-sm" style="margin-top:10px"><i class="fa-solid fa-eye"></i> Preview Site</a>`
     : '';
-  const noBtns = !siteURL && !cfURL
-    ? `<div style="margin-top:10px;font-size:12px;color:var(--text-dim)"><i class="fa-solid fa-circle-info"></i> No URL available yet — site not deployed</div>`
+  const noBtns = !siteURL && !previewURL
+    ? `<div style="margin-top:10px;font-size:12px;color:var(--text-dim)"><i class="fa-solid fa-circle-info"></i> No preview available — no token on record</div>`
     : '';
   set('cd-site',
-    infoBlock([['Domain',client.domain||client.data?.domain||'—'],['Site URL',siteURL||'—'],['Cloudflare Pages',cfURL||'—'],['Last Deploy',client.last_deploy||client.updatedAt||'—']]) +
+    infoBlock([['Domain',client.domain||client.data?.domain||'—'],['Site URL',siteURL||'—'],['Preview URL',previewURL||'—'],['Last Deploy',client.last_deploy||client.updatedAt||'—']]) +
     '<div style="display:flex;gap:8px;flex-wrap:wrap">' + liveBtn + previewBtn + noBtns + '</div>'
   );
   set('cd-dns',infoBlock([['DNS Status',client.dns_live?'Live':'Pending'],['A Record',client.dns_a||'—'],['CNAME',client.dns_cname||'—']]));
@@ -1190,29 +1189,22 @@ async function approveClient(id){if(!confirm('Approve this client and trigger si
 function viewClientSite(type) {
   const client = STATE.activeClient;
   if (!client) { toast('No client selected', 'error'); return; }
-  const liveUrl = client.liveUrl || client.live_url || client.site_url || client.siteUrl || '';
-  const _cfProj = client.cfProjectName || client.domainStatus?.cfProjectName || '';
-  const cfUrl   = _cfProj ? 'https://' + _cfProj + '.pages.dev' : '';
-  const url = type === 'live' ? liveUrl : cfUrl;
-  if (url) {
-    window.open(url, '_blank', 'noopener,noreferrer');
-    logAudit('View ' + (type === 'live' ? 'Live Site' : 'Cloudflare Preview'), client.business_name || client.businessName || client.id);
+  if (type === 'live') {
+    const liveUrl = client.liveUrl || client.live_url || '';
+    if (liveUrl) {
+      window.open(liveUrl, '_blank', 'noopener,noreferrer');
+      logAudit('View Live Site', client.businessName || client.id);
+    } else {
+      toast('No live URL on record — site has not been deployed yet', 'error');
+    }
   } else {
-    toast(type === 'live' ? 'No live URL on record for this client' : 'No Cloudflare Pages URL on record for this client', 'error');
-  }
-}
-
-function viewClientSite(type) {
-  const client = STATE.activeClient;
-  if (!client) { toast('No client selected', 'error'); return; }
-  const url = type === 'live'
-    ? (client.liveUrl || client.live_url || client.site_url || client.siteUrl || '')
-    : (_cfProj ? 'https://' + _cfProj + '.pages.dev' : '');
-  if (url) {
-    window.open(url, '_blank', 'noopener,noreferrer');
-    logAudit('View ' + (type === 'live' ? 'Live Site' : 'Cloudflare Preview'), client.business_name || client.businessName || client.id);
-  } else {
-    toast(type === 'live' ? 'No live URL on record for this client' : 'No Cloudflare Pages URL on record for this client', 'error');
+    const token = client.previewToken;
+    if (token) {
+      window.open(window.location.origin + '/preview/' + token, '_blank', 'noopener,noreferrer');
+      logAudit('View Preview', client.businessName || client.id);
+    } else {
+      toast('No preview token on record for this client', 'error');
+    }
   }
 }
 async function quickAction(action){const client=STATE.activeClient;if(!client&&!['broadcast'].includes(action))return;const id=client?.id||client?.client_id;const endpoints={welcome:'/api/admin/resend-welcome',deploy:'/api/admin/deploy',approve:'/api/admin/approve',preview:'/api/admin/send-preview'};if(endpoints[action]){const r=await API.post(endpoints[action],{clientId:id,key:STATE.adminKey});toast(r?`${action} action sent`:`${action} failed — check logs`,r?'success':'error');}else{toast(`${action} — connect to backend API`,'info');}addActivity('bolt','ai-amber',`Quick action: <strong>${action}</strong>`);logAudit('Quick Action: '+action,client?.business_name||id);}
