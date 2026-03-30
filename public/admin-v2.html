@@ -945,7 +945,7 @@ function openClientDetail(id){
   set('cd-stats',infoBlock([['Plan',plan],['MRR',parsePrice(plan)?'$'+parsePrice(plan)+'/mo':'—'],['Onboarding',onboardPct(client)+'%'],['Status',status]]));
   // ── Site Details with View Site / Preview buttons ──
   const siteURL = client.liveUrl || client.live_url || client.site_url || client.siteUrl || '';
-  const cfURL   = siteURL || (client.cfProjectName ? 'https://' + client.cfProjectName + '.pages.dev' : '') || client.cf_pages || '';
+  const cfURL   = (client.cfProjectName ? 'https://' + client.cfProjectName + '.pages.dev' : '') || client.cf_pages || '';
   const liveBtn = siteURL
     ? `<a href="${siteURL}" target="_blank" class="btn btn-success btn-sm" style="margin-top:10px"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Live Site</a>`
     : '';
@@ -1190,7 +1190,7 @@ function viewClientSite(type) {
   const client = STATE.activeClient;
   if (!client) { toast('No client selected', 'error'); return; }
   const liveUrl = client.liveUrl || client.live_url || client.site_url || client.siteUrl || '';
-  const cfUrl   = liveUrl || (client.cfProjectName ? 'https://' + client.cfProjectName + '.pages.dev' : '') || client.cf_pages || '';
+  const cfUrl   = (client.cfProjectName ? 'https://' + client.cfProjectName + '.pages.dev' : '') || client.cf_pages || '';
   const url = type === 'live' ? liveUrl : cfUrl;
   if (url) {
     window.open(url, '_blank', 'noopener,noreferrer');
