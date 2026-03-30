@@ -293,7 +293,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
   <div class="tab-panel" id="ctab-clog"><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-timeline"></i> Client Activity Log</div></div><div id="cd-activity-log" class="scroll-area"></div></div></div>
   <div class="tab-panel" id="ctab-actions"><div class="g3">
     <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-envelope"></i> Email Actions</div></div><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-secondary" onclick="quickAction('welcome')"><i class="fa-solid fa-paper-plane"></i> Resend Welcome Email</button><button class="btn btn-secondary" onclick="quickAction('dns')"><i class="fa-solid fa-server"></i> Send DNS Instructions</button><button class="btn btn-secondary" onclick="quickAction('payment')"><i class="fa-solid fa-credit-card"></i> Send Payment Reminder</button><button class="btn btn-secondary" onclick="quickAction('update')"><i class="fa-solid fa-pen"></i> Request Content Update</button><button class="btn btn-secondary" onclick="quickAction('phone-ready')"><i class="fa-solid fa-phone"></i> Send Phone Ready Email</button></div></div>
-    <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-rocket"></i> Deploy Actions</div></div><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-primary" onclick="quickAction('deploy')"><i class="fa-solid fa-upload"></i> Trigger Site Deploy</button><button class="btn btn-secondary" onclick="quickAction('approve')"><i class="fa-solid fa-check"></i> Approve Client</button><button class="btn btn-secondary" onclick="quickAction('preview')"><i class="fa-solid fa-eye"></i> Send Preview Email</button><button class="btn btn-secondary" onclick="quickAction('blog-post')"><i class="fa-solid fa-pen-nib"></i> Post Blog Now</button></div></div>
+    <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-rocket"></i> Deploy Actions</div></div><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-primary" onclick="quickAction('deploy')"><i class="fa-solid fa-upload"></i> Trigger Site Deploy</button><button class="btn btn-secondary" onclick="quickAction('approve')"><i class="fa-solid fa-check"></i> Approve Client</button><button class="btn btn-secondary" onclick="quickAction('preview')"><i class="fa-solid fa-eye"></i> Send Preview Email</button><button class="btn btn-secondary" onclick="quickAction('blog-post')"><i class="fa-solid fa-pen-nib"></i> Post Blog Now</button><div style="height:1px;background:var(--navy-border);margin:2px 0"></div><button class="btn btn-success" id="qa-view-live" onclick="viewClientSite('live')" title="Opens live site in new tab"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Live Site</button><button class="btn btn-ghost" id="qa-view-preview" onclick="viewClientSite('preview')" title="Opens Cloudflare Pages preview in new tab"><i class="fa-solid fa-eye"></i> Preview on Cloudflare</button></div></div>
     <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone</div></div><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-danger" onclick="quickAction('suspend')"><i class="fa-solid fa-pause"></i> Suspend Client</button><button class="btn btn-danger" onclick="quickAction('delete')"><i class="fa-solid fa-trash"></i> Delete Client</button></div></div>
   </div></div>
 </div>
@@ -913,7 +913,7 @@ function renderClientsTable(){
     const badgeCls=status==='live'||status==='active'?'badge-green':status==='pending'?'badge-yellow':'badge-gray';
     const price=parsePrice(c.plan);
     const onboard=onboardPct(c);
-    return `<tr><td><div class="td-name">${esc(c.business_name||c.businessName||'—')}</div><div style="font-size:11px;color:var(--text-dim)">${esc(c.login_id||c.loginId||'')}</div></td><td>${esc(c.industry||c.business_type||'—')}</td><td>${esc(c.plan||'—')}</td><td><span class="badge ${badgeCls}">${status}</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress-bar" style="width:80px"><div class="progress-fill pf-amber" style="width:${onboard}%"></div></div><span style="font-size:11px;color:var(--text-dim)">${onboard}%</span></div></td><td style="color:var(--green);font-weight:600">${price?'$'+price+'/mo':'—'}</td><td>${c.site_url||c.siteUrl?`<a href="${c.site_url||c.siteUrl}" target="_blank" style="color:var(--blue);font-size:12px"><i class="fa-solid fa-arrow-up-right-from-square"></i> View</a>`:'<span style="color:var(--text-dim)">—</span>'}</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="openClientDetail('${c.id||c.client_id}')"><i class="fa-solid fa-eye"></i></button><button class="btn btn-success btn-xs" onclick="approveClient('${c.id||c.client_id}')"><i class="fa-solid fa-check"></i></button></div></td></tr>`;
+    return `<tr><td><div class="td-name">${esc(c.business_name||c.businessName||'—')}</div><div style="font-size:11px;color:var(--text-dim)">${esc(c.login_id||c.loginId||'')}</div></td><td>${esc(c.industry||c.business_type||'—')}</td><td>${esc(c.plan||'—')}</td><td><span class="badge ${badgeCls}">${status}</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress-bar" style="width:80px"><div class="progress-fill pf-amber" style="width:${onboard}%"></div></div><span style="font-size:11px;color:var(--text-dim)">${onboard}%</span></div></td><td style="color:var(--green);font-weight:600">${price?'$'+price+'/mo':'—'}</td><td>${(()=>{const live=c.site_url||c.siteUrl;const cf=c.cf_pages;if(live)return `<a href="${live}" target="_blank" style="color:var(--green);font-size:12px;font-weight:600"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live</a>`;if(cf)return `<a href="${cf}" target="_blank" style="color:var(--blue);font-size:12px"><i class="fa-solid fa-eye"></i> Preview</a>`;return '<span style="color:var(--text-dim)">—</span>';})()}</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="openClientDetail('${c.id||c.client_id}')"><i class="fa-solid fa-eye"></i></button><button class="btn btn-success btn-xs" onclick="approveClient('${c.id||c.client_id}')"><i class="fa-solid fa-check"></i></button></div></td></tr>`;
   }).join('');
 }
 
@@ -943,7 +943,22 @@ function openClientDetail(id){
   const steps=[{label:'Intake form submitted',done:true},{label:'Plan selected',done:!!client.plan},{label:'Site built & deployed',done:!!(client.site_url||client.siteUrl)},{label:'DNS live',done:!!(client.dns_live||client.dnsLive)},{label:'Phone system active',done:!!(client.twilio_number||client.twilioNumber)},{label:'First payment received',done:!!(client.stripe_customer||client.stripeCustomer)},{label:'Blog scheduler active',done:!!(client.blog_active||client.blogActive)}];
   set('cd-onboard',steps.map(s=>`<div class="onboard-step"><div class="step-check ${s.done?'done':'none'}"><i class="fa-solid ${s.done?'fa-check':'fa-minus'}"></i></div><span class="step-label ${s.done?'done':'none'}">${s.label}</span></div>`).join(''));
   set('cd-stats',infoBlock([['Plan',plan],['MRR',parsePrice(plan)?'$'+parsePrice(plan)+'/mo':'—'],['Onboarding',onboardPct(client)+'%'],['Status',status]]));
-  set('cd-site',infoBlock([['Domain',client.domain||'—'],['Site URL',client.site_url||client.siteUrl||'—'],['Cloudflare Pages',client.cf_pages||'—'],['Last Deploy',client.last_deploy||'—']]));
+  // ── Site Details with View Site / Preview buttons ──
+  const siteURL = client.site_url || client.siteUrl || '';
+  const cfURL   = client.cf_pages || '';
+  const liveBtn = siteURL
+    ? `<a href="${siteURL}" target="_blank" class="btn btn-success btn-sm" style="margin-top:10px"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Live Site</a>`
+    : '';
+  const previewBtn = cfURL
+    ? `<a href="${cfURL}" target="_blank" class="btn btn-secondary btn-sm" style="margin-top:10px"><i class="fa-solid fa-eye"></i> Preview on Cloudflare</a>`
+    : '';
+  const noBtns = !siteURL && !cfURL
+    ? `<div style="margin-top:10px;font-size:12px;color:var(--text-dim)"><i class="fa-solid fa-circle-info"></i> No URL available yet — site not deployed</div>`
+    : '';
+  set('cd-site',
+    infoBlock([['Domain',client.domain||'—'],['Site URL',siteURL||'—'],['Cloudflare Pages',cfURL||'—'],['Last Deploy',client.last_deploy||'—']]) +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">' + liveBtn + previewBtn + noBtns + '</div>'
+  );
   set('cd-dns',infoBlock([['DNS Status',client.dns_live?'Live':'Pending'],['A Record',client.dns_a||'—'],['CNAME',client.dns_cname||'—']]));
   set('cd-billing',infoBlock([['Stripe Customer',client.stripe_customer||'—'],['Plan',plan],['Monthly Amount',parsePrice(plan)?'$'+parsePrice(plan):'—'],['Status',client.payment_status||'—']]));
   set('cd-payments','<div class="empty-state"><i class="fa-solid fa-receipt"></i><p>Payment history loads from Stripe.</p></div>');
@@ -1170,6 +1185,34 @@ async function checkHealth(){
 
 /* ── ACTIONS ── */
 async function approveClient(id){if(!confirm('Approve this client and trigger site build?'))return;const r=await API.post('/api/admin/approve',{clientId:id,key:STATE.adminKey});if(r){toast('Client approved','success');addActivity('check','ai-green','Client approved and site build triggered');logAudit('Approve Client',id);await loadAllData();renderClientsTable();}else{toast('Approval failed — check Railway logs','error');}}
+
+function viewClientSite(type) {
+  const client = STATE.activeClient;
+  if (!client) { toast('No client selected', 'error'); return; }
+  const url = type === 'live'
+    ? (client.site_url || client.siteUrl || '')
+    : (client.cf_pages || '');
+  if (url) {
+    window.open(url, '_blank', 'noopener,noreferrer');
+    logAudit('View ' + (type === 'live' ? 'Live Site' : 'Cloudflare Preview'), client.business_name || client.businessName || client.id);
+  } else {
+    toast(type === 'live' ? 'No live URL on record for this client' : 'No Cloudflare Pages URL on record for this client', 'error');
+  }
+}
+
+function viewClientSite(type) {
+  const client = STATE.activeClient;
+  if (!client) { toast('No client selected', 'error'); return; }
+  const url = type === 'live'
+    ? (client.site_url || client.siteUrl || '')
+    : (client.cf_pages || '');
+  if (url) {
+    window.open(url, '_blank', 'noopener,noreferrer');
+    logAudit('View ' + (type === 'live' ? 'Live Site' : 'Cloudflare Preview'), client.business_name || client.businessName || client.id);
+  } else {
+    toast(type === 'live' ? 'No live URL on record for this client' : 'No Cloudflare Pages URL on record for this client', 'error');
+  }
+}
 async function quickAction(action){const client=STATE.activeClient;if(!client&&!['broadcast'].includes(action))return;const id=client?.id||client?.client_id;const endpoints={welcome:'/api/admin/resend-welcome',deploy:'/api/admin/deploy',approve:'/api/admin/approve',preview:'/api/admin/send-preview'};if(endpoints[action]){const r=await API.post(endpoints[action],{clientId:id,key:STATE.adminKey});toast(r?`${action} action sent`:`${action} failed — check logs`,r?'success':'error');}else{toast(`${action} — connect to backend API`,'info');}addActivity('bolt','ai-amber',`Quick action: <strong>${action}</strong>`);logAudit('Quick Action: '+action,client?.business_name||id);}
 async function sendBroadcast(){const audience=document.getElementById('bc-audience').value;const subject=document.getElementById('bc-subject').value;const body=document.getElementById('bc-body').value;if(!subject||!body){toast('Subject and message required','error');return;}toast(`Broadcast queued for ${audience}`,'success');addActivity('bullhorn','ai-amber',`<strong>Broadcast sent</strong> to ${audience}: "${subject}"`);logAudit('Broadcast',`${audience} — ${subject}`);}
 async function changeCredentials(){const current=document.getElementById('cred-current').value;const newKey=document.getElementById('cred-new').value;const confirm2=document.getElementById('cred-confirm').value;if(!current||!newKey||!confirm2){toast('All fields required','error');return;}if(newKey!==confirm2){toast('New keys do not match','error');return;}if(newKey.length<12){toast('Key must be at least 12 characters','error');return;}if(current!==STATE.adminKey){toast('Current key is incorrect','error');return;}toast('Key updated. Update ADMIN_KEY in Railway to make permanent.','info');STATE.adminKey=newKey;logAudit('Change Admin Key','Credentials updated');['cred-current','cred-new','cred-confirm'].forEach(id=>{document.getElementById(id).value='';});}
