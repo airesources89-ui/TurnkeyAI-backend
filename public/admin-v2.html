@@ -913,11 +913,11 @@ function renderClientsTable(){
     const badgeCls=status==='live'||status==='active'?'badge-green':status==='pending'?'badge-yellow':'badge-gray';
     const price=parsePrice(c.plan);
     const onboard=onboardPct(c);
-    return `<tr><td><div class="td-name">${esc(c.business_name||c.businessName||'—')}</div><div style="font-size:11px;color:var(--text-dim)">${esc(c.login_id||c.loginId||'')}</div></td><td>${esc(c.industry||c.business_type||'—')}</td><td>${esc(c.plan||'—')}</td><td><span class="badge ${badgeCls}">${status}</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress-bar" style="width:80px"><div class="progress-fill pf-amber" style="width:${onboard}%"></div></div><span style="font-size:11px;color:var(--text-dim)">${onboard}%</span></div></td><td style="color:var(--green);font-weight:600">${price?'$'+price+'/mo':'—'}</td><td>${(()=>{const live=c.site_url||c.siteUrl;const cf=c.cf_pages;if(live)return `<a href="${live}" target="_blank" style="color:var(--green);font-size:12px;font-weight:600"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live</a>`;if(cf)return `<a href="${cf}" target="_blank" style="color:var(--blue);font-size:12px"><i class="fa-solid fa-eye"></i> Preview</a>`;return '<span style="color:var(--text-dim)">—</span>';})()}</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="openClientDetail('${c.id||c.client_id}')"><i class="fa-solid fa-eye"></i></button><button class="btn btn-success btn-xs" onclick="approveClient('${c.id||c.client_id}')"><i class="fa-solid fa-check"></i></button></div></td></tr>`;
+    return `<tr><td><div class="td-name">${esc(c.business_name||c.businessName||c.data?.businessName||'—')}</div><div style="font-size:11px;color:var(--text-dim)">${esc(c.login_id||c.loginId||c.dashLoginId||'')}</div></td><td>${esc(c.industry||c.business_type||c.data?.industry||c.data?.businessType||'—')}</td><td>${esc(c.plan||c.data?.plan||'—')}</td><td><span class="badge ${badgeCls}">${status}</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress-bar" style="width:80px"><div class="progress-fill pf-amber" style="width:${onboard}%"></div></div><span style="font-size:11px;color:var(--text-dim)">${onboard}%</span></div></td><td style="color:var(--green);font-weight:600">${price?'$'+price+'/mo':'—'}</td><td>${(()=>{const live=c.liveUrl||c.live_url||c.site_url||c.siteUrl;const cf=live||(c.cfProjectName?'https://'+c.cfProjectName+'.pages.dev':'')||c.cf_pages;if(live)return `<a href="${live}" target="_blank" style="color:var(--green);font-size:12px;font-weight:600"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live</a>`;if(cf)return `<a href="${cf}" target="_blank" style="color:var(--blue);font-size:12px"><i class="fa-solid fa-eye"></i> Preview</a>`;return '<span style="color:var(--text-dim)">—</span>';})()}</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="openClientDetail('${c.id||c.client_id}')"><i class="fa-solid fa-eye"></i></button><button class="btn btn-success btn-xs" onclick="approveClient('${c.id||c.client_id}')"><i class="fa-solid fa-check"></i></button></div></td></tr>`;
   }).join('');
 }
 
-function onboardPct(c){const steps=[!!(c.business_name||c.businessName),!!(c.email),!!(c.plan),!!(c.status&&c.status!=='pending'),!!(c.site_url||c.siteUrl),!!(c.twilio_number||c.twilioNumber),!!(c.domain)];return Math.round(steps.filter(Boolean).length/steps.length*100);}
+function onboardPct(c){const steps=[!!(c.business_name||c.businessName||c.data?.businessName),!!(c.email||c.data?.email),!!(c.plan||c.data?.plan),!!(c.status&&c.status!=='pending'),!!(c.liveUrl||c.live_url||c.site_url||c.siteUrl),!!(c.twilio_number||c.twilioNumber),!!(c.domain||c.data?.domain)];return Math.round(steps.filter(Boolean).length/steps.length*100);}
 
 function buildClientNavList(){
   const container=document.getElementById('client-nav-list');
@@ -940,12 +940,12 @@ function openClientDetail(id){
   hb.className=`badge ${status==='live'||status==='active'?'badge-green':status==='pending'?'badge-yellow':'badge-red'}`;
   hb.textContent=status==='live'||status==='active'?'● Live':status==='pending'?'● Pending':'● Inactive';
   set('cd-contact',infoBlock([['Business',name],['Email',client.email||'—'],['Phone',client.phone||'—'],['City',client.city||'—'],['State',client.state||'—'],['Login ID',loginId]]));
-  const steps=[{label:'Intake form submitted',done:true},{label:'Plan selected',done:!!client.plan},{label:'Site built & deployed',done:!!(client.site_url||client.siteUrl)},{label:'DNS live',done:!!(client.dns_live||client.dnsLive)},{label:'Phone system active',done:!!(client.twilio_number||client.twilioNumber)},{label:'First payment received',done:!!(client.stripe_customer||client.stripeCustomer)},{label:'Blog scheduler active',done:!!(client.blog_active||client.blogActive)}];
+  const steps=[{label:'Intake form submitted',done:true},{label:'Plan selected',done:!!client.plan},{label:'Site built & deployed',done:!!(client.liveUrl||client.live_url||client.site_url||client.siteUrl)},{label:'DNS live',done:!!(client.dns_live||client.dnsLive)},{label:'Phone system active',done:!!(client.twilio_number||client.twilioNumber)},{label:'First payment received',done:!!(client.stripe_customer||client.stripeCustomer)},{label:'Blog scheduler active',done:!!(client.blog_active||client.blogActive)}];
   set('cd-onboard',steps.map(s=>`<div class="onboard-step"><div class="step-check ${s.done?'done':'none'}"><i class="fa-solid ${s.done?'fa-check':'fa-minus'}"></i></div><span class="step-label ${s.done?'done':'none'}">${s.label}</span></div>`).join(''));
   set('cd-stats',infoBlock([['Plan',plan],['MRR',parsePrice(plan)?'$'+parsePrice(plan)+'/mo':'—'],['Onboarding',onboardPct(client)+'%'],['Status',status]]));
   // ── Site Details with View Site / Preview buttons ──
-  const siteURL = client.site_url || client.siteUrl || '';
-  const cfURL   = client.cf_pages || '';
+  const siteURL = client.liveUrl || client.live_url || client.site_url || client.siteUrl || '';
+  const cfURL   = siteURL || (client.cfProjectName ? 'https://' + client.cfProjectName + '.pages.dev' : '') || client.cf_pages || '';
   const liveBtn = siteURL
     ? `<a href="${siteURL}" target="_blank" class="btn btn-success btn-sm" style="margin-top:10px"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Live Site</a>`
     : '';
@@ -956,7 +956,7 @@ function openClientDetail(id){
     ? `<div style="margin-top:10px;font-size:12px;color:var(--text-dim)"><i class="fa-solid fa-circle-info"></i> No URL available yet — site not deployed</div>`
     : '';
   set('cd-site',
-    infoBlock([['Domain',client.domain||'—'],['Site URL',siteURL||'—'],['Cloudflare Pages',cfURL||'—'],['Last Deploy',client.last_deploy||'—']]) +
+    infoBlock([['Domain',client.domain||client.data?.domain||'—'],['Site URL',siteURL||'—'],['Cloudflare Pages',cfURL||'—'],['Last Deploy',client.last_deploy||client.updatedAt||'—']]) +
     '<div style="display:flex;gap:8px;flex-wrap:wrap">' + liveBtn + previewBtn + noBtns + '</div>'
   );
   set('cd-dns',infoBlock([['DNS Status',client.dns_live?'Live':'Pending'],['A Record',client.dns_a||'—'],['CNAME',client.dns_cname||'—']]));
@@ -1189,9 +1189,9 @@ async function approveClient(id){if(!confirm('Approve this client and trigger si
 function viewClientSite(type) {
   const client = STATE.activeClient;
   if (!client) { toast('No client selected', 'error'); return; }
-  const url = type === 'live'
-    ? (client.site_url || client.siteUrl || '')
-    : (client.cf_pages || '');
+  const liveUrl = client.liveUrl || client.live_url || client.site_url || client.siteUrl || '';
+  const cfUrl   = liveUrl || (client.cfProjectName ? 'https://' + client.cfProjectName + '.pages.dev' : '') || client.cf_pages || '';
+  const url = type === 'live' ? liveUrl : cfUrl;
   if (url) {
     window.open(url, '_blank', 'noopener,noreferrer');
     logAudit('View ' + (type === 'live' ? 'Live Site' : 'Cloudflare Preview'), client.business_name || client.businessName || client.id);
@@ -1204,8 +1204,8 @@ function viewClientSite(type) {
   const client = STATE.activeClient;
   if (!client) { toast('No client selected', 'error'); return; }
   const url = type === 'live'
-    ? (client.site_url || client.siteUrl || '')
-    : (client.cf_pages || '');
+    ? (client.liveUrl || client.live_url || client.site_url || client.siteUrl || '')
+    : (client.liveUrl || client.live_url || (client.cfProjectName ? 'https://' + client.cfProjectName + '.pages.dev' : '') || client.cf_pages || '');
   if (url) {
     window.open(url, '_blank', 'noopener,noreferrer');
     logAudit('View ' + (type === 'live' ? 'Live Site' : 'Cloudflare Preview'), client.business_name || client.businessName || client.id);
