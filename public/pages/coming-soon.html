@@ -59,6 +59,21 @@
     .site-footer-links a{color:rgba(255,255,255,0.4);font-size:13px;text-decoration:none;}
     .site-footer-links a:hover{color:#fff;}
     .site-footer-copy{width:100%;text-align:center;color:rgba(255,255,255,0.2);font-size:12px;margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.05);}
+    /* ── Lead Capture Banner ── */
+    .lead-banner{position:sticky;bottom:0;left:0;right:0;background:linear-gradient(135deg,#0d1a35,#1a0800);border-top:2px solid rgba(245,158,11,0.4);padding:1rem 1.5rem;display:none;z-index:100;backdrop-filter:blur(8px);}
+    .lead-banner.visible{display:block;}
+    .lead-banner-inner{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+    .lead-banner-text{flex:1;min-width:200px;}
+    .lead-banner-text strong{color:#f59e0b;font-size:.95rem;display:block;margin-bottom:.15rem;}
+    .lead-banner-text span{color:rgba(255,255,255,0.55);font-size:.82rem;}
+    .lead-banner-form{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;}
+    .lead-banner-input{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:.55rem 1rem;color:white;font-size:.88rem;font-family:'DM Sans',sans-serif;width:240px;}
+    .lead-banner-input:focus{outline:none;border-color:#f59e0b;}
+    .lead-banner-btn{background:linear-gradient(135deg,#f59e0b,#e85d04);color:#1c0a00;border:none;padding:.55rem 1.3rem;border-radius:8px;font-weight:700;font-size:.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+    .lead-banner-btn:hover{opacity:0.9;}
+    .lead-banner-btn:disabled{opacity:0.5;cursor:not-allowed;}
+    .lead-banner-success{color:#10b981;font-weight:700;font-size:.9rem;display:none;}
+    @media(max-width:600px){.lead-banner-input{width:100%;}.lead-banner-inner{flex-direction:column;align-items:flex-start;}}
   </style>
 </head>
 <body>
@@ -374,6 +389,21 @@
     <a href="/pages/intake.html" class="cta-box-btn"><i class="fas fa-rocket"></i> Start My Website</a>
   </div>
 
+  <!-- ── Coming Soon Lead Capture Banner ── -->
+  <div class="lead-banner" id="leadBanner">
+    <div class="lead-banner-inner">
+      <div class="lead-banner-text">
+        <strong>🎁 Claim Your Free First Year</strong>
+        <span>You've rated features — enter your email to lock in 12 months free when we launch.</span>
+      </div>
+      <div class="lead-banner-form">
+        <input type="email" class="lead-banner-input" id="leadEmail" placeholder="your@email.com" maxlength="255">
+        <button class="lead-banner-btn" id="leadBtn" onclick="submitLead()">Claim It →</button>
+        <span class="lead-banner-success" id="leadSuccess">✓ You're on the list!</span>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <div class="site-footer">
@@ -394,6 +424,8 @@
 </div>
 
 <script>
+var pendingRatings = {};
+
 document.querySelectorAll('.star-row').forEach(function(row) {
   var buttons = row.querySelectorAll('.star-btn');
   var featureId = row.getAttribute('data-feature');
@@ -401,10 +433,12 @@ document.querySelectorAll('.star-row').forEach(function(row) {
   var ratedMsg = row.parentElement.querySelector('.rated-msg');
   if (voted) {
     var votedVal = parseInt(voted);
+    pendingRatings[featureId] = votedVal;
     buttons.forEach(function(b) {
       if (parseInt(b.getAttribute('data-val')) <= votedVal) b.classList.add('voted');
     });
     if (ratedMsg) ratedMsg.style.display = 'inline';
+    showBanner();
   }
   buttons.forEach(function(btn) {
     btn.addEventListener('mouseenter', function() {
@@ -423,11 +457,13 @@ document.querySelectorAll('.star-row').forEach(function(row) {
       var val = parseInt(this.getAttribute('data-val'));
       localStorage.setItem('voted_' + featureId, val);
       voted = val;
+      pendingRatings[featureId] = val;
       buttons.forEach(function(b) {
         b.classList.remove('active');
         if (parseInt(b.getAttribute('data-val')) <= val) b.classList.add('voted');
       });
       if (ratedMsg) ratedMsg.style.display = 'inline';
+      showBanner();
       fetch('/api/coming-soon/rate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -436,6 +472,61 @@ document.querySelectorAll('.star-row').forEach(function(row) {
     });
   });
 });
+
+function showBanner() {
+  var banner = document.getElementById('leadBanner');
+  if (banner && !localStorage.getItem('cs_lead_submitted')) {
+    banner.classList.add('visible');
+  }
+}
+
+function submitLead() {
+  var email = document.getElementById('leadEmail').value.trim();
+  var btn = document.getElementById('leadBtn');
+  var success = document.getElementById('leadSuccess');
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    document.getElementById('leadEmail').style.borderColor = '#ef4444';
+    return;
+  }
+  document.getElementById('leadEmail').style.borderColor = '';
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  fetch('/api/coming-soon/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, ratings: pendingRatings })
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (data.ok || data.duplicate) {
+      localStorage.setItem('cs_lead_submitted', '1');
+      btn.style.display = 'none';
+      document.getElementById('leadEmail').style.display = 'none';
+      success.style.display = 'inline';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Claim It →';
+      alert(data.error || 'Something went wrong. Please try again.');
+    }
+  }).catch(function() {
+    btn.disabled = false;
+    btn.textContent = 'Claim It →';
+  });
+}
+
+// ── Page time tracking ──
+var _pageStart = Date.now();
+function _sendPageTime() {
+  var secs = Math.round((Date.now() - _pageStart) / 1000);
+  if (secs < 2) return;
+  var blob = new Blob(
+    [JSON.stringify({ page: 'coming-soon', seconds: secs })],
+    { type: 'application/json' }
+  );
+  navigator.sendBeacon('/api/track/page-time', blob);
+}
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'hidden') _sendPageTime();
+});
+window.addEventListener('pagehide', _sendPageTime);
 </script>
 </body>
 </html>
