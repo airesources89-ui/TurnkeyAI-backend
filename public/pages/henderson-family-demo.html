@@ -8,22 +8,15 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  --plum:#2d0a4e;
-  --plum2:#4a1270;
-  --silver:#c8bfd8;
-  --cream:#faf8fc;
-  --light:#f2edf8;
-  --border:#e0d4f0;
-  --text:#1a0a2e;
-  --muted:#7a6888;
-  --gold:#c9a84c;
-  --white:#ffffff;
+  --plum:#2d0a4e;--plum2:#4a1270;--silver:#c8bfd8;--cream:#faf8fc;--light:#f2edf8;
+  --border:#e0d4f0;--text:#1a0a2e;--muted:#7a6888;--gold:#c9a84c;--white:#ffffff;
 }
 html{scroll-behavior:smooth;}
 body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--text);overflow-x:hidden;}
-
-/* NAV */
 nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(45,10,78,0.96);backdrop-filter:blur(12px);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08);}
+.nav-left{display:flex;align-items:center;gap:14px;}
+.nav-back{display:inline-flex;align-items:center;gap:6px;color:rgba(255,255,255,0.45);font-size:0.75rem;font-weight:600;text-decoration:none;letter-spacing:0.5px;padding:5px 11px;border:1px solid rgba(255,255,255,0.12);border-radius:6px;transition:all 0.2s;white-space:nowrap;font-family:'Jost',sans-serif;}
+.nav-back:hover{color:var(--silver);border-color:rgba(200,191,216,0.35);}
 .nav-logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:.5px;}
 .nav-logo span{color:var(--silver);font-style:italic;}
 .nav-links{display:flex;gap:28px;align-items:center;}
@@ -31,13 +24,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(45,10,78,0.9
 .nav-links a:hover{color:#fff;}
 .nav-private{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.4);font-weight:600;}
 @media(max-width:700px){.nav-links{display:none;}}
-
-/* HERO */
 .hero{min-height:100vh;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;padding-top:64px;}
 .hero-bg{position:absolute;inset:0;background:linear-gradient(180deg,rgba(45,10,78,0.85) 0%,rgba(26,10,46,0.6) 50%,rgba(45,10,78,0.9) 100%);z-index:1;}
-.hero-img{position:absolute;inset:0;background:
-  url('https://images.unsplash.com/photo-1511895426328-dc8714191011?w=1400&q=80') center/cover no-repeat;
-  z-index:0;}
+.hero-img{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1511895426328-dc8714191011?w=1400&q=80') center/cover no-repeat;z-index:0;}
 .hero-particles{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden;}
 .particle{position:absolute;width:2px;height:2px;background:rgba(200,191,216,.4);border-radius:50%;animation:float linear infinite;}
 @keyframes float{0%{transform:translateY(100vh) translateX(0);opacity:0;}10%{opacity:1;}90%{opacity:.3;}100%{transform:translateY(-10vh) translateX(20px);opacity:0;}}
@@ -58,33 +47,24 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(45,10,78,0.9
 .hero-scroll{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(255,255,255,.4);font-size:11px;letter-spacing:2px;text-transform:uppercase;}
 .hero-scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,rgba(255,255,255,.4),transparent);animation:scrollPulse 2s infinite;}
 @keyframes scrollPulse{0%,100%{opacity:.4;}50%{opacity:1;}}
-
-/* STATS BAR */
 .stats-bar{background:var(--plum);padding:28px 40px;}
 .stats-inner{max-width:900px;margin:0 auto;display:flex;justify-content:center;gap:60px;flex-wrap:wrap;}
 .stat{text-align:center;}
 .stat-num{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;color:var(--silver);line-height:1;}
 .stat-label{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-top:4px;}
-
-/* SECTIONS */
 .section{padding:90px 40px;}
 .section-inner{max-width:1000px;margin:0 auto;}
 .section-eyebrow{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--plum2);margin-bottom:10px;}
 .section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,4vw,52px);font-weight:700;color:var(--text);line-height:1.1;margin-bottom:16px;letter-spacing:-.5px;}
 .section-sub{font-size:17px;color:var(--muted);line-height:1.7;max-width:560px;}
-
-/* OUR STORY */
 .story{background:#fff;}
 .story-inner{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;}
-.story-text{}
 .story-quote{font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;color:var(--plum2);line-height:1.5;border-left:3px solid var(--gold);padding-left:24px;margin:24px 0;}
 .story-body{font-size:16px;color:var(--muted);line-height:1.8;}
 .story-img{position:relative;}
 .story-img-main{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:4px;background:linear-gradient(135deg,#e8ddf5,#d0c0e8);display:flex;align-items:center;justify-content:center;font-size:80px;}
 .story-img-accent{position:absolute;bottom:-24px;right:-24px;width:55%;aspect-ratio:1;background:linear-gradient(135deg,#f5f0ff,#e8ddf5);border-radius:4px;border:6px solid #fff;display:flex;align-items:center;justify-content:center;font-size:48px;}
 @media(max-width:768px){.story-inner{grid-template-columns:1fr;}.story-img{display:none;}}
-
-/* TIMELINE */
 .timeline-section{background:var(--light);}
 .timeline{position:relative;max-width:700px;margin:0 auto;padding:20px 0;}
 .timeline::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--border),var(--border),transparent);transform:translateX(-50%);}
@@ -93,12 +73,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(45,10,78,0.9
 .timeline-item:nth-child(even) .timeline-year{grid-column:1;grid-row:1;text-align:right;}
 .timeline-dot{position:absolute;left:50%;top:8px;width:12px;height:12px;background:var(--plum2);border-radius:50%;transform:translateX(-50%);border:3px solid var(--light);}
 .timeline-year{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:var(--plum2);line-height:1;padding-top:4px;}
-.timeline-content{}
 .timeline-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px;}
 .timeline-desc{font-size:14px;color:var(--muted);line-height:1.6;}
 @media(max-width:600px){.timeline::before{left:24px;}.timeline-item{grid-template-columns:1fr;}.timeline-item:nth-child(even) .timeline-content,.timeline-item:nth-child(even) .timeline-year{grid-column:1;}.timeline-dot{left:24px;}.timeline-year{font-size:22px;padding-left:44px;}}
-
-/* PHOTO GALLERY */
 .gallery-section{background:#fff;padding:90px 40px;}
 .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:1000px;margin:48px auto 0;}
 .gallery-item{aspect-ratio:1;border-radius:4px;overflow:hidden;position:relative;cursor:pointer;}
@@ -110,16 +87,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(45,10,78,0.9
 .gallery-item:hover .gallery-overlay{background:rgba(45,10,78,.4);}
 .gallery-caption{color:#fff;font-size:13px;font-weight:600;opacity:0;transform:translateY(8px);transition:all .3s;}
 .gallery-item:hover .gallery-caption{opacity:1;transform:translateY(0);}
-/* Placeholder backgrounds */
-.ph1{background:linear-gradient(135deg,#e8d5f5,#c8b0e0);}
-.ph2{background:linear-gradient(135deg,#d5e8f5,#b0c8e0);}
-.ph3{background:linear-gradient(135deg,#f5e8d5,#e0c8b0);}
-.ph4{background:linear-gradient(135deg,#d5f5e8,#b0e0c8);}
-.ph5{background:linear-gradient(135deg,#f5d5e8,#e0b0c8);}
-.ph6{background:linear-gradient(135deg,#e8f5d5,#c8e0b0);}
-.ph7{background:linear-gradient(135deg,#f5f5d5,#e0e0b0);}
-
-/* MEMORIES WALL */
+.ph1{background:linear-gradient(135deg,#e8d5f5,#c8b0e0);}.ph2{background:linear-gradient(135deg,#d5e8f5,#b0c8e0);}.ph3{background:linear-gradient(135deg,#f5e8d5,#e0c8b0);}.ph4{background:linear-gradient(135deg,#d5f5e8,#b0e0c8);}.ph5{background:linear-gradient(135deg,#f5d5e8,#e0b0c8);}.ph6{background:linear-gradient(135deg,#e8f5d5,#c8e0b0);}.ph7{background:linear-gradient(135deg,#f5f5d5,#e0e0b0);}
 .memories{background:var(--plum);padding:90px 40px;}
 .memories .section-eyebrow{color:var(--silver);}
 .memories .section-title{color:#fff;}
@@ -136,8 +104,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(45,10,78,0.9
 .memories-add{max-width:1000px;margin:28px auto 0;text-align:center;}
 .btn-memory{background:transparent;border:1px solid rgba(200,191,216,.3);color:var(--silver);padding:14px 32px;border-radius:4px;font-family:'Jost',sans-serif;font-size:14px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
 .btn-memory:hover{border-color:var(--silver);background:rgba(200,191,216,.1);}
-
-/* UPCOMING EVENTS */
 .events{background:#fff;padding:90px 40px;}
 .events-list{max-width:700px;margin:48px auto 0;display:flex;flex-direction:column;gap:16px;}
 .event-card{display:grid;grid-template-columns:80px 1fr auto;gap:24px;align-items:center;background:var(--light);border:1px solid var(--border);border-radius:12px;padding:24px 28px;transition:all .2s;}
@@ -145,14 +111,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(45,10,78,0.9
 .event-date{text-align:center;}
 .event-month{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--plum2);}
 .event-day{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:700;color:var(--plum);line-height:1;}
-.event-info{}
 .event-name{font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;}
 .event-details{font-size:13px;color:var(--muted);}
 .btn-rsvp{background:var(--plum);color:#fff;padding:10px 22px;border-radius:6px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;transition:all .2s;}
 .btn-rsvp:hover{background:var(--plum2);}
 @media(max-width:600px){.event-card{grid-template-columns:60px 1fr;}.btn-rsvp{grid-column:1/-1;text-align:center;}}
-
-/* GUESTBOOK CTA */
 .guestbook{background:linear-gradient(135deg,var(--plum) 0%,#1a0a2e 100%);padding:80px 40px;text-align:center;position:relative;overflow:hidden;}
 .guestbook::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(200,191,216,.1) 0%,transparent 60%);}
 .guestbook-inner{position:relative;z-index:2;max-width:560px;margin:0 auto;}
@@ -160,8 +123,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(45,10,78,0.9
 .guestbook-sub{font-size:17px;color:rgba(255,255,255,.55);margin-bottom:32px;line-height:1.6;}
 .btn-guestbook{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--plum);padding:16px 36px;border-radius:4px;font-size:15px;font-weight:700;text-decoration:none;letter-spacing:.5px;transition:all .2s;}
 .btn-guestbook:hover{background:#b8932a;transform:translateY(-2px);}
-
-/* FOOTER */
 footer{background:var(--text);padding:48px 40px 32px;}
 .footer-inner{max-width:900px;margin:0 auto;text-align:center;}
 .footer-crest{font-size:48px;margin-bottom:16px;display:block;}
@@ -171,19 +132,13 @@ footer{background:var(--text);padding:48px 40px 32px;}
 .footer-links a{font-size:13px;color:rgba(255,255,255,.4);text-decoration:none;letter-spacing:.5px;transition:color .2s;}
 .footer-links a:hover{color:rgba(255,255,255,.8);}
 .footer-bottom{border-top:1px solid rgba(255,255,255,.06);padding-top:20px;font-size:12px;color:rgba(255,255,255,.2);}
-
-/* BUILT BY BADGE */
 #turnkeyai-badge{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;align-items:center;gap:7px;background:rgba(15,30,60,0.92);border:1px solid rgba(96,165,250,0.3);border-radius:30px;padding:8px 16px 8px 12px;font-family:'Jost',sans-serif;font-size:11px;font-weight:700;color:rgba(255,255,255,.7);text-decoration:none;backdrop-filter:blur(8px);transition:all .2s;box-shadow:0 4px 16px rgba(0,0,0,.3);}
 #turnkeyai-badge:hover{color:#fff;border-color:rgba(96,165,250,.6);transform:translateY(-2px);}
 .badge-logo{width:18px;height:18px;background:linear-gradient(135deg,#2563eb,#60a5fa);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
 .badge-dot{width:5px;height:5px;background:#60a5fa;border-radius:50%;animation:blink 2s infinite;}
 @keyframes blink{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(1.4);}}
-
-/* ANIMATIONS */
 .fade-up{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease;}
 .fade-up.visible{opacity:1;transform:translateY(0);}
-
-/* MODAL */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:center;justify-content:center;padding:20px;}
 .modal.open{display:flex;}
 .modal-box{background:#fff;border-radius:16px;padding:36px;max-width:480px;width:100%;position:relative;}
@@ -201,7 +156,10 @@ footer{background:var(--text);padding:48px 40px 32px;}
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo">The <span>Henderson</span> Family</div>
+  <div class="nav-left">
+    <a href="/pages/models.html" class="nav-back">← Models</a>
+    <div class="nav-logo">The <span>Henderson</span> Family</div>
+  </div>
   <div class="nav-links">
     <a href="#story">Our Story</a>
     <a href="#history">History</a>
@@ -225,26 +183,16 @@ footer{background:var(--text);padding:48px 40px 32px;}
   </div>
   <div class="hero-content">
     <span class="hero-ornament">✦ &nbsp; Family &nbsp; ✦</span>
-    <h1 class="hero-title">
-      <em>The</em>
-      Henderson<br>Family
-    </h1>
+    <h1 class="hero-title"><em>The</em>Henderson<br>Family</h1>
     <div class="hero-est">Est. 1952 · Canterbury, New Hampshire</div>
-    <div class="hero-divider">
-      <div class="hero-divider-line"></div>
-      <div class="hero-divider-icon">❧</div>
-      <div class="hero-divider-line"></div>
-    </div>
+    <div class="hero-divider"><div class="hero-divider-line"></div><div class="hero-divider-icon">❧</div><div class="hero-divider-line"></div></div>
     <div class="hero-tagline">"Rooted in love, growing through generations."</div>
     <div class="hero-btns">
       <a href="#story" class="btn-hero">Our Story</a>
       <a href="#events" class="btn-hero primary">2025 Reunion →</a>
     </div>
   </div>
-  <div class="hero-scroll">
-    <div class="hero-scroll-line"></div>
-    Scroll
-  </div>
+  <div class="hero-scroll"><div class="hero-scroll-line"></div>Scroll</div>
 </section>
 
 <!-- STATS -->
@@ -281,54 +229,12 @@ footer{background:var(--text);padding:48px 40px 32px;}
       <h2 class="section-title">Our Story Through the Years</h2>
     </div>
     <div class="timeline">
-      <div class="timeline-item fade-up">
-        <div class="timeline-year">1952</div>
-        <div class="timeline-dot"></div>
-        <div class="timeline-content">
-          <div class="timeline-title">Robert & Eleanor Marry</div>
-          <div class="timeline-desc">Robert Henderson and Eleanor Mae Briggs wed at St. Andrew's Church in Canterbury on June 14th. 47 guests attended. The reception was held in the Henderson barn.</div>
-        </div>
-      </div>
-      <div class="timeline-item fade-up">
-        <div class="timeline-content">
-          <div class="timeline-title">The Farm on Blakemore Road</div>
-          <div class="timeline-desc">Robert and Eleanor purchase 2.5 acres on Blakemore Road, building the farmhouse that would remain in the family for decades.</div>
-        </div>
-        <div class="timeline-dot"></div>
-        <div class="timeline-year">1955</div>
-      </div>
-      <div class="timeline-item fade-up">
-        <div class="timeline-year">1968</div>
-        <div class="timeline-dot"></div>
-        <div class="timeline-content">
-          <div class="timeline-title">Four Children, One Household</div>
-          <div class="timeline-desc">By 1968 all four Henderson children — Margaret, James, Ruth, and Thomas — are living at home. Eleanor is known throughout Canterbury for her legendary Sunday suppers.</div>
-        </div>
-      </div>
-      <div class="timeline-item fade-up">
-        <div class="timeline-content">
-          <div class="timeline-title">First Family Reunion</div>
-          <div class="timeline-desc">As the children begin moving away, the family holds its first official reunion at the Blakemore Road farm. 22 family members attend. A tradition is born.</div>
-        </div>
-        <div class="timeline-dot"></div>
-        <div class="timeline-year">1981</div>
-      </div>
-      <div class="timeline-item fade-up">
-        <div class="timeline-year">2012</div>
-        <div class="timeline-dot"></div>
-        <div class="timeline-content">
-          <div class="timeline-title">Eleanor Passes</div>
-          <div class="timeline-desc">Eleanor Henderson passes peacefully at 84. The family gathers from six states to celebrate a woman who was the glue of four generations. Her recipes still make the rounds every Christmas.</div>
-        </div>
-      </div>
-      <div class="timeline-item fade-up">
-        <div class="timeline-content">
-          <div class="timeline-title">This Website Goes Live</div>
-          <div class="timeline-desc">The Henderson family launches this site to keep the story alive and the family connected — no matter how far apart life takes everyone.</div>
-        </div>
-        <div class="timeline-dot"></div>
-        <div class="timeline-year">2025</div>
-      </div>
+      <div class="timeline-item fade-up"><div class="timeline-year">1952</div><div class="timeline-dot"></div><div class="timeline-content"><div class="timeline-title">Robert & Eleanor Marry</div><div class="timeline-desc">Robert Henderson and Eleanor Mae Briggs wed at St. Andrew's Church in Canterbury on June 14th. 47 guests attended. The reception was held in the Henderson barn.</div></div></div>
+      <div class="timeline-item fade-up"><div class="timeline-content"><div class="timeline-title">The Farm on Blakemore Road</div><div class="timeline-desc">Robert and Eleanor purchase 2.5 acres on Blakemore Road, building the farmhouse that would remain in the family for decades.</div></div><div class="timeline-dot"></div><div class="timeline-year">1955</div></div>
+      <div class="timeline-item fade-up"><div class="timeline-year">1968</div><div class="timeline-dot"></div><div class="timeline-content"><div class="timeline-title">Four Children, One Household</div><div class="timeline-desc">By 1968 all four Henderson children — Margaret, James, Ruth, and Thomas — are living at home. Eleanor is known throughout Canterbury for her legendary Sunday suppers.</div></div></div>
+      <div class="timeline-item fade-up"><div class="timeline-content"><div class="timeline-title">First Family Reunion</div><div class="timeline-desc">As the children begin moving away, the family holds its first official reunion at the Blakemore Road farm. 22 family members attend. A tradition is born.</div></div><div class="timeline-dot"></div><div class="timeline-year">1981</div></div>
+      <div class="timeline-item fade-up"><div class="timeline-year">2012</div><div class="timeline-dot"></div><div class="timeline-content"><div class="timeline-title">Eleanor Passes</div><div class="timeline-desc">Eleanor Henderson passes peacefully at 84. The family gathers from six states to celebrate a woman who was the glue of four generations. Her recipes still make the rounds every Christmas.</div></div></div>
+      <div class="timeline-item fade-up"><div class="timeline-content"><div class="timeline-title">This Website Goes Live</div><div class="timeline-desc">The Henderson family launches this site to keep the story alive and the family connected — no matter how far apart life takes everyone.</div></div><div class="timeline-dot"></div><div class="timeline-year">2025</div></div>
     </div>
   </div>
 </section>
@@ -343,34 +249,13 @@ footer{background:var(--text);padding:48px 40px 32px;}
     </div>
   </div>
   <div class="gallery-grid fade-up">
-    <div class="gallery-item tall ph1">
-      <div class="gallery-photo">👨‍👩‍👧‍👦</div>
-      <div class="gallery-overlay"><span class="gallery-caption">Summer Reunion 2023</span></div>
-    </div>
-    <div class="gallery-item ph2">
-      <div class="gallery-photo">🏡</div>
-      <div class="gallery-overlay"><span class="gallery-caption">Blakemore Road Farm</span></div>
-    </div>
-    <div class="gallery-item ph3">
-      <div class="gallery-photo">👵</div>
-      <div class="gallery-overlay"><span class="gallery-caption">Eleanor, 1975</span></div>
-    </div>
-    <div class="gallery-item wide ph4">
-      <div class="gallery-photo">🎂</div>
-      <div class="gallery-overlay"><span class="gallery-caption">Robert's 80th Birthday</span></div>
-    </div>
-    <div class="gallery-item ph5">
-      <div class="gallery-photo">🌅</div>
-      <div class="gallery-overlay"><span class="gallery-caption">Lake House, 2019</span></div>
-    </div>
-    <div class="gallery-item ph6">
-      <div class="gallery-photo">💒</div>
-      <div class="gallery-overlay"><span class="gallery-caption">James & Carol's Wedding</span></div>
-    </div>
-    <div class="gallery-item ph7">
-      <div class="gallery-photo">👶</div>
-      <div class="gallery-overlay"><span class="gallery-caption">Newest Henderson, 2024</span></div>
-    </div>
+    <div class="gallery-item tall ph1"><div class="gallery-photo">👨‍👩‍👧‍👦</div><div class="gallery-overlay"><span class="gallery-caption">Summer Reunion 2023</span></div></div>
+    <div class="gallery-item ph2"><div class="gallery-photo">🏡</div><div class="gallery-overlay"><span class="gallery-caption">Blakemore Road Farm</span></div></div>
+    <div class="gallery-item ph3"><div class="gallery-photo">👵</div><div class="gallery-overlay"><span class="gallery-caption">Eleanor, 1975</span></div></div>
+    <div class="gallery-item wide ph4"><div class="gallery-photo">🎂</div><div class="gallery-overlay"><span class="gallery-caption">Robert's 80th Birthday</span></div></div>
+    <div class="gallery-item ph5"><div class="gallery-photo">🌅</div><div class="gallery-overlay"><span class="gallery-caption">Lake House, 2019</span></div></div>
+    <div class="gallery-item ph6"><div class="gallery-photo">💒</div><div class="gallery-overlay"><span class="gallery-caption">James & Carol's Wedding</span></div></div>
+    <div class="gallery-item ph7"><div class="gallery-photo">👶</div><div class="gallery-overlay"><span class="gallery-caption">Newest Henderson, 2024</span></div></div>
   </div>
 </section>
 
@@ -384,30 +269,9 @@ footer{background:var(--text);padding:48px 40px 32px;}
     </div>
   </div>
   <div class="memories-grid">
-    <div class="memory-card fade-up">
-      <div class="memory-author">
-        <div class="memory-avatar">👩</div>
-        <div><div class="memory-name">Margaret Henderson-Cole</div><div class="memory-relation">Eldest daughter</div></div>
-      </div>
-      <div class="memory-text">"I still remember the smell of Mom's apple pie cooling on the kitchen window. No matter where I am in the world, that smell takes me home every time."</div>
-      <div class="memory-date">Added March 2025</div>
-    </div>
-    <div class="memory-card fade-up">
-      <div class="memory-author">
-        <div class="memory-avatar">👦</div>
-        <div><div class="memory-name">Thomas Henderson Jr.</div><div class="memory-relation">Grandson</div></div>
-      </div>
-      <div class="memory-text">"Grandpa taught me to fish on the pond behind the farm. I must have been seven. I didn't catch a thing but I remember every word he said that afternoon."</div>
-      <div class="memory-date">Added February 2025</div>
-    </div>
-    <div class="memory-card fade-up">
-      <div class="memory-author">
-        <div class="memory-avatar">👩‍🦳</div>
-        <div><div class="memory-name">Ruth Henderson-Park</div><div class="memory-relation">Second daughter</div></div>
-      </div>
-      <div class="memory-text">"Every Christmas Eve, Dad would read the same three pages from the same worn Bible. We all knew every word. I'd give anything to hear that voice one more time."</div>
-      <div class="memory-date">Added January 2025</div>
-    </div>
+    <div class="memory-card fade-up"><div class="memory-author"><div class="memory-avatar">👩</div><div><div class="memory-name">Margaret Henderson-Cole</div><div class="memory-relation">Eldest daughter</div></div></div><div class="memory-text">"I still remember the smell of Mom's apple pie cooling on the kitchen window. No matter where I am in the world, that smell takes me home every time."</div><div class="memory-date">Added March 2025</div></div>
+    <div class="memory-card fade-up"><div class="memory-author"><div class="memory-avatar">👦</div><div><div class="memory-name">Thomas Henderson Jr.</div><div class="memory-relation">Grandson</div></div></div><div class="memory-text">"Grandpa taught me to fish on the pond behind the farm. I must have been seven. I didn't catch a thing but I remember every word he said that afternoon."</div><div class="memory-date">Added February 2025</div></div>
+    <div class="memory-card fade-up"><div class="memory-author"><div class="memory-avatar">👩‍🦳</div><div><div class="memory-name">Ruth Henderson-Park</div><div class="memory-relation">Second daughter</div></div></div><div class="memory-text">"Every Christmas Eve, Dad would read the same three pages from the same worn Bible. We all knew every word. I'd give anything to hear that voice one more time."</div><div class="memory-date">Added January 2025</div></div>
   </div>
   <div class="memories-add fade-up">
     <button class="btn-memory" onclick="document.getElementById('memoryModal').classList.add('open')">+ Add Your Memory</button>
@@ -423,30 +287,9 @@ footer{background:var(--text);padding:48px 40px 32px;}
       <p class="section-sub">Family gatherings, milestones, and celebrations coming up. RSVP so we know you're coming.</p>
     </div>
     <div class="events-list">
-      <div class="event-card fade-up">
-        <div class="event-date"><div class="event-month">Jul</div><div class="event-day">12</div></div>
-        <div class="event-info">
-          <div class="event-name">Henderson Family Reunion 2025</div>
-          <div class="event-details">📍 Lake Sunapee Lodge, New Hampshire &nbsp;·&nbsp; 11am – 8pm &nbsp;·&nbsp; Casual dress</div>
-        </div>
-        <a href="#" class="btn-rsvp" onclick="document.getElementById('rsvpModal').classList.add('open');return false;">RSVP →</a>
-      </div>
-      <div class="event-card fade-up">
-        <div class="event-date"><div class="event-month">Sep</div><div class="event-day">6</div></div>
-        <div class="event-info">
-          <div class="event-name">Robert Henderson's 95th Birthday</div>
-          <div class="event-details">📍 Margaret's Home, Concord NH &nbsp;·&nbsp; 3pm – 7pm &nbsp;·&nbsp; Semi-formal</div>
-        </div>
-        <a href="#" class="btn-rsvp" onclick="document.getElementById('rsvpModal').classList.add('open');return false;">RSVP →</a>
-      </div>
-      <div class="event-card fade-up">
-        <div class="event-date"><div class="event-month">Dec</div><div class="event-day">24</div></div>
-        <div class="event-info">
-          <div class="event-name">Henderson Christmas Eve Gathering</div>
-          <div class="event-details">📍 Thomas's Home, Bay St. Louis MS &nbsp;·&nbsp; 6pm onwards &nbsp;·&nbsp; Family tradition</div>
-        </div>
-        <a href="#" class="btn-rsvp" onclick="document.getElementById('rsvpModal').classList.add('open');return false;">RSVP →</a>
-      </div>
+      <div class="event-card fade-up"><div class="event-date"><div class="event-month">Jul</div><div class="event-day">12</div></div><div class="event-info"><div class="event-name">Henderson Family Reunion 2025</div><div class="event-details">📍 Lake Sunapee Lodge, New Hampshire &nbsp;·&nbsp; 11am – 8pm &nbsp;·&nbsp; Casual dress</div></div><a href="#" class="btn-rsvp" onclick="document.getElementById('rsvpModal').classList.add('open');return false;">RSVP →</a></div>
+      <div class="event-card fade-up"><div class="event-date"><div class="event-month">Sep</div><div class="event-day">6</div></div><div class="event-info"><div class="event-name">Robert Henderson's 95th Birthday</div><div class="event-details">📍 Margaret's Home, Concord NH &nbsp;·&nbsp; 3pm – 7pm &nbsp;·&nbsp; Semi-formal</div></div><a href="#" class="btn-rsvp" onclick="document.getElementById('rsvpModal').classList.add('open');return false;">RSVP →</a></div>
+      <div class="event-card fade-up"><div class="event-date"><div class="event-month">Dec</div><div class="event-day">24</div></div><div class="event-info"><div class="event-name">Henderson Christmas Eve Gathering</div><div class="event-details">📍 Thomas's Home, Bay St. Louis MS &nbsp;·&nbsp; 6pm onwards &nbsp;·&nbsp; Family tradition</div></div><a href="#" class="btn-rsvp" onclick="document.getElementById('rsvpModal').classList.add('open');return false;">RSVP →</a></div>
     </div>
   </div>
 </section>
@@ -472,6 +315,7 @@ footer{background:var(--text);padding:48px 40px 32px;}
       <a href="#gallery">Photos</a>
       <a href="#memories">Memories</a>
       <a href="#events">Events</a>
+      <a href="/pages/models.html" style="color:rgba(200,191,216,0.5);">← Back to Models</a>
     </div>
     <div class="footer-bottom">© 2025 The Henderson Family · Private Family Website · All photos and memories belong to the Henderson family</div>
   </div>
@@ -516,18 +360,13 @@ footer{background:var(--text);padding:48px 40px 32px;}
 </div>
 
 <script>
-// Scroll animations
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+}, {threshold:0.08,rootMargin:'0px 0px -30px 0px'});
 document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-
-// Close modals on overlay click
 document.querySelectorAll('.modal').forEach(m => {
   m.addEventListener('click', function(e) { if(e.target === this) this.classList.remove('open'); });
 });
-
-// Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
     const t = document.querySelector(a.getAttribute('href'));
