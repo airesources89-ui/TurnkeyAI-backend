@@ -77,7 +77,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
 .spin-box{background:white;border-radius:16px;padding:40px 48px;text-align:center}
 .spin{width:48px;height:48px;border:4px solid #e5e7eb;border-top-color:#0066FF;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
 @keyframes spin{to{transform:rotate(360deg)}}
-.spin-box p{font-weight:600;color:#0066FF;margin-top:16px;font-size:16px}
 .step-page{display:none}
 .step-page.active{display:block}
 .hidden{display:none!important}
@@ -104,6 +103,24 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
 @media(max-width:580px){.ivr-dept-row{grid-template-columns:1fr}}
 .ivr-dept-row input{padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;color:#1f2937;background:white;outline:none;transition:border-color .2s}
 .ivr-dept-row input:focus{border-color:#0066FF}
+
+/* ── AI Assist styles ── */
+.ai-assist-wrap{margin-top:8px;background:#f0f7ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px 14px;}
+.ai-assist-label{font-size:12px;font-weight:700;color:#1d4ed8;margin-bottom:8px;display:flex;align-items:center;gap:5px;}
+.ai-assist-row{display:flex;gap:8px;align-items:flex-start;}
+.ai-assist-input{flex:1;padding:9px 12px;border:1.5px solid #bfdbfe;border-radius:8px;font-size:13px;font-family:inherit;color:#1f2937;background:white;outline:none;resize:vertical;min-height:48px;transition:border-color .2s;}
+.ai-assist-input:focus{border-color:#0066FF;}
+.ai-assist-input::placeholder{color:#93c5fd;}
+.ai-btn{background:linear-gradient(135deg,#0066FF,#0052CC);color:white;border:none;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:6px;transition:opacity .2s;}
+.ai-btn:hover{opacity:.88;}
+.ai-btn:disabled{opacity:.5;cursor:not-allowed;}
+.ai-btn-spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;}
+.ai-success-note{font-size:11px;color:#15803d;font-weight:600;margin-top:6px;display:none;}
+/* FAQ generate button */
+.faq-ai-generate{width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:white;border:none;padding:14px 20px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s;margin-bottom:16px;}
+.faq-ai-generate:hover{opacity:.88;}
+.faq-ai-generate:disabled{opacity:.5;cursor:not-allowed;}
+.faq-ai-note{font-size:12px;color:#6B7280;text-align:center;margin-bottom:16px;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -190,15 +207,76 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
   <div class="step-page" id="page3">
     <div class="card">
       <div class="sec-title">💬 About Your Business</div>
-      <div class="field"><label>Business Story / About Us</label><textarea name="aboutUs" placeholder="How long in business? What makes you different? Why did you start?" style="min-height:100px"></textarea></div>
-      <div class="row2">
-        <div class="field"><label>Your #1 Competitive Advantage</label><textarea name="competitiveAdvantage" placeholder="e.g. Licensed &amp; insured, 5-star Google rating, same-day service" style="min-height:75px"></textarea></div>
-        <div class="field"><label>Owner Background</label><textarea name="ownerBackground" placeholder="e.g. 20 years experience, Army veteran, certified master plumber" style="min-height:75px"></textarea></div>
+
+      <!-- About Us with AI assist -->
+      <div class="field">
+        <label>Business Story / About Us</label>
+        <textarea name="aboutUs" id="field_aboutUs" placeholder="How long in business? What makes you different? Why did you start?" style="min-height:100px"></textarea>
+        <div class="ai-assist-wrap">
+          <div class="ai-assist-label">✦ Let AI write this for you — jot a few words and click Draft</div>
+          <div class="ai-assist-row">
+            <textarea class="ai-assist-input" id="bullets_aboutUs" placeholder="e.g. family business, 22 years, Gulf Coast, show up on time, honest pricing"></textarea>
+            <button type="button" class="ai-btn" id="btn_aboutUs" onclick="aiAssist('aboutUs')">
+              <span id="btn_aboutUs_label">✦ Draft</span>
+            </button>
+          </div>
+          <div class="ai-success-note" id="note_aboutUs">✓ Drafted — edit it to match your voice</div>
+        </div>
       </div>
+
       <div class="row2">
-        <div class="field"><label>Tagline / Mission Statement</label><input type="text" name="missionStatement" placeholder="e.g. Honest work, fair prices, every time"></div>
+        <!-- Competitive Advantage with AI assist -->
+        <div class="field">
+          <label>Your #1 Competitive Advantage</label>
+          <textarea name="competitiveAdvantage" id="field_competitiveAdvantage" placeholder="e.g. Licensed &amp; insured, 5-star Google rating, same-day service" style="min-height:75px"></textarea>
+          <div class="ai-assist-wrap">
+            <div class="ai-assist-label">✦ AI Draft</div>
+            <div class="ai-assist-row">
+              <textarea class="ai-assist-input" id="bullets_competitiveAdvantage" placeholder="e.g. upfront pricing, same day, 500 reviews, family owned"></textarea>
+              <button type="button" class="ai-btn" id="btn_competitiveAdvantage" onclick="aiAssist('competitiveAdvantage')">
+                <span id="btn_competitiveAdvantage_label">✦ Draft</span>
+              </button>
+            </div>
+            <div class="ai-success-note" id="note_competitiveAdvantage">✓ Drafted</div>
+          </div>
+        </div>
+
+        <!-- Owner Background with AI assist -->
+        <div class="field">
+          <label>Owner Background</label>
+          <textarea name="ownerBackground" id="field_ownerBackground" placeholder="e.g. 20 years experience, Army veteran, certified master plumber" style="min-height:75px"></textarea>
+          <div class="ai-assist-wrap">
+            <div class="ai-assist-label">✦ AI Draft</div>
+            <div class="ai-assist-row">
+              <textarea class="ai-assist-input" id="bullets_ownerBackground" placeholder="e.g. Army vet, 20 years plumbing, grew up here"></textarea>
+              <button type="button" class="ai-btn" id="btn_ownerBackground" onclick="aiAssist('ownerBackground')">
+                <span id="btn_ownerBackground_label">✦ Draft</span>
+              </button>
+            </div>
+            <div class="ai-success-note" id="note_ownerBackground">✓ Drafted</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tagline with AI assist -->
+      <div class="row2">
+        <div class="field">
+          <label>Tagline / Mission Statement</label>
+          <input type="text" name="missionStatement" id="field_tagline" placeholder="e.g. Honest work, fair prices, every time">
+          <div class="ai-assist-wrap">
+            <div class="ai-assist-label">✦ AI Draft — gives you 3 options to pick from</div>
+            <div class="ai-assist-row">
+              <textarea class="ai-assist-input" id="bullets_tagline" placeholder="e.g. fast, honest, local, no surprises" style="min-height:38px"></textarea>
+              <button type="button" class="ai-btn" id="btn_tagline" onclick="aiAssist('tagline')">
+                <span id="btn_tagline_label">✦ Draft</span>
+              </button>
+            </div>
+            <div class="ai-success-note" id="note_tagline">✓ Options drafted — pick your favorite and paste it above</div>
+          </div>
+        </div>
         <div class="field"><label>Awards / Certifications</label><input type="text" name="awards" placeholder="e.g. BBB A+, EPA certified, 500+ 5-star reviews"></div>
       </div>
+
       <div class="field"><label>Community Involvement (optional)</label><input type="text" name="communityInvolvement" placeholder="e.g. Sponsor Little League, volunteer at food bank"></div>
     </div>
     <div class="card">
@@ -242,14 +320,23 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           </select>
         </div>
       </div>
-      <!-- ═══ Dynamic FAQ Builder ═══ -->
+
+      <!-- ═══ AI-Powered FAQ Builder ═══ -->
       <div class="field">
         <label>Frequently Asked Questions &amp; Answers</label>
-        <p style="font-size:13px;color:#6B7280;margin-bottom:14px">List the questions customers ask you most often, along with the answer you'd want your chatbot to give. The more detail in your answers, the smarter your chatbot will be.</p>
+        <p style="font-size:13px;color:#6B7280;margin-bottom:14px">Your chatbot answers customer questions 24/7 — the more you add here, the smarter it gets. Let AI generate a complete FAQ set for your business, or add your own questions below.</p>
+
+        <!-- AI Generate button -->
+        <button type="button" class="faq-ai-generate" id="faqGenerateBtn" onclick="generateFaq()">
+          <span id="faqGenerateBtnLabel">✦ Generate My FAQ Set — AI writes questions &amp; answers for me</span>
+        </button>
+        <p class="faq-ai-note" id="faqGenerateNote">AI will generate 10 questions your chatbot needs — covering payment, service area, guarantees, scheduling, and more. You can edit or delete any of them after.</p>
+
         <div id="faqBuilder"></div>
         <button type="button" onclick="addFaqPair()" style="margin-top:4px;background:#f0f7ff;border:2px dashed #0066FF;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;color:#0066FF;cursor:pointer;font-family:inherit;width:100%;transition:background .15s;" onmouseover="this.style.background='#e0f0ff'" onmouseout="this.style.background='#f0f7ff'">+ Add Another Question</button>
         <p style="font-size:12px;color:#9CA3AF;margin-top:8px">Fill in as many as you can — leave any blank that don't apply. You can always add more later through your dashboard.</p>
       </div>
+
       <div class="field"><label>How should pricing be shown in chat?</label>
         <select name="pricingDisplay">
           <option value="ranges">Show price ranges</option>
@@ -689,18 +776,18 @@ function highlightPlanLabel(){
   }
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════
 // IVR SECTION — Conditional Logic
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════
 function ivrLogic(){
   var val = (document.querySelector('input[name="ivrOptIn"]:checked')||{}).value||'';
   var show = (val === 'yes' || val === 'tell_me_more');
   toggle('ivrDetailsSection', show);
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════
 // DOMAIN & TECHNICAL SETUP — Conditional Logic
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════
 function domainLogic(){
   var val = (document.querySelector('input[name="domainStatus"]:checked')||{}).value||'';
   var hasDomain = (val === 'yes_both' || val === 'domain_only');
@@ -739,9 +826,9 @@ function validateDomainStep(){
   goStep(6);
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════
 // FAQ BUILDER — Dynamic Q&A Pairs
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════
 var faqCount = 0;
 
 function addFaqPair(q, a) {
@@ -796,6 +883,136 @@ function collectFaqArray() {
 addFaqPair();
 addFaqPair();
 addFaqPair();
+
+// ═══════════════════════════════════════
+// AI ASSIST — Section drafting
+// ═══════════════════════════════════════
+async function aiAssist(section) {
+  var fieldMap = {
+    aboutUs: 'field_aboutUs',
+    competitiveAdvantage: 'field_competitiveAdvantage',
+    ownerBackground: 'field_ownerBackground',
+    tagline: 'field_tagline'
+  };
+  var targetId = fieldMap[section];
+  if (!targetId) return;
+
+  var bullets  = (document.getElementById('bullets_' + section) || {}).value || '';
+  var btn      = document.getElementById('btn_' + section);
+  var label    = document.getElementById('btn_' + section + '_label');
+  var note     = document.getElementById('note_' + section);
+  var target   = document.getElementById(targetId);
+
+  btn.disabled = true;
+  label.innerHTML = '<span class="ai-btn-spin"></span>';
+
+  try {
+    var res = await fetch('/api/ai-assist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        section:      section,
+        bullets:      bullets,
+        businessName: (document.getElementById('businessName') || {}).value || '',
+        industry:     selectedIndustry || '',
+        city:         (document.getElementById('city') || {}).value || '',
+        state:        (document.querySelector('[name="state"]') || {}).value || '',
+        services:     getCheckedServices()
+      })
+    });
+    var data = await res.json();
+    if (data.ok && data.text) {
+      target.value = data.text;
+      target.style.borderColor = '#0066FF';
+      setTimeout(function() { target.style.borderColor = ''; }, 1200);
+      if (note) note.style.display = 'block';
+    } else {
+      alert(data.error || 'AI assist failed. Please try again.');
+    }
+  } catch(e) {
+    alert('Could not reach AI service. Please check your connection and try again.');
+  }
+
+  btn.disabled = false;
+  label.textContent = '✦ Draft';
+}
+
+// ═══════════════════════════════════════
+// AI FAQ GENERATION
+// ═══════════════════════════════════════
+async function generateFaq() {
+  var btn   = document.getElementById('faqGenerateBtn');
+  var label = document.getElementById('faqGenerateBtnLabel');
+
+  btn.disabled = true;
+  label.innerHTML = '<span class="ai-btn-spin" style="width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px;"></span> Generating your FAQ set...';
+
+  try {
+    var res = await fetch('/api/ai-assist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        section:      'faq',
+        bullets:      '',
+        businessName: (document.getElementById('businessName') || {}).value || '',
+        industry:     selectedIndustry || '',
+        city:         (document.getElementById('city') || {}).value || '',
+        state:        (document.querySelector('[name="state"]') || {}).value || '',
+        services:     getCheckedServices()
+      })
+    });
+    var data = await res.json();
+    if (data.ok && data.text) {
+      // Parse Q: / A: format
+      var lines  = data.text.split('\n');
+      var pairs  = [];
+      var curQ   = '', curA = '';
+      lines.forEach(function(line) {
+        line = line.trim();
+        if (line.startsWith('Q:')) {
+          if (curQ) pairs.push({ q: curQ, a: curA });
+          curQ = line.replace(/^Q:\s*/, '');
+          curA = '';
+        } else if (line.startsWith('A:')) {
+          curA = line.replace(/^A:\s*/, '');
+        } else if (line && curA !== undefined) {
+          curA += (curA ? ' ' : '') + line;
+        }
+      });
+      if (curQ) pairs.push({ q: curQ, a: curA });
+
+      if (pairs.length > 0) {
+        // Clear existing blank pairs, keep any the user already filled in
+        var existing = collectFaqArray().filter(function(p) { return p.question || p.answer; });
+        document.getElementById('faqBuilder').innerHTML = '';
+        faqCount = 0;
+        existing.forEach(function(p) { addFaqPair(p.question, p.answer); });
+        pairs.forEach(function(p) { addFaqPair(p.q, p.a); });
+        label.textContent = '✦ Regenerate FAQ Set';
+      } else {
+        alert('AI returned an unexpected format. Please try again.');
+        label.textContent = '✦ Generate My FAQ Set — AI writes questions & answers for me';
+      }
+    } else {
+      alert(data.error || 'FAQ generation failed. Please try again.');
+      label.textContent = '✦ Generate My FAQ Set — AI writes questions & answers for me';
+    }
+  } catch(e) {
+    alert('Could not reach AI service. Please try again.');
+    label.textContent = '✦ Generate My FAQ Set — AI writes questions & answers for me';
+  }
+
+  btn.disabled = false;
+}
+
+// ── Helper: collect checked service names as a comma-separated string ──
+function getCheckedServices() {
+  var checked = [];
+  document.querySelectorAll('[name^="service_"]:checked').forEach(function(el) {
+    checked.push(el.name.replace('service_', '').replace(/_/g, ' '));
+  });
+  return checked.join(', ');
+}
 
 var cur=0;
 function goStep(n){
@@ -920,7 +1137,7 @@ function prefillAllFields(cd, dashToken, dashPass){
     document.getElementById('btnInd').disabled = false;
   }
   ['aboutUs','competitiveAdvantage','ownerBackground','missionStatement','awards','communityInvolvement'].forEach(function(f){
-    var el = document.querySelector('[name="'+f+'"]');
+    var el = document.querySelector('[name="'+f+'"]') || document.getElementById('field_' + f);
     if(el && d[f]) el.value = d[f];
   });
   var days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
@@ -945,7 +1162,7 @@ function prefillAllFields(cd, dashToken, dashPass){
   var hasLogo = document.querySelector('[name="hasLogo"]');
   if(hasLogo && d.hasLogo) hasLogo.value = d.hasLogo;
 
-  // ── Prefill FAQ pairs — supports new array format and legacy flat fields ──
+  // ── Prefill FAQ pairs ──
   document.getElementById('faqBuilder').innerHTML = '';
   faqCount = 0;
   var faqArr = d.faq;
@@ -962,7 +1179,6 @@ function prefillAllFields(cd, dashToken, dashPass){
     if (!seeded) { addFaqPair(); addFaqPair(); addFaqPair(); }
   }
 
-  // Prefill IVR fields
   if(d.ivrOptIn){
     var ivrR = document.querySelector('input[name="ivrOptIn"][value="'+d.ivrOptIn+'"]');
     if(ivrR){ ivrR.checked = true; ivrLogic(); }
