@@ -24,6 +24,13 @@ const postLimiter = rateLimit({
   message: { error: 'Too many submissions. Please wait a few minutes and try again.' }
 });
 
+// ── AI Assist rate limiter — separate, more generous ──
+const aiAssistLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 20,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many AI requests. Please wait a few minutes and try again.' }
+});
+
 // ── Generate unique Login ID (TK-XXXXXX) ──
 function generateLoginId() {
   const crypto = require('crypto');
@@ -216,6 +223,98 @@ router.post('/api/intake', postLimiter, async (req, res) => {
     if (validErr) return res.status(400).json({ error: validErr });
     await handleIntakeSubmission(req.body, res);
   } catch(err) { console.error('[/api/intake]', err); res.status(500).json({ error: 'Failed' }); }
+});
+
+// ════════════════════════════════════════════════
+// ── POST /api/ai-assist
+// ── AI-powered content drafting for intake form fields.
+// ── Calls OpenAI gpt-4o-mini server-side — key never exposed to browser.
+// ── Rate limited independently from intake submissions.
+// ════════════════════════════════════════════════
+router.post('/api/ai-assist', aiAssistLimiter, async (req, res) => {
+  try {
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    if (!OPENAI_API_KEY) {
+      return res.status(503).json({ ok: false, error: 'AI assist is not configured.' });
+    }
+
+    const { section, bullets, businessName, industry, city, state, services } = req.body;
+
+    if (!section) {
+      return res.status(400).json({ ok: false, error: 'Missing section parameter.' });
+    }
+
+    // ── Build section-specific prompt ──
+    const industryLabel = (industry || 'local service business').replace(/_/g, ' ');
+    const locationStr   = [city, state].filter(Boolean).join(', ') || 'your area';
+    const bizName       = businessName || 'this business';
+    const bulletText    = (bullets || '').trim();
+    const serviceList   = (services || '').trim();
+
+    let systemPrompt = '';
+    let userPrompt   = '';
+
+    if (section === 'aboutUs') {
+      systemPrompt = `You write About Us sections for small business websites. Write in a warm, professional tone. Be specific — use the details provided. Write 2–3 paragraphs. Do not use placeholder text. Do not mention TurnkeyAI. Return plain text only, no markdown.`;
+      userPrompt   = `Write an About Us section for ${bizName}, a ${industryLabel} business in ${locationStr}.${bulletText ? '\n\nDetails provided by the owner:\n' + bulletText : ''}\n\nMake it feel personal and trustworthy. Emphasize local roots, experience, and reliability.`;
+
+    } else if (section === 'competitiveAdvantage') {
+      systemPrompt = `You write competitive advantage copy for small business websites. Write 3–4 short, punchy advantage statements — each 1–2 sentences. Be specific, not generic. No bullet symbols. Separate each with a line break. Return plain text only.`;
+      userPrompt   = `Write competitive advantage statements for ${bizName}, a ${industryLabel} in ${locationStr}.${bulletText ? '\n\nOwner notes:\n' + bulletText : ''}\n\nFocus on what makes them different and why customers should choose them.`;
+
+    } else if (section === 'ownerBackground') {
+      systemPrompt = `You write owner bio copy for small business websites. Write 2–3 sentences in third person. Make it credible and human. Return plain text only, no markdown.`;
+      userPrompt   = `Write an owner background paragraph for the owner of ${bizName}, a ${industryLabel} in ${locationStr}.${bulletText ? '\n\nOwner details:\n' + bulletText : ''}\n\nTone: professional but approachable.`;
+
+    } else if (section === 'tagline') {
+      systemPrompt = `You write taglines and mission statements for small businesses. Return exactly 3 options, numbered 1. 2. 3. Each should be one sentence or phrase, under 12 words. Be specific to the industry and location. Return plain text only.`;
+      userPrompt   = `Write 3 tagline options for ${bizName}, a ${industryLabel} in ${locationStr}.${bulletText ? '\n\nOwner notes:\n' + bulletText : ''}\n\nMake them memorable, specific, and honest.`;
+
+    } else if (section === 'faq') {
+      systemPrompt = `You generate FAQ sets for small business websites to power their AI chatbot. Generate exactly 10 question-and-answer pairs. Focus ONLY on questions that would NOT be answered by a standard website — things like: payment methods accepted, warranty or guarantee policy, what to expect on a first visit or service call, service area boundaries, emergency or after-hours availability, licensing and insurance, whether estimates are free, cancellation or rescheduling policy, how long jobs typically take, whether they work with insurance, and any unique policies. Format each pair exactly as:\nQ: [question]\nA: [answer]\n\nReturn only the Q&A pairs, no intro text, no numbering, no markdown.`;
+      userPrompt   = `Generate 10 FAQ pairs for ${bizName}, a ${industryLabel} business in ${locationStr}.${serviceList ? '\n\nServices offered: ' + serviceList : ''}${bulletText ? '\n\nAdditional context: ' + bulletText : ''}\n\nAll answers should sound like they come from the business owner — conversational and specific, not generic.`;
+
+    } else {
+      return res.status(400).json({ ok: false, error: 'Unknown section: ' + section });
+    }
+
+    // ── Call OpenAI using native fetch (Node 18+) ──
+    const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        max_tokens: 800,
+        temperature: 0.7,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user',   content: userPrompt   }
+        ]
+      })
+    });
+
+    if (!openaiRes.ok) {
+      const errBody = await openaiRes.text();
+      console.error('[ai-assist] OpenAI error', openaiRes.status, errBody);
+      return res.status(502).json({ ok: false, error: 'AI service error. Please try again.' });
+    }
+
+    const openaiData = await openaiRes.json();
+    const text = (openaiData.choices?.[0]?.message?.content || '').trim();
+
+    if (!text) {
+      return res.status(502).json({ ok: false, error: 'AI returned an empty response. Please try again.' });
+    }
+
+    res.json({ ok: true, text });
+
+  } catch (err) {
+    console.error('[/api/ai-assist]', err);
+    res.status(500).json({ ok: false, error: 'AI assist failed. Please try again.' });
+  }
 });
 
 console.log('[module] routes/intake.js loaded');
