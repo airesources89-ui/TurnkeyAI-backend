@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Platform Models — TurnkeyAI Services</title>
+  <meta name="description" content="See TurnkeyAI Services in action. Watch our platform demo and explore real-world website models built for local service businesses.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:#080e1c;color:#e2e8f0;padding-top:64px;}
+    .site-nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,14,28,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+    .site-nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:white;text-decoration:none;letter-spacing:2px;}
+    .site-nav-logo span{color:#f59e0b;}
+    .site-nav-links{display:flex;align-items:center;gap:0.1rem;}
+    .site-nav-links a{color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.82rem;font-weight:500;padding:0.4rem 0.75rem;border-radius:6px;}
+    .site-nav-links a.active{color:#f59e0b;font-weight:700;}
+    .site-nav-links a:hover{color:#fff;}
+    .site-nav-cta{background:#f59e0b;color:#1c0a00;padding:0.5rem 1.2rem;border-radius:8px;font-weight:700;font-size:0.85rem;text-decoration:none;}
+    .site-nav-cta:hover{background:#d97706;}
+    @media(max-width:768px){.site-nav-links{display:none;}}
+
+    /* Hero */
+    .page-hero{background:linear-gradient(160deg,#080e1c 0%,#0d1a35 60%,#1a0a00 100%);padding:5rem 1.5rem 3rem;text-align:center;position:relative;}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(245,158,11,0.1) 0%,transparent 65%);}
+    .page-label{display:inline-flex;align-items:center;gap:.5rem;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.4rem 1rem;border-radius:50px;margin-bottom:1.2rem;}
+    .page-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,7vw,5rem);color:white;letter-spacing:2px;line-height:1;margin-bottom:1rem;}
+    .page-hero h1 span{color:#f59e0b;}
+    .page-hero p{color:rgba(255,255,255,0.65);font-size:1.05rem;max-width:580px;margin:0 auto;line-height:1.7;}
+
+    /* Content */
+    .content-wrap{max-width:960px;margin:0 auto;padding:3.5rem 1.5rem 5rem;}
+
+    /* Section headings */
+    .section-eyebrow{font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f59e0b;margin-bottom:.5rem;}
+    .section-heading{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:white;letter-spacing:1.5px;margin-bottom:.5rem;}
+    .section-sub{font-size:.95rem;color:rgba(255,255,255,0.5);line-height:1.7;margin-bottom:2rem;}
+
+    /* ── Featured Video ── */
+    .video-section{margin-bottom:4rem;}
+    .video-outer{background:rgba(255,255,255,0.04);border:1px solid rgba(245,158,11,0.2);border-radius:20px;padding:2rem;max-width:720px;margin:0 auto;}
+    .video-wrap{position:relative;width:100%;padding-bottom:56.25%;border-radius:12px;overflow:hidden;background:#000;margin-bottom:1.2rem;}
+    .video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+    .video-caption{text-align:center;font-size:.88rem;color:rgba(255,255,255,0.4);line-height:1.6;}
+    .video-caption strong{color:rgba(255,255,255,0.7);}
+
+    /* ── Demo Cards Grid ── */
+    .demos-section{margin-bottom:4rem;}
+    .demos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;}
+
+    /* Live demo card */
+    .demo-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;overflow:hidden;transition:border-color 0.2s,transform 0.2s;text-decoration:none;display:block;}
+    .demo-card:hover{border-color:rgba(245,158,11,0.35);transform:translateY(-3px);}
+    .demo-card-header{padding:1.8rem 1.8rem 1.2rem;background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(232,93,4,0.06));}
+    .demo-card-industry{font-size:.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f59e0b;margin-bottom:.4rem;}
+    .demo-card-name{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:1px;margin-bottom:.3rem;}
+    .demo-card-type{font-size:.82rem;color:rgba(255,255,255,0.45);}
+    .demo-card-body{padding:1.2rem 1.8rem 1.8rem;}
+    .demo-card-desc{font-size:.88rem;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:1.2rem;}
+    .demo-card-features{display:flex;flex-direction:column;gap:.45rem;margin-bottom:1.4rem;}
+    .demo-card-features span{font-size:.8rem;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:.5rem;}
+    .demo-card-features span i{color:#10b981;font-size:.7rem;}
+    .demo-card-cta{display:inline-flex;align-items:center;gap:.5rem;background:linear-gradient(135deg,#f59e0b,#e85d04);color:#1c0a00;padding:.6rem 1.3rem;border-radius:8px;font-size:.85rem;font-weight:700;transition:opacity 0.2s;}
+    .demo-card:hover .demo-card-cta{opacity:0.9;}
+
+    /* Placeholder / coming-soon card */
+    .demo-card-placeholder{background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.1);border-radius:16px;padding:2.5rem 1.8rem;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:240px;gap:.75rem;}
+    .placeholder-icon{width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:rgba(255,255,255,0.2);}
+    .placeholder-label{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:1px;color:rgba(255,255,255,0.2);}
+    .placeholder-sub{font-size:.78rem;color:rgba(255,255,255,0.18);line-height:1.5;}
+
+    /* ── More Coming Banner ── */
+    .coming-banner{background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:16px;padding:2rem;text-align:center;margin-bottom:4rem;}
+    .coming-banner h3{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:1px;margin-bottom:.5rem;}
+    .coming-banner p{font-size:.92rem;color:rgba(255,255,255,0.5);line-height:1.7;max-width:520px;margin:0 auto;}
+
+    /* ── CTA Box ── */
+    .cta-box{background:linear-gradient(135deg,#0d1a35,#0a0f20);border:1px solid rgba(245,158,11,0.2);border-radius:20px;padding:3rem 2rem;text-align:center;}
+    .cta-box h2{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:white;letter-spacing:1.5px;margin-bottom:.75rem;}
+    .cta-box p{color:rgba(255,255,255,0.6);margin-bottom:1.8rem;font-size:1rem;}
+    .cta-box-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+    .cta-box-btn{background:linear-gradient(135deg,#f59e0b,#e85d04);color:#1c0a00;padding:.9rem 2.2rem;border-radius:10px;text-decoration:none;font-weight:700;font-size:1rem;display:inline-flex;align-items:center;gap:.5rem;transition:all 0.2s;}
+    .cta-box-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,158,11,0.4);}
+    .cta-box-btn-ghost{background:transparent;color:rgba(255,255,255,0.7);padding:.9rem 2.2rem;border-radius:10px;text-decoration:none;font-weight:600;font-size:1rem;display:inline-flex;align-items:center;gap:.5rem;border:1px solid rgba(255,255,255,0.2);transition:all 0.2s;}
+    .cta-box-btn-ghost:hover{border-color:rgba(255,255,255,0.45);color:#fff;}
+
+    /* Footer */
+    .site-footer{background:#050a14;padding:40px 40px 24px;border-top:1px solid rgba(255,255,255,0.06);}
+    .site-footer-inner{max-width:960px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+    .site-footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:white;letter-spacing:2px;}
+    .site-footer-logo span{color:#f59e0b;}
+    .site-footer-links{display:flex;gap:20px;flex-wrap:wrap;}
+    .site-footer-links a{color:rgba(255,255,255,0.4);font-size:13px;text-decoration:none;}
+    .site-footer-links a:hover{color:#fff;}
+    .site-footer-copy{width:100%;text-align:center;color:rgba(255,255,255,0.2);font-size:12px;margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.05);}
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div style="display:flex;align-items:center;gap:2rem;">
+    <a href="/" class="site-nav-logo">TurnkeyAI <span>Services</span></a>
+    <div class="site-nav-links">
+      <a href="/pages/business.html">Home</a>
+      <a href="/pages/community.html">Community</a>
+      <a href="/pages/blog.html">Blog</a>
+      <a href="/pages/coming-soon.html">Coming Soon</a>
+      <a href="/pages/models.html" class="active">Models</a>
+      <a href="/pages/references.html">References</a>
+      <a href="/pages/about.html">About Us</a>
+      <a href="/pages/pricing.html">Pricing</a>
+    </div>
+  </div>
+  <a href="/pages/intake.html" class="site-nav-cta">Get Started →</a>
+</nav>
+
+<div class="page-hero">
+  <div class="page-label"><i class="fas fa-play-circle"></i> Platform Models</div>
+  <h1>See It <span>In Action</span></h1>
+  <p>Real demos built on the TurnkeyAI platform. Watch how the platform works, then explore live examples across industries.</p>
+</div>
+
+<div class="content-wrap">
+
+  <!-- ── Featured Video ── -->
+  <div class="video-section">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <div class="section-eyebrow">Platform Walkthrough</div>
+      <h2 class="section-heading">Watch the Platform Demo</h2>
+      <p class="section-sub">A complete walkthrough of the TurnkeyAI platform — from intake form to live site, AI chat, booking, and client dashboard.</p>
+    </div>
+    <div class="video-outer">
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube.com/embed/RC4AWmShnXI"
+          title="TurnkeyAI Platform Demo"
+          allowfullscreen
+          loading="lazy">
+        </iframe>
+      </div>
+      <div class="video-caption"><strong>TurnkeyAI Services — Platform Demo</strong><br>See how a local service business goes from signup to a live AI-powered website in under 24 hours.</div>
+    </div>
+  </div>
+
+  <!-- ── Demo Models ── -->
+  <div class="demos-section">
+    <div class="section-eyebrow">Live Examples</div>
+    <h2 class="section-heading">Industry Models</h2>
+    <p class="section-sub">Each model is a fully functional demo site built on the TurnkeyAI platform — real AI chat, booking, SEO, and client dashboard included.</p>
+
+    <div class="demos-grid">
+
+      <!-- Henderson Family Demo -->
+      <a href="/pages/henderson-family-demo.html" class="demo-card">
+        <div class="demo-card-header">
+          <div class="demo-card-industry">Heritage & Family</div>
+          <div class="demo-card-name">The Henderson Family</div>
+          <div class="demo-card-type">Family Legacy Site Demo</div>
+        </div>
+        <div class="demo-card-body">
+          <div class="demo-card-desc">A complete family heritage site featuring photo galleries, family history, and a reunion RSVP section — built on the TurnkeyAI platform at no monthly cost.</div>
+          <div class="demo-card-features">
+            <span><i class="fas fa-check"></i> Photo galleries & family history</span>
+            <span><i class="fas fa-check"></i> Reunion RSVP section</span>
+            <span><i class="fas fa-check"></i> Free with your own domain</span>
+          </div>
+          <span class="demo-card-cta"><i class="fas fa-arrow-right"></i> View Demo</span>
+        </div>
+      </a>
+
+      <!-- Placeholder 1 -->
+      <div class="demo-card-placeholder">
+        <div class="placeholder-icon"><i class="fas fa-wrench"></i></div>
+        <div class="placeholder-label">Plumbing & HVAC</div>
+        <div class="placeholder-sub">Local service business demo<br>Coming soon</div>
+      </div>
+
+      <!-- Placeholder 2 -->
+      <div class="demo-card-placeholder">
+        <div class="placeholder-icon"><i class="fas fa-scissors"></i></div>
+        <div class="placeholder-label">Salon & Spa</div>
+        <div class="placeholder-sub">Booking & service menu demo<br>Coming soon</div>
+      </div>
+
+      <!-- Placeholder 3 -->
+      <div class="demo-card-placeholder">
+        <div class="placeholder-icon"><i class="fas fa-utensils"></i></div>
+        <div class="placeholder-label">Restaurant</div>
+        <div class="placeholder-sub">Menu & reservation demo<br>Coming soon</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── More Coming ── -->
+  <div class="coming-banner">
+    <h3>More Models Coming Soon</h3>
+    <p>We're building live demos across all 67 industry verticals. New models are added regularly — check back or get started today and see your own business become the model.</p>
+  </div>
+
+  <!-- ── CTA ── -->
+  <div class="cta-box">
+    <h2>Ready to Build Yours?</h2>
+    <p>$0 setup. Live in 24 hours. Your site could be the next model.</p>
+    <div class="cta-box-btns">
+      <a href="/pages/intake.html" class="cta-box-btn"><i class="fas fa-rocket"></i> Start My Website</a>
+      <a href="/pages/pricing.html" class="cta-box-btn-ghost"><i class="fas fa-tag"></i> See Pricing</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-logo">TurnkeyAI <span>Services</span></div>
+    <div class="site-footer-links">
+      <a href="/pages/business.html">Home</a>
+      <a href="/pages/community.html">Community</a>
+      <a href="/pages/blog.html">Blog</a>
+      <a href="/pages/pricing.html">Pricing</a>
+      <a href="/pages/about.html">About Us</a>
+      <a href="/pages/coming-soon.html">Coming Soon</a>
+      <a href="/pages/models.html">Models</a>
+      <a href="/pages/references.html">References</a>
+      <a href="/pages/intake.html">Get Started</a>
+    </div>
+  </div>
+  <div class="site-footer-copy">© 2026 TurnkeyAI Services LLC. All Rights Reserved. Bay St. Louis, MS.</div>
+</div>
+
+</body>
+</html>
