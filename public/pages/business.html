@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TurnkeyAI Services — AI-Powered Websites for Local Businesses</title>
 <meta name="description" content="Get a professional AI-powered website for your local business. Includes 24/7 AI chat, after-hours call answering, missed call return, reservations, and more. $0 setup, $99/month.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,6 +55,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(15,30,60,0.9
 .btn-primary:hover{background:var(--blue2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(37,99,235,0.4);}
 .btn-ghost{background:transparent;color:#fff;padding:16px 36px;border-radius:10px;font-size:16px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,0.2);transition:all .2s;}
 .btn-ghost:hover{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.05);}
+.btn-story{background:transparent;color:rgba(255,255,255,0.8);padding:16px 28px;border-radius:10px;font-size:15px;font-weight:600;border:1px solid rgba(245,158,11,0.35);transition:all .2s;display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-story:hover{border-color:rgba(245,158,11,0.7);color:#f59e0b;background:rgba(245,158,11,0.06);}
 .hero-stats{display:flex;gap:40px;flex-wrap:wrap;}
 .hero-stat-num{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;color:#fff;}
 .hero-stat-label{font-size:12px;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
@@ -185,7 +187,7 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
 .footer-copy{font-size:13px;color:rgba(255,255,255,0.3);}
 @media(max-width:768px){.footer-inner{grid-template-columns:1fr 1fr;}.footer-inner>:first-child{grid-column:1/-1;}}
 
-/* MODAL */
+/* MODAL — shared base styles */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;align-items:center;justify-content:center;padding:20px;}
 .modal-overlay.open{display:flex;}
 .modal-box{background:#fff;border-radius:20px;padding:40px;max-width:540px;width:100%;text-align:center;position:relative;}
@@ -208,6 +210,7 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
     <a href="/pages/community.html">Community</a>
     <a href="/pages/blog.html">Blog</a>
     <a href="/pages/coming-soon.html">Coming Soon</a>
+    <a href="/pages/models.html">Models</a>
     <a href="/pages/references.html">References</a>
     <a href="/pages/about.html">About Us</a>
     <a href="/pages/pricing.html">Pricing</a>
@@ -229,6 +232,7 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
       <div class="hero-btns">
         <a href="/pages/intake.html" class="btn-primary">Start For Free →</a>
         <a href="#how" class="btn-ghost">See How It Works</a>
+        <button class="btn-story" onclick="openStoryVideo(event)">▶ Watch Our Story</button>
       </div>
       <div class="hero-stats">
         <div class="hero-stat"><div class="hero-stat-num">$0</div><div class="hero-stat-label">Setup Fee</div></div>
@@ -452,6 +456,7 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
       <div class="footer-col-title">Company</div>
       <a href="/pages/about.html">About Us</a>
       <a href="/pages/references.html">References</a>
+      <a href="/pages/models.html">Models</a>
       <a href="/pages/community.html">Community</a>
       <a href="/pages/coming-soon.html">Coming Soon</a>
       <a href="/pages/blog.html">Blog</a>
@@ -463,7 +468,7 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
   </div>
 </footer>
 
-<!-- PARTNER VIDEO MODAL -->
+<!-- PARTNER VIDEO MODAL (existing — untouched) -->
 <div class="modal-overlay" id="videoModal">
   <div class="modal-box" style="max-width:600px;">
     <button class="modal-close" onclick="closeVideoModal()">×</button>
@@ -474,12 +479,24 @@ footer{background:var(--navy);padding:60px 40px 40px;border-top:1px solid rgba(2
   </div>
 </div>
 
+<!-- STORY VIDEO MODAL (new — independent) -->
+<div class="modal-overlay" id="storyModal">
+  <div class="modal-box" style="max-width:760px;background:#0d1a35;border:1px solid rgba(245,158,11,0.2);">
+    <button class="modal-close" onclick="closeStoryVideo()" style="color:rgba(255,255,255,0.5);">×</button>
+    <div style="position:relative;padding-bottom:56.25%;border-radius:12px;overflow:hidden;background:#000;">
+      <iframe id="storyVideo" src="" title="TurnkeyAI — Our Story" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"></iframe>
+    </div>
+    <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-top:16px;text-align:center;">TurnkeyAI Services — Platform Demo &amp; Story</p>
+  </div>
+</div>
+
 <script>
 var observer = new IntersectionObserver(function(entries) {
   entries.forEach(function(e) { if(e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 document.querySelectorAll('.fade-up').forEach(function(el) { observer.observe(el); });
 
+// Partner video modal (existing — untouched)
 function openPartnerVideo(e) {
   e.preventDefault();
   document.getElementById('modalVideo').src = 'https://www.youtube.com/embed/WWOOUWxIhU8?autoplay=1';
@@ -492,6 +509,21 @@ function closeVideoModal() {
 document.getElementById('videoModal').addEventListener('click', function(e) {
   if(e.target === this) closeVideoModal();
 });
+
+// Story video modal (new — independent)
+function openStoryVideo(e) {
+  e.preventDefault();
+  document.getElementById('storyVideo').src = 'https://www.youtube.com/embed/RC4AWmShnXI?autoplay=1';
+  document.getElementById('storyModal').classList.add('open');
+}
+function closeStoryVideo() {
+  document.getElementById('storyVideo').src = '';
+  document.getElementById('storyModal').classList.remove('open');
+}
+document.getElementById('storyModal').addEventListener('click', function(e) {
+  if(e.target === this) closeStoryVideo();
+});
+
 document.querySelectorAll('a[href^="#"]').forEach(function(a) {
   a.addEventListener('click', function(e) {
     var target = document.querySelector(this.getAttribute('href'));
