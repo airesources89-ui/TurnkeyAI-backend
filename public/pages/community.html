@@ -356,5 +356,21 @@ function formatTime(iso) {
 
 function escapeHtml(str) { if (!str) return ''; var div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
 </script>
+<script>
+var _pageStart = Date.now();
+function _sendPageTime() {
+  var secs = Math.round((Date.now() - _pageStart) / 1000);
+  if (secs < 2) return;
+  var blob = new Blob(
+    [JSON.stringify({ page: 'community', seconds: secs })],
+    { type: 'application/json' }
+  );
+  navigator.sendBeacon('/api/track/page-time', blob);
+}
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'hidden') _sendPageTime();
+});
+window.addEventListener('pagehide', _sendPageTime);
+</script>
 </body>
 </html>
