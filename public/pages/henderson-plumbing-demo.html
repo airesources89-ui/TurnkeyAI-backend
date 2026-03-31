@@ -145,6 +145,57 @@
     .footer-powered a:hover{color:var(--amber);}
     .fade-up{opacity:0;transform:translateY(28px);transition:opacity 0.6s ease,transform 0.6s ease;}
     .fade-up.visible{opacity:1;transform:translateY(0);}
+    /* ── Chat Widget ── */
+    #chatWidget{position:fixed;bottom:80px;right:24px;z-index:9999;}
+    #chatToggleBtn{background:linear-gradient(135deg,var(--amber),var(--orange));color:var(--navy);border:none;border-radius:50px;padding:13px 20px;font-size:.92rem;font-weight:700;cursor:pointer;box-shadow:0 6px 24px rgba(245,158,11,.4);font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;}
+    #chatBox{display:none;flex-direction:column;background:white;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.2);width:330px;max-height:470px;overflow:hidden;border:1px solid #e5e7eb;}
+    #chatHeader{background:linear-gradient(135deg,var(--navy),#1a3a6b);color:white;padding:15px 18px;display:flex;justify-content:space-between;align-items:center;}
+    #chatMessages{flex:1;overflow-y:auto;padding:14px;min-height:210px;background:#f9fafb;}
+    #chatInputRow{padding:11px;border-top:1px solid #e5e7eb;display:flex;gap:8px;background:white;}
+    #chatInput{flex:1;padding:9px 13px;border:2px solid #e5e7eb;border-radius:10px;font-size:.88rem;font-family:'DM Sans',sans-serif;outline:none;}
+    #chatInput:focus{border-color:var(--amber);}
+    #chatSendBtn{background:var(--amber);color:var(--navy);border:none;border-radius:10px;padding:9px 16px;cursor:pointer;font-weight:700;font-family:'DM Sans',sans-serif;}
+    @keyframes chatPulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+    /* ── Booking Calendar ── */
+    .sched-section{background:#f0f4ff;padding:80px 40px;}
+    .sched-inner{max-width:1000px;margin:0 auto;}
+    .week-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;}
+    .week-nav button{background:var(--amber);color:var(--navy);border:none;border-radius:8px;padding:8px 18px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;}
+    .week-nav button:hover{background:var(--amber2);}
+    .week-label{font-weight:700;font-size:1rem;color:var(--navy);}
+    .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:2rem;}
+    .day-col{background:white;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;min-width:0;}
+    .day-header{padding:10px 6px;text-align:center;background:#f8fafc;border-bottom:1px solid #e2e8f0;}
+    .day-header.today{background:var(--amber);color:var(--navy);}
+    .day-header.today .dh-name,.day-header.today .dh-date{color:var(--navy);}
+    .dh-name{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:2px;}
+    .dh-date{font-size:1.15rem;font-weight:800;color:var(--navy);}
+    .dh-month{font-size:.6rem;color:#94a3b8;margin-top:1px;}
+    .day-closed{padding:16px 6px;text-align:center;color:#dc2626;font-size:.72rem;font-weight:600;}
+    .day-slots{padding:4px;}
+    .ts{padding:7px 4px;margin:3px 0;border-radius:6px;text-align:center;font-size:.75rem;font-weight:600;cursor:pointer;border:1.5px solid #e2e8f0;background:white;transition:all .15s;width:100%;}
+    .ts.avail:hover{border-color:var(--amber);background:#fffcf5;}
+    .ts.avail.sel{border-color:var(--amber);background:var(--amber);color:var(--navy);}
+    .ts.booked{background:#fee2e2;border-color:#fecaca;color:#dc2626;cursor:not-allowed;opacity:.55;font-size:.7rem;}
+    .ts.past{background:#f1f5f9;border-color:#e2e8f0;color:#cbd5e1;cursor:not-allowed;font-size:.7rem;}
+    .sched-form{background:white;border-radius:16px;padding:2rem;box-shadow:0 8px 32px rgba(11,28,58,.1);margin-top:2rem;}
+    .sel-banner{background:#f0f9ff;border:2px solid var(--amber);border-radius:10px;padding:14px 18px;margin-bottom:1.4rem;text-align:center;display:none;}
+    .sel-banner p{margin:0;font-size:.95rem;color:#1e40af;font-weight:600;}
+    .sched-form-row{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:.9rem;}
+    .sched-form-group{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.9rem;}
+    .sched-form-group label{font-size:.72rem;font-weight:700;color:var(--navy);letter-spacing:.3px;text-transform:uppercase;}
+    .sched-form-group input,.sched-form-group select,.sched-form-group textarea{border:1.5px solid #e2e8f0;border-radius:8px;padding:.65rem .85rem;font-size:.9rem;font-family:'DM Sans',sans-serif;color:var(--navy);background:#f8fafc;outline:none;}
+    .sched-form-group input:focus,.sched-form-group select:focus{border-color:var(--amber);}
+    .book-btn{width:100%;background:var(--amber);color:var(--navy);border:none;border-radius:8px;padding:.88rem;font-size:.97rem;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;}
+    .book-btn:hover:not(:disabled){background:var(--amber2);color:white;}
+    .book-btn:disabled{opacity:.45;cursor:not-allowed;}
+    .confirm-banner{background:#f0fff4;border:2px solid #10b981;border-radius:12px;padding:1.5rem;text-align:center;margin-top:1.5rem;display:none;}
+    .sched-loading{text-align:center;padding:20px 6px;color:#94a3b8;font-size:.78rem;}
+    @media(max-width:900px){.week-grid{grid-template-columns:repeat(4,1fr);}}
+    @media(max-width:600px){.week-grid{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:420px){.week-grid{grid-template-columns:repeat(2,1fr);}.sched-form-row{grid-template-columns:1fr;}}
+
     /* Demo ribbon */
     .demo-ribbon{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,#0a1628,#0f2347);border-top:2px solid rgba(245,158,11,0.3);padding:12px 24px;z-index:400;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
     .demo-ribbon-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
@@ -168,6 +219,7 @@
     <a href="#services">Services</a>
     <a href="#why-us">About Us</a>
     <a href="#reviews">Reviews</a>
+    <a href="#schedule">Schedule</a>
     <a href="#contact">Contact</a>
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
@@ -271,6 +323,55 @@
   </div>
 </section>
 
+<!-- BOOKING CALENDAR -->
+<section class="sched-section" id="schedule">
+  <div class="sched-inner">
+    <div class="fade-up" style="text-align:center;max-width:600px;margin:0 auto 40px;">
+      <div style="font-size:0.72rem;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--amber);margin-bottom:10px;">Easy Scheduling</div>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,4vw,3.4rem);color:var(--navy);line-height:1.05;margin-bottom:16px;letter-spacing:1px;">Book Your Appointment Online</h2>
+      <p style="font-size:1rem;color:var(--gray);line-height:1.8;">Pick a day and time — you'll get instant confirmation. Live booking activates when your site goes live.</p>
+    </div>
+    <div class="fade-up">
+      <div class="week-nav">
+        <button onclick="shiftWeek(-7)"><i class="fas fa-chevron-left"></i> Previous</button>
+        <span class="week-label" id="weekLabel"></span>
+        <button onclick="shiftWeek(7)">Next <i class="fas fa-chevron-right"></i></button>
+      </div>
+      <div class="week-grid" id="weekGrid"><div class="sched-loading"><i class="fas fa-spinner fa-spin"></i> Loading schedule...</div></div>
+      <div class="sched-form">
+        <div style="font-size:0.72rem;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--amber);margin-bottom:16px;">Your Information</div>
+        <div class="sel-banner" id="selBanner"><p><i class="fas fa-calendar-check" style="margin-right:6px;"></i> <span id="selText"></span></p></div>
+        <div class="sched-form-row">
+          <div class="sched-form-group"><label>First Name</label><input type="text" id="book_fname" placeholder="Bobby"></div>
+          <div class="sched-form-group"><label>Last Name</label><input type="text" id="book_lname" placeholder="Henderson"></div>
+        </div>
+        <div class="sched-form-row">
+          <div class="sched-form-group"><label>Phone</label><input type="tel" id="book_phone" placeholder="(228) 555-0000"></div>
+          <div class="sched-form-group"><label>Email</label><input type="email" id="book_email" placeholder="you@email.com"></div>
+        </div>
+        <div class="sched-form-group"><label>Service Needed</label>
+          <select id="book_service">
+            <option value="">Select a service...</option>
+            <option>Drain Cleaning</option>
+            <option>Water Heater Repair / Replacement</option>
+            <option>Leak Detection & Repair</option>
+            <option>Toilet Repair / Replacement</option>
+            <option>Pipe Work / Repiping</option>
+            <option>Emergency Service</option>
+            <option>Other / Not Sure</option>
+          </select>
+        </div>
+        <button class="book-btn" id="bookBtn" disabled><i class="fas fa-calendar-check"></i> Select a Date &amp; Time Above</button>
+        <div class="confirm-banner" id="confirmBanner">
+          <h3 style="color:#065f46;margin:0 0 6px;">✅ Appointment Saved!</h3>
+          <p id="confirmText" style="color:#374151;margin:0;font-size:1rem;"></p>
+          <p style="color:#64748b;font-size:.85rem;margin:8px 0 0;">Check your email for confirmation details.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="booking-section" id="contact">
   <div class="booking-grid">
     <div class="fade-up">
@@ -347,6 +448,25 @@
   <a href="/pages/intake.html" class="demo-ribbon-cta">Build Mine → $0 Setup</a>
 </div>
 
+<!-- CHAT WIDGET -->
+<div id="chatWidget">
+  <button id="chatToggleBtn" onclick="openChat()">💬 Chat With Us</button>
+  <div id="chatBox">
+    <div id="chatHeader">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:9px;height:9px;background:#00D68F;border-radius:50%;animation:chatPulse 2s infinite;"></div>
+        <span style="font-weight:700;font-size:.92rem;">💬 Henderson's AI Assistant</span>
+      </div>
+      <span onclick="closeChat()" style="cursor:pointer;font-size:1.2rem;opacity:.7;">✕</span>
+    </div>
+    <div id="chatMessages"></div>
+    <div id="chatInputRow">
+      <input id="chatInput" type="text" placeholder="Ask a question..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button id="chatSendBtn" onclick="sendMsg()">Send</button>
+    </div>
+  </div>
+</div>
+
 <script>
 var observer = new IntersectionObserver(function(entries) {
   entries.forEach(function(e) { if(e.isIntersecting) e.target.classList.add('visible'); });
@@ -366,6 +486,148 @@ function handleBooking(e){
   btn.disabled=true;
   e.target.querySelectorAll('input,select,textarea').forEach(function(el){el.disabled=true;});
 }
+
+// ── Chat Widget ──
+var chatOpen=false;
+var chatHistory=[];
+var chatSystemPrompt="You are the AI chat assistant for Henderson's Plumbing & Drain, a plumbing business in Bay St. Louis, Mississippi. Be friendly and helpful.\nPhone: (228) 555-0192.\nServices we offer: Drain Cleaning, Water Heater Repair and Replacement, Leak Detection and Repair, Toilet Repair and Replacement, Pipe Work and Repiping, 24/7 Emergency Plumbing.\nBusiness hours: Mon-Fri 7am-6pm, Sat 8am-3pm. 24/7 emergency service available.\nPayment methods: Cash, Credit/Debit Card, Check.\nAbout us: Family-owned plumbing company serving the Gulf Coast since 2004. Licensed, insured, and committed to doing the job right the first time.\nWhat sets us apart: Upfront pricing, we show up on time, we clean up after ourselves, and we know Gulf Coast neighborhoods.\nWhen asked about pricing, say we offer free estimates and to call or book online.\nAnswer customer questions using the information above. If you do not know a specific answer, say you will have someone follow up and provide the phone number. Do not make up information. Keep responses concise (under 200 words). This is a demo site — for actual bookings, direct users to call (228) 555-0192.";
+
+function openChat(){
+  chatOpen=true;
+  document.getElementById('chatToggleBtn').style.display='none';
+  var box=document.getElementById('chatBox');
+  box.style.display='flex';
+  if(!chatHistory.length){addMsg('bot','Hi! I\'m the Henderson\'s Plumbing AI assistant. How can I help you today?');}
+  document.getElementById('chatInput').focus();
+}
+function closeChat(){
+  chatOpen=false;
+  document.getElementById('chatBox').style.display='none';
+  document.getElementById('chatToggleBtn').style.display='flex';
+}
+function addMsg(role,text){
+  var msgs=document.getElementById('chatMessages');
+  var d=document.createElement('div');
+  d.style.cssText='margin-bottom:10px;display:flex;'+(role==='user'?'justify-content:flex-end;':'');
+  var b=document.createElement('div');
+  b.style.cssText='padding:9px 13px;border-radius:12px;max-width:82%;font-size:.88rem;line-height:1.5;'+(role==='user'?'background:#0b1c3a;color:white;':'background:white;border:1px solid #e5e7eb;color:#1e293b;');
+  b.textContent=text;d.appendChild(b);msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+async function sendMsg(){
+  var input=document.getElementById('chatInput');
+  var msg=input.value.trim();if(!msg)return;
+  input.value='';
+  addMsg('user',msg);
+  chatHistory.push({role:'user',content:msg});
+  var typing=document.createElement('div');
+  typing.id='typing';typing.style.cssText='margin-bottom:10px;font-size:.8rem;color:#94a3b8;';
+  typing.textContent='Typing...';
+  document.getElementById('chatMessages').appendChild(typing);
+  try{
+    var r=await fetch('https://turnkeyaiservices.com/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,history:chatHistory,system:chatSystemPrompt,businessName:"Henderson's Plumbing & Drain"})});
+    var d=await r.json();
+    var reply=d.reply||'Sorry, I had trouble with that. Please call us at (228) 555-0192.';
+    if(document.getElementById('typing'))document.getElementById('typing').remove();
+    addMsg('bot',reply);
+    chatHistory.push({role:'assistant',content:reply});
+  }catch(e){
+    if(document.getElementById('typing'))document.getElementById('typing').remove();
+    addMsg('bot','Sorry, I had trouble connecting. Please call (228) 555-0192 directly.');
+  }
+}
+
+// ── Booking Calendar ──
+(function(){
+  var API='https://turnkeyaiservices.com';
+  var CLIENT_ID='';
+  var selDate=null,selTime=null,weekOffset=0,slotCache={};
+  function pad(n){return n<10?'0'+n:''+n;}
+  function getWeekDates(offset){var dates=[],now=new Date();now.setDate(now.getDate()+offset);for(var i=0;i<7;i++){var d=new Date(now);d.setDate(now.getDate()+i);dates.push(d);}return dates;}
+  function fmtDateStr(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  function buildWeek(){
+    var dates=getWeekDates(weekOffset);
+    var dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var today=fmtDateStr(new Date());
+    var first=dates[0],last=dates[6];
+    document.getElementById('weekLabel').textContent=monthNames[first.getMonth()]+' '+first.getDate()+' – '+monthNames[last.getMonth()]+' '+last.getDate()+', '+last.getFullYear();
+    var grid=document.getElementById('weekGrid');grid.innerHTML='';
+    dates.forEach(function(d){
+      var ds=fmtDateStr(d),isToday=ds===today;
+      var col=document.createElement('div');col.className='day-col';
+      col.innerHTML='<div class="day-header'+(isToday?' today':'')+'"><div class="dh-name">'+dayNames[d.getDay()]+'</div><div class="dh-date">'+d.getDate()+'</div><div class="dh-month">'+monthNames[d.getMonth()]+'</div></div><div class="day-slots" id="slots_'+ds+'"><div class="sched-loading" style="padding:12px 4px;font-size:.7rem;"><i class="fas fa-spinner fa-spin"></i></div></div>';
+      grid.appendChild(col);
+      loadDaySlots(ds,d);
+    });
+  }
+  function loadDaySlots(ds,d){
+    var container=document.getElementById('slots_'+ds);if(!container)return;
+    // Demo mode — no CLIENT_ID — show sample slots
+    var now=new Date();
+    var isPast=d<new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    var dayOfWeek=d.getDay();
+    // Closed Sunday
+    if(dayOfWeek===0){container.innerHTML='<div class="day-closed">Closed</div>';return;}
+    // Saturday limited hours
+    var times=dayOfWeek===6?['8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM']:['8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'];
+    if(isPast){container.innerHTML=times.slice(0,3).map(function(t){return '<button class="ts past">'+t+'</button>';}).join('');return;}
+    // Simulate some booked slots for realism
+    var booked=['10:00 AM','2:00 PM'];
+    container.innerHTML=times.map(function(t){
+      var isBooked=booked.indexOf(t)>-1;
+      var isSel=selDate===ds&&selTime===t;
+      if(isBooked)return '<button class="ts booked">'+t+'</button>';
+      return '<button class="ts avail'+(isSel?' sel':'')+'" onclick="pickSlot(\''+ds+'\',\''+t+'\')">'+t+'</button>';
+    }).join('');
+  }
+  window.pickSlot=function(date,time){
+    selDate=date;selTime=time;
+    // Re-render all visible slots
+    document.querySelectorAll('[id^="slots_"]').forEach(function(container){
+      var ds=container.id.replace('slots_','');
+      var parts=ds.split('-');
+      var d=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+      loadDaySlots(ds,d);
+    });
+    updateBanner();
+  };
+  function updateBanner(){
+    var banner=document.getElementById('selBanner'),btn=document.getElementById('bookBtn');
+    if(selDate&&selTime){
+      var d=new Date(selDate+'T12:00:00');
+      var nice=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+      document.getElementById('selText').textContent=nice+' at '+selTime;
+      banner.style.display='block';
+      btn.disabled=false;
+      btn.innerHTML='<i class="fas fa-calendar-check"></i> Save '+selTime+' Appointment';
+    }else{
+      banner.style.display='none';
+      btn.disabled=true;
+      btn.innerHTML='<i class="fas fa-calendar-check"></i> Select a Date & Time Above';
+    }
+  }
+  window.shiftWeek=function(days){
+    var n=weekOffset+days;
+    if(n<0)n=0;if(n>21)return;
+    weekOffset=n;buildWeek();
+  };
+  document.getElementById('bookBtn').addEventListener('click',function(){
+    if(!selDate||!selTime){alert('Please select a date and time.');return;}
+    var ph=document.getElementById('book_phone').value.trim();
+    var em=document.getElementById('book_email').value.trim();
+    if(!ph&&!em){alert('Please enter a phone number or email so we can confirm your appointment.');return;}
+    var btn=document.getElementById('bookBtn');
+    btn.innerHTML='<i class="fas fa-check-circle"></i> Appointment Saved!';
+    btn.style.background='#10b981';btn.style.color='white';btn.disabled=true;
+    var d=new Date(selDate+'T12:00:00');
+    var nice=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+    document.getElementById('confirmText').textContent=nice+' at '+selTime+' — This is a demo. Live booking activates when your site goes live.';
+    document.getElementById('confirmBanner').style.display='block';
+    document.getElementById('selBanner').innerHTML='<p style="margin:0;color:#065f46;font-weight:700;">✅ Your appointment has been saved!</p>';
+  });
+  buildWeek();
+})();
 </script>
 </body>
 </html>
