@@ -825,26 +825,27 @@ var faqCount = 0;
 function addFaqPair(q, a) {
   faqCount++;
   var n = faqCount;
+  var uid = 'faq_' + Date.now() + '_' + n;
   var builder = document.getElementById('faqBuilder');
   var div = document.createElement('div');
   div.className = 'faq-pair';
-  div.id = 'faq_block_' + n;
+  div.id = 'faq_block_' + uid;
   div.innerHTML =
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
-      '<div class="faq-pair-num" id="faq_label_' + n + '">Question ' + n + '</div>' +
-      (n > 1 ? '<button type="button" onclick="removeFaqPair(' + n + ')" style="background:none;border:none;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;padding:0;">✕ Remove</button>' : '') +
+      '<div class="faq-pair-num" id="faq_label_' + uid + '">Question ' + n + '</div>' +
+      '<button type="button" onclick="removeFaqPair(\'' + uid + '\')" style="background:none;border:none;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;padding:0;">' + (n > 1 ? '✕ Remove' : '') + '</button>' +
     '</div>' +
     '<label>Question</label>' +
-    '<input type="text" id="faq_q_' + n + '" placeholder="e.g. Do you offer free estimates?" style="margin-bottom:10px;">' +
+    '<input type="text" id="faq_q_' + uid + '" placeholder="e.g. Do you offer free estimates?" style="margin-bottom:10px;">' +
     '<label>Answer</label>' +
-    '<textarea id="faq_a_' + n + '" placeholder="e.g. Yes! We offer free estimates for all jobs. Just call us or fill out the form and we\'ll get back to you within a few hours." style="min-height:60px"></textarea>';
+    '<textarea id="faq_a_' + uid + '" placeholder="e.g. Yes! We offer free estimates for all jobs. Just call us or fill out the form and we\'ll get back to you within a few hours." style="min-height:60px"></textarea>';
   builder.appendChild(div);
-  if (q) document.getElementById('faq_q_' + n).value = q;
-  if (a) document.getElementById('faq_a_' + n).value = a;
+  if (q) document.getElementById('faq_q_' + uid).value = q;
+  if (a) document.getElementById('faq_a_' + uid).value = a;
 }
 
-function removeFaqPair(n) {
-  var el = document.getElementById('faq_block_' + n);
+function removeFaqPair(uid) {
+  var el = document.getElementById('faq_block_' + uid);
   if (el) el.remove();
   renumberFaq();
 }
@@ -861,8 +862,8 @@ function collectFaqArray() {
   var pairs = document.getElementById('faqBuilder').querySelectorAll('.faq-pair');
   var arr = [];
   pairs.forEach(function(pair) {
-    var qEl = pair.querySelector('input[id^="faq_q_"]');
-    var aEl = pair.querySelector('textarea[id^="faq_a_"]');
+    var qEl = pair.querySelector('input[id^="faq_q_faq_"]');
+    var aEl = pair.querySelector('textarea[id^="faq_a_faq_"]');
     var q = qEl ? qEl.value.trim() : '';
     var a = aEl ? aEl.value.trim() : '';
     if (q || a) arr.push({ question: q, answer: a });
