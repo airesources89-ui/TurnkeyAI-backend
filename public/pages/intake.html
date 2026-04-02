@@ -213,7 +213,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
         <label>Business Story / About Us</label>
         <textarea name="aboutUs" id="field_aboutUs" placeholder="How long in business? What makes you different? Why did you start?" style="min-height:100px"></textarea>
         <div class="ai-assist-wrap">
-          <div class="ai-assist-label">✦ Let AI write this for you — jot a few words and click Draft</div>
+          <div class="ai-assist-label">✦ Type a few notes below, then click Draft — AI fills the field above</div>
           <div class="ai-assist-row">
             <textarea class="ai-assist-input" id="bullets_aboutUs" placeholder="e.g. family business, 22 years, Gulf Coast, show up on time, honest pricing"></textarea>
             <button type="button" class="ai-btn" id="btn_aboutUs" onclick="aiAssist('aboutUs')">
@@ -230,7 +230,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <label>Your #1 Competitive Advantage</label>
           <textarea name="competitiveAdvantage" id="field_competitiveAdvantage" placeholder="e.g. Licensed &amp; insured, 5-star Google rating, same-day service" style="min-height:75px"></textarea>
           <div class="ai-assist-wrap">
-            <div class="ai-assist-label">✦ AI Draft</div>
+            <div class="ai-assist-label">✦ Type a few notes below, then click Draft — AI fills the field above</div>
             <div class="ai-assist-row">
               <textarea class="ai-assist-input" id="bullets_competitiveAdvantage" placeholder="e.g. upfront pricing, same day, 500 reviews, family owned"></textarea>
               <button type="button" class="ai-btn" id="btn_competitiveAdvantage" onclick="aiAssist('competitiveAdvantage')">
@@ -246,7 +246,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <label>Owner Background</label>
           <textarea name="ownerBackground" id="field_ownerBackground" placeholder="e.g. 20 years experience, Army veteran, certified master plumber" style="min-height:75px"></textarea>
           <div class="ai-assist-wrap">
-            <div class="ai-assist-label">✦ AI Draft</div>
+            <div class="ai-assist-label">✦ Type a few notes below, then click Draft — AI fills the field above</div>
             <div class="ai-assist-row">
               <textarea class="ai-assist-input" id="bullets_ownerBackground" placeholder="e.g. Army vet, 20 years plumbing, grew up here"></textarea>
               <button type="button" class="ai-btn" id="btn_ownerBackground" onclick="aiAssist('ownerBackground')">
@@ -264,7 +264,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <label>Tagline / Mission Statement</label>
           <input type="text" name="missionStatement" id="field_tagline" placeholder="e.g. Honest work, fair prices, every time">
           <div class="ai-assist-wrap">
-            <div class="ai-assist-label">✦ AI Draft — gives you 3 options to pick from</div>
+            <div class="ai-assist-label">✦ Type a few notes below, then click Draft — AI gives you 3 options to pick from</div>
             <div class="ai-assist-row">
               <textarea class="ai-assist-input" id="bullets_tagline" placeholder="e.g. fast, honest, local, no surprises" style="min-height:38px"></textarea>
               <button type="button" class="ai-btn" id="btn_tagline" onclick="aiAssist('tagline')">
@@ -776,18 +776,12 @@ function highlightPlanLabel(){
   }
 }
 
-// ═══════════════════════════════════════
-// IVR SECTION — Conditional Logic
-// ═══════════════════════════════════════
 function ivrLogic(){
   var val = (document.querySelector('input[name="ivrOptIn"]:checked')||{}).value||'';
   var show = (val === 'yes' || val === 'tell_me_more');
   toggle('ivrDetailsSection', show);
 }
 
-// ═══════════════════════════════════════
-// DOMAIN & TECHNICAL SETUP — Conditional Logic
-// ═══════════════════════════════════════
 function domainLogic(){
   var val = (document.querySelector('input[name="domainStatus"]:checked')||{}).value||'';
   var hasDomain = (val === 'yes_both' || val === 'domain_only');
@@ -826,9 +820,6 @@ function validateDomainStep(){
   goStep(6);
 }
 
-// ═══════════════════════════════════════
-// FAQ BUILDER — Dynamic Q&A Pairs
-// ═══════════════════════════════════════
 var faqCount = 0;
 
 function addFaqPair(q, a) {
@@ -879,14 +870,10 @@ function collectFaqArray() {
   return arr;
 }
 
-// Seed with 3 blank pairs on load
 addFaqPair();
 addFaqPair();
 addFaqPair();
 
-// ═══════════════════════════════════════
-// AI ASSIST — Section drafting
-// ═══════════════════════════════════════
 async function aiAssist(section) {
   var fieldMap = {
     aboutUs: 'field_aboutUs',
@@ -937,9 +924,6 @@ async function aiAssist(section) {
   label.textContent = '✦ Draft';
 }
 
-// ═══════════════════════════════════════
-// AI FAQ GENERATION
-// ═══════════════════════════════════════
 async function generateFaq() {
   var btn   = document.getElementById('faqGenerateBtn');
   var label = document.getElementById('faqGenerateBtnLabel');
@@ -963,7 +947,6 @@ async function generateFaq() {
     });
     var data = await res.json();
     if (data.ok && data.text) {
-      // Parse Q: / A: format
       var lines  = data.text.split('\n');
       var pairs  = [];
       var curQ   = '', curA = '';
@@ -982,7 +965,6 @@ async function generateFaq() {
       if (curQ) pairs.push({ q: curQ, a: curA });
 
       if (pairs.length > 0) {
-        // Clear existing blank pairs, keep any the user already filled in
         var existing = collectFaqArray().filter(function(p) { return p.question || p.answer; });
         document.getElementById('faqBuilder').innerHTML = '';
         faqCount = 0;
@@ -1005,7 +987,6 @@ async function generateFaq() {
   btn.disabled = false;
 }
 
-// ── Helper: collect checked service names as a comma-separated string ──
 function getCheckedServices() {
   var checked = [];
   document.querySelectorAll('[name^="service_"]:checked').forEach(function(el) {
@@ -1097,9 +1078,6 @@ async function submitForm(){
   }
 }
 
-// ═══════════════════════════════════════════
-// UPDATE MODE — activated when ?mode=update
-// ═══════════════════════════════════════════
 (function initUpdateMode(){
   var params = new URLSearchParams(window.location.search);
   if(params.get('mode') !== 'update') return;
@@ -1162,7 +1140,6 @@ function prefillAllFields(cd, dashToken, dashPass){
   var hasLogo = document.querySelector('[name="hasLogo"]');
   if(hasLogo && d.hasLogo) hasLogo.value = d.hasLogo;
 
-  // ── Prefill FAQ pairs ──
   document.getElementById('faqBuilder').innerHTML = '';
   faqCount = 0;
   var faqArr = d.faq;
