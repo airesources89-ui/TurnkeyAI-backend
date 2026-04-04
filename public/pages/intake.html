@@ -82,7 +82,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
 .hidden{display:none!important}
 .ind-qs{margin-top:20px;border-top:2px solid #e5e7eb;padding-top:20px}
 .ind-qs-title{font-weight:700;font-size:15px;color:#1f2937;margin-bottom:14px}
-/* Plan selector styles */
 .plan-grid{display:flex;flex-direction:column;gap:10px;margin-top:4px}
 .plan-item{display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border:2px solid #e5e7eb;border-radius:12px;cursor:pointer;transition:all .15s;background:white}
 .plan-item:hover{border-color:#0066FF;background:#f0f7ff}
@@ -91,20 +90,16 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
 .plan-item-name{font-weight:700;font-size:14px;color:#1f2937}
 .plan-item-desc{font-size:13px;color:#6B7280;margin-top:2px}
 .plan-item-price{font-size:13px;font-weight:700;color:#0066FF;margin-top:3px}
-/* FAQ builder styling */
 .faq-pair{background:#f9fafb;border:2px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px}
 .faq-pair-num{font-size:12px;font-weight:700;color:#0066FF;text-transform:uppercase;letter-spacing:1px}
 .faq-pair input,.faq-pair textarea{width:100%;padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;color:#1f2937;background:white;outline:none;transition:border-color .2s}
 .faq-pair input:focus,.faq-pair textarea:focus{border-color:#0066FF}
 .faq-pair textarea{resize:vertical;min-height:60px}
 .faq-pair label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:4px}
-/* IVR section styling */
 .ivr-dept-row{display:grid;grid-template-columns:1fr 100px;gap:10px;margin-bottom:8px;align-items:center}
 @media(max-width:580px){.ivr-dept-row{grid-template-columns:1fr}}
 .ivr-dept-row input{padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;color:#1f2937;background:white;outline:none;transition:border-color .2s}
 .ivr-dept-row input:focus{border-color:#0066FF}
-
-/* ── AI Assist styles ── */
 .ai-assist-wrap{margin-top:8px;background:#f0f7ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px 14px;}
 .ai-assist-label{font-size:12px;font-weight:700;color:#1d4ed8;margin-bottom:8px;display:flex;align-items:center;gap:5px;}
 .ai-assist-row{display:flex;gap:8px;align-items:flex-start;}
@@ -116,7 +111,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
 .ai-btn:disabled{opacity:.5;cursor:not-allowed;}
 .ai-btn-spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;}
 .ai-success-note{font-size:11px;color:#15803d;font-weight:600;margin-top:6px;display:none;}
-/* FAQ generate button */
 .faq-ai-generate{width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:white;border:none;padding:14px 20px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s;margin-bottom:16px;}
 .faq-ai-generate:hover{opacity:.88;}
 .faq-ai-generate:disabled{opacity:.5;cursor:not-allowed;}
@@ -207,8 +201,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
   <div class="step-page" id="page3">
     <div class="card">
       <div class="sec-title">💬 About Your Business</div>
-
-      <!-- About Us with AI assist -->
       <div class="field">
         <label>Business Story / About Us</label>
         <textarea name="aboutUs" id="field_aboutUs" placeholder="How long in business? What makes you different? Why did you start?" style="min-height:100px"></textarea>
@@ -223,9 +215,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           <div class="ai-success-note" id="note_aboutUs">✓ Drafted — edit it to match your voice</div>
         </div>
       </div>
-
       <div class="row2">
-        <!-- Competitive Advantage with AI assist -->
         <div class="field">
           <label>Your #1 Competitive Advantage</label>
           <textarea name="competitiveAdvantage" id="field_competitiveAdvantage" placeholder="e.g. Licensed &amp; insured, 5-star Google rating, same-day service" style="min-height:75px"></textarea>
@@ -240,8 +230,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
             <div class="ai-success-note" id="note_competitiveAdvantage">✓ Drafted</div>
           </div>
         </div>
-
-        <!-- Owner Background with AI assist -->
         <div class="field">
           <label>Owner Background</label>
           <textarea name="ownerBackground" id="field_ownerBackground" placeholder="e.g. 20 years experience, Army veteran, certified master plumber" style="min-height:75px"></textarea>
@@ -257,8 +245,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           </div>
         </div>
       </div>
-
-      <!-- Tagline with AI assist -->
       <div class="row2">
         <div class="field">
           <label>Tagline / Mission Statement</label>
@@ -276,7 +262,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
         </div>
         <div class="field"><label>Awards / Certifications</label><input type="text" name="awards" placeholder="e.g. BBB A+, EPA certified, 500+ 5-star reviews"></div>
       </div>
-
       <div class="field"><label>Community Involvement (optional)</label><input type="text" name="communityInvolvement" placeholder="e.g. Sponsor Little League, volunteer at food bank"></div>
     </div>
     <div class="card">
@@ -320,23 +305,17 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
           </select>
         </div>
       </div>
-
-      <!-- ═══ AI-Powered FAQ Builder ═══ -->
       <div class="field">
         <label>Frequently Asked Questions &amp; Answers</label>
         <p style="font-size:13px;color:#6B7280;margin-bottom:14px">Your chatbot answers customer questions 24/7 — the more you add here, the smarter it gets. Let AI generate a complete FAQ set for your business, or add your own questions below.</p>
-
-        <!-- AI Generate button -->
         <button type="button" class="faq-ai-generate" id="faqGenerateBtn" onclick="generateFaq()">
           <span id="faqGenerateBtnLabel">✦ Generate My FAQ Set — AI writes questions &amp; answers for me</span>
         </button>
         <p class="faq-ai-note" id="faqGenerateNote">AI will generate 10 questions your chatbot needs — covering payment, service area, guarantees, scheduling, and more. You can edit or delete any of them after.</p>
-
         <div id="faqBuilder"></div>
         <button type="button" onclick="addFaqPair()" style="margin-top:4px;background:#f0f7ff;border:2px dashed #0066FF;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;color:#0066FF;cursor:pointer;font-family:inherit;width:100%;transition:background .15s;" onmouseover="this.style.background='#e0f0ff'" onmouseout="this.style.background='#f0f7ff'">+ Add Another Question</button>
         <p style="font-size:12px;color:#9CA3AF;margin-top:8px">Fill in as many as you can — leave any blank that don't apply. You can always add more later through your dashboard.</p>
       </div>
-
       <div class="field"><label>How should pricing be shown in chat?</label>
         <select name="pricingDisplay">
           <option value="ranges">Show price ranges</option>
@@ -366,7 +345,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
         <div class="field"><label>How did you hear about us?</label><input type="text" name="referralSource" placeholder="e.g. Facebook, friend, Google"></div>
       </div>
     </div>
-    <!-- ═══ IVR / Phone System Setup ═══ -->
     <div class="card">
       <div class="sec-title">📞 Phone System Setup (IVR)</div>
       <p style="font-size:13px;color:#6B7280;margin-bottom:16px">We can set up a professional phone system for your business — with a dedicated business number, automated greeting, and department routing. This is included with your plan at no extra charge.</p>
@@ -570,44 +548,28 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
         <div><div class="addon-title">📱 Missed Call Text Return</div><div class="addon-desc">Miss a call? They get a text from you within seconds — works 24/7.</div><div class="addon-price">Included free</div></div>
       </div>
     </div>
-    <!-- DISCLOSURES -->
     <div class="card" id="disclosuresCard">
       <div class="sec-title">📜 Required Disclosures</div>
       <p style="font-size:13px;color:#6B7280;margin-bottom:16px">Please review and acknowledge the following before we build your site.</p>
       <label class="addon" style="cursor:pointer" onclick="toggleDisclosure('disc1',this,event)">
         <input type="checkbox" id="disc1" name="disc_domain_ownership" value="yes" onchange="syncDisclosure('disc1',this.closest('.addon'))">
-        <div>
-          <div class="addon-title">Domain Ownership</div>
-          <div class="addon-desc">If TurnkeyAI registers a domain on your behalf, you own it. It will be transferred to you at no cost within 30 days of a written request if you cancel your service.</div>
-        </div>
+        <div><div class="addon-title">Domain Ownership</div><div class="addon-desc">If TurnkeyAI registers a domain on your behalf, you own it. It will be transferred to you at no cost within 30 days of a written request if you cancel your service.</div></div>
       </label>
       <label class="addon" style="cursor:pointer" onclick="toggleDisclosure('disc2',this,event)">
         <input type="checkbox" id="disc2" name="disc_dns_transition" value="yes" onchange="syncDisclosure('disc2',this.closest('.addon'))">
-        <div>
-          <div class="addon-title">DNS and Website Transition</div>
-          <div class="addon-desc">Once we point your domain to your new TurnkeyAI website, your existing website will no longer be visible at that address. You are responsible for backing up your current site before the transition.</div>
-        </div>
+        <div><div class="addon-title">DNS and Website Transition</div><div class="addon-desc">Once we point your domain to your new TurnkeyAI website, your existing website will no longer be visible at that address. You are responsible for backing up your current site before the transition.</div></div>
       </label>
       <label class="addon" style="cursor:pointer" onclick="toggleDisclosure('disc3',this,event)">
         <input type="checkbox" id="disc3" name="disc_email_preservation" value="yes" onchange="syncDisclosure('disc3',this.closest('.addon'))">
-        <div>
-          <div class="addon-title">Email Preservation</div>
-          <div class="addon-desc">If you have email addresses on your domain (e.g. joe@yourbusiness.com), you must disclose them during intake. TurnkeyAI will take precautions to preserve email service but is not liable for temporary disruptions during DNS changes.</div>
-        </div>
+        <div><div class="addon-title">Email Preservation</div><div class="addon-desc">If you have email addresses on your domain (e.g. joe@yourbusiness.com), you must disclose them during intake. TurnkeyAI will take precautions to preserve email service but is not liable for temporary disruptions during DNS changes.</div></div>
       </label>
       <label class="addon" style="cursor:pointer" onclick="toggleDisclosure('disc4',this,event)">
         <input type="checkbox" id="disc4" name="disc_registrar_access" value="yes" onchange="syncDisclosure('disc4',this.closest('.addon'))">
-        <div>
-          <div class="addon-title">Registrar Access Authorization</div>
-          <div class="addon-desc">If you choose Hands-Free setup, you authorize TurnkeyAI to access your domain registrar account solely for the purpose of configuring DNS records. If you choose Self-Directed setup, TurnkeyAI is not responsible for delays caused by incomplete or incorrect changes on your end.</div>
-        </div>
+        <div><div class="addon-title">Registrar Access Authorization</div><div class="addon-desc">If you choose Hands-Free setup, you authorize TurnkeyAI to access your domain registrar account solely for the purpose of configuring DNS records. If you choose Self-Directed setup, TurnkeyAI is not responsible for delays caused by incomplete or incorrect changes on your end.</div></div>
       </label>
       <label class="addon" style="cursor:pointer" onclick="toggleDisclosure('disc5',this,event)">
         <input type="checkbox" id="disc5" name="disc_service_scope" value="yes" onchange="syncDisclosure('disc5',this.closest('.addon'))">
-        <div>
-          <div class="addon-title">Service Scope</div>
-          <div class="addon-desc">TurnkeyAI provides website design, hosting, and management services. Email hosting and email administration are not included unless specifically selected as an add-on.</div>
-        </div>
+        <div><div class="addon-title">Service Scope</div><div class="addon-desc">TurnkeyAI provides website design, hosting, and management services. Email hosting and email administration are not included unless specifically selected as an add-on.</div></div>
       </label>
     </div>
     <div class="card">
@@ -640,6 +602,15 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
               <div style="font-size:13px;color:#6B7280;margin-top:2px">Hub partner, reseller, or invoiced account — your site deploys automatically.</div>
             </div>
           </label>
+          <!-- ── PARTNER PASSWORD GATE (PATCH 1) ── -->
+          <div id="partnerPwBox" style="display:none;margin-top:2px;padding:14px 18px;background:#fff8ed;border:1px solid #fbbf24;border-radius:12px;">
+            <label style="font-size:13px;font-weight:700;color:#92400e;display:block;margin-bottom:8px;">🔐 Partner Access — Enter your partner code to continue</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="password" id="partnerPwInput" placeholder="Partner code" style="flex:1;padding:10px 14px;border:2px solid #fbbf24;border-radius:8px;font-size:14px;font-family:inherit;outline:none;">
+              <button type="button" onclick="verifyPartnerPw()" style="background:linear-gradient(135deg,#0066FF,#0052CC);color:white;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">Verify</button>
+            </div>
+            <div id="partnerPwError" style="display:none;color:#ef4444;font-size:12px;font-weight:600;margin-top:6px;">❌ Incorrect code. Please contact TurnkeyAI for access.</div>
+          </div>
         </div>
       </div>
       <div style="margin-top:20px">
@@ -759,10 +730,36 @@ function syncDisclosure(chkId,card){
   card.classList.toggle('selected',chk.checked);
 }
 
+// ── PATCH 2: highlightPayLabel + verifyPartnerPw ──
 function highlightPayLabel(){
   document.getElementById('pay_cc_label').style.borderColor = document.getElementById('pay_cc').checked ? '#0066FF' : '#e5e7eb';
   document.getElementById('pay_partner_label').style.borderColor = document.getElementById('pay_partner').checked ? '#0066FF' : '#e5e7eb';
+  var partnerChecked = document.getElementById('pay_partner').checked;
+  var pwBox = document.getElementById('partnerPwBox');
+  if(pwBox){
+    pwBox.style.display = partnerChecked ? 'block' : 'none';
+    if(!partnerChecked){
+      document.getElementById('partnerPwInput').value = '';
+      document.getElementById('partnerPwError').style.display = 'none';
+      window._partnerVerified = false;
+    }
+  }
 }
+
+function verifyPartnerPw(){
+  var input = document.getElementById('partnerPwInput').value;
+  var errBox = document.getElementById('partnerPwError');
+  if(input === 'Cinval.033'){
+    window._partnerVerified = true;
+    document.getElementById('partnerPwBox').style.display = 'none';
+    document.getElementById('pay_partner_label').style.borderColor = '#00D68F';
+  } else {
+    window._partnerVerified = false;
+    errBox.style.display = 'block';
+    document.getElementById('partnerPwInput').value = '';
+  }
+}
+// ── END PATCH 2 ──
 
 function highlightPlanLabel(){
   ['plan_website_label','plan_blog_label','plan_social_label','plan_full_label'].forEach(function(id){
@@ -884,16 +881,13 @@ async function aiAssist(section) {
   };
   var targetId = fieldMap[section];
   if (!targetId) return;
-
   var bullets  = (document.getElementById('bullets_' + section) || {}).value || '';
   var btn      = document.getElementById('btn_' + section);
   var label    = document.getElementById('btn_' + section + '_label');
   var note     = document.getElementById('note_' + section);
   var target   = document.getElementById(targetId);
-
   btn.disabled = true;
   label.innerHTML = '<span class="ai-btn-spin"></span>';
-
   try {
     var res = await fetch('/api/ai-assist', {
       method: 'POST',
@@ -920,7 +914,6 @@ async function aiAssist(section) {
   } catch(e) {
     alert('Could not reach AI service. Please check your connection and try again.');
   }
-
   btn.disabled = false;
   label.textContent = '✦ Draft';
 }
@@ -928,10 +921,8 @@ async function aiAssist(section) {
 async function generateFaq() {
   var btn   = document.getElementById('faqGenerateBtn');
   var label = document.getElementById('faqGenerateBtnLabel');
-
   btn.disabled = true;
   label.innerHTML = '<span class="ai-btn-spin" style="width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px;"></span> Generating your FAQ set...';
-
   try {
     var res = await fetch('/api/ai-assist', {
       method: 'POST',
@@ -964,7 +955,6 @@ async function generateFaq() {
         }
       });
       if (curQ) pairs.push({ q: curQ, a: curA });
-
       if (pairs.length > 0) {
         var existing = collectFaqArray().filter(function(p) { return p.question || p.answer; });
         document.getElementById('faqBuilder').innerHTML = '';
@@ -984,7 +974,6 @@ async function generateFaq() {
     alert('Could not reach AI service. Please try again.');
     label.textContent = '✦ Generate My FAQ Set — AI writes questions & answers for me';
   }
-
   btn.disabled = false;
 }
 
@@ -1024,6 +1013,14 @@ async function submitForm(){
 
   var paySelected = document.querySelector('input[name="paymentMethod"]:checked');
   if(!paySelected){alert('Please select a payment method before submitting.');return;}
+
+  // ── PATCH 3: partner password guard ──
+  if(paySelected.value === 'partner' && !window._partnerVerified){
+    alert('Please enter and verify your partner code to continue.');
+    document.getElementById('partnerPwInput').focus();
+    return;
+  }
+  // ── END PATCH 3 ──
 
   var planSelected = document.querySelector('input[name="selectedPlan"]:checked');
   if(!planSelected && paySelected.value === 'credit_debit'){
@@ -1140,7 +1137,6 @@ function prefillAllFields(cd, dashToken, dashPass){
   if(pricingD && d.pricingDisplay) pricingD.value = d.pricingDisplay;
   var hasLogo = document.querySelector('[name="hasLogo"]');
   if(hasLogo && d.hasLogo) hasLogo.value = d.hasLogo;
-
   document.getElementById('faqBuilder').innerHTML = '';
   faqCount = 0;
   var faqArr = d.faq;
@@ -1156,7 +1152,6 @@ function prefillAllFields(cd, dashToken, dashPass){
     }
     if (!seeded) { addFaqPair(); addFaqPair(); addFaqPair(); }
   }
-
   if(d.ivrOptIn){
     var ivrR = document.querySelector('input[name="ivrOptIn"][value="'+d.ivrOptIn+'"]');
     if(ivrR){ ivrR.checked = true; ivrLogic(); }
