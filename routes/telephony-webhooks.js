@@ -115,7 +115,7 @@ router.post('/api/telephony/voice', async (req, res) => {
       if (calledNumber === MASTER_TWILIO_NUMBER) {
         console.log(`[Telephony/voice] Call to master TurnkeyAI number from ${callerNumber}`);
         res.type('text/xml').send(twiml(
-          `<Say voice="alice">Thank you for calling TurnkeyAI Services. For inquiries, please visit turnkeyaiservices.com or send us a text at this number.</Say><Hangup/>`
+          `<Play>https://turnkeyai-backend-production.up.railway.app/Telephony.voice.greeting.mp3</Play><Hangup/>`
         ));
       } else {
         console.warn('[Telephony/voice] No client found for number:', calledNumber);
