@@ -14,6 +14,9 @@ const BASE_URL       = process.env.BASE_URL || 'https://turnkeyaiservices.com';
 const CF_AI_TOKEN    = process.env.CF_AI_TOKEN;
 const CF_ACCOUNT_ID  = process.env.CF_ACCOUNT_ID;
 
+// ── Master platform number (TurnkeyAI's own Twilio number) ──
+const MASTER_TWILIO_NUMBER = '+12282319891';
+
 // ══════════════════════════════════════
 // ── Helper: Build spoken hours string from intake data ──
 // ══════════════════════════════════════
@@ -106,11 +109,23 @@ router.post('/api/telephony/voice', async (req, res) => {
     const calledNumber = req.body.Called || req.body.To || '';
     const callerNumber = req.body.From || '';
     const client = findClientByTwilioNumber(calledNumber);
+
+    // ── No client found: check if this is the master platform number ──
     if (!client) {
-      console.warn('[Telephony/voice] No client found for number:', calledNumber);
-      res.type('text/xml').send(twiml(`<Say voice="alice">We're sorry, this number is not currently in service. Please try again later.</Say><Hangup/>`));
+      if (calledNumber === MASTER_TWILIO_NUMBER) {
+        console.log(`[Telephony/voice] Call to master TurnkeyAI number from ${callerNumber}`);
+        res.type('text/xml').send(twiml(
+          `<Say voice="alice">Thank you for calling TurnkeyAI Services. For inquiries, please visit turnkeyaiservices.com or send us a text at this number.</Say><Hangup/>`
+        ));
+      } else {
+        console.warn('[Telephony/voice] No client found for number:', calledNumber);
+        res.type('text/xml').send(twiml(
+          `<Say voice="alice">We're sorry, this number is not currently in service. Please try again later.</Say><Hangup/>`
+        ));
+      }
       return;
     }
+
     const biz = client.data.businessName || 'the business';
     const industry = (client.data.industry || 'service').replace(/_/g, ' ');
 
