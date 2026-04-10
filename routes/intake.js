@@ -271,15 +271,16 @@ router.post('/api/ai-assist', aiAssistLimiter, async (req, res) => {
       userPrompt   = `Write 3 tagline options for ${bizName}, a ${industryLabel} in ${locationStr}.${bulletText ? '\n\nOwner notes:\n' + bulletText : ''}\n\nMake them memorable, specific, and honest.`;
 
     } else if (section === 'faq') {
-      systemPrompt = `You generate FAQ sets for small business websites to power their AI chatbot. Generate exactly 10 question-and-answer pairs. Every question must be UNIQUE — no two questions may address the same topic, even from different angles. Do NOT ask about hours, location, contact info, or services offered — those are already on the website. Focus ONLY on operational and policy details a customer would NOT find on a standard website page, such as: accepted payment methods, warranty or guarantee policy, what to expect on a first visit or service call, service area boundaries, emergency or after-hours availability, licensing and insurance status, whether estimates or consultations are free, cancellation or rescheduling policy, typical job duration, whether they work with insurance companies, pet or child safety precautions, and unique business policies. Format EXACTLY as:\nQ: [question]\nA: [answer]\n\nReturn ONLY the 10 Q&A pairs. No intro, no numbering, no markdown, no extra text.`;
-      userPrompt   = `Generate exactly 10 UNIQUE FAQ pairs for ${bizName}, a ${industryLabel} business in ${locationStr}.${serviceList ? '\n\nServices offered: ' + serviceList : ''}${bulletText ? '\n\nAdditional context: ' + bulletText : ''}\n\nEach question must cover a different topic. All answers should sound like they come from the business owner — conversational and specific, not generic. Do not repeat or rephrase any topic.`;
+      // ── FIXED: explicit format, no preamble, no numbering, no markdown ──
+      systemPrompt = `You generate FAQ question-and-answer pairs for small business websites. Your entire response must contain ONLY the Q&A pairs — no introduction, no explanation, no preamble, no closing statement, no numbering, no markdown, no extra text of any kind. Begin your response immediately with Q: on the very first line. Use this exact format for every pair:\nQ: [question text]\nA: [answer text]\n\nLeave one blank line between each pair. Do not deviate from this format under any circumstances.`;
+      userPrompt   = `Generate exactly 10 unique FAQ pairs for ${bizName}, a ${industryLabel} business in ${locationStr}.${serviceList ? '\n\nServices offered: ' + serviceList : ''}${bulletText ? '\n\nAdditional context: ' + bulletText : ''}\n\nRules:\n- Every question must cover a completely different topic\n- Do NOT ask about hours, location, address, or phone number — those are already on the website\n- Focus on: payment methods, warranty/guarantee, what to expect on first visit, service area, emergency availability, licensing and insurance, free estimates, cancellation policy, job duration, insurance claims, pet/child safety, unique policies\n- All answers must sound like they come from the business owner — conversational and specific\n- Begin your response immediately with Q: — no introduction or preamble of any kind`;
 
     } else {
       return res.status(400).json({ ok: false, error: 'Unknown section: ' + section });
     }
 
-    // ── FAQ needs more tokens to generate all 10 pairs; other sections use 800 ──
-    const maxTokens = section === 'faq' ? 1500 : 800;
+    // ── FAQ needs more tokens to generate all 10 pairs ──
+    const maxTokens = section === 'faq' ? 2000 : 800;
 
     // ── Call OpenAI using native fetch (Node 18+) ──
     const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
