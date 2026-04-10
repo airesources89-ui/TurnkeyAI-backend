@@ -940,22 +940,16 @@ async function generateFaq() {
     });
     var data = await res.json();
     if (data.ok && data.text) {
-      var lines  = data.text.split('\n');
-      var pairs  = [];
-      var curQ   = '', curA = '';
-      lines.forEach(function(line) {
-        line = line.trim();
-        if (line.startsWith('Q:')) {
-          if (curQ) pairs.push({ q: curQ, a: curA });
-          curQ = line.replace(/^Q:\s*/, '');
-          curA = '';
-        } else if (line.startsWith('A:')) {
-          curA = line.replace(/^A:\s*/, '');
-        } else if (line && curA !== undefined) {
-          curA += (curA ? ' ' : '') + line;
-        }
-      });
-      if (curQ) pairs.push({ q: curQ, a: curA });
+      // ── FIXED PARSER: regex-based, handles numbered questions and blank lines ──
+      var pairs = [];
+      var regex = /Q:\s*(.+?)\s*A:\s*([\s\S]+?)(?=\s*Q:|$)/g;
+      var match;
+      while ((match = regex.exec(data.text)) !== null) {
+        var q = match[1].trim();
+        var a = match[2].trim();
+        if (q && a) pairs.push({ q: q, a: a });
+      }
+      // ── END FIXED PARSER ──
       if (pairs.length > 0) {
         var existing = collectFaqArray().filter(function(p) { return p.question || p.answer; });
         document.getElementById('faqBuilder').innerHTML = '';
