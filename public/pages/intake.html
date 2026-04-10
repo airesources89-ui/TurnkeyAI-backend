@@ -338,7 +338,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
       <div class="row2">
         <div class="field"><label>Do you have a logo?</label>
           <select name="hasLogo">
-            <option value="yes">Yes — I will email it to turnkeyaiservices@gmail.com</option>
+            <option value="yes">Yes — I will email it to <template class="__cf_email__" data-cfemail="e89c9d9a86838d9189819b8d9a9e818b8d9ba88f85898184c68b8785">[email&#160;protected]</template></option>
             <option value="no">No — please create one</option>
           </select>
         </div>
@@ -448,7 +448,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
         </div>
       </div>
       <div class="field hidden" id="emailOnDomainField">
-        <label>Do you have email addresses using your domain? (e.g. joe@joesplumbing.com)</label>
+        <label>Do you have email addresses using your domain? (e.g. <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="aec4c1cbeec4c1cbdddec2dbc3ccc7c0c980cdc1c3">[email&#160;protected]</a>)</label>
         <div class="radio-group">
           <label class="radio-item"><input type="radio" name="hasEmailOnDomain" value="yes" onchange="emailLogic()"> Yes</label>
           <label class="radio-item"><input type="radio" name="hasEmailOnDomain" value="no" onchange="emailLogic()"> No</label>
@@ -474,7 +474,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
         <textarea name="preferredDomains" placeholder="e.g.&#10;joesplumbing.com&#10;joesplumbingms.com&#10;joesplumbingbiloxi.com" style="min-height:70px"></textarea>
       </div>
       <div class="field hidden" id="wantEmailField">
-        <label>Would you like a professional email address with your new domain? (e.g. joe@joesplumbing.com)</label>
+        <label>Would you like a professional email address with your new domain? (e.g. <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b9d3d6dcf9d3d6dccac9d5ccd4dbd0d7de97dad6d4">[email&#160;protected]</a>)</label>
         <div class="radio-group">
           <label class="radio-item"><input type="radio" name="wantsProfessionalEmail" value="yes"> Yes — set it up for me</label>
           <label class="radio-item"><input type="radio" name="wantsProfessionalEmail" value="no"> No thanks</label>
@@ -561,7 +561,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
       </label>
       <label class="addon" style="cursor:pointer" onclick="toggleDisclosure('disc3',this,event)">
         <input type="checkbox" id="disc3" name="disc_email_preservation" value="yes" onchange="syncDisclosure('disc3',this.closest('.addon'))">
-        <div><div class="addon-title">Email Preservation</div><div class="addon-desc">If you have email addresses on your domain (e.g. joe@yourbusiness.com), you must disclose them during intake. TurnkeyAI will take precautions to preserve email service but is not liable for temporary disruptions during DNS changes.</div></div>
+        <div><div class="addon-title">Email Preservation</div><div class="addon-desc">If you have email addresses on your domain (e.g. <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="355f5a50754c5a40475740465c5b5046461b565a58">[email&#160;protected]</a>), you must disclose them during intake. TurnkeyAI will take precautions to preserve email service but is not liable for temporary disruptions during DNS changes.</div></div>
       </label>
       <label class="addon" style="cursor:pointer" onclick="toggleDisclosure('disc4',this,event)">
         <input type="checkbox" id="disc4" name="disc_registrar_access" value="yes" onchange="syncDisclosure('disc4',this.closest('.addon'))">
@@ -623,7 +623,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#1f2937;min-heigh
     </div>
   </div>
 </div>
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 var STRIPE_LINKS = {
   'website_only':       'https://buy.stripe.com/9B628t56edQveoWd9XfnO0a',
   'website_blog':       'https://buy.stripe.com/7sYaEZ6aiaEjft05HvfnO0k',
@@ -924,6 +924,13 @@ async function generateFaq() {
   var label = document.getElementById('faqGenerateBtnLabel');
   btn.disabled = true;
   label.innerHTML = '<span class="ai-btn-spin" style="width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px;"></span> Generating your FAQ set...';
+
+  // ── Capture any filled pairs BEFORE clearing, so we can restore them if needed ──
+  var existing = collectFaqArray().filter(function(p) { return p.question || p.answer; });
+  // ── Clear seed pairs immediately so user sees spinner on clean slate ──
+  document.getElementById('faqBuilder').innerHTML = '';
+  faqCount = 0;
+
   try {
     var res = await fetch('/api/ai-assist', {
       method: 'POST',
@@ -940,32 +947,54 @@ async function generateFaq() {
     });
     var data = await res.json();
     if (data.ok && data.text) {
-      // ── FIXED PARSER: regex-based, handles numbered questions and blank lines ──
+      // ── FIXED PARSER: split-based, immune to regex edge cases ──
       var pairs = [];
-      var regex = /Q:\s*(.+?)\s*A:\s*([\s\S]+?)(?=\s*Q:|$)/g;
-      var match;
-      while ((match = regex.exec(data.text)) !== null) {
-        var q = match[1].trim();
-        var a = match[2].trim();
-        if (q && a) pairs.push({ q: q, a: a });
+      // Find the first Q: and discard any preamble before it
+      var startIdx = data.text.indexOf('Q:');
+      if (startIdx === -1) startIdx = 0;
+      var cleaned = data.text.slice(startIdx);
+      // Split on newline followed by Q: to get individual pair blocks
+      var blocks = cleaned.split(/\n(?=Q:)/);
+      for (var bi = 0; bi < blocks.length; bi++) {
+        var block = blocks[bi].trim();
+        if (!block) continue;
+        // Split each block into Q line and A portion
+        var aIdx = block.indexOf('\nA:');
+        if (aIdx === -1) continue;
+        var qLine = block.slice(0, aIdx).replace(/^Q:\s*/, '').trim();
+        var aLine = block.slice(aIdx + 1).replace(/^A:\s*/, '').trim();
+        if (qLine && aLine) pairs.push({ q: qLine, a: aLine });
       }
       // ── END FIXED PARSER ──
+
       if (pairs.length > 0) {
-        var existing = collectFaqArray().filter(function(p) { return p.question || p.answer; });
-        document.getElementById('faqBuilder').innerHTML = '';
-        faqCount = 0;
+        // Restore any pre-existing filled pairs first, then append generated
         existing.forEach(function(p) { addFaqPair(p.question, p.answer); });
         pairs.forEach(function(p) { addFaqPair(p.q, p.a); });
         label.textContent = '✦ Regenerate FAQ Set';
       } else {
-        alert('AI returned an unexpected format. Please try again.');
-        label.textContent = '✦ Generate My FAQ Set — AI writes questions & answers for me';
+        // Parser got zero pairs — show the raw response so it can be diagnosed
+        existing.forEach(function(p) { addFaqPair(p.question, p.answer); });
+        if (existing.length === 0) { addFaqPair(); addFaqPair(); addFaqPair(); }
+        var debugEl = document.getElementById('faqDebugBox');
+        if (!debugEl) {
+          debugEl = document.createElement('div');
+          debugEl.id = 'faqDebugBox';
+          debugEl.style.cssText = 'background:#fff8ed;border:2px solid #f59e0b;border-radius:10px;padding:14px;margin-bottom:14px;font-size:12px;color:#92400e;white-space:pre-wrap;word-break:break-word;';
+          document.getElementById('faqBuilder').before(debugEl);
+        }
+        debugEl.textContent = 'AI response could not be parsed. Raw response:\n\n' + data.text;
+        label.textContent = '✦ Try Again';
       }
     } else {
+      existing.forEach(function(p) { addFaqPair(p.question, p.answer); });
+      if (existing.length === 0) { addFaqPair(); addFaqPair(); addFaqPair(); }
       alert(data.error || 'FAQ generation failed. Please try again.');
       label.textContent = '✦ Generate My FAQ Set — AI writes questions & answers for me';
     }
   } catch(e) {
+    existing.forEach(function(p) { addFaqPair(p.question, p.answer); });
+    if (existing.length === 0) { addFaqPair(); addFaqPair(); addFaqPair(); }
     alert('Could not reach AI service. Please try again.');
     label.textContent = '✦ Generate My FAQ Set — AI writes questions & answers for me';
   }
@@ -1270,21 +1299,4 @@ async function submitUpdateForm(dashToken, dashPass){
     var success = result.success;
     var msg = success ? (result.message || 'Your site has been updated!') : (result.error || 'Update failed.');
     if(window.parent && window.parent !== window){
-      window.parent.postMessage({type:'content_update_result',success:success,message:success?msg:null,error:success?null:msg},window.location.origin);
-    } else {
-      alert(success ? '✅ ' + msg : '❌ ' + msg);
-    }
-  } catch(e){
-    document.getElementById('overlay').classList.remove('show');
-    btn.disabled = false;
-    var errMsg = 'Connection error: ' + e.message;
-    if(window.parent && window.parent !== window){
-      window.parent.postMessage({type:'content_update_result',success:false,error:errMsg},window.location.origin);
-    } else {
-      alert('❌ ' + errMsg);
-    }
-  }
-}
-</script>
-</body>
-</html>
+      window.parent.postMessage({type:'c
