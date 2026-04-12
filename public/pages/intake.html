@@ -1311,8 +1311,11 @@ function buildGrid(filter){
   var grid = document.getElementById('industryGrid');
   var list = filter ? allInds.filter(function(i){return i.label.toLowerCase().indexOf(filter)>=0||i.key.indexOf(filter)>=0;}) : allInds;
   grid.innerHTML = list.map(function(i){
-    return '<div class="ind-tile'+(selectedIndustry===i.key?' selected':'')+'" onclick="selectInd(''+i.key+'')"><span class="icon">'+i.icon+'</span>'+i.label+'</div>';
-  }).join('');
+    var sel = (selectedIndustry===i.key) ? " selected" : "";
+    var html = "<div class=\"ind-tile" + sel + "\" onclick=\"selectInd('" + i.key + "')\">";
+    html += "<span class=\"icon\">" + i.icon + "</span>" + i.label + "</div>";
+    return html;
+  }).join("");
 }
 buildGrid();
 document.getElementById('indSearch').addEventListener('input',function(){buildGrid(this.value);});
