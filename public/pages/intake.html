@@ -1333,7 +1333,16 @@ function buildHours(){
   var on={monday:true,tuesday:true,wednesday:true,thursday:true,friday:true,saturday:true,sunday:false};
   document.getElementById('hoursContainer').innerHTML=days.map(function(pair){
     var d=pair[0],l=pair[1];
-    return '<div class="hours-row"><label class="hours-check"><input type="checkbox" name="day_'+d+'" '+(on[d]?'checked':'')+' onchange="toggleDay(''+d+'')"> '+l+'</label><div id="ht_'+d+'" '+(on[d]?'':'style="display:none"')+'><input type="text" name="hours_'+d+'" value="'+def[d]+'" placeholder="e.g. 8:00 AM - 5:00 PM" style="padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;width:100%;outline:none" onfocus="this.style.borderColor='#0066FF'" onblur="this.style.borderColor='#e5e7eb'"></div></div>';
+    var chk = on[d] ? ' checked' : '';
+    var hide = on[d] ? '' : ' style="display:none"';
+    var html = '<div class="hours-row">';
+    html += '<label class="hours-check">';
+    html += '<input type="checkbox" name="day_' + d + '"' + chk + ' onchange="toggleDay(\'' + d + '\')">';
+    html += ' ' + l + '</label>';
+    html += '<div id="ht_' + d + '"' + hide + '>';
+    html += '<input type="text" name="hours_' + d + '" value="' + def[d] + '" placeholder="e.g. 8:00 AM - 5:00 PM" style="padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;width:100%;outline:none" onfocus="this.style.borderColor=\'#0066FF\'" onblur="this.style.borderColor=\'#e5e7eb\'">';
+    html += '</div></div>';
+    return html;
   }).join('');
 }
 function toggleDay(d){var el=document.getElementById('ht_'+d);var chk=document.querySelector('[name="day_'+d+'"]');if(el)el.style.display=chk.checked?'':'none';}
@@ -1457,14 +1466,16 @@ function addFaqPair(q,a){
   var builder=document.getElementById('faqBuilder');
   var div=document.createElement('div');
   div.className='faq-pair'; div.id='faq_block_'+uid;
-  div.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'+
-    '<div class="faq-pair-num" id="faq_label_'+uid+'">Question '+n+'</div>'+
-    '<button type="button" onclick="removeFaqPair(''+uid+'')" style="background:none;border:none;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;padding:0;">'+(n>1?'&#10005; Remove':'')+'</button>'+
-    '</div>'+
-    '<label>Question</label>'+
-    '<input type="text" id="faq_q_'+uid+'" placeholder="e.g. Do you offer free estimates?" style="margin-bottom:10px;">'+
-    '<label>Answer</label>'+
-    '<textarea id="faq_a_'+uid+'" placeholder="e.g. Yes! We offer free estimates for all jobs." style="min-height:60px"></textarea>';
+  var removeBtn = (n>1) ? '<button type="button" onclick="removeFaqPair(\"' + uid + '\")" style="background:none;border:none;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;padding:0;">&#10005; Remove</button>' : "";
+  div.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
+    '<div class="faq-pair-num" id="faq_label_' + uid + '">Question ' + n + '</div>' +
+    removeBtn +
+    '</div>' +
+    '<label>Question</label>' +
+    '<input type="text" id="faq_q_' + uid + '" placeholder="e.g. Do you offer free estimates?" style="margin-bottom:10px;">' +
+    '<label>Answer</label>' +
+    '<textarea id="faq_a_' + uid + '" placeholder="e.g. Yes! We offer free estimates for all jobs." style="min-height:60px"></textarea>';
   builder.appendChild(div);
   if(q)document.getElementById('faq_q_'+uid).value=q;
   if(a)document.getElementById('faq_a_'+uid).value=a;
@@ -1605,9 +1616,7 @@ async function submitForm(){
       }
       document.querySelector('.container').innerHTML='<div class="card" style="text-align:center;padding:60px 40px"><div style="font-size:64px;margin-bottom:20px">&#127881;</div><h2 style="font-size:28px;color:#00D68F;margin-bottom:12px">We Are Building Your Website!</h2><p style="font-size:16px;color:#374151;line-height:1.8;max-width:480px;margin:0 auto 24px">Check your email at <strong>'+(data.email||'the address you entered')+'</strong> &mdash; your preview link will arrive within a few minutes.</p><p style="font-size:14px;color:#6B7280">Questions? Call <strong>(228) 231-9891</strong> or email <a href="mailto:turnkeyaiservices@gmail.com" style="color:#0066FF">turnkeyaiservices@gmail.com</a></p></div>';
     } else {throw new Error(result.error||'Submission failed');}
-  }catch(e){document.getElementById('overlay').classList.remove('show');btn.disabled=false;alert('Something went wrong: '+e.message+'
-
-Please call (228) 231-9891 or email turnkeyaiservices@gmail.com');}
+  }catch(e){document.getElementById('overlay').classList.remove('show');btn.disabled=false;alert('Something went wrong: '+e.message+'\n\nPlease call (228) 231-9891 or email turnkeyaiservices@gmail.com');}
 }
 
 (function initUpdateMode(){
