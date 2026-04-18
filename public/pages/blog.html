@@ -3,129 +3,104 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TurnkeyAI Blog — Gulf Coast Small Business & Family Websites</title>
-<meta name="description" content="Tips, guides, and local insights for Gulf Coast small businesses and families. Learn how to get found online, grow your customer base, and build your digital presence.">
+<title>TurnkeyAI Blog — Gulf Coast Small Business Guides &amp; Local SEO Tips</title>
+<meta name="description" content="Daily guides, local SEO tips, and industry insights for Gulf Coast small businesses. New post every day — contractors, trades, restaurants, salons, and more.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --blue: #1a64d6;
-    --blue-dark: #0f3fa8;
-    --blue-deep: #0a1f5c;
-    --green: #00c87a;
-    --green-dark: #00a362;
-    --white: #ffffff;
-    --off-white: #f8f9fc;
-    --gray-light: #eef1f7;
-    --gray-mid: #9aa3b8;
-    --gray-text: #4a5068;
-    --dark: #111827;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Source Sans 3', sans-serif; background: var(--off-white); color: var(--dark); }
-  nav { background: var(--blue-deep); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px rgba(10,31,92,0.3); }
-  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-  .nav-logo span { font-weight: 700; font-size: 1.1rem; color: white; }
-  .nav-links { display: flex; gap: 1.5rem; align-items: center; }
-  .nav-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
-  .nav-links a:hover { color: var(--green); }
-  .nav-links a.active { color: var(--green); font-weight: 700; }
-  .nav-cta { background: var(--green); color: white !important; padding: 8px 20px; border-radius: 6px; font-weight: 600 !important; }
-  .nav-cta:hover { background: var(--green-dark) !important; }
-  .blog-hero { background: linear-gradient(135deg, var(--blue-deep) 0%, var(--blue-dark) 50%, #1a4a9e 100%); padding: 5rem 2rem 4rem; text-align: center; position: relative; overflow: hidden; }
-  .blog-hero::before { content: ''; position: absolute; top: -50%; left: -20%; width: 60%; height: 200%; background: radial-gradient(ellipse, rgba(0,200,122,0.1) 0%, transparent 70%); pointer-events: none; }
-  .blog-hero-tag { display: inline-block; background: rgba(0,200,122,0.15); color: var(--green); border: 1px solid rgba(0,200,122,0.3); padding: 6px 18px; border-radius: 100px; font-size: 0.85rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1.5rem; position: relative; z-index: 1; }
-  .blog-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 900; color: white; line-height: 1.15; max-width: 700px; margin: 0 auto 1.25rem; position: relative; z-index: 1; }
-  .blog-hero h1 span { color: var(--green); }
-  .blog-hero p { font-size: 1.15rem; color: rgba(255,255,255,0.75); max-width: 520px; margin: 0 auto; line-height: 1.7; position: relative; z-index: 1; }
-  .blog-container { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem 5rem; }
-  .section-label { display: flex; align-items: center; gap: 12px; margin-bottom: 2rem; }
-  .section-label span { font-size: 0.8rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid); }
-  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--gray-light); }
-  .featured-post { background: white; border-radius: 16px; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; box-shadow: 0 4px 30px rgba(26,31,92,0.08); margin-bottom: 3rem; transition: transform 0.3s, box-shadow 0.3s; text-decoration: none; color: inherit; }
-  .featured-post:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(26,31,92,0.15); }
-  .featured-image { background: linear-gradient(135deg, var(--blue-deep), var(--blue)); display: flex; align-items: center; justify-content: center; min-height: 300px; padding: 3rem; position: relative; overflow: hidden; }
-  .featured-image::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 50%, rgba(0,200,122,0.2) 0%, transparent 60%); }
-  .featured-image-icon { font-size: 5rem; position: relative; z-index: 1; }
-  .featured-content { padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; }
-  .post-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,200,122,0.1); color: var(--green-dark); padding: 4px 12px; border-radius: 100px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 1rem; width: fit-content; }
-  .live-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.3); } }
-  .featured-content h2 { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 700; line-height: 1.3; color: var(--dark); margin-bottom: 1rem; }
-  .featured-content p { color: var(--gray-text); line-height: 1.7; font-size: 1rem; margin-bottom: 1.5rem; }
-  .read-link { display: inline-flex; align-items: center; gap: 8px; color: var(--blue); font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: gap 0.2s; }
-  .read-link:hover { gap: 12px; }
-  .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-  .post-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 16px rgba(26,31,92,0.06); display: flex; flex-direction: column; position: relative; }
-  .post-card.live { text-decoration: none; color: inherit; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; }
-  .post-card.live:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(26,31,92,0.12); }
-  .post-card.coming-soon { opacity: 0.55; cursor: default; }
-  .post-card-image { height: 130px; display: flex; align-items: center; justify-content: center; font-size: 3rem; position: relative; }
-  .coming-soon-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; }
-  .coming-soon-pill { background: white; color: var(--dark); font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 14px; border-radius: 100px; }
-  .post-card-body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
-  .post-week { font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--gray-mid); margin-bottom: 0.6rem; }
-  .post-publish-date { font-size: 0.75rem; font-weight: 600; color: var(--blue); margin-bottom: 0.6rem; }
-  .post-card h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; line-height: 1.4; color: var(--dark); margin-bottom: 0.75rem; }
-  .post-card p { color: var(--gray-text); font-size: 0.88rem; line-height: 1.6; flex: 1; margin-bottom: 1rem; }
-  .post-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--gray-light); }
-  .post-tag { font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: 100px; }
-  .tag-business { background: rgba(26,100,214,0.08); color: var(--blue); }
-  .tag-family { background: rgba(0,200,122,0.1); color: var(--green-dark); }
-  .tag-seo { background: rgba(107,70,193,0.08); color: #6b46c1; }
-  .tag-crafters { background: rgba(236,72,153,0.08); color: #db2777; }
-  .tag-food { background: rgba(245,158,11,0.1); color: #d97706; }
-  .tag-roi { background: rgba(16,185,129,0.1); color: #059669; }
-  .arrow-link { color: var(--blue); font-size: 1.2rem; transition: transform 0.2s; display: inline-block; }
-  .post-card.live:hover .arrow-link { transform: translateX(4px); }
-  .bg-1 { background: linear-gradient(135deg, #0a1f5c, #1a64d6); }
-  .bg-2 { background: linear-gradient(135deg, #065f46, #00c87a); }
-  .bg-3 { background: linear-gradient(135deg, #831843, #db2777); }
-  .bg-4 { background: linear-gradient(135deg, #78350f, #d97706); }
-  .bg-5 { background: linear-gradient(135deg, #4c1d95, #7c3aed); }
-  .bg-6 { background: linear-gradient(135deg, #1e3a8a, #3b82f6); }
-  .bg-7 { background: linear-gradient(135deg, #7f1d1d, #ef4444); }
-  .bg-8 { background: linear-gradient(135deg, #0c4a6e, #0284c7); }
-  .bg-9 { background: linear-gradient(135deg, #14532d, #16a34a); }
-  .bg-10 { background: linear-gradient(135deg, #1c1917, #57534e); }
-  .bg-11 { background: linear-gradient(135deg, #7c2d12, #ea580c); }
-  .subscribe-bar { background: white; border: 1px solid var(--gray-light); border-radius: 12px; padding: 2rem; margin: 3rem 0; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
-  .subscribe-bar h4 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.25rem; }
-  .subscribe-bar p { color: var(--gray-text); font-size: 0.9rem; }
-  .subscribe-form { display: flex; gap: 0.75rem; flex-shrink: 0; }
-  .subscribe-form input { padding: 10px 16px; border: 1px solid var(--gray-light); border-radius: 6px; font-family: 'Source Sans 3', sans-serif; font-size: 0.9rem; width: 220px; outline: none; transition: border-color 0.2s; }
-  .subscribe-form input:focus { border-color: var(--blue); }
-  .subscribe-form button { background: var(--blue); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-family: 'Source Sans 3', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background 0.2s; }
-  .subscribe-form button:hover { background: var(--blue-dark); }
-  .cta-strip { background: linear-gradient(135deg, var(--blue-deep), var(--blue-dark)); border-radius: 16px; padding: 3rem; margin-top: 2rem; text-align: center; position: relative; overflow: hidden; }
-  .cta-strip::before { content: ''; position: absolute; top: -30%; right: -10%; width: 40%; height: 160%; background: radial-gradient(ellipse, rgba(0,200,122,0.15) 0%, transparent 70%); }
-  .cta-strip h3 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: white; margin-bottom: 0.75rem; position: relative; z-index: 1; }
-  .cta-strip p { color: rgba(255,255,255,0.75); margin-bottom: 1.75rem; font-size: 1.05rem; position: relative; z-index: 1; }
-  .cta-btn { display: inline-block; background: var(--green); color: white; padding: 14px 36px; border-radius: 8px; font-weight: 700; font-size: 1rem; text-decoration: none; transition: background 0.2s, transform 0.2s; position: relative; z-index: 1; }
-  .cta-btn:hover { background: var(--green-dark); transform: translateY(-2px); }
-  footer { background: var(--blue-deep); color: rgba(255,255,255,0.6); text-align: center; padding: 2rem; font-size: 0.85rem; }
-  footer a { color: var(--green); text-decoration: none; }
-  .footer-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
-  .footer-links a { color: rgba(255,255,255,0.5); font-size: 13px; text-decoration: none; }
-  .footer-links a:hover { color: white; }
-  .section-hidden { display: none; }
-  @media (max-width: 768px) {
-    .featured-post { grid-template-columns: 1fr; }
-    .featured-image { min-height: 180px; }
-    .nav-links { display: none; }
-    .posts-grid { grid-template-columns: 1fr; }
-    .subscribe-bar { flex-direction: column; }
-    .subscribe-form { flex-direction: column; }
-    .subscribe-form input { width: 100%; }
-  }
+  :root{--blue:#1a64d6;--blue-dark:#0f3fa8;--blue-deep:#0a1f5c;--green:#00c87a;--green-dark:#00a362;--off-white:#f8f9fc;--gray-light:#eef1f7;--gray-mid:#9aa3b8;--gray-text:#4a5068;--dark:#111827;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Source Sans 3',sans-serif;background:var(--off-white);color:var(--dark);}
+  nav{background:var(--blue-deep);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(10,31,92,0.3);}
+  .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .nav-logo span{font-weight:700;font-size:1.1rem;color:white;}
+  .nav-links{display:flex;gap:1.5rem;align-items:center;}
+  .nav-links a{color:rgba(255,255,255,0.8);text-decoration:none;font-size:0.9rem;font-weight:500;transition:color 0.2s;}
+  .nav-links a:hover{color:var(--green);}
+  .nav-links a.active{color:var(--green);font-weight:700;}
+  .nav-cta{background:var(--green);color:white!important;padding:8px 20px;border-radius:6px;font-weight:600!important;}
+  .nav-cta:hover{background:var(--green-dark)!important;}
+  .blog-hero{background:linear-gradient(135deg,var(--blue-deep) 0%,var(--blue-dark) 50%,#1a4a9e 100%);padding:5rem 2rem 4rem;text-align:center;position:relative;overflow:hidden;}
+  .blog-hero::before{content:'';position:absolute;top:-50%;left:-20%;width:60%;height:200%;background:radial-gradient(ellipse,rgba(0,200,122,0.1) 0%,transparent 70%);pointer-events:none;}
+  .blog-hero-tag{display:inline-block;background:rgba(0,200,122,0.15);color:var(--green);border:1px solid rgba(0,200,122,0.3);padding:6px 18px;border-radius:100px;font-size:0.85rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:1.5rem;position:relative;z-index:1;}
+  .blog-hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,5vw,3.5rem);font-weight:900;color:white;line-height:1.15;max-width:700px;margin:0 auto 1.25rem;position:relative;z-index:1;}
+  .blog-hero h1 span{color:var(--green);}
+  .blog-hero p{font-size:1.15rem;color:rgba(255,255,255,0.75);max-width:520px;margin:0 auto;line-height:1.7;position:relative;z-index:1;}
+  .blog-container{max-width:1200px;margin:0 auto;padding:3rem 2rem 5rem;}
+  .section-label{display:flex;align-items:center;gap:12px;margin-bottom:2rem;}
+  .section-label span{font-size:0.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray-mid);}
+  .section-label::after{content:'';flex:1;height:1px;background:var(--gray-light);}
+  .featured-post{background:white;border-radius:16px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;box-shadow:0 4px 30px rgba(26,31,92,0.08);margin-bottom:3rem;transition:transform 0.3s,box-shadow 0.3s;text-decoration:none;color:inherit;}
+  .featured-post:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(26,31,92,0.15);}
+  .featured-image{display:flex;align-items:center;justify-content:center;min-height:300px;padding:3rem;position:relative;overflow:hidden;}
+  .featured-image::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(0,200,122,0.2) 0%,transparent 60%);}
+  .featured-image-icon{font-size:5rem;position:relative;z-index:1;}
+  .featured-content{padding:2.5rem;display:flex;flex-direction:column;justify-content:center;}
+  .post-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,200,122,0.1);color:var(--green-dark);padding:4px 12px;border-radius:100px;font-size:0.78rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:1rem;width:fit-content;}
+  .live-dot{width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.3);}}
+  .featured-content h2{font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:700;line-height:1.3;color:var(--dark);margin-bottom:1rem;}
+  .featured-content p{color:var(--gray-text);line-height:1.7;font-size:1rem;margin-bottom:1.5rem;}
+  .read-link{display:inline-flex;align-items:center;gap:8px;color:var(--blue);font-weight:600;font-size:0.95rem;text-decoration:none;transition:gap 0.2s;}
+  .read-link:hover{gap:12px;}
+  .posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;margin-bottom:2rem;}
+  .post-card{background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(26,31,92,0.06);display:flex;flex-direction:column;position:relative;}
+  .post-card.live{text-decoration:none;color:inherit;transition:transform 0.3s,box-shadow 0.3s;cursor:pointer;}
+  .post-card.live:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(26,31,92,0.12);}
+  .post-card.coming-soon{opacity:0.55;cursor:default;}
+  .post-card-image{height:130px;display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative;}
+  .coming-soon-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;}
+  .coming-soon-pill{background:white;color:var(--dark);font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 14px;border-radius:100px;}
+  .post-card-body{padding:1.5rem;flex:1;display:flex;flex-direction:column;}
+  .post-publish-date{font-size:0.75rem;font-weight:600;color:var(--blue);margin-bottom:0.6rem;}
+  .post-card h3{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;line-height:1.4;color:var(--dark);margin-bottom:0.75rem;}
+  .post-card p{color:var(--gray-text);font-size:0.88rem;line-height:1.6;flex:1;margin-bottom:1rem;}
+  .post-card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:1rem;border-top:1px solid var(--gray-light);}
+  .post-tag{font-size:0.75rem;font-weight:600;padding:3px 10px;border-radius:100px;}
+  .tag-business{background:rgba(26,100,214,0.08);color:var(--blue);}
+  .tag-contractors{background:rgba(245,158,11,0.1);color:#d97706;}
+  .tag-seo{background:rgba(107,70,193,0.08);color:#6b46c1;}
+  .tag-marketing{background:rgba(236,72,153,0.08);color:#db2777;}
+  .arrow-link{color:var(--blue);font-size:1.2rem;transition:transform 0.2s;display:inline-block;}
+  .post-card.live:hover .arrow-link{transform:translateX(4px);}
+  .bg-1{background:linear-gradient(135deg,#0a1f5c,#1a64d6);}
+  .bg-2{background:linear-gradient(135deg,#065f46,#00c87a);}
+  .bg-3{background:linear-gradient(135deg,#831843,#db2777);}
+  .bg-4{background:linear-gradient(135deg,#78350f,#d97706);}
+  .bg-5{background:linear-gradient(135deg,#4c1d95,#7c3aed);}
+  .bg-6{background:linear-gradient(135deg,#1e3a8a,#3b82f6);}
+  .bg-7{background:linear-gradient(135deg,#7f1d1d,#ef4444);}
+  .bg-8{background:linear-gradient(135deg,#0c4a6e,#0284c7);}
+  .bg-9{background:linear-gradient(135deg,#14532d,#16a34a);}
+  .bg-10{background:linear-gradient(135deg,#1c1917,#57534e);}
+  .bg-11{background:linear-gradient(135deg,#7c2d12,#ea580c);}
+  .subscribe-bar{background:white;border:1px solid var(--gray-light);border-radius:12px;padding:2rem;margin:3rem 0;display:flex;align-items:center;justify-content:space-between;gap:2rem;}
+  .subscribe-bar h4{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:0.25rem;}
+  .subscribe-bar p{color:var(--gray-text);font-size:0.9rem;}
+  .subscribe-form{display:flex;gap:0.75rem;flex-shrink:0;}
+  .subscribe-form input{padding:10px 16px;border:1px solid var(--gray-light);border-radius:6px;font-family:'Source Sans 3',sans-serif;font-size:0.9rem;width:220px;outline:none;transition:border-color 0.2s;}
+  .subscribe-form input:focus{border-color:var(--blue);}
+  .subscribe-form button{background:var(--blue);color:white;border:none;padding:10px 20px;border-radius:6px;font-family:'Source Sans 3',sans-serif;font-weight:600;font-size:0.9rem;cursor:pointer;transition:background 0.2s;}
+  .subscribe-form button:hover{background:var(--blue-dark);}
+  .cta-strip{background:linear-gradient(135deg,var(--blue-deep),var(--blue-dark));border-radius:16px;padding:3rem;margin-top:2rem;text-align:center;position:relative;overflow:hidden;}
+  .cta-strip::before{content:'';position:absolute;top:-30%;right:-10%;width:40%;height:160%;background:radial-gradient(ellipse,rgba(0,200,122,0.15) 0%,transparent 70%);}
+  .cta-strip h3{font-family:'Playfair Display',serif;font-size:1.8rem;color:white;margin-bottom:0.75rem;position:relative;z-index:1;}
+  .cta-strip p{color:rgba(255,255,255,0.75);margin-bottom:1.75rem;font-size:1.05rem;position:relative;z-index:1;}
+  .cta-btn{display:inline-block;background:var(--green);color:white;padding:14px 36px;border-radius:8px;font-weight:700;font-size:1rem;text-decoration:none;transition:background 0.2s,transform 0.2s;position:relative;z-index:1;}
+  .cta-btn:hover{background:var(--green-dark);transform:translateY(-2px);}
+  footer{background:var(--blue-deep);color:rgba(255,255,255,0.6);text-align:center;padding:2rem;font-size:0.85rem;}
+  footer a{color:var(--green);text-decoration:none;}
+  .footer-links{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:1rem;}
+  .footer-links a{color:rgba(255,255,255,0.5);font-size:13px;text-decoration:none;}
+  .footer-links a:hover{color:white;}
+  .section-hidden{display:none;}
+  @media(max-width:768px){.featured-post{grid-template-columns:1fr;}.featured-image{min-height:180px;}.nav-links{display:none;}.posts-grid{grid-template-columns:1fr;}.subscribe-bar{flex-direction:column;}.subscribe-form{flex-direction:column;}.subscribe-form input{width:100%;}}
 </style>
 </head>
 <body>
 
 <nav>
-  <a href="/" class="nav-logo">
-    <span>TurnkeyAI Services</span>
-  </a>
+  <a href="/" class="nav-logo"><span>TurnkeyAI Services</span></a>
   <div class="nav-links">
     <a href="/pages/business.html">Home</a>
     <a href="/pages/community.html">Community</a>
@@ -142,19 +117,20 @@
 <div class="blog-hero">
   <div class="blog-hero-tag">Gulf Coast Insights</div>
   <h1>Grow Your Business.<br><span>Get Found Online.</span></h1>
-  <p>Tips, guides, and local insights for Gulf Coast small businesses, families, and creators — published every Thursday.</p>
+  <p>Daily guides, local SEO tips, and industry insights for Gulf Coast small businesses — contractors, trades, restaurants, salons, and more.</p>
 </div>
 
 <div class="blog-container">
-  <div class="section-label"><span>This Week</span></div>
+  <div class="section-label"><span>Latest Post</span></div>
   <div id="featured-area"></div>
   <div id="previous-label" class="section-label section-hidden"><span>Previous Posts</span></div>
   <div id="previous-area" class="posts-grid"></div>
-  <div id="coming-label" class="section-label section-hidden"><span>Coming Up — New Post Every Thursday</span></div>
+  <div id="coming-label" class="section-label section-hidden"><span>Coming Up — New Post Every Day</span></div>
   <div id="coming-area" class="posts-grid"></div>
+
   <div class="subscribe-bar">
     <div>
-      <h4>Get new posts in your inbox every Thursday</h4>
+      <h4>Get new posts in your inbox</h4>
       <p>Gulf Coast business tips, local SEO guides, and platform updates — no spam, ever.</p>
     </div>
     <div class="subscribe-form">
@@ -162,10 +138,11 @@
       <button>Subscribe</button>
     </div>
   </div>
+
   <div class="cta-strip">
     <h3>Ready to get your business online?</h3>
     <p>Fill out our 10-minute intake form and your professional website is live in 24 hours.</p>
-    <a href="/pages/intake.html" class="cta-btn">Get Started Today →</a>
+    <a href="/pages/intake.html" class="cta-btn">Get Started Today &rarr;</a>
   </div>
 </div>
 
@@ -185,66 +162,91 @@
 </footer>
 
 <script>
-(function() {
-  var WEEK1_DATE = new Date(2026, 2, 5);
-  var posts = [
-    {week:1,icon:'🌊',bg:'bg-1',title:'Why Every Gulf Coast Small Business Needs a Website in 2026',desc:"If your Bay St. Louis, Biloxi, or Gulfport business doesn't have a website, you're invisible to customers searching online. Here's what you're missing — and how to fix it fast.",tag:'Small Business',tagClass:'tag-business',url:'/blog/gulf-coast-small-business-website-2026.html'},
-    {week:2,icon:'🧹',bg:'bg-2',title:'House Cleaners in Biloxi and Gulfport: How to Get More Customers Without Paying for Ads',desc:'How cleaning companies on the Gulf Coast are winning new customers with local SEO — no expensive ads required.',tag:'Small Business',tagClass:'tag-business',url:'/blog/house-cleaners-biloxi-gulfport-more-customers.html'},
-    {week:3,icon:'👨‍👩‍👧‍👦',bg:'bg-3',title:'Family Reunion Coming Up? Why Your Family Needs Its Own Website',desc:'A dedicated family website makes RSVPs, photos, and coordination effortless — and keeps your family connected long after the event.',tag:'Family',tagClass:'tag-family',url:'/blog/family-reunion-website.html'},
-    {week:4,icon:'🔨',bg:'bg-4',title:"Contractors on the Gulf Coast: Why Your Truck Wrap Isn't Enough Anymore",desc:'Contractors in Biloxi, Gulfport, and Bay St. Louis are losing jobs to competitors with better websites.',tag:'Small Business',tagClass:'tag-business',url:'/blog/contractors-gulf-coast-websites.html'},
-    {week:5,icon:'🎨',bg:'bg-5',title:"Selling Handmade Goods on the Gulf Coast? Stop Paying Etsy's Fees",desc:'Gulf Coast crafters are leaving Etsy and opening their own stores — keeping 90% of every sale.',tag:'Crafters',tagClass:'tag-crafters',url:'/blog/handmade-goods-gulf-coast-etsy.html'},
-    {week:6,icon:'📍',bg:'bg-6',title:'What Is Local SEO and Why Does Every Bay St. Louis Business Need It?',desc:'Plain-English breakdown of what local SEO is and how it gets your business found on Google.',tag:'SEO',tagClass:'tag-seo',url:'/blog/local-seo-bay-st-louis.html'},
-    {week:7,icon:'🍳',bg:'bg-7',title:'Mississippi Recipe Creators: Turn Your Family Recipes Into Income',desc:'Mississippi home cooks are building audiences and earning real income from their recipes online.',tag:'Food & Recipes',tagClass:'tag-food',url:'/blog/mississippi-recipe-creators-income.html'},
-    {week:8,icon:'💇',bg:'bg-8',title:'Why Gulf Coast Salons and Spas Are Losing Appointments to Competitors With Better Websites',desc:'Salons in Biloxi, Gulfport, and Pass Christian are watching customers book with competitors online.',tag:'Small Business',tagClass:'tag-business',url:'/blog/gulf-coast-salons-spas-websites.html'},
-    {week:9,icon:'💰',bg:'bg-9',title:'How a $99/Month Website Pays for Itself With One New Customer',desc:'The simple math showing how a single new customer each month makes your TurnkeyAI site pay for itself.',tag:'ROI',tagClass:'tag-roi',url:'/blog/website-pays-for-itself.html'},
-    {week:10,icon:'📷',bg:'bg-10',title:'Preserving Family History on the Gulf Coast: The Digital Archive Every Family Should Build',desc:"Gulf Coast families are using family websites to preserve stories and photos before they're lost forever.",tag:'Family',tagClass:'tag-family',url:'/blog/preserving-family-history-gulf-coast.html'},
-    {week:11,icon:'🦐',bg:'bg-11',title:'Restaurants and Food Businesses on the Gulf Coast: Your Menu Belongs Online',desc:'Gulf Coast restaurants without a website are losing customers every day to competitors who are easy to find online.',tag:'Food',tagClass:'tag-food',url:'/blog/gulf-coast-restaurants-menu-online.html'},
-    {week:12,icon:'🔑',bg:'bg-1',title:'What Makes TurnkeyAI Different From Every Other Website Builder',desc:'Wix, Squarespace, and GoDaddy put the work on you. TurnkeyAI does it all — in 24 hours, from a simple form.',tag:'TurnkeyAI',tagClass:'tag-business',url:'/blog/turnkeyai-different-from-website-builders.html'}
-  ];
-  var now = new Date();
-  var msPerWeek = 7 * 24 * 60 * 60 * 1000;
-  var elapsed = now.getTime() - WEEK1_DATE.getTime();
-  var currentWeek = Math.floor(elapsed / msPerWeek) + 1;
-  if (currentWeek < 1) currentWeek = 1;
-  if (currentWeek > 12) currentWeek = 12;
-  var livePosts = posts.filter(function(p) { return p.week <= currentWeek; });
-  var comingPosts = posts.filter(function(p) { return p.week > currentWeek; });
-  var featured = livePosts[livePosts.length - 1];
-  var previous = livePosts.slice(0, livePosts.length - 1).reverse();
-  function weekDate(weekNum) {
-    var d = new Date(WEEK1_DATE.getTime() + (weekNum - 1) * msPerWeek);
-    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
-  }
-  function weeksUntil(weekNum) {
-    var diff = weekNum - currentWeek;
-    if (diff === 1) return 'Publishes next Thursday';
-    return diff + ' weeks away';
-  }
-  var featuredArea = document.getElementById('featured-area');
-  featuredArea.innerHTML = '<a href="' + featured.url + '" class="featured-post"><div class="featured-image"><div class="featured-image-icon">' + featured.icon + '</div></div><div class="featured-content"><div class="post-badge"><span class="live-dot"></span>&nbsp; Live Now · Week ' + featured.week + '</div><h2>' + featured.title + '</h2><p>' + featured.desc + '</p><span class="read-link">Read the full post →</span></div></a>';
-  var previousLabel = document.getElementById('previous-label');
-  var previousArea = document.getElementById('previous-area');
-  if (previous.length > 0) {
-    previousLabel.classList.remove('section-hidden');
-    var prevHTML = '';
-    for (var i = 0; i < previous.length; i++) {
-      var p = previous[i];
-      prevHTML += '<a href="' + p.url + '" class="post-card live"><div class="post-card-image ' + p.bg + '">' + p.icon + '</div><div class="post-card-body"><div class="post-publish-date">Published ' + weekDate(p.week) + '</div><h3>' + p.title + '</h3><p>' + p.desc + '</p><div class="post-card-footer"><span class="post-tag ' + p.tagClass + '">' + p.tag + '</span><span class="arrow-link">→</span></div></div></a>';
-    }
-    previousArea.innerHTML = prevHTML;
-  }
-  var comingLabel = document.getElementById('coming-label');
-  var comingArea = document.getElementById('coming-area');
-  if (comingPosts.length > 0) {
-    comingLabel.classList.remove('section-hidden');
-    var comingHTML = '';
-    for (var j = 0; j < comingPosts.length; j++) {
-      var c = comingPosts[j];
-      comingHTML += '<div class="post-card coming-soon"><div class="post-card-image ' + c.bg + '">' + c.icon + '<div class="coming-soon-overlay"><span class="coming-soon-pill">Coming Week ' + c.week + '</span></div></div><div class="post-card-body"><div class="post-publish-date">' + weeksUntil(c.week) + '</div><h3>' + c.title + '</h3><p>' + c.desc + '</p><div class="post-card-footer"><span class="post-tag ' + c.tagClass + '">' + c.tag + '</span></div></div></div>';
-    }
-    comingArea.innerHTML = comingHTML;
-  }
+(function(){
+var posts=[
+{date:'2026-03-05',icon:'🌊',bg:'bg-1',title:'Why Every Gulf Coast Small Business Needs a Website in 2026',desc:"If your Bay St. Louis, Biloxi, or Gulfport business doesn't have a website, you're invisible to customers searching online.",tag:'Small Business',tagClass:'tag-business',url:'/blog/gulf-coast-small-business-website-2026.html'},
+{date:'2026-03-12',icon:'🧹',bg:'bg-2',title:'House Cleaners in Biloxi and Gulfport: How to Get More Customers Without Paying for Ads',desc:'How cleaning companies on the Gulf Coast are winning new customers with local SEO — no expensive ads required.',tag:'Small Business',tagClass:'tag-business',url:'/blog/house-cleaners-biloxi-gulfport-more-customers.html'},
+{date:'2026-03-19',icon:'🔨',bg:'bg-4',title:"Contractors on the Gulf Coast: Why Your Truck Wrap Isn't Enough Anymore",desc:'Contractors in Biloxi, Gulfport, and Bay St. Louis are losing jobs to competitors with better websites.',tag:'Contractors',tagClass:'tag-contractors',url:'/blog/gulf-coast-contractors-need-website.html'},
+{date:'2026-03-26',icon:'📍',bg:'bg-6',title:'What Is Local SEO and Why Does Every Bay St. Louis Business Need It?',desc:'Plain-English breakdown of what local SEO is and how it gets your business found on Google.',tag:'SEO',tagClass:'tag-seo',url:'/blog/local-seo-bay-st-louis-businesses.html'},
+{date:'2026-04-02',icon:'💇',bg:'bg-8',title:'Why Gulf Coast Salons and Spas Are Losing Appointments to Competitors With Better Websites',desc:'Salons in Biloxi, Gulfport, and Pass Christian are watching customers book with competitors online.',tag:'Small Business',tagClass:'tag-business',url:'/blog/gulf-coast-salons-spas-website-appointments.html'},
+{date:'2026-04-09',icon:'💰',bg:'bg-9',title:'How a $99/Month Website Pays for Itself With One New Customer',desc:'The simple math showing how a single new customer each month makes your TurnkeyAI site pay for itself.',tag:'Small Business',tagClass:'tag-business',url:'/blog/website-roi-one-new-customer.html'},
+{date:'2026-04-16',icon:'🔑',bg:'bg-1',title:'What Makes TurnkeyAI Different From Every Other Website Builder',desc:'Wix, Squarespace, and GoDaddy put the work on you. TurnkeyAI does it all — in 24 hours, from a simple form.',tag:'Small Business',tagClass:'tag-business',url:'/blog/turnkeyai-vs-website-builders-gulf-coast.html'},
+{date:'2026-04-21',icon:'❄️',bg:'bg-6',title:'Does My HVAC Company in Mississippi Need a Website?',desc:"HVAC companies across Mississippi are losing jobs to competitors with better websites. Here's why your heating and cooling business needs a professional site.",tag:'HVAC',tagClass:'tag-contractors',url:'/blog/hvac-website-mississippi.html'},
+{date:'2026-04-22',icon:'🔧',bg:'bg-8',title:'How Plumbers in Biloxi and Gulfport Get More Calls With a Website',desc:"Plumbers in Biloxi and Gulfport are winning more jobs with professional websites. Here's how a $99/month site pays for itself with one new customer.",tag:'Plumbing',tagClass:'tag-contractors',url:'/blog/plumber-website-biloxi-gulfport.html'},
+{date:'2026-04-23',icon:'🏠',bg:'bg-7',title:'Why Every Gulf Coast Roofing Company Needs a Website in 2026',desc:"After every Gulf Coast storm, homeowners search online for roofers. If your roofing company doesn't have a website, you're missing thousands in storm damage jobs.",tag:'Roofing',tagClass:'tag-contractors',url:'/blog/roofing-website-mississippi-gulf-coast.html'},
+{date:'2026-04-24',icon:'⚡',bg:'bg-4',title:'How Mississippi Electricians Get More Jobs Without Paying for Ads',desc:"Mississippi electricians are getting more service calls through their websites without spending a dime on ads. Here's how local SEO works for electrical contractors.",tag:'Electrical',tagClass:'tag-contractors',url:'/blog/electrician-website-mississippi.html'},
+{date:'2026-04-25',icon:'🌿',bg:'bg-9',title:'Gulf Coast Landscapers: How to Get More Customers Online in 2026',desc:"Landscaping and lawn care companies on the Gulf Coast are winning recurring clients through their websites. Here's how to get found online.",tag:'Landscaping',tagClass:'tag-contractors',url:'/blog/landscaper-website-gulf-coast.html'},
+{date:'2026-04-26',icon:'🐜',bg:'bg-10',title:'Do Pest Control Companies in Mississippi Need a Website?',desc:"Pest control companies in Mississippi are getting more calls through Google than any other channel. Here's why a professional website is your most powerful marketing tool.",tag:'Pest Control',tagClass:'tag-contractors',url:'/blog/pest-control-website-mississippi.html'},
+{date:'2026-04-27',icon:'🎨',bg:'bg-5',title:'How Painting Contractors on the Gulf Coast Win More Jobs Online',desc:"Painting contractors on the Gulf Coast are landing more residential and commercial jobs through their websites. Here's how a professional site generates leads 24/7.",tag:'Painting',tagClass:'tag-contractors',url:'/blog/painting-contractor-website-gulf-coast.html'},
+{date:'2026-04-28',icon:'💦',bg:'bg-6',title:'Pressure Washing Businesses on the Gulf Coast: Get More Customers Online',desc:"Pressure washing is one of the most searched home services on the Gulf Coast. Here's how a professional website helps you capture those leads.",tag:'Pressure Washing',tagClass:'tag-contractors',url:'/blog/pressure-washing-website-gulf-coast.html'},
+{date:'2026-04-29',icon:'🚗',bg:'bg-10',title:'Auto Repair Shops in Mississippi: How to Get More Cars in Your Bay',desc:"Auto repair shops in Mississippi are getting more customers through Google than through any other channel. Here's how a professional website fills your bays.",tag:'Auto Repair',tagClass:'tag-business',url:'/blog/auto-repair-website-mississippi.html'},
+{date:'2026-04-30',icon:'🐾',bg:'bg-2',title:'Dog Groomers on the Gulf Coast: How to Fill Your Schedule Online',desc:"Dog groomers on the Gulf Coast are filling their schedules with online booking and local SEO. Here's how a professional website grows your pet grooming business.",tag:'Pet Services',tagClass:'tag-business',url:'/blog/dog-grooming-website-gulf-coast.html'},
+{date:'2026-05-01',icon:'🧹',bg:'bg-2',title:'House Cleaning Services in Jackson MS: How to Get More Clients Online',desc:"House cleaning services in Jackson MS are getting new recurring clients through Google every week. Here's how a professional website grows your cleaning business.",tag:'Cleaning',tagClass:'tag-business',url:'/blog/cleaning-service-website-jackson-ms.html'},
+{date:'2026-05-02',icon:'🦷',bg:'bg-1',title:'Mississippi Dental Offices: How a Professional Website Fills Your Appointment Book',desc:"Dental offices in Mississippi are attracting new patients through Google every day. Here's how a professional website with online booking grows your practice.",tag:'Healthcare',tagClass:'tag-business',url:'/blog/dental-office-website-mississippi.html'},
+{date:'2026-05-03',icon:'💈',bg:'bg-3',title:'Hair Salons in Hattiesburg: How to Get More Clients Without Advertising',desc:"Hair salons in Hattiesburg are growing their client base through Google without paying for ads. Here's how a professional website with online booking fills your chair.",tag:'Salon',tagClass:'tag-business',url:'/blog/hair-salon-website-hattiesburg.html'},
+{date:'2026-05-04',icon:'🏗️',bg:'bg-4',title:'Best Website Builder for Contractors in Mississippi in 2026',desc:"Comparing website builders for Mississippi contractors in 2026? Here's why TurnkeyAI beats Wix, Squarespace, and GoDaddy for local service businesses.",tag:'Contractors',tagClass:'tag-contractors',url:'/blog/best-website-builder-contractors-mississippi.html'},
+{date:'2026-05-05',icon:'💵',bg:'bg-9',title:'How Much Does a Website Cost for a Small Business in Mississippi?',desc:"Here's the honest breakdown of costs, options, and what you actually get for your money in 2026.",tag:'Pricing',tagClass:'tag-business',url:'/blog/how-much-website-cost-small-business-mississippi.html'},
+{date:'2026-05-06',icon:'🍽️',bg:'bg-7',title:'Restaurants in Hattiesburg MS: Why Your Menu Needs to Be Online',desc:"Restaurants in Hattiesburg MS are losing customers to competitors with better websites. Here's why your menu, hours, and ordering need to be online in 2026.",tag:'Restaurant',tagClass:'tag-business',url:'/blog/restaurant-website-hattiesburg-ms.html'},
+{date:'2026-05-07',icon:'🛡️',bg:'bg-5',title:'Mississippi Insurance Agents: How a Website Generates Leads While You Sleep',desc:"Insurance agents in Mississippi are generating leads 24/7 through their websites. Here's how a professional site helps you compete with direct carriers online.",tag:'Insurance',tagClass:'tag-business',url:'/blog/insurance-agent-website-mississippi.html'},
+{date:'2026-05-08',icon:'👶',bg:'bg-3',title:'Childcare and Daycare Centers in Mississippi: How to Fill Open Spots Online',desc:"Childcare centers in Mississippi are filling open enrollment spots through their websites. Here's how a professional site helps parents find and choose your center.",tag:'Childcare',tagClass:'tag-business',url:'/blog/childcare-website-mississippi.html'},
+{date:'2026-05-09',icon:'🏡',bg:'bg-6',title:'Gulf Coast Real Estate Agents: How to Get More Listings and Buyers Online',desc:"Real estate agents on the Gulf Coast are winning more listings and buyer clients through their websites. Here's how a professional site grows your business.",tag:'Real Estate',tagClass:'tag-business',url:'/blog/real-estate-agent-website-gulf-coast.html'},
+{date:'2026-05-10',icon:'🐾',bg:'bg-9',title:'Veterinary Clinics in Mississippi: How to Get More Patients Through Google',desc:"Veterinary clinics in Mississippi are attracting new patients through Google every day. Here's how a professional website with online booking grows your practice.",tag:'Veterinary',tagClass:'tag-business',url:'/blog/veterinarian-website-mississippi.html'},
+{date:'2026-05-11',icon:'💪',bg:'bg-4',title:'Personal Trainers in Mississippi: How to Get More Clients Online',desc:"Personal trainers in Mississippi are getting new clients through Google without paying for ads. Here's how a professional website grows your fitness business.",tag:'Fitness',tagClass:'tag-business',url:'/blog/personal-trainer-website-mississippi.html'},
+{date:'2026-05-12',icon:'📷',bg:'bg-10',title:'Photographers on the Gulf Coast: How to Get More Bookings Online',desc:"Gulf Coast photographers are booking more sessions through their websites. Here's how a professional photography website with online booking grows your business.",tag:'Photography',tagClass:'tag-business',url:'/blog/photography-website-gulf-coast.html'},
+{date:'2026-05-13',icon:'🍱',bg:'bg-7',title:'Catering Businesses in Mississippi: How to Get More Events Through Google',desc:"Catering companies in Mississippi are booking more weddings, corporate events, and parties through their websites. Here's how to get found online.",tag:'Catering',tagClass:'tag-business',url:'/blog/catering-website-mississippi.html'},
+{date:'2026-05-14',icon:'🎨',bg:'bg-11',title:'Tattoo Shops on the Gulf Coast: How to Get More Clients Online',desc:"Tattoo shops on the Gulf Coast are getting more clients through their websites and online portfolios. Here's how a professional site grows your tattoo business.",tag:'Tattoo',tagClass:'tag-business',url:'/blog/tattoo-shop-website-gulf-coast.html'},
+{date:'2026-05-15',icon:'🏋️',bg:'bg-5',title:'Gyms and Fitness Studios in Mississippi: How to Fill Your Membership Roster Online',desc:"Gyms and fitness studios in Mississippi are growing their membership through their websites. Here's how a professional site with online signup grows your fitness business.",tag:'Fitness',tagClass:'tag-business',url:'/blog/gym-fitness-studio-website-mississippi.html'},
+{date:'2026-05-16',icon:'📊',bg:'bg-1',title:'CPAs and Accountants in Mississippi: How to Get More Clients Online',desc:"CPAs and accounting firms in Mississippi are getting more clients through Google. Here's how a professional website grows your accounting practice year-round.",tag:'Accounting',tagClass:'tag-business',url:'/blog/accountant-cpa-website-mississippi.html'},
+{date:'2026-05-17',icon:'🔨',bg:'bg-4',title:'Contractors in Bay St. Louis: How to Get Found Online and Win More Jobs',desc:"Contractors in Bay St. Louis are winning more jobs through Google. Here's how a professional website built for the local market grows your contracting business.",tag:'Contractors',tagClass:'tag-contractors',url:'/blog/contractor-website-bay-st-louis.html'},
+{date:'2026-05-18',icon:'🚙',bg:'bg-8',title:'Mobile Mechanics on the Gulf Coast: How to Get More Service Calls Online',desc:"Mobile mechanics on the Gulf Coast are getting more service calls through their websites. Here's how a professional site grows your mobile automotive business.",tag:'Auto Service',tagClass:'tag-contractors',url:'/blog/mobile-mechanic-website-gulf-coast.html'},
+{date:'2026-05-19',icon:'📚',bg:'bg-5',title:'Tutoring Services in Mississippi: How to Get More Students Online',desc:"Tutoring services in Mississippi are getting more students through their websites. Here's how a professional site helps you grow your tutoring or test prep business.",tag:'Education',tagClass:'tag-business',url:'/blog/tutoring-service-website-mississippi.html'},
+{date:'2026-05-20',icon:'🌸',bg:'bg-3',title:'Florists on the Gulf Coast: How to Get More Orders and Events Online',desc:"Florists on the Gulf Coast are getting more wedding and event orders through their websites. Here's how a professional site grows your floral design business.",tag:'Florist',tagClass:'tag-business',url:'/blog/florist-website-gulf-coast.html'},
+{date:'2026-05-21',icon:'🚚',bg:'bg-10',title:'Moving Companies in Mississippi: How to Get More Bookings Online',desc:"Moving companies in Mississippi are getting more bookings through their websites. Here's how a professional site helps you compete and win more moves.",tag:'Moving',tagClass:'tag-business',url:'/blog/moving-company-website-mississippi.html'},
+{date:'2026-05-22',icon:'🪵',bg:'bg-4',title:'Fence Companies in Mississippi: How to Get More Jobs Through Google',desc:"Fence companies in Mississippi are winning more installation jobs through their websites. Here's how a professional site generates fence installation leads.",tag:'Fencing',tagClass:'tag-contractors',url:'/blog/fence-company-website-mississippi.html'},
+{date:'2026-05-23',icon:'🏊',bg:'bg-6',title:'Pool Service Companies on the Gulf Coast: How to Get More Maintenance Contracts',desc:"Pool service companies on the Gulf Coast are growing their maintenance contract base through their websites. Here's how to get found online and build recurring revenue.",tag:'Pool Service',tagClass:'tag-contractors',url:'/blog/pool-service-website-gulf-coast.html'},
+{date:'2026-05-24',icon:'⚡',bg:'bg-11',title:'Generator Installation Companies in Mississippi: How to Get More Leads Online',desc:"Generator installation companies in Mississippi are getting more leads after every storm through their websites. Here's how a professional site captures high-value generator leads.",tag:'Generator',tagClass:'tag-contractors',url:'/blog/generator-installation-website-mississippi.html'},
+{date:'2026-05-25',icon:'🔌',bg:'bg-8',title:'Appliance Repair Services in Mississippi: How to Get More Service Calls Online',desc:"Appliance repair companies in Mississippi are getting more service calls through their websites. Here's how a professional site generates appliance repair leads.",tag:'Appliance Repair',tagClass:'tag-contractors',url:'/blog/appliance-repair-website-mississippi.html'},
+{date:'2026-05-26',icon:'🪟',bg:'bg-2',title:'Window Cleaning Businesses on the Gulf Coast: How to Get More Clients Online',desc:"Window cleaning businesses on the Gulf Coast are getting more residential and commercial clients through their websites. Here's how a professional site generates leads.",tag:'Window Cleaning',tagClass:'tag-contractors',url:'/blog/window-cleaning-website-gulf-coast.html'},
+{date:'2026-05-27',icon:'🌳',bg:'bg-9',title:'Tree Service Companies in Mississippi: How to Get More Jobs Online',desc:"Tree service companies in Mississippi are getting more jobs through their websites. Here's how a professional site helps you capture storm damage and tree service leads.",tag:'Tree Service',tagClass:'tag-contractors',url:'/blog/tree-service-website-mississippi.html'},
+{date:'2026-05-28',icon:'🏠',bg:'bg-6',title:'Gutter Cleaning and Repair on the Gulf Coast: How to Get More Clients',desc:"Gutter cleaning and repair companies on the Gulf Coast are getting more clients through their websites. Here's how a professional site generates gutter service leads.",tag:'Gutter Service',tagClass:'tag-contractors',url:'/blog/gutter-cleaning-website-gulf-coast.html'},
+{date:'2026-05-29',icon:'🔨',bg:'bg-4',title:'Handyman Services in Mississippi: How to Stay Booked Online',desc:"Handyman services in Mississippi are staying fully booked through their websites. Here's how a professional site generates consistent handyman leads year-round.",tag:'Handyman',tagClass:'tag-contractors',url:'/blog/handyman-website-mississippi.html'},
+{date:'2026-05-30',icon:'🏗️',bg:'bg-10',title:'Concrete Contractors in Mississippi: How to Get More Jobs Online',desc:"Concrete contractors in Mississippi are winning more driveway, patio, and slab jobs through their websites. Here's how a professional site generates concrete leads.",tag:'Concrete',tagClass:'tag-contractors',url:'/blog/concrete-contractor-website-mississippi.html'},
+{date:'2026-05-31',icon:'💆',bg:'bg-3',title:'Massage Therapists on the Gulf Coast: How to Fill Your Appointment Book Online',desc:"Massage therapists on the Gulf Coast are filling their schedules through their websites. Here's how a professional site with online booking grows your massage therapy practice.",tag:'Massage',tagClass:'tag-business',url:'/blog/massage-therapist-website-gulf-coast.html'},
+{date:'2026-06-01',icon:'📒',bg:'bg-1',title:'Bookkeeping Services in Mississippi: How to Get More Small Business Clients Online',desc:"Bookkeepers in Mississippi are getting more small business clients through their websites. Here's how a professional site grows your bookkeeping practice.",tag:'Bookkeeping',tagClass:'tag-business',url:'/blog/bookkeeper-website-mississippi.html'},
+{date:'2026-06-02',icon:'💡',bg:'bg-5',title:'10 Niche Mississippi Businesses Growing Online Right Now',desc:'TurnkeyAI builds professional websites for 67 industries in Mississippi. Here are 10 niche local businesses that are growing their customer base online right now.',tag:'Small Business',tagClass:'tag-business',url:'/blog/shipping-container-homes-mississippi.html'},
+{date:'2026-06-03',icon:'⚖️',bg:'bg-8',title:'TurnkeyAI vs. Hiring a Web Designer in Mississippi',desc:"Comparing TurnkeyAI to hiring a web designer in Mississippi? Here's the honest breakdown of cost, timeline, quality, and ongoing support for both options.",tag:'Comparison',tagClass:'tag-marketing',url:'/blog/turnkeyai-vs-hiring-web-designer-mississippi.html'},
+{date:'2026-06-04',icon:'🤖',bg:'bg-5',title:'How to Get Your Mississippi Business Mentioned in Google AI and ChatGPT Answers',desc:'Mississippi businesses are getting mentioned in ChatGPT and Google AI answers through strategic content. Here is how TurnkeyAI helps your business get cited in AI search.',tag:'AI Marketing',tagClass:'tag-marketing',url:'/blog/google-ai-answers-mississippi-business.html'},
+{date:'2026-06-05',icon:'📱',bg:'bg-7',title:'Why a Facebook Page Is Not a Website for Your Mississippi Business',desc:"Many Mississippi small businesses rely on Facebook instead of a website. Here's why that's costing you customers and what a professional website does that Facebook can't.",tag:'Marketing',tagClass:'tag-marketing',url:'/blog/social-media-not-enough-mississippi-business.html'},
+{date:'2026-06-06',icon:'📍',bg:'bg-6',title:'Local SEO for Mississippi Small Businesses: The Plain English Guide for 2026',desc:"Local SEO explained in plain English for Mississippi small business owners. Here's what it is, why it matters, and how TurnkeyAI handles it for you automatically.",tag:'Local SEO',tagClass:'tag-seo',url:'/blog/local-seo-mississippi-small-business-guide.html'},
+{date:'2026-06-07',icon:'📅',bg:'bg-9',title:'Why Mississippi Service Businesses With Online Booking Grow 30% Faster',desc:"Mississippi service businesses with online booking grow significantly faster than those without it. Here's the data and how TurnkeyAI includes booking in every website.",tag:'Growth',tagClass:'tag-business',url:'/blog/online-booking-mississippi-service-business.html'},
+{date:'2026-06-08',icon:'📞',bg:'bg-1',title:'Why Gulf Coast Small Businesses Need a Professional Phone System in 2026',desc:"Gulf Coast small businesses using personal cell phones for business are losing credibility and customers. Here's why a professional phone system matters.",tag:'Phone Systems',tagClass:'tag-business',url:'/blog/phone-system-small-business-gulf-coast.html'},
+{date:'2026-06-09',icon:'🤖',bg:'bg-5',title:'What Is an AI-Powered Website and Why Does Your Mississippi Business Need One?',desc:"AI-powered websites do more than static sites — they answer questions, capture leads, and work 24/7. Here's what an AI website means for your Mississippi small business.",tag:'AI Websites',tagClass:'tag-marketing',url:'/blog/ai-website-local-service-business-mississippi.html'},
+{date:'2026-06-10',icon:'🤝',bg:'bg-4',title:'Become a TurnkeyAI Territory Partner in Mississippi',desc:"TurnkeyAI Territory Partners in Mississippi earn recurring revenue helping local businesses get online. Here's how the partner program works and how to apply.",tag:'Partners',tagClass:'tag-business',url:'/blog/turnkeyai-territory-partner-mississippi.html'},
+{date:'2026-06-11',icon:'📲',bg:'bg-8',title:'How Missed-Call Text-Back Saves Mississippi Businesses Thousands Per Year',desc:"Missed calls cost Mississippi service businesses thousands in lost revenue every year. Here's how automatic text-back captures leads before they call your competitor.",tag:'Phone Systems',tagClass:'tag-business',url:'/blog/missed-call-text-back-mississippi-business.html'},
+{date:'2026-06-12',icon:'🏆',bg:'bg-2',title:'How Mississippi Contractors Are Getting Paying Clients From Their Websites',desc:"Mississippi contractors are getting real paying clients from their TurnkeyAI websites. Here's what's working and how you can replicate their results.",tag:'Success Stories',tagClass:'tag-business',url:'/blog/website-paying-clients-mississippi-contractor.html'},
+{date:'2026-06-13',icon:'👥',bg:'bg-10',title:'Word of Mouth vs. a Website: Why Mississippi Businesses Need Both',desc:"Word of mouth is powerful for Mississippi service businesses — but it has limits. Here's why a professional website makes your referrals more powerful.",tag:'Marketing',tagClass:'tag-marketing',url:'/blog/website-vs-word-of-mouth-mississippi.html'},
+{date:'2026-06-14',icon:'🌊',bg:'bg-6',title:'Building a Business in Bay St. Louis: Why We Started TurnkeyAI on the Gulf Coast',desc:"TurnkeyAI Services was founded in Bay St. Louis, Mississippi to help Gulf Coast small businesses compete online. Here's our story.",tag:'About Us',tagClass:'tag-business',url:'/blog/turnkeyai-blog-about-bay-st-louis.html'},
+{date:'2026-06-15',icon:'🧺',bg:'bg-2',title:'Carpet Cleaning Services in Mississippi: How to Get More Clients Online',desc:"Carpet cleaning companies in Mississippi are growing their client base through Google. Here's how a professional website generates leads year-round.",tag:'Cleaning',tagClass:'tag-contractors',url:'/blog/carpet-cleaning-website-mississippi.html'},
+{date:'2026-06-16',icon:'🚪',bg:'bg-11',title:'Garage Door Repair on the Gulf Coast: How to Get More Service Calls',desc:"Garage door repair companies on the Gulf Coast are getting more service calls through their websites. Here's how a professional site generates leads 24/7.",tag:'Garage Door',tagClass:'tag-contractors',url:'/blog/garage-door-repair-website-gulf-coast.html'},
+{date:'2026-06-17',icon:'🔒',bg:'bg-10',title:'Home Security Companies in Mississippi: How to Get More Installations Online',desc:"Home security companies in Mississippi are winning more installation contracts through their websites. Here's how a professional site grows your security business.",tag:'Security',tagClass:'tag-contractors',url:'/blog/home-security-website-mississippi.html'},
+{date:'2026-06-18',icon:'💅',bg:'bg-3',title:'Nail Salons and Day Spas on the Gulf Coast: How to Fill Your Appointment Book',desc:"Nail salons and day spas on the Gulf Coast are filling their schedules through their websites. Here's how online booking and local SEO grow your beauty business.",tag:'Beauty',tagClass:'tag-business',url:'/blog/nail-salon-spa-website-gulf-coast.html'},
+{date:'2026-06-19',icon:'🏢',bg:'bg-1',title:'Commercial Cleaning Companies in Mississippi: How to Win More Contracts Online',desc:"Commercial cleaning companies in Mississippi are winning office and facility contracts through their websites. Here's how a professional site generates B2B cleaning leads.",tag:'Cleaning',tagClass:'tag-contractors',url:'/blog/commercial-cleaning-website-mississippi.html'}
+];
+
+var now=new Date();
+var today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+function parseDate(s){var p=s.split('-');return new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));}
+function formatDate(s){var d=parseDate(s);var m=['January','February','March','April','May','June','July','August','September','October','November','December'];return m[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();}
+var live=posts.filter(function(p){return parseDate(p.date)<=today;});
+var coming=posts.filter(function(p){return parseDate(p.date)>today;});
+var featured=live.length>0?live[live.length-1]:null;
+var previous=live.length>1?live.slice(0,live.length-1).reverse():[];
+var fa=document.getElementById('featured-area');
+if(featured){fa.innerHTML='<a href="'+featured.url+'" class="featured-post"><div class="featured-image '+featured.bg+'"><div class="featured-image-icon">'+featured.icon+'</div></div><div class="featured-content"><div class="post-badge"><span class="live-dot"></span>&nbsp; Live Now &middot; '+formatDate(featured.date)+'</div><h2>'+featured.title+'</h2><p>'+featured.desc+'</p><span class="read-link">Read the full post &rarr;</span></div></a>';}
+var pl=document.getElementById('previous-label'),pa=document.getElementById('previous-area');
+if(previous.length>0){pl.classList.remove('section-hidden');var ph='';for(var i=0;i<previous.length;i++){var p=previous[i];ph+='<a href="'+p.url+'" class="post-card live"><div class="post-card-image '+p.bg+'">'+p.icon+'</div><div class="post-card-body"><div class="post-publish-date">Published '+formatDate(p.date)+'</div><h3>'+p.title+'</h3><p>'+p.desc+'</p><div class="post-card-footer"><span class="post-tag '+p.tagClass+'">'+p.tag+'</span><span class="arrow-link">&rarr;</span></div></div></a>';}pa.innerHTML=ph;}
+var cl=document.getElementById('coming-label'),ca=document.getElementById('coming-area');
+if(coming.length>0){cl.classList.remove('section-hidden');var ch='';for(var j=0;j<coming.length;j++){var c=coming[j];ch+='<div class="post-card coming-soon"><div class="post-card-image '+c.bg+'">'+c.icon+'<div class="coming-soon-overlay"><span class="coming-soon-pill">Coming '+formatDate(c.date)+'</span></div></div><div class="post-card-body"><div class="post-publish-date">Publishes '+formatDate(c.date)+'</div><h3>'+c.title+'</h3><p>'+c.desc+'</p><div class="post-card-footer"><span class="post-tag '+c.tagClass+'">'+c.tag+'</span></div></div></div>';}ca.innerHTML=ch;}
 })();
 </script>
 </body>
