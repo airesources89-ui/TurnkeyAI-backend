@@ -1,213 +1,296 @@
 // ════════════════════════════════════════════════
-// ── lib/deploy.js — Cloudflare Pages deployment
-// ── Future: add rollback support, deployment history,
-// ── staging vs production, multi-page deploys
+// ── routes/admin.js — Admin dashboard API routes
+// ── Future: bulk operations, export, scheduling, permissions
 // ════════════════════════════════════════════════
-const fs = require('fs');
-const path = require('path');
-const { saveClient } = require('./db');
-const { makeToken, makePassword, makeSlug } = require('./helpers');
-const { sendEmail, ADMIN_EMAIL, sendCredentialsEmail, sendMiniMeEmail, sendFreeVideoEmail, sendPhoneSystemReadyEmail } = require('./email');
-const { provisionTwilioNumber } = require('./telephony');
-const { generateSiteHTML } = require('./site-generator');
+const express = require('express');
+const router = express.Router();
+const rateLimit = require('express-rate-limit');
+const { clients, pool, saveClient } = require('../lib/db');
+const { calculateMRR } = require('../lib/helpers');
+const { sendEmail, ADMIN_EMAIL } = require('../lib/email');
+const { runDeploy, redeployLive, deployToCloudflarePages } = require('../lib/deploy');
+const { generateSiteHTML } = require('../lib/site-generator');
 
-const BASE_URL       = process.env.BASE_URL || 'https://turnkeyaiservices.com';
+const ADMIN_KEY      = process.env.ADMIN_KEY;
 const CF_ACCOUNT_ID  = process.env.CF_ACCOUNT_ID;
 const CF_API_TOKEN   = process.env.CLOUDFLARE_API_TOKEN;
 
-// ── Deploy to Cloudflare Pages ──
-// content: string (single index.html) OR object { index:'...', pricing:'...', ... }
-async function deployToCloudflarePages(projectName, content) {
-  if (!CF_ACCOUNT_ID || !CF_API_TOKEN) {
-    console.warn('[CF Pages] Missing credentials — skipping'); return { url: null, skipped: true };
-  }
-  const checkRes = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/pages/projects/${projectName}`,
-    { headers: { 'Authorization': `Bearer ${CF_API_TOKEN}` } }
-  );
-  if (!checkRes.ok) {
-    const createRes = await fetch(`https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/pages/projects`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${CF_API_TOKEN}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: projectName, production_branch: 'main' })
-    });
-    const createData = await createRes.json();
-    if (!createRes.ok) throw new Error('CF Pages create failed: ' + JSON.stringify(createData.errors));
-    await new Promise(r => setTimeout(r, 3000));
-  }
-  const { execSync } = require('child_process');
-  const os = require('os');
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tkai-'));
+// ── GET /api/admin/clients ──
+router.get('/api/admin/clients', (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+  const mrrSummary = calculateMRR();
+  const clientList = Object.values(clients).map(c => ({
+    id: c.id, businessName: c.data.businessName, ownerName: c.data.ownerName,
+    email: c.data.email, phone: c.data.phone, industry: c.data.industry,
+    city: c.data.city, status: c.status, liveUrl: c.liveUrl,
+    createdAt: c.createdAt, previewToken: c.previewToken,
+    dashPassword: c.dashPassword, approvedAt: c.approvedAt,
+    wantsMiniMe: c.data.wants_mini_me || c.data.wantsMiniMe,
+    miniMeConsent: c.miniMeConsent, miniMeConsentAt: c.miniMeConsentAt,
+    miniMeSubscribed: c.miniMeSubscribed,
+    miniMeVideoFile: c.miniMeVideoFile || null, promoVideoFile: c.promoVideoFile || null,
+    wantsFreeVideo: c.freeVideoRequested,
+    wantsAfterHours: c.data.addon_after_hours, wantsMissedCall: c.data.addon_missed_call,
+    twilioNumber: c.twilioNumber || null, forwardingNumber: c.forwardingNumber || null,
+    telephonyEnabled: c.telephonyEnabled || false,
+    domainStatus: {
+      hasDomain: c.data.hasDomain || null, existingDomain: c.data.existingDomain || null,
+      domainRegistrar: c.data.domainRegistrar || null, keepExistingEmail: c.data.keepExistingEmail || null,
+      suggestedDomain: c.data.suggestedDomain || null, cfProjectName: c.cfProjectName || null,
+      needsDnsAction: (c.data.hasDomain === 'yes' || c.data.hasDomain === 'no') && c.status !== 'active',
+      emailProvider: c.data.emailProvider || null, emailsToPreserve: c.data.emailsToPreserve || null,
+      dnsSetupPreference: c.data.dnsSetupPreference || null,
+      hasRegistrarCredentials: !!(c.data.registrarUsername),
+      wantsProfessionalEmail: c.data.wantsProfessionalEmail || null
+    },
+    state: c.data.state || null, missionStatement: c.data.missionStatement || null,
+    aboutUs: c.data.aboutUs || null, plan: c.data.selectedPlan || c.data.plan || c.data.tier || c.data.packageType || null
+  }));
+  res.json({ mrr: mrrSummary, clients: clientList });
+});
+
+// ── POST /api/admin/approve ── (called by admin dashboard Approve button)
+router.post('/api/admin/approve', async (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+  const { clientId } = req.body;
+  if (!clientId) return res.status(400).json({ error: 'clientId required' });
+  const client = clients[clientId];
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  if (client.status === 'active') return res.json({ success: true, alreadyLive: true, liveUrl: client.liveUrl, businessName: client.data.businessName });
   try {
-    // Write files: string = single index.html, object = multiple pages
-    if (typeof content === 'string') {
-      fs.writeFileSync(path.join(tmpDir, 'index.html'), content, 'utf8');
-    } else {
-      Object.keys(content).forEach(name => {
-        const filename = name === 'index' ? 'index.html' : name + '.html';
-        fs.writeFileSync(path.join(tmpDir, filename), content[name], 'utf8');
-      });
-    }
-    // ── Auto-generate sitemap.xml and robots.txt for every deployment ──
-    const siteBaseUrl = `https://${projectName}.pages.dev`;
-    const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>${siteBaseUrl}/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
-  <url><loc>${siteBaseUrl}/pricing.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>${siteBaseUrl}/scheduling.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>${siteBaseUrl}/messaging.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-</urlset>`;
-    const robotsTxt = `User-agent: *\nAllow: /\nSitemap: ${siteBaseUrl}/sitemap.xml`;
-    fs.writeFileSync(path.join(tmpDir, 'sitemap.xml'), sitemapXml, 'utf8');
-    fs.writeFileSync(path.join(tmpDir, 'robots.txt'), robotsTxt, 'utf8');
-    const cmd = `npx wrangler@3 pages deploy "${tmpDir}" --project-name="${projectName}" --branch=main --commit-dirty=true`;
-    try {
-      execSync(cmd, {
-        env: { ...process.env, CLOUDFLARE_ACCOUNT_ID: CF_ACCOUNT_ID, CLOUDFLARE_API_TOKEN: CF_API_TOKEN },
-        stdio: 'pipe',
-        timeout: 60000
-      });
-    } catch(err) {
-      const detail = err.stderr ? err.stderr.toString() : err.message;
-      throw new Error('Wrangler deploy failed: ' + detail);
-    }
-    return { url: `https://${projectName}.pages.dev` };
-  } finally {
-    try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch(_) {}
-  }
-}
-
-// ── Ping Google Indexing API after first deployment ──
-// Non-fatal: logs result but never throws. Skipped if env var absent.
-async function pingGoogleIndexing(url) {
-  try {
-    const saKeyRaw = process.env.GOOGLE_INDEXING_SA_KEY;
-    if (!saKeyRaw) {
-      console.log('[Google Indexing] GOOGLE_INDEXING_SA_KEY not set — skipping ping.');
-      return;
-    }
-    const serviceAccount = JSON.parse(saKeyRaw);
-    const crypto = require('crypto');
-
-    // ── Build JWT for Google OAuth2 ──
-    const now = Math.floor(Date.now() / 1000);
-    const header = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url');
-    const payload = Buffer.from(JSON.stringify({
-      iss: serviceAccount.client_email,
-      scope: 'https://www.googleapis.com/auth/indexing',
-      aud: 'https://oauth2.googleapis.com/token',
-      exp: now + 3600,
-      iat: now
-    })).toString('base64url');
-    const signingInput = `${header}.${payload}`;
-    const sign = crypto.createSign('RSA-SHA256');
-    sign.update(signingInput);
-    const signature = sign.sign(serviceAccount.private_key, 'base64url');
-    const jwt = `${signingInput}.${signature}`;
-
-    // ── Exchange JWT for access token ──
-    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`
-    });
-    const tokenData = await tokenRes.json();
-    if (!tokenData.access_token) {
-      console.warn('[Google Indexing] Failed to get access token:', JSON.stringify(tokenData));
-      return;
-    }
-
-    // ── Submit URL to Google Indexing API ──
-    const indexRes = await fetch('https://indexing.googleapis.com/v3/urlNotifications:publish', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${tokenData.access_token}`
-      },
-      body: JSON.stringify({ url, type: 'URL_UPDATED' })
-    });
-    const indexData = await indexRes.json();
-    if (indexRes.ok) {
-      console.log(`[Google Indexing] ✅ Pinged successfully: ${url}`);
-    } else {
-      console.warn(`[Google Indexing] ⚠️ Ping failed for ${url}:`, JSON.stringify(indexData));
-    }
+    await runDeploy(client);
+    res.json({ success: true, liveUrl: client.liveUrl, dashPassword: client.dashPassword, businessName: client.data.businessName });
   } catch (err) {
-    console.warn('[Google Indexing] Unexpected error — ping skipped:', err.message);
+    console.error('[approve POST]', err);
+    res.status(500).json({ error: 'Deploy failed: ' + err.message });
   }
-}
+});
 
-// ── Run deploy (first-time: generates tokens, sends credentials email) ──
-async function runDeploy(client) {
-  const dashToken   = makeToken();
-  const dashPassword= makePassword();
-  const projectName = `turnkeyai-${makeSlug(client.data.businessName)}`;
-  const sitePages   = generateSiteHTML(client.data, false, client);
-  const deployment  = await deployToCloudflarePages(projectName, sitePages);
-  client.status       = 'active';
-  client.dashToken    = dashToken;
-  client.dashPassword = dashPassword;
-  client.liveUrl      = deployment.url || `https://${projectName}.pages.dev`;
-  client.cfProjectName= projectName;
-  client.approvedAt   = new Date().toISOString();
-  client.updatedAt    = new Date().toISOString();
-  await saveClient(client);
-  // ── Ping Google Indexing API (fire-and-forget — never blocks deploy) ──
-  pingGoogleIndexing(client.liveUrl).catch(err => console.warn('[Google Indexing] ping error:', err.message));
-  await sendCredentialsEmail(client);
-  await sendEmail({
-    to: ADMIN_EMAIL,
-    subject: `✅ LIVE: ${client.data.businessName}`,
-    html: `<p><strong>${client.data.businessName}</strong> is live at <a href="${client.liveUrl}">${client.liveUrl}</a></p><p>Dashboard password: <strong>${client.dashPassword}</strong></p><p>${client.data.ownerName} — ${client.data.email} — ${client.data.phone}</p>`
-  });
-  if (client.data.addon_after_hours === 'yes' || client.data.addon_missed_call === 'yes') {
-    const phoneD = client.data;
-    const phoneServices = [];
-    if (phoneD.addon_after_hours === 'yes') phoneServices.push('After-Hours AI Answering ✅');
-    if (phoneD.addon_missed_call === 'yes') phoneServices.push('Missed Call Text-Back ✅');
-    const phoneDays = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-    const phoneHoursLines = phoneDays.filter(dy => phoneD['day_' + dy]).map(dy => '<li>' + dy.charAt(0).toUpperCase() + dy.slice(1) + ': ' + (phoneD['hours_' + dy] || 'Open') + '</li>').join('');
-    const phoneServiceList = Object.keys(phoneD).filter(k => k.startsWith('service_') && phoneD[k] === 'on').map(k => '<li>' + k.replace('service_','').replace(/_/g,' ') + '</li>').join('');
+// ── POST /api/admin/delete-client ── (hard delete — removes from DB and memory)
+router.post('/api/admin/delete-client', async (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+  const { clientId } = req.body;
+  if (!clientId) return res.status(400).json({ error: 'clientId required' });
+  const client = clients[clientId];
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  const businessName = client.data.businessName || clientId;
+  try {
+    await pool.query('DELETE FROM clients WHERE id = $1', [clientId]);
+    delete clients[clientId];
+    console.log(`[admin/delete-client] Deleted client ${clientId} (${businessName})`);
     await sendEmail({
       to: ADMIN_EMAIL,
-      subject: `📞 Phone Services Needed: ${phoneD.businessName}`,
-      html: `<div style="font-family:sans-serif;max-width:680px;margin:0 auto;"><div style="background:linear-gradient(135deg,#6366f1,#1a1a2e);padding:24px 28px;border-radius:12px 12px 0 0;"><h2 style="color:#c4b5fd;margin:0;">📞 Phone Services — Provisioning Required</h2><p style="color:rgba(255,255,255,.7);margin:8px 0 0;font-size:14px;">${phoneD.businessName}</p></div><div style="padding:24px 28px;background:white;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;"><table style="width:100%;border-collapse:collapse;margin-bottom:20px;"><tr><td style="padding:8px;font-weight:700;width:160px;background:#f9fafb;border-bottom:1px solid #e5e7eb;">Business</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${phoneD.businessName || '—'}</td></tr><tr><td style="padding:8px;font-weight:700;background:#f9fafb;border-bottom:1px solid #e5e7eb;">Owner</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${phoneD.ownerName || '—'}</td></tr><tr><td style="padding:8px;font-weight:700;background:#f9fafb;border-bottom:1px solid #e5e7eb;">Email</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${phoneD.email || '—'}</td></tr><tr><td style="padding:8px;font-weight:700;background:#f9fafb;border-bottom:1px solid #e5e7eb;">Phone (forwarding)</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${phoneD.phone || '—'}</td></tr><tr><td style="padding:8px;font-weight:700;background:#f9fafb;border-bottom:1px solid #e5e7eb;">Industry</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${(phoneD.industry || '—').replace(/_/g,' ')}</td></tr><tr><td style="padding:8px;font-weight:700;background:#f9fafb;border-bottom:1px solid #e5e7eb;">City/State</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${phoneD.city || ''}${phoneD.state ? ', ' + phoneD.state : ''}</td></tr></table><div style="background:#f0f0ff;border:2px solid #6366f1;border-radius:10px;padding:16px;margin-bottom:16px;"><p style="font-weight:700;color:#3730a3;margin:0 0 8px;">Services Requested:</p><ul style="margin:0;padding-left:20px;line-height:2;">${phoneServices.map(s => '<li><strong>' + s + '</strong></li>').join('')}</ul></div>${phoneHoursLines ? '<div style="margin-bottom:16px;"><p style="font-weight:700;margin:0 0 8px;">Business Hours:</p><ul style="margin:0;padding-left:20px;line-height:2;">' + phoneHoursLines + '</ul></div>' : ''}${phoneServiceList ? '<div style="margin-bottom:16px;"><p style="font-weight:700;margin:0 0 8px;">Services Offered:</p><ul style="margin:0;padding-left:20px;line-height:1.8;font-size:14px;color:#374151;">' + phoneServiceList + '</ul></div>' : ''}<div style="border-top:2px solid #e5e7eb;padding-top:16px;margin-top:8px;"><p style="font-weight:700;color:#0066FF;margin:0 0 6px;">Action Required:</p><p style="margin:0;font-size:14px;color:#374151;">Provision a Twilio number in area code matching <strong>${phoneD.phone || 'client phone'}</strong>, configure forwarding, and activate selected services.</p></div></div></div>`
-    }).catch(()=>{});
+      subject: `🗑️ Client Deleted: ${businessName}`,
+      html: `<p>Client <strong>${businessName}</strong> (${clientId}) was permanently deleted from the platform.</p>`
+    }).catch(() => {});
+    res.json({ success: true, deleted: clientId, businessName });
+  } catch (err) {
+    console.error('[admin/delete-client]', err);
+    res.status(500).json({ error: 'Delete failed: ' + err.message });
   }
+});
 
-  // ── Telephony: auto-provision after successful deploy ──
+// ── GET /api/approve/:id ──
+router.get('/api/approve/:id', async (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).send('Unauthorized');
+  const client = clients[req.params.id];
+  if (!client) return res.status(404).send('Client not found');
+  if (client.status === 'active') return res.send(`<h2>${client.data.businessName} is already live at <a href="${client.liveUrl}">${client.liveUrl}</a></h2>`);
   try {
-    if (client.data.phone) {
-      console.log(`[Telephony] Provisioning number for ${client.data.businessName}...`);
-      await provisionTwilioNumber(client);
-      if (client.twilioNumber) {
-        console.log(`[Telephony] Re-deploying site with Twilio number for ${client.data.businessName}...`);
-        const updatedPages = generateSiteHTML(client.data, false, client);
-        await deployToCloudflarePages(client.cfProjectName, updatedPages);
-        // ── Send phone system ready email to client ──
-        sendPhoneSystemReadyEmail(client).catch(e => console.error('[phone system email]', e.message));
-      }
+    await runDeploy(client);
+    res.send(`<html><body style="font-family:sans-serif;text-align:center;padding:60px;"><h1 style="color:#00D68F;">✅ ${client.data.businessName} is LIVE!</h1><p><a href="${client.liveUrl}" target="_blank">${client.liveUrl}</a></p><p>Dashboard password: <strong>${client.dashPassword}</strong></p></body></html>`);
+  } catch(err) { console.error('[approve]', err); res.status(500).send('Deploy failed: ' + err.message); }
+});
+
+// ── GET /api/redeploy/:id ──
+router.get('/api/redeploy/:id', async (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).send('Unauthorized');
+  const client = clients[req.params.id];
+  if (!client) return res.status(404).send('Client not found');
+  if (!client.data.businessName) return res.status(400).send('Client has no businessName — cannot deploy.');
+  client.status = 'pending';
+  try {
+    await runDeploy(client);
+    res.send(`<html><body style="font-family:sans-serif;text-align:center;padding:60px;background:#0f1117;color:white;"><h1 style="color:#00D68F;">✅ ${client.data.businessName} Re-Deployed!</h1><p>Live at: <a href="${client.liveUrl}" style="color:#0066FF;">${client.liveUrl}</a></p><p>New dashboard password: <strong>${client.dashPassword}</strong></p></body></html>`);
+  } catch(err) { client.status = 'active'; console.error('[redeploy]', err); res.status(500).send('Re-deploy failed: ' + err.message); }
+});
+
+// ── POST /api/admin/set-status ──
+router.post('/api/admin/set-status', async (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+  const { clientId, newStatus } = req.body;
+  if (!clientId || !newStatus) return res.status(400).json({ error: 'clientId and newStatus required' });
+  if (!['active', 'suspended', 'pending'].includes(newStatus)) return res.status(400).json({ error: 'Invalid status' });
+  const client = clients[clientId];
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  const oldStatus = client.status;
+  client.status = newStatus;
+  if (newStatus === 'suspended') {
+    client.telephonyEnabled = false;
+    if (client.cfProjectName && CF_ACCOUNT_ID && CF_API_TOKEN) {
+      try {
+        const placeholderHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${client.data.businessName||'Site'} — Temporarily Unavailable</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#0f1117;color:white;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:24px}.wrap{max-width:480px}h1{font-size:2rem;margin-bottom:1rem}p{color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:1.5rem}a{color:#0066FF;text-decoration:none;font-weight:700}</style></head><body><div class="wrap"><h1>🔒 Temporarily Unavailable</h1><p>This website is temporarily offline. If you need to reach the business, please try again later.</p><p style="font-size:13px;color:rgba(255,255,255,.3);">Powered by <a href="https://turnkeyaiservices.com">TurnkeyAI Services</a></p></div></body></html>`;
+        await deployToCloudflarePages(client.cfProjectName, placeholderHTML);
+      } catch (e) { console.error('[set-status] Placeholder deploy failed:', e.message); }
     }
-  } catch (telErr) {
-    console.error('[Telephony] Provisioning failed (deploy still succeeded):', telErr.message);
+  } else if (newStatus === 'active' && oldStatus === 'suspended') {
+    if (client.twilioNumber) client.telephonyEnabled = true;
+    if (client.cfProjectName) { try { await redeployLive(client); } catch (e) { console.error('[set-status] Redeploy failed:', e.message); } }
   }
-
-  return client;
-}
-
-// ── Redeploy live site only (no token/password reset, no credentials email) ──
-async function redeployLive(client) {
-  if (!client.cfProjectName) throw new Error('No CF project name — site has not been deployed yet.');
-  const sitePages = generateSiteHTML(client.data, false, client);
-  await deployToCloudflarePages(client.cfProjectName, sitePages);
   client.updatedAt = new Date().toISOString();
   await saveClient(client);
-}
+  await sendEmail({ to: ADMIN_EMAIL, subject: `🔄 Status Change: ${client.data.businessName} — ${oldStatus} → ${newStatus}`, html: `<p><strong>${client.data.businessName}</strong> status changed from <strong>${oldStatus}</strong> to <strong>${newStatus}</strong>.</p>` }).catch(() => {});
+  res.json({ success: true, oldStatus, newStatus });
+});
 
-console.log('[module] lib/deploy.js loaded');
+// ── POST /api/admin/update-client ──
+router.post('/api/admin/update-client', async (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+  const { clientId, fields, redeploy } = req.body;
+  if (!clientId || !fields) return res.status(400).json({ error: 'clientId and fields required' });
+  const client = clients[clientId];
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  const BLOCKED = ['id','dashToken','dashPassword','previewToken','_previewToken'];
+  let changed = 0;
+  Object.keys(fields).forEach(k => { if (!BLOCKED.includes(k) && fields[k] !== undefined) { client.data[k] = fields[k]; changed++; } });
+  client.updatedAt = new Date().toISOString();
+  await saveClient(client);
+  let redeployed = false;
+  if (redeploy && client.status === 'active' && client.cfProjectName) {
+    try { await redeployLive(client); redeployed = true; }
+    catch (e) { console.error('[admin/update-client] Redeploy failed:', e.message); return res.json({ success: true, changed, redeployed: false, redeployError: e.message }); }
+  }
+  res.json({ success: true, changed, redeployed });
+});
 
-module.exports = {
-  deployToCloudflarePages,
-  runDeploy,
-  redeployLive,
-};
+// ── POST /api/admin/bind-domain ──
+router.post('/api/admin/bind-domain', async (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+  const { clientId, customDomain } = req.body;
+  if (!clientId || !customDomain) return res.status(400).json({ error: 'clientId and customDomain are required' });
+  const client = clients[clientId];
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  if (!client.cfProjectName) return res.status(400).json({ error: 'Client has no CF Pages project yet — deploy first' });
+  if (!CF_ACCOUNT_ID || !CF_API_TOKEN) return res.status(500).json({ error: 'CF credentials not configured' });
+  try {
+    const cfRes = await fetch(`https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/pages/projects/${client.cfProjectName}/domains`, { method: 'POST', headers: { 'Authorization': `Bearer ${CF_API_TOKEN}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ name: customDomain.replace(/^https?:\/\//,'').trim() }) });
+    const cfData = await cfRes.json();
+    if (!cfRes.ok) return res.status(502).json({ error: 'CF API error', details: cfData.errors });
+    client.data.customDomain = customDomain;
+    client.liveUrl = `https://${customDomain.replace(/^https?:\/\//,'').trim()}`;
+    client.updatedAt = new Date().toISOString();
+    await saveClient(client);
+    res.json({ success: true, customDomain, liveUrl: client.liveUrl });
+  } catch(err) { console.error('[bind-domain]', err.message); res.status(500).json({ error: 'Bind domain failed: ' + err.message }); }
+});
+
+// ── GET /api/admin/telephony-status ──
+router.get('/api/admin/telephony-status', (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+  const telephonyClients = Object.values(clients).map(c => ({
+    id: c.id, businessName: c.data.businessName || '(unnamed)', status: c.status,
+    twilioNumber: c.twilioNumber || null, forwardingNumber: c.forwardingNumber || null,
+    telephonyEnabled: c.telephonyEnabled || false, businessHoursJson: c.businessHoursJson || null,
+  })).filter(c => c.twilioNumber || c.telephonyEnabled);
+  res.json({ totalProvisioned: telephonyClients.length, clients: telephonyClients });
+});
+
+// ── GET /api/coming-soon ──
+router.get('/api/coming-soon', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM coming_soon_features ORDER BY sort_order ASC, created_at ASC');
+    res.json({ features: result.rows.map(r => ({ id: r.id, name: r.name, description: r.description, category: r.category, ratingSum: r.rating_sum, totalRatings: r.total_ratings })) });
+  } catch(err) { console.error('[coming-soon GET]', err); res.status(500).json({ features: [] }); }
+});
+
+// ── POST /api/coming-soon ──
+router.post('/api/coming-soon', async (req, res) => {
+  const adminKey = req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+  const { action, id, name, description, category } = req.body;
+  try {
+    if (action === 'add') { await pool.query('INSERT INTO coming_soon_features (id, name, description, category) VALUES ($1,$2,$3,$4)', ['feat_' + Date.now(), name, description, category || 'New Feature']); }
+    else if (action === 'edit') { await pool.query('UPDATE coming_soon_features SET name=$1, description=$2, category=$3 WHERE id=$4', [name, description, category || 'New Feature', id]); }
+    else if (action === 'delete') { await pool.query('DELETE FROM coming_soon_features WHERE id=$1', [id]); }
+    const result = await pool.query('SELECT * FROM coming_soon_features ORDER BY sort_order ASC, created_at ASC');
+    res.json({ features: result.rows.map(r => ({ id: r.id, name: r.name, description: r.description, category: r.category, ratingSum: r.rating_sum, totalRatings: r.total_ratings })) });
+  } catch(err) { console.error('[coming-soon POST]', err); res.status(500).json({ error: 'Failed' }); }
+});
+
+// ── POST /api/coming-soon/rate ──
+const postLimiter = rateLimit({ windowMs: 15*60*1000, max: 10, standardHeaders: true, legacyHeaders: false, message: { error: 'Too many submissions.' } });
+router.post('/api/coming-soon/rate', postLimiter, async (req, res) => {
+  const { featureId, rating } = req.body;
+  if (!featureId || !rating || rating < 1 || rating > 5) return res.status(400).json({ error: 'Invalid' });
+  try {
+    await pool.query('UPDATE coming_soon_features SET rating_sum = rating_sum + $1, total_ratings = total_ratings + 1 WHERE id = $2', [Math.round(rating), featureId]);
+    res.json({ success: true });
+  } catch(err) { console.error('[coming-soon/rate]', err); res.status(500).json({ error: 'Failed' }); }
+});
+
+// ── GET /api/admin/check-token — Diagnostic: look up a client by preview token ──
+router.get('/api/admin/check-token', (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+  const token = req.query.t;
+  if (!token) return res.status(400).json({ error: 'Missing query param: t (preview token)' });
+  const totalClients = Object.keys(clients).length;
+  const match = Object.values(clients).find(c => c.previewToken === token);
+  if (!match) {
+    const legacyMatch = Object.values(clients).find(c => c._previewToken === token);
+    if (legacyMatch) {
+      return res.json({
+        found: false, foundAsLegacy: true, totalClientsInMemory: totalClients,
+        legacyClient: {
+          id: legacyMatch.id, businessName: legacyMatch.data?.businessName || null,
+          status: legacyMatch.status, previewToken: legacyMatch.previewToken || null,
+          _previewToken: legacyMatch._previewToken || null
+        },
+        hint: 'Token exists as _previewToken but not previewToken — loadClientsFromDB may not be mapping it correctly.'
+      });
+    }
+    return res.json({
+      found: false, totalClientsInMemory: totalClients,
+      allTokens: Object.values(clients).map(c => ({
+        id: c.id, businessName: c.data?.businessName || null,
+        previewToken: c.previewToken || null,
+        _previewToken: c._previewToken || null
+      })),
+      hint: 'No client has this previewToken. Check if the token was saved to DB correctly during intake.'
+    });
+  }
+  res.json({
+    found: true, totalClientsInMemory: totalClients,
+    client: {
+      id: match.id,
+      businessName: match.data?.businessName || null,
+      ownerName: match.data?.ownerName || null,
+      email: match.data?.email || null,
+      status: match.status,
+      previewToken: match.previewToken,
+      _previewToken: match._previewToken || null,
+      dashPassword: match.dashPassword || null,
+      dashToken: match.dashToken || null,
+      liveUrl: match.liveUrl || null,
+      cfProjectName: match.cfProjectName || null,
+      createdAt: match.createdAt || null,
+      approvedAt: match.approvedAt || null,
+      hasData: !!match.data,
+      dataKeys: match.data ? Object.keys(match.data) : [],
+      telephonyEnabled: match.telephonyEnabled || false,
+      twilioNumber: match.twilioNumber || null
+    }
+  });
+});
+
+console.log('[module] routes/admin.js loaded');
+module.exports = router;
