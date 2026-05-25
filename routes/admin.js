@@ -50,6 +50,24 @@ router.get('/api/admin/clients', (req, res) => {
   res.json({ mrr: mrrSummary, clients: clientList });
 });
 
+// ── POST /api/admin/approve ── (called by admin dashboard Approve button)
+router.post('/api/admin/approve', async (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+  const { clientId } = req.body;
+  if (!clientId) return res.status(400).json({ error: 'clientId required' });
+  const client = clients[clientId];
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  if (client.status === 'active') return res.json({ success: true, alreadyLive: true, liveUrl: client.liveUrl, businessName: client.data.businessName });
+  try {
+    await runDeploy(client);
+    res.json({ success: true, liveUrl: client.liveUrl, dashPassword: client.dashPassword, businessName: client.data.businessName });
+  } catch (err) {
+    console.error('[approve POST]', err);
+    res.status(500).json({ error: 'Deploy failed: ' + err.message });
+  }
+});
+
 // ── GET /api/approve/:id ──
 router.get('/api/approve/:id', async (req, res) => {
   const adminKey = req.query.adminKey || req.headers['x-admin-key'];
@@ -203,7 +221,6 @@ router.get('/api/admin/check-token', (req, res) => {
   const totalClients = Object.keys(clients).length;
   const match = Object.values(clients).find(c => c.previewToken === token);
   if (!match) {
-    // Also check if any client has it as _previewToken (legacy)
     const legacyMatch = Object.values(clients).find(c => c._previewToken === token);
     if (legacyMatch) {
       return res.json({
