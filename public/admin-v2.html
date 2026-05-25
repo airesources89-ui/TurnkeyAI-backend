@@ -81,11 +81,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 .stat-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden;cursor:default;transition:border-color var(--t)}
 .stat-card:hover{border-color:rgba(245,158,11,0.3)}
 .stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
-.sc-amber::after{background:linear-gradient(90deg,var(--amber),var(--orange))}
-.sc-green::after{background:linear-gradient(90deg,var(--green),#34d399)}
-.sc-blue::after{background:linear-gradient(90deg,var(--blue),#60a5fa)}
-.sc-red::after{background:linear-gradient(90deg,var(--red),#f87171)}
-.sc-purple::after{background:linear-gradient(90deg,var(--purple),#a78bfa)}
+.sc-amber::after{background:linear-gradient(90deg,var(--amber),var(--orange))}.sc-green::after{background:linear-gradient(90deg,var(--green),#34d399)}.sc-blue::after{background:linear-gradient(90deg,var(--blue),#60a5fa)}.sc-red::after{background:linear-gradient(90deg,var(--red),#f87171)}.sc-purple::after{background:linear-gradient(90deg,var(--purple),#a78bfa)}
 .stat-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}
 .stat-val{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:1px;line-height:1}
 .sv-amber{color:var(--amber)}.sv-green{color:var(--green)}.sv-blue{color:var(--blue)}.sv-red{color:var(--red)}.sv-purple{color:var(--purple)}.sv-white{color:var(--text-primary)}
@@ -134,7 +130,6 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 .notif-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
 .notif-body{flex:1}.notif-text{font-size:13px;color:var(--text-secondary);line-height:1.4}.notif-text strong{color:var(--text-primary)}.notif-time{font-size:11px;color:var(--text-dim);margin-top:2px}
 .goal-item{margin-bottom:14px}.goal-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}.goal-name{font-size:13px;font-weight:600;color:var(--text-primary)}.goal-stat{font-size:12px;color:var(--text-secondary)}.goal-stat span{color:var(--amber);font-weight:700;font-family:'DM Mono',monospace}
-/* Territory map */
 #admin-territory-map{height:520px;border-radius:var(--radius-sm);border:1px solid var(--navy-border);background:var(--navy)}
 .map-legend{display:flex;gap:16px;margin-bottom:12px;font-size:12px;color:var(--text-secondary);flex-wrap:wrap}
 .legend-item{display:flex;align-items:center;gap:6px}
@@ -328,20 +323,8 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
   <div class="panel-header"><div class="panel-title">Partner Applications</div><div class="panel-subtitle">Review Territory Partner intake submissions</div></div>
   <div class="card">
     <table class="tbl">
-      <thead>
-        <tr>
-          <th>Applicant</th>
-          <th>Tier</th>
-          <th>Territory</th>
-          <th>Industries</th>
-          <th>Submitted</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="partner-apps-body">
-        <tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No applications yet.</p></div></td></tr>
-      </tbody>
+      <thead><tr><th>Applicant</th><th>Tier</th><th>Territory</th><th>Industries</th><th>Submitted</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="partner-apps-body"><tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No applications yet.</p></div></td></tr></tbody>
     </table>
   </div>
 </div>
@@ -351,10 +334,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
   <div class="panel-header">
     <div style="display:flex;align-items:center;gap:12px">
       <button class="btn btn-ghost btn-sm" onclick="nav('partner-applications')"><i class="fa-solid fa-arrow-left"></i> Applications</button>
-      <div>
-        <div class="panel-title" id="pd-name">Partner Name</div>
-        <div class="panel-subtitle" id="pd-sub">Tier · Submitted</div>
-      </div>
+      <div><div class="panel-title" id="pd-name">Partner Name</div><div class="panel-subtitle" id="pd-sub">Tier · Submitted</div></div>
       <div id="pd-status-badge" class="badge badge-yellow" style="margin-left:auto">● Pending</div>
     </div>
   </div>
@@ -380,7 +360,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 
 <!-- TERRITORY MAP -->
 <div class="panel" id="panel-territory-map">
-  <div class="panel-header"><div class="panel-title">Territory Map</div><div class="panel-subtitle">All partner territories — approved (green) and pending (amber) — loading progressively</div></div>
+  <div class="panel-header"><div class="panel-title">Territory Map</div><div class="panel-subtitle">All partner territories — approved (green) and pending (amber)</div></div>
   <div class="card">
     <div class="card-hdr">
       <div class="card-title"><i class="fa-solid fa-map-location-dot"></i> Partner Territory Coverage</div>
@@ -395,7 +375,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
   </div>
   <div class="card" style="margin-top:14px">
     <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-list"></i> Claimed Territories</div></div>
-    <div id="territory-claimed-list"><div class="empty-state"><i class="fa-solid fa-map-pin"></i><p>No territories claimed yet. Map will populate as partners are approved.</p></div></div>
+    <div id="territory-claimed-list"><div class="empty-state"><i class="fa-solid fa-map-pin"></i><p>No territories claimed yet.</p></div></div>
   </div>
 </div>
 
@@ -530,7 +510,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
     <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-building"></i> Company Info</div></div>
       <div class="form-group"><label class="form-label">Platform Name</label><input class="form-input" value="TurnkeyAI Services"></div>
       <div class="form-group"><label class="form-label">Support Email</label><input class="form-input" value="turnkeyaiservices@gmail.com"></div>
-      <div class="form-group"><label class="form-label">Support Phone</label><input class="form-input" value="(603) 922-2004"></div>
+      <div class="form-group"><label class="form-label">Support Phone</label><input class="form-input" value="(228) 231-9891"></div>
       <button class="btn btn-primary btn-sm" onclick="toast('Settings saved','success')"><i class="fa-solid fa-save"></i> Save</button>
     </div>
     <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-toggle-on"></i> Feature Flags</div></div><div style="display:flex;flex-direction:column;gap:12px">
@@ -650,7 +630,6 @@ function nav(panelId, el) {
   if (panelId === 'pending') renderPending();
   if (panelId === 'partners-all') renderPartnersTable();
   if (panelId === 'partner-applications') renderPartnerApps();
-  if (panelId === 'partner-detail') { /* populated by renderPartnerDetail() before nav */ }
   if (panelId === 'activity-log') renderActivityLog();
   if (panelId === 'notifications') renderNotifications();
   if (panelId === 'backlog') renderBacklog();
@@ -658,7 +637,6 @@ function nav(panelId, el) {
   if (panelId === 'analytics') renderAnalytics();
   if (panelId === 'revenue') renderRevenue();
   if (panelId === 'cohort') renderCohort();
-  // CHANGE 1: Always force-refresh the territory map on every panel entry
   if (panelId === 'territory-map') renderTerritoryMap(true);
 }
 
@@ -693,14 +671,11 @@ function updateSidebarCounts() {
   buildClientNavList();
 }
 
-/* ── TERRITORY MAP — LIVE LEAFLET ── */
+/* ── TERRITORY MAP ── */
 let adminMap = null;
 const adminGeoCache = {};
 
-// CHANGE 3: Throttle helper — waits 1 second between Nominatim calls to respect rate limit
-function geocodeThrottle() {
-  return new Promise(resolve => setTimeout(resolve, 1000));
-}
+function geocodeThrottle() { return new Promise(resolve => setTimeout(resolve, 1000)); }
 
 async function geocodeAdmin(query) {
   if (adminGeoCache[query]) return adminGeoCache[query];
@@ -720,32 +695,17 @@ async function geocodeAdmin(query) {
 function renderTerritoryMap(force) {
   const el = document.getElementById('admin-territory-map');
   if (!el) return;
-
   if (!adminMap) {
     adminMap = L.map(el, { zoomControl: true, scrollWheelZoom: true }).setView([37.8, -96], 4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors', maxZoom: 18
-    }).addTo(adminMap);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors', maxZoom: 18 }).addTo(adminMap);
   } else if (force) {
-    // Clear all partner markers and circles on force refresh
-    adminMap.eachLayer(l => {
-      if (l instanceof L.Marker || l instanceof L.Circle || l instanceof L.CircleMarker) {
-        adminMap.removeLayer(l);
-      }
-    });
+    adminMap.eachLayer(l => { if (l instanceof L.Marker || l instanceof L.Circle || l instanceof L.CircleMarker) adminMap.removeLayer(l); });
   }
-
   plotPartnerTerritories();
   updateTerritoryList();
 }
 
-// CHANGE 3: Sequential geocoding with 1-second throttle between calls
-async function plotPartnerTerritories() {
-  if (!adminMap) return;
-  for (const p of STATE.partners) {
-    await plotPartnerTerritory(p);
-  }
-}
+async function plotPartnerTerritories() { if (!adminMap) return; for (const p of STATE.partners) { await plotPartnerTerritory(p); } }
 
 async function plotPartnerTerritory(p) {
   if (!adminMap) return;
@@ -754,63 +714,36 @@ async function plotPartnerTerritory(p) {
   const name = p.full_name || p.contact_name || 'Partner';
   const tType = p.territory_type;
   const tName = p.territory_name || 'Territory';
-
   if (tType === 'zip' && p.territory_zips) {
-    // CHANGE 2: No cap — plot all ZIP pins with throttle between each geocode call
     const zips = Array.isArray(p.territory_zips) ? p.territory_zips : JSON.parse(p.territory_zips || '[]');
     for (const zip of zips) {
       const coords = await geocodeAdmin(zip + ', USA');
-      if (coords) {
-        L.circleMarker([coords.lat, coords.lon], { radius: 8, color, fillColor: color, fillOpacity: 0.7, weight: 2 })
-          .addTo(adminMap)
-          .bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>ZIP: ' + zip + '<br>Status: ' + p.status);
-      }
-      // Throttle between ZIP geocode calls to respect Nominatim 1 req/sec limit
+      if (coords) { L.circleMarker([coords.lat, coords.lon], { radius: 8, color, fillColor: color, fillOpacity: 0.7, weight: 2 }).addTo(adminMap).bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>ZIP: ' + zip + '<br>Status: ' + p.status); }
       if (!adminGeoCache[zip + ', USA']) await geocodeThrottle();
     }
   } else if (tType === 'city' && p.territory_cities) {
     const first = p.territory_cities.split(';')[0].trim();
     const coords = await geocodeAdmin(first);
-    if (coords) {
-      L.marker([coords.lat, coords.lon], { icon: L.divIcon({ className:'', html:'<div style="background:'+color+';width:14px;height:14px;border-radius:50%;border:2px solid white"></div>', iconSize:[14,14] }) })
-        .addTo(adminMap)
-        .bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>City: ' + esc(first) + '<br>Status: ' + p.status);
-    }
+    if (coords) { L.marker([coords.lat, coords.lon], { icon: L.divIcon({ className:'', html:'<div style="background:'+color+';width:14px;height:14px;border-radius:50%;border:2px solid white"></div>', iconSize:[14,14] }) }).addTo(adminMap).bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>City: ' + esc(first) + '<br>Status: ' + p.status); }
     if (!adminGeoCache[first]) await geocodeThrottle();
   } else if (tType === 'county' && p.territory_counties) {
     const first = p.territory_counties.split(';')[0].trim();
     const coords = await geocodeAdmin(first);
-    if (coords) {
-      L.marker([coords.lat, coords.lon])
-        .addTo(adminMap)
-        .bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>County: ' + esc(first) + '<br>Status: ' + p.status);
-    }
+    if (coords) { L.marker([coords.lat, coords.lon]).addTo(adminMap).bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>County: ' + esc(first) + '<br>Status: ' + p.status); }
     if (!adminGeoCache[first]) await geocodeThrottle();
   } else if (tType === 'radius' && p.territory_radius_center) {
     const coords = await geocodeAdmin(p.territory_radius_center);
-    if (coords && p.territory_radius_miles) {
-      L.circle([coords.lat, coords.lon], {
-        radius: p.territory_radius_miles * 1609.34,
-        color, fillColor: color, fillOpacity: 0.15, weight: 2
-      }).addTo(adminMap).bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>' + p.territory_radius_miles + ' mi radius<br>Status: ' + p.status);
-    }
+    if (coords && p.territory_radius_miles) { L.circle([coords.lat, coords.lon], { radius: p.territory_radius_miles * 1609.34, color, fillColor: color, fillOpacity: 0.15, weight: 2 }).addTo(adminMap).bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>' + p.territory_radius_miles + ' mi radius<br>Status: ' + p.status); }
     if (!adminGeoCache[p.territory_radius_center]) await geocodeThrottle();
   }
 }
 
-function focusPartnerOnMap(partnerId) {
-  nav('territory-map');
-  toast('Map opened — locate partner pin', 'info');
-}
+function focusPartnerOnMap(partnerId) { nav('territory-map'); toast('Map opened — locate partner pin', 'info'); }
 
-// CHANGE 4: Add industry count to each territory list item
 function updateTerritoryList() {
   const el = document.getElementById('territory-claimed-list');
   if (!el) return;
-  if (!STATE.partners.length) {
-    el.innerHTML = '<div class="empty-state"><i class="fa-solid fa-map-pin"></i><p>No territories claimed yet.</p></div>';
-    return;
-  }
+  if (!STATE.partners.length) { el.innerHTML = '<div class="empty-state"><i class="fa-solid fa-map-pin"></i><p>No territories claimed yet.</p></div>'; return; }
   el.innerHTML = STATE.partners.map(p => {
     const isActive = p.status === 'approved';
     const badgeCls = isActive ? 'badge-green' : 'badge-yellow';
@@ -818,29 +751,14 @@ function updateTerritoryList() {
     const tType = p.territory_type || '—';
     const name = p.full_name || p.contact_name || '—';
     let coverage = '—';
-    if (tType === 'zip' && p.territory_zips) {
-      const zips = Array.isArray(p.territory_zips) ? p.territory_zips : (JSON.parse(p.territory_zips || '[]'));
-      coverage = zips.length + ' ZIP code(s)';
-    } else if (tType === 'city') coverage = p.territory_cities || '—';
+    if (tType === 'zip' && p.territory_zips) { const zips = Array.isArray(p.territory_zips) ? p.territory_zips : (JSON.parse(p.territory_zips || '[]')); coverage = zips.length + ' ZIP code(s)'; }
+    else if (tType === 'city') coverage = p.territory_cities || '—';
     else if (tType === 'county') coverage = p.territory_counties || '—';
     else if (tType === 'radius') coverage = (p.territory_radius_miles || '?') + ' mi from ' + (p.territory_radius_center || '?');
-
-    // Industry count for at-a-glance overlap assessment
     let industries = p.industries || [];
     if (typeof industries === 'string') { try { industries = JSON.parse(industries); } catch(e) { industries = []; } }
     const indCount = Array.isArray(industries) ? industries.length : 0;
-
-    return '<div class="territory-list-item">' +
-      '<div>' +
-        '<div style="font-weight:600;color:var(--text-primary)">' + esc(name) + ' — ' + esc(tName) + '</div>' +
-        '<div style="font-size:11px;color:var(--text-dim);margin-top:2px">' + esc(tType) + ' · ' + esc(coverage) + ' · ' + indCount + ' ' + (indCount === 1 ? 'industry' : 'industries') + '</div>' +
-      '</div>' +
-      '<div style="display:flex;align-items:center;gap:8px">' +
-        '<span class="badge ' + badgeCls + '">' + p.status + '</span>' +
-        '<button class="btn btn-ghost btn-xs" onclick="renderPartnerDetail(' + p.id + ')" title="View detail"><i class="fa-solid fa-eye"></i></button>' +
-        '<button class="btn btn-ghost btn-xs" onclick="focusPartnerOnMap(' + p.id + ')" title="Map"><i class="fa-solid fa-map-pin"></i></button>' +
-      '</div>' +
-    '</div>';
+    return '<div class="territory-list-item"><div><div style="font-weight:600;color:var(--text-primary)">' + esc(name) + ' — ' + esc(tName) + '</div><div style="font-size:11px;color:var(--text-dim);margin-top:2px">' + esc(tType) + ' · ' + esc(coverage) + ' · ' + indCount + ' ' + (indCount === 1 ? 'industry' : 'industries') + '</div></div><div style="display:flex;align-items:center;gap:8px"><span class="badge ' + badgeCls + '">' + p.status + '</span><button class="btn btn-ghost btn-xs" onclick="renderPartnerDetail(' + p.id + ')" title="View detail"><i class="fa-solid fa-eye"></i></button><button class="btn btn-ghost btn-xs" onclick="focusPartnerOnMap(' + p.id + ')" title="Map"><i class="fa-solid fa-map-pin"></i></button></div></div>';
   }).join('');
 }
 
@@ -943,22 +861,12 @@ function openClientDetail(id){
   const steps=[{label:'Intake form submitted',done:true},{label:'Plan selected',done:!!client.plan},{label:'Site built & deployed',done:!!(client.liveUrl||client.live_url||client.site_url||client.siteUrl)},{label:'DNS live',done:!!(client.dns_live||client.dnsLive)},{label:'Phone system active',done:!!(client.twilio_number||client.twilioNumber)},{label:'First payment received',done:!!(client.stripe_customer||client.stripeCustomer)},{label:'Blog scheduler active',done:!!(client.blog_active||client.blogActive)}];
   set('cd-onboard',steps.map(s=>`<div class="onboard-step"><div class="step-check ${s.done?'done':'none'}"><i class="fa-solid ${s.done?'fa-check':'fa-minus'}"></i></div><span class="step-label ${s.done?'done':'none'}">${s.label}</span></div>`).join(''));
   set('cd-stats',infoBlock([['Plan',plan],['MRR',parsePrice(plan)?'$'+parsePrice(plan)+'/mo':'—'],['Onboarding',onboardPct(client)+'%'],['Status',status]]));
-  // ── Site Details with View Site / Preview buttons ──
   const siteURL = client.liveUrl || client.live_url || client.site_url || client.siteUrl || '';
   const previewURL = client.previewToken ? (window.location.origin + '/preview/' + client.previewToken) : '';
-  const liveBtn = siteURL
-    ? `<a href="${siteURL}" target="_blank" class="btn btn-success btn-sm" style="margin-top:10px"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Live Site</a>`
-    : '';
-  const previewBtn = previewURL
-    ? `<a href="${previewURL}" target="_blank" class="btn btn-secondary btn-sm" style="margin-top:10px"><i class="fa-solid fa-eye"></i> Preview Site</a>`
-    : '';
-  const noBtns = !siteURL && !previewURL
-    ? `<div style="margin-top:10px;font-size:12px;color:var(--text-dim)"><i class="fa-solid fa-circle-info"></i> No preview available — no token on record</div>`
-    : '';
-  set('cd-site',
-    infoBlock([['Domain',client.domain||client.data?.domain||'—'],['Site URL',siteURL||'—'],['Preview URL',previewURL||'—'],['Last Deploy',client.last_deploy||client.updatedAt||'—']]) +
-    '<div style="display:flex;gap:8px;flex-wrap:wrap">' + liveBtn + previewBtn + noBtns + '</div>'
-  );
+  const liveBtn = siteURL ? `<a href="${siteURL}" target="_blank" class="btn btn-success btn-sm" style="margin-top:10px"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Live Site</a>` : '';
+  const previewBtn = previewURL ? `<a href="${previewURL}" target="_blank" class="btn btn-secondary btn-sm" style="margin-top:10px"><i class="fa-solid fa-eye"></i> Preview Site</a>` : '';
+  const noBtns = !siteURL && !previewURL ? `<div style="margin-top:10px;font-size:12px;color:var(--text-dim)"><i class="fa-solid fa-circle-info"></i> No preview available — no token on record</div>` : '';
+  set('cd-site', infoBlock([['Domain',client.domain||client.data?.domain||'—'],['Site URL',siteURL||'—'],['Preview URL',previewURL||'—'],['Last Deploy',client.last_deploy||client.updatedAt||'—']]) + '<div style="display:flex;gap:8px;flex-wrap:wrap">' + liveBtn + previewBtn + noBtns + '</div>');
   set('cd-dns',infoBlock([['DNS Status',client.dns_live?'Live':'Pending'],['A Record',client.dns_a||'—'],['CNAME',client.dns_cname||'—']]));
   set('cd-billing',infoBlock([['Stripe Customer',client.stripe_customer||'—'],['Plan',plan],['Monthly Amount',parsePrice(plan)?'$'+parsePrice(plan):'—'],['Status',client.payment_status||'—']]));
   set('cd-payments','<div class="empty-state"><i class="fa-solid fa-receipt"></i><p>Payment history loads from Stripe.</p></div>');
@@ -988,14 +896,11 @@ function renderPartnersTable(){
   const partners=STATE.partners.filter(p=>p.status==='approved');
   if(!partners.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-handshake"></i><p>No active partners yet. 10 LOIs sent.</p></div></td></tr>';return;}
   tbody.innerHTML=partners.map(p=>{
-    const tName=p.territory_name||'—';
-    const tType=p.territory_type||'—';
+    const tName=p.territory_name||'—';const tType=p.territory_type||'—';
     const badgeCls={'zip':'badge-blue','city':'badge-green','county':'badge-amber','radius':'badge-purple'}[tType]||'badge-gray';
     let coverage='—';
     if(tType==='zip'&&p.territory_zips){const zips=Array.isArray(p.territory_zips)?p.territory_zips:(JSON.parse(p.territory_zips||'[]'));coverage=zips.length+' ZIPs';}
-    else if(tType==='city')coverage=p.territory_cities||'—';
-    else if(tType==='county')coverage=p.territory_counties||'—';
-    else if(tType==='radius')coverage=(p.territory_radius_miles||'?')+' mi';
+    else if(tType==='city')coverage=p.territory_cities||'—';else if(tType==='county')coverage=p.territory_counties||'—';else if(tType==='radius')coverage=(p.territory_radius_miles||'?')+' mi';
     return `<tr><td class="td-name">${esc(p.full_name||'—')}</td><td><span class="badge badge-amber">${esc(p.tier||'—')}</span></td><td><div style="font-weight:600;color:var(--text-primary)">${esc(tName)}</div><div style="font-size:11px;margin-top:2px;display:flex;gap:4px;align-items:center"><span class="badge ${badgeCls}" style="font-size:9px">${tType}</span><span style="color:var(--text-dim)">${esc(coverage)}</span></div></td><td>${(p.industries||[]).length}</td><td>${p.promo?'80/20 (Promo)':'60/40'}</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-ghost btn-xs" onclick="focusPartnerOnMap(${p.id})"><i class="fa-solid fa-map-pin"></i></button></td></tr>`;
   }).join('');
 }
@@ -1005,16 +910,13 @@ function renderPartnerApps(){
   const apps=STATE.partners;
   if(!apps.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No applications yet.</p></div></td></tr>';return;}
   tbody.innerHTML=apps.map(p=>{
-    const tName=p.territory_name||'—';
-    const tType=p.territory_type||'—';
+    const tName=p.territory_name||'—';const tType=p.territory_type||'—';
     const typeBadge={'zip':'badge-blue','city':'badge-green','county':'badge-amber','radius':'badge-purple'}[tType]||'badge-gray';
     let coverage='—';
     if(tType==='zip'&&p.territory_zips){const zips=Array.isArray(p.territory_zips)?p.territory_zips:(JSON.parse(p.territory_zips||'[]'));coverage=zips.length+' ZIP(s)';}
-    else if(tType==='city')coverage=p.territory_cities||'—';
-    else if(tType==='county')coverage=p.territory_counties||'—';
-    else if(tType==='radius')coverage=(p.territory_radius_miles||'?')+' mi radius';
+    else if(tType==='city')coverage=p.territory_cities||'—';else if(tType==='county')coverage=p.territory_counties||'—';else if(tType==='radius')coverage=(p.territory_radius_miles||'?')+' mi radius';
     const statusBadge=p.status==='approved'?'badge-green':p.status==='rejected'?'badge-red':'badge-yellow';
-    return `<tr><td class="td-name" style="cursor:pointer" onclick="renderPartnerDetail(${p.id})">${esc(p.full_name||p.contact_name||'—')}</td><td>${esc(p.tier||'—')}</td><td><div style="font-weight:600;color:var(--text-primary)">${esc(tName)}</div><div style="font-size:11px;margin-top:2px;display:flex;gap:4px;align-items:center"><span class="badge ${typeBadge}" style="font-size:9px">${tType}</span><span style="color:var(--text-dim)">${esc(coverage)}</span></div></td><td>${(p.industries||[]).length}</td><td>${p.created_at?new Date(p.created_at).toLocaleDateString():'—'}</td><td><span class="badge ${statusBadge}">${p.status}</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="renderPartnerDetail(${p.id})" title="View detail"><i class="fa-solid fa-eye"></i></button><button class="btn btn-success btn-xs" onclick="approvePartner(${p.id})" title="Approve"><i class="fa-solid fa-check"></i></button><button class="btn btn-danger btn-xs" onclick="rejectPartner(${p.id})" title="Reject"><i class="fa-solid fa-times"></i></button><button class="btn btn-ghost btn-xs" onclick="focusPartnerOnMap(${p.id})" title="Map"><i class="fa-solid fa-map-pin"></i></button></div></td></tr>`;
+    return `<tr><td class="td-name" style="cursor:pointer" onclick="renderPartnerDetail(${p.id})">${esc(p.full_name||p.contact_name||'—')}</td><td>${esc(p.tier||'—')}</td><td><div style="font-weight:600;color:var(--text-primary)">${esc(tName)}</div><div style="font-size:11px;margin-top:2px;display:flex;gap:4px;align-items:center"><span class="badge ${typeBadge}" style="font-size:9px">${tType}</span><span style="color:var(--text-dim)">${esc(coverage)}</span></div></td><td>${(p.industries||[]).length}</td><td>${p.created_at?new Date(p.created_at).toLocaleDateString():'—'}</td><td><span class="badge ${statusBadge}">${p.status}</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="renderPartnerDetail(${p.id})"><i class="fa-solid fa-eye"></i></button><button class="btn btn-success btn-xs" onclick="approvePartner(${p.id})"><i class="fa-solid fa-check"></i></button><button class="btn btn-danger btn-xs" onclick="rejectPartner(${p.id})"><i class="fa-solid fa-times"></i></button><button class="btn btn-ghost btn-xs" onclick="focusPartnerOnMap(${p.id})"><i class="fa-solid fa-map-pin"></i></button></div></td></tr>`;
   }).join('');
 }
 
@@ -1025,91 +927,35 @@ function renderPartnerDetail(id) {
   const p = STATE.partners.find(x => x.id == id);
   if (!p) { toast('Application not found', 'error'); return; }
   activePartnerId = id;
-
   const name = p.full_name || p.contact_name || '—';
   const tier = p.tier || '—';
   const submitted = p.created_at ? new Date(p.created_at).toLocaleDateString() : '—';
-
   set('pd-name', name);
   set('pd-sub', tier.charAt(0).toUpperCase() + tier.slice(1) + ' Tier · Submitted ' + submitted);
-
   const badge = document.getElementById('pd-status-badge');
   const statusMap = { approved:['badge-green','● Approved'], rejected:['badge-red','● Rejected'], pending:['badge-yellow','● Pending'] };
   const [cls, label] = statusMap[p.status] || ['badge-gray', p.status];
-  badge.className = 'badge ' + cls;
-  badge.textContent = label;
-
+  badge.className = 'badge ' + cls; badge.textContent = label;
   const approveBtn = document.getElementById('pd-approve-btn');
   const rejectBtn  = document.getElementById('pd-reject-btn');
-  if (p.status === 'approved') {
-    approveBtn.style.display = 'none';
-    set('pd-decision-note', 'This application has been approved. Partner has been notified by email.');
-  } else if (p.status === 'rejected') {
-    rejectBtn.style.display = 'none';
-    set('pd-decision-note', 'This application has been rejected. Applicant has been notified by email.');
-  } else {
-    approveBtn.style.display = '';
-    rejectBtn.style.display = '';
-    set('pd-decision-note', '');
-  }
-
-  set('pd-contact', infoBlock([
-    ['Full Name', name],
-    ['Email', p.email || '—'],
-    ['Phone', p.phone || '—'],
-    ['Company', p.company_name || '—'],
-    ['Address', p.address ? p.address + ', ' + (p.city||'') + ', ' + (p.state||'') + ' ' + (p.zip||'') : '—'],
-    ['Website', p.website || '—'],
-    ['Applied', submitted],
-  ]));
-
-  const tType = p.territory_type || '—';
-  const tName = p.territory_name || '—';
+  if (p.status === 'approved') { approveBtn.style.display = 'none'; set('pd-decision-note', 'This application has been approved.'); }
+  else if (p.status === 'rejected') { rejectBtn.style.display = 'none'; set('pd-decision-note', 'This application has been rejected.'); }
+  else { approveBtn.style.display = ''; rejectBtn.style.display = ''; set('pd-decision-note', ''); }
+  set('pd-contact', infoBlock([['Full Name',name],['Email',p.email||'—'],['Phone',p.phone||'—'],['Company',p.company_name||'—'],['Applied',submitted]]));
+  const tType = p.territory_type || '—'; const tName = p.territory_name || '—';
   let coverage = '—';
-  if (tType === 'zip' && p.territory_zips) {
-    const zips = Array.isArray(p.territory_zips) ? p.territory_zips : (JSON.parse(p.territory_zips || '[]'));
-    coverage = zips.join(', ') || '—';
-  } else if (tType === 'city')   coverage = p.territory_cities   || '—';
-  else if (tType === 'county')   coverage = p.territory_counties  || '—';
-  else if (tType === 'radius')   coverage = (p.territory_radius_miles || '?') + ' mile radius from ' + (p.territory_radius_center || '?');
-
-  set('pd-territory', infoBlock([
-    ['Territory Name', tName],
-    ['Territory Type', tType],
-    ['Coverage', coverage],
-    ['Notes', p.territory_notes || '—'],
-  ]));
-
+  if (tType === 'zip' && p.territory_zips) { const zips = Array.isArray(p.territory_zips) ? p.territory_zips : (JSON.parse(p.territory_zips || '[]')); coverage = zips.join(', ') || '—'; }
+  else if (tType === 'city') coverage = p.territory_cities || '—';
+  else if (tType === 'county') coverage = p.territory_counties || '—';
+  else if (tType === 'radius') coverage = (p.territory_radius_miles || '?') + ' mile radius from ' + (p.territory_radius_center || '?');
+  set('pd-territory', infoBlock([['Territory Name',tName],['Territory Type',tType],['Coverage',coverage],['Notes',p.territory_notes||'—']]));
   const tierPrices = { starter:'$99/mo + $99 setup', professional:'$199/mo + $199 setup', enterprise:'$199/mo + $299 setup', unlimited:'$199/mo + $499 setup' };
-  set('pd-partnership', infoBlock([
-    ['Tier', tier.charAt(0).toUpperCase() + tier.slice(1)],
-    ['Pricing', tierPrices[tier] || '—'],
-    ['Revenue Split', '60/40 (Partner keeps 60%)'],
-    ['Status', p.status || 'pending'],
-    ['Approved', p.approved_at ? new Date(p.approved_at).toLocaleDateString() : '—'],
-  ]));
-
+  set('pd-partnership', infoBlock([['Tier',tier.charAt(0).toUpperCase()+tier.slice(1)],['Pricing',tierPrices[tier]||'—'],['Revenue Split','60/40 (Partner keeps 60%)'],['Status',p.status||'pending']]));
   let industries = p.industries || [];
   if (typeof industries === 'string') { try { industries = JSON.parse(industries); } catch(e) { industries = []; } }
   if (!Array.isArray(industries)) industries = [];
-  if (industries.length === 0) {
-    set('pd-industries', '<div class="empty-state" style="padding:20px"><p>No industries selected.</p></div>');
-  } else {
-    set('pd-industries',
-      '<div style="display:flex;flex-wrap:wrap;gap:6px;padding:4px 0">' +
-      industries.map(i => '<span class="badge badge-blue" style="font-size:11px">' + esc(i) + '</span>').join('') +
-      '</div>' +
-      '<div style="font-size:11px;color:var(--text-dim);margin-top:8px">' + industries.length + ' industry / industries selected</div>'
-    );
-  }
-
-  const bg = p.business_description;
-  set('pd-background',
-    bg
-      ? '<p style="font-size:13px;color:var(--text-secondary);line-height:1.7">' + esc(bg) + '</p>'
-      : '<div class="empty-state" style="padding:20px"><p>No background provided.</p></div>'
-  );
-
+  set('pd-industries', industries.length === 0 ? '<div class="empty-state" style="padding:20px"><p>No industries selected.</p></div>' : '<div style="display:flex;flex-wrap:wrap;gap:6px;padding:4px 0">' + industries.map(i => '<span class="badge badge-blue" style="font-size:11px">' + esc(i) + '</span>').join('') + '</div><div style="font-size:11px;color:var(--text-dim);margin-top:8px">' + industries.length + ' industries selected</div>');
+  set('pd-background', p.business_description ? '<p style="font-size:13px;color:var(--text-secondary);line-height:1.7">' + esc(p.business_description) + '</p>' : '<div class="empty-state" style="padding:20px"><p>No background provided.</p></div>');
   logAudit('View Partner Application', name);
   nav('partner-detail');
 }
@@ -1119,34 +965,17 @@ function rejectPartnerFromDetail() { if (activePartnerId) rejectPartner(activePa
 function focusPartnerOnMapFromDetail() { if (activePartnerId) focusPartnerOnMap(activePartnerId); }
 
 async function approvePartner(id, fromDetail) {
-  if (!confirm('Approve this Territory Partner application? An approval email will be sent to the applicant.')) return;
+  if (!confirm('Approve this Territory Partner application?')) return;
   const r = await API.post('/api/territory-partner/approve/' + id, {});
-  if (r && r.success) {
-    toast('Partner approved — confirmation email sent', 'success');
-    addActivity('check', 'ai-green', '<strong>Territory Partner approved</strong> — ID ' + id);
-    addNotification('handshake', 'ai-green', '<strong>Territory Partner approved</strong> — application ID ' + id);
-    logAudit('Approve Territory Partner', 'ID ' + id);
-    await loadAllData();
-    if (fromDetail) renderPartnerDetail(id);
-    else renderPartnerApps();
-  } else {
-    toast('Approval failed — check Railway logs', 'error');
-  }
+  if (r && r.success) { toast('Partner approved','success'); addActivity('check','ai-green','<strong>Territory Partner approved</strong>'); logAudit('Approve Territory Partner','ID '+id); await loadAllData(); if(fromDetail)renderPartnerDetail(id); else renderPartnerApps(); }
+  else { toast('Approval failed — check Railway logs','error'); }
 }
 
 async function rejectPartner(id, fromDetail) {
-  if (!confirm('Reject this application? A rejection email will be sent to the applicant.')) return;
+  if (!confirm('Reject this application?')) return;
   const r = await API.post('/api/territory-partner/reject/' + id, {});
-  if (r && r.success) {
-    toast('Application rejected — applicant notified', 'info');
-    addActivity('times', 'ai-red', '<strong>Territory Partner application rejected</strong> — ID ' + id);
-    logAudit('Reject Territory Partner', 'ID ' + id);
-    await loadAllData();
-    if (fromDetail) renderPartnerDetail(id);
-    else renderPartnerApps();
-  } else {
-    toast('Rejection failed — check Railway logs', 'error');
-  }
+  if (r && r.success) { toast('Application rejected','info'); addActivity('times','ai-red','<strong>Territory Partner rejected</strong>'); logAudit('Reject Territory Partner','ID '+id); await loadAllData(); if(fromDetail)renderPartnerDetail(id); else renderPartnerApps(); }
+  else { toast('Rejection failed — check Railway logs','error'); }
 }
 
 /* ── ACTIVITY LOG & NOTIFICATIONS ── */
@@ -1160,16 +989,13 @@ function markAllRead(){STATE.notifications.forEach(n=>n.read=true);document.getE
 
 /* ── BACKLOG ── */
 function renderBacklog(){
-  const todo=STATE.backlogItems.filter(i=>i.status==='todo');
-  const prog=STATE.backlogItems.filter(i=>i.status==='prog');
-  const done=STATE.backlogItems.filter(i=>i.status==='done');
+  const todo=STATE.backlogItems.filter(i=>i.status==='todo');const prog=STATE.backlogItems.filter(i=>i.status==='prog');const done=STATE.backlogItems.filter(i=>i.status==='done');
   set('bl-todo-count',todo.length);set('bl-prog-count',prog.length);set('bl-done-count',done.length);
   const priColor={high:'var(--red)',med:'var(--yellow)',low:'var(--green)'};
   function renderItems(items,elId){const el=document.getElementById(elId);if(!items.length){el.innerHTML='<div style="padding:12px;color:var(--text-dim);font-size:12px;text-align:center">Empty</div>';return;}el.innerHTML=items.map(item=>`<div class="straggler-item" onclick="cycleBacklog(${item.id})"><i class="fa-solid fa-circle" style="color:${priColor[item.priority]||'var(--text-dim)'};font-size:8px"></i><span class="straggler-label ${item.status==='done'?'done':''}">${esc(item.label)}</span><span class="badge badge-gray" style="font-size:10px">${item.priority}</span></div>`).join('');}
   renderItems(todo,'bl-todo');renderItems(prog,'bl-prog');renderItems(done,'bl-done');
 }
-
-function cycleBacklog(id){const item=STATE.backlogItems.find(i=>i.id===id);if(!item)return;const cycle={todo:'prog',prog:'done',done:'todo'};item.status=cycle[item.status];renderBacklog();addActivity('screwdriver-wrench','ai-amber',`<strong>Backlog:</strong> "${item.label}" → ${item.status}`);toast(`Moved to ${item.status}`,'success');}
+function cycleBacklog(id){const item=STATE.backlogItems.find(i=>i.id===id);if(!item)return;const cycle={todo:'prog',prog:'done',done:'todo'};item.status=cycle[item.status];renderBacklog();toast(`Moved to ${item.status}`,'success');}
 
 /* ── HEALTH ── */
 async function checkHealth(){
@@ -1191,23 +1017,45 @@ function viewClientSite(type) {
   if (!client) { toast('No client selected', 'error'); return; }
   if (type === 'live') {
     const liveUrl = client.liveUrl || client.live_url || '';
-    if (liveUrl) {
-      window.open(liveUrl, '_blank', 'noopener,noreferrer');
-      logAudit('View Live Site', client.businessName || client.id);
-    } else {
-      toast('No live URL on record — site has not been deployed yet', 'error');
-    }
+    if (liveUrl) { window.open(liveUrl, '_blank', 'noopener,noreferrer'); logAudit('View Live Site', client.businessName || client.id); }
+    else { toast('No live URL on record — site has not been deployed yet', 'error'); }
   } else {
     const token = client.previewToken;
-    if (token) {
-      window.open(window.location.origin + '/preview/' + token, '_blank', 'noopener,noreferrer');
-      logAudit('View Preview', client.businessName || client.id);
-    } else {
-      toast('No preview token on record for this client', 'error');
-    }
+    if (token) { window.open(window.location.origin + '/preview/' + token, '_blank', 'noopener,noreferrer'); logAudit('View Preview', client.businessName || client.id); }
+    else { toast('No preview token on record for this client', 'error'); }
   }
 }
-async function quickAction(action){const client=STATE.activeClient;if(!client&&!['broadcast'].includes(action))return;const id=client?.id||client?.client_id;const endpoints={welcome:'/api/admin/resend-welcome',deploy:'/api/admin/deploy',approve:'/api/admin/approve',preview:'/api/admin/send-preview'};if(endpoints[action]){const r=await API.post(endpoints[action],{clientId:id,key:STATE.adminKey});toast(r?`${action} action sent`:`${action} failed — check logs`,r?'success':'error');}else{toast(`${action} — connect to backend API`,'info');}addActivity('bolt','ai-amber',`Quick action: <strong>${action}</strong>`);logAudit('Quick Action: '+action,client?.business_name||id);}
+
+/* ── QUICK ACTIONS — DELETE AND SUSPEND FULLY WIRED ── */
+async function quickAction(action){
+  const client=STATE.activeClient;
+  if(!client&&!['broadcast'].includes(action))return;
+  const id=client?.id||client?.client_id;
+  const name=client?.business_name||client?.businessName||id;
+
+  if(action==='delete'){
+    if(!confirm('PERMANENTLY DELETE '+name+'? This cannot be undone.'))return;
+    const r=await API.post('/api/admin/delete-client',{clientId:id});
+    if(r&&r.success){toast(name+' deleted','success');addActivity('trash','ai-red','<strong>Client deleted:</strong> '+name);logAudit('Delete Client',name);STATE.activeClient=null;await loadAllData();nav('clients-all');}
+    else{toast('Delete failed — check Railway logs','error');}
+    return;
+  }
+
+  if(action==='suspend'){
+    if(!confirm('Suspend '+name+'? Their site will show an offline page.'))return;
+    const r=await API.post('/api/admin/set-status',{clientId:id,newStatus:'suspended'});
+    if(r&&r.success){toast(name+' suspended','info');addActivity('pause','ai-red','<strong>Client suspended:</strong> '+name);logAudit('Suspend Client',name);await loadAllData();}
+    else{toast('Suspend failed — check Railway logs','error');}
+    return;
+  }
+
+  const endpoints={welcome:'/api/admin/resend-welcome',deploy:'/api/admin/deploy',approve:'/api/admin/approve',preview:'/api/admin/send-preview'};
+  if(endpoints[action]){const r=await API.post(endpoints[action],{clientId:id,key:STATE.adminKey});toast(r?`${action} action sent`:`${action} failed — check logs`,r?'success':'error');}
+  else{toast(`${action} — connect to backend API`,'info');}
+  addActivity('bolt','ai-amber',`Quick action: <strong>${action}</strong>`);
+  logAudit('Quick Action: '+action,name);
+}
+
 async function sendBroadcast(){const audience=document.getElementById('bc-audience').value;const subject=document.getElementById('bc-subject').value;const body=document.getElementById('bc-body').value;if(!subject||!body){toast('Subject and message required','error');return;}toast(`Broadcast queued for ${audience}`,'success');addActivity('bullhorn','ai-amber',`<strong>Broadcast sent</strong> to ${audience}: "${subject}"`);logAudit('Broadcast',`${audience} — ${subject}`);}
 async function changeCredentials(){const current=document.getElementById('cred-current').value;const newKey=document.getElementById('cred-new').value;const confirm2=document.getElementById('cred-confirm').value;if(!current||!newKey||!confirm2){toast('All fields required','error');return;}if(newKey!==confirm2){toast('New keys do not match','error');return;}if(newKey.length<12){toast('Key must be at least 12 characters','error');return;}if(current!==STATE.adminKey){toast('Current key is incorrect','error');return;}toast('Key updated. Update ADMIN_KEY in Railway to make permanent.','info');STATE.adminKey=newKey;logAudit('Change Admin Key','Credentials updated');['cred-current','cred-new','cred-confirm'].forEach(id=>{document.getElementById(id).value='';});}
 
@@ -1222,7 +1070,6 @@ function openModal(id){
   const modals={'modal-approve':`<div class="modal-title">Approve New Client</div><p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px">Manually approve a client intake submission and trigger site build.</p><div class="form-group"><label class="form-label">Client ID or Business Name</label><input class="form-input" id="modal-client-id" placeholder="Client ID"></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="approveClient(document.getElementById('modal-client-id').value);closeModal()">Approve</button></div>`,'modal-add-backlog':`<div class="modal-title">Add Backlog Item</div><div class="form-group"><label class="form-label">Item Description</label><input class="form-input" id="bl-new-label" placeholder="Describe the task"></div><div class="form-group"><label class="form-label">Priority</label><select class="form-input form-select" id="bl-new-priority"><option value="high">High</option><option value="med">Medium</option><option value="low">Low</option></select></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="addBacklogItem()">Add Item</button></div>`};
   content.innerHTML=modals[id]||'<div class="modal-title">Modal</div>';overlay.classList.add('open');
 }
-
 function addBacklogItem(){const label=document.getElementById('bl-new-label')?.value;const priority=document.getElementById('bl-new-priority')?.value;if(!label){toast('Description required','error');return;}STATE.backlogItems.unshift({id:Date.now(),label,status:'todo',priority});renderBacklog();closeModal();toast('Item added to backlog','success');}
 function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
 function closeModalOnBg(e){if(e.target.id==='modal-overlay')closeModal();}
