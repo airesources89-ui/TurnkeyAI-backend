@@ -45,7 +45,11 @@ router.get('/api/admin/clients', (req, res) => {
       wantsProfessionalEmail: c.data.wantsProfessionalEmail || null
     },
     state: c.data.state || null, missionStatement: c.data.missionStatement || null,
-    aboutUs: c.data.aboutUs || null, plan: c.data.selectedPlan || c.data.plan || c.data.tier || c.data.packageType || null
+    aboutUs: c.data.aboutUs || null,
+    plan: c.data.selectedPlan || c.data.plan || c.data.tier || c.data.packageType || null,
+    blogPostCount: c.blogPostCount || 0,
+    blogGeneratedAt: c.blogGeneratedAt || null,
+    blogLastUpdated: c.blogLastUpdated || null
   }));
   res.json({ mrr: mrrSummary, clients: clientList });
 });
@@ -289,6 +293,89 @@ router.get('/api/admin/check-token', (req, res) => {
       telephonyEnabled: match.telephonyEnabled || false,
       twilioNumber: match.twilioNumber || null
     }
+  });
+});
+
+// ════════════════════════════════════════════════
+// ── POST /api/admin/generate-blog
+// ── Manually trigger blog generation for an existing client.
+// ── Use this for clients approved before blog generation was built,
+// ── or to force a regeneration at any time.
+// ════════════════════════════════════════════════
+router.post('/api/admin/generate-blog', async (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+
+  const { clientId, postCount } = req.body;
+  if (!clientId) return res.status(400).json({ error: 'clientId required' });
+
+  const client = clients[clientId];
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  if (!client.cfProjectName) return res.status(400).json({ error: 'Client has no CF Pages project — must be deployed first' });
+
+  const { generateAndDeployBlog, planIncludesBlog } = require('../lib/blog-generator');
+
+  // Allow admin to override plan check by passing force:true
+  const force = req.body.force === true;
+  if (!force && !planIncludesBlog(client)) {
+    return res.status(400).json({
+      error: `Client plan (${client.data.selectedPlan || 'none'}) does not include blog. Pass force:true to override.`
+    });
+  }
+
+  const count = parseInt(postCount) || 30;
+
+  // Respond immediately — generation runs in background
+  res.json({
+    success: true,
+    message: `Blog generation started for ${client.data.businessName} — ${count} posts. Check Railway logs for progress.`,
+    clientId,
+    postCount: count
+  });
+
+  // Run async
+  generateAndDeployBlog(client, count).then(() => {
+    console.log(`[admin/generate-blog] ✅ Complete for ${client.data.businessName}`);
+    sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `📝 Blog Generated: ${client.data.businessName}`,
+      html: `<p><strong>${client.data.businessName}</strong> blog generation complete — ${client.blogPostCount || count} posts deployed to <a href="${client.liveUrl}/blog/index.html">${client.liveUrl}/blog/index.html</a></p>`
+    }).catch(() => {});
+  }).catch(err => {
+    console.error(`[admin/generate-blog] Failed for ${client.data.businessName}:`, err.message);
+    sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `❌ Blog Generation Failed: ${client.data.businessName}`,
+      html: `<p>Blog generation failed for <strong>${client.data.businessName}</strong>: ${err.message}</p>`
+    }).catch(() => {});
+  });
+});
+
+// ════════════════════════════════════════════════
+// ── POST /api/admin/generate-blog-monthly
+// ── Manually trigger the 8-post monthly refresh for a client.
+// ════════════════════════════════════════════════
+router.post('/api/admin/generate-blog-monthly', async (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
+
+  const { clientId } = req.body;
+  if (!clientId) return res.status(400).json({ error: 'clientId required' });
+
+  const client = clients[clientId];
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  if (!client.cfProjectName) return res.status(400).json({ error: 'Client has no CF Pages project' });
+
+  const { generateMonthlyBlogPosts } = require('../lib/blog-generator');
+
+  res.json({
+    success: true,
+    message: `Monthly blog refresh started for ${client.data.businessName} — 8 new posts. Check Railway logs.`,
+    clientId
+  });
+
+  generateMonthlyBlogPosts(client).catch(err => {
+    console.error(`[admin/generate-blog-monthly] Failed for ${client.data.businessName}:`, err.message);
   });
 });
 
