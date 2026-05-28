@@ -54,7 +54,7 @@ router.get('/api/admin/clients', (req, res) => {
   res.json({ mrr: mrrSummary, clients: clientList });
 });
 
-// ── POST /api/admin/approve ── (called by admin dashboard Approve button)
+// ── POST /api/admin/approve ──
 router.post('/api/admin/approve', async (req, res) => {
   const adminKey = req.query.adminKey || req.headers['x-admin-key'];
   if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
@@ -72,7 +72,7 @@ router.post('/api/admin/approve', async (req, res) => {
   }
 });
 
-// ── POST /api/admin/delete-client ── (hard delete — removes from DB and memory)
+// ── POST /api/admin/delete-client ──
 router.post('/api/admin/delete-client', async (req, res) => {
   const adminKey = req.query.adminKey || req.headers['x-admin-key'];
   if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
@@ -144,8 +144,18 @@ router.post('/api/admin/set-status', async (req, res) => {
       } catch (e) { console.error('[set-status] Placeholder deploy failed:', e.message); }
     }
   } else if (newStatus === 'active' && oldStatus === 'suspended') {
+    // ── FIX: Use runDeploy instead of redeployLive for suspended clients ──
+    // redeployLive fails silently; runDeploy forces a full fresh deployment
+    client.status = 'pending';
     if (client.twilioNumber) client.telephonyEnabled = true;
-    if (client.cfProjectName) { try { await redeployLive(client); } catch (e) { console.error('[set-status] Redeploy failed:', e.message); } }
+    if (client.cfProjectName) {
+      try {
+        await runDeploy(client);
+      } catch (e) {
+        console.error('[set-status] Redeploy failed:', e.message);
+        client.status = 'active'; // still mark active even if redeploy fails
+      }
+    }
   }
   client.updatedAt = new Date().toISOString();
   await saveClient(client);
@@ -241,7 +251,7 @@ router.post('/api/coming-soon/rate', postLimiter, async (req, res) => {
   } catch(err) { console.error('[coming-soon/rate]', err); res.status(500).json({ error: 'Failed' }); }
 });
 
-// ── GET /api/admin/check-token — Diagnostic: look up a client by preview token ──
+// ── GET /api/admin/check-token ──
 router.get('/api/admin/check-token', (req, res) => {
   const adminKey = req.query.adminKey || req.headers['x-admin-key'];
   if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
@@ -254,129 +264,99 @@ router.get('/api/admin/check-token', (req, res) => {
     if (legacyMatch) {
       return res.json({
         found: false, foundAsLegacy: true, totalClientsInMemory: totalClients,
-        legacyClient: {
-          id: legacyMatch.id, businessName: legacyMatch.data?.businessName || null,
-          status: legacyMatch.status, previewToken: legacyMatch.previewToken || null,
-          _previewToken: legacyMatch._previewToken || null
-        },
-        hint: 'Token exists as _previewToken but not previewToken — loadClientsFromDB may not be mapping it correctly.'
+        legacyClient: { id: legacyMatch.id, businessName: legacyMatch.data?.businessName || null, status: legacyMatch.status, previewToken: legacyMatch.previewToken || null, _previewToken: legacyMatch._previewToken || null },
+        hint: 'Token exists as _previewToken but not previewToken.'
       });
     }
     return res.json({
       found: false, totalClientsInMemory: totalClients,
-      allTokens: Object.values(clients).map(c => ({
-        id: c.id, businessName: c.data?.businessName || null,
-        previewToken: c.previewToken || null,
-        _previewToken: c._previewToken || null
-      })),
-      hint: 'No client has this previewToken. Check if the token was saved to DB correctly during intake.'
+      allTokens: Object.values(clients).map(c => ({ id: c.id, businessName: c.data?.businessName || null, previewToken: c.previewToken || null, _previewToken: c._previewToken || null })),
+      hint: 'No client has this previewToken.'
     });
   }
   res.json({
     found: true, totalClientsInMemory: totalClients,
     client: {
-      id: match.id,
-      businessName: match.data?.businessName || null,
-      ownerName: match.data?.ownerName || null,
-      email: match.data?.email || null,
-      status: match.status,
-      previewToken: match.previewToken,
-      _previewToken: match._previewToken || null,
-      dashPassword: match.dashPassword || null,
-      dashToken: match.dashToken || null,
-      liveUrl: match.liveUrl || null,
-      cfProjectName: match.cfProjectName || null,
-      createdAt: match.createdAt || null,
-      approvedAt: match.approvedAt || null,
-      hasData: !!match.data,
+      id: match.id, businessName: match.data?.businessName || null, ownerName: match.data?.ownerName || null,
+      email: match.data?.email || null, status: match.status, previewToken: match.previewToken,
+      _previewToken: match._previewToken || null, dashPassword: match.dashPassword || null,
+      dashToken: match.dashToken || null, liveUrl: match.liveUrl || null,
+      cfProjectName: match.cfProjectName || null, createdAt: match.createdAt || null,
+      approvedAt: match.approvedAt || null, hasData: !!match.data,
       dataKeys: match.data ? Object.keys(match.data) : [],
-      telephonyEnabled: match.telephonyEnabled || false,
-      twilioNumber: match.twilioNumber || null
+      telephonyEnabled: match.telephonyEnabled || false, twilioNumber: match.twilioNumber || null
     }
   });
 });
 
 // ════════════════════════════════════════════════
 // ── POST /api/admin/generate-blog
-// ── Manually trigger blog generation for an existing client.
-// ── Use this for clients approved before blog generation was built,
-// ── or to force a regeneration at any time.
+// ── Manually trigger blog generation for a client
 // ════════════════════════════════════════════════
 router.post('/api/admin/generate-blog', async (req, res) => {
   const adminKey = req.query.adminKey || req.headers['x-admin-key'];
   if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
-
   const { clientId, postCount } = req.body;
   if (!clientId) return res.status(400).json({ error: 'clientId required' });
-
   const client = clients[clientId];
   if (!client) return res.status(404).json({ error: 'Client not found' });
   if (!client.cfProjectName) return res.status(400).json({ error: 'Client has no CF Pages project — must be deployed first' });
-
   const { generateAndDeployBlog, planIncludesBlog } = require('../lib/blog-generator');
-
-  // Allow admin to override plan check by passing force:true
   const force = req.body.force === true;
   if (!force && !planIncludesBlog(client)) {
-    return res.status(400).json({
-      error: `Client plan (${client.data.selectedPlan || 'none'}) does not include blog. Pass force:true to override.`
-    });
+    return res.status(400).json({ error: `Client plan (${client.data.selectedPlan || 'none'}) does not include blog. Pass force:true to override.` });
   }
-
   const count = parseInt(postCount) || 30;
-
-  // Respond immediately — generation runs in background
-  res.json({
-    success: true,
-    message: `Blog generation started for ${client.data.businessName} — ${count} posts. Check Railway logs for progress.`,
-    clientId,
-    postCount: count
-  });
-
-  // Run async
+  res.json({ success: true, message: `Blog generation started for ${client.data.businessName} — ${count} posts. Check site in 5-10 minutes.`, clientId, postCount: count });
   generateAndDeployBlog(client, count).then(() => {
     console.log(`[admin/generate-blog] ✅ Complete for ${client.data.businessName}`);
-    sendEmail({
-      to: ADMIN_EMAIL,
-      subject: `📝 Blog Generated: ${client.data.businessName}`,
-      html: `<p><strong>${client.data.businessName}</strong> blog generation complete — ${client.blogPostCount || count} posts deployed to <a href="${client.liveUrl}/blog/index.html">${client.liveUrl}/blog/index.html</a></p>`
-    }).catch(() => {});
+    sendEmail({ to: ADMIN_EMAIL, subject: `📝 Blog Generated: ${client.data.businessName}`, html: `<p><strong>${client.data.businessName}</strong> blog complete — ${client.blogPostCount || count} posts at <a href="${client.liveUrl}/blog/index.html">${client.liveUrl}/blog/index.html</a></p>` }).catch(() => {});
   }).catch(err => {
     console.error(`[admin/generate-blog] Failed for ${client.data.businessName}:`, err.message);
-    sendEmail({
-      to: ADMIN_EMAIL,
-      subject: `❌ Blog Generation Failed: ${client.data.businessName}`,
-      html: `<p>Blog generation failed for <strong>${client.data.businessName}</strong>: ${err.message}</p>`
-    }).catch(() => {});
+    sendEmail({ to: ADMIN_EMAIL, subject: `❌ Blog Generation Failed: ${client.data.businessName}`, html: `<p>Blog generation failed for <strong>${client.data.businessName}</strong>: ${err.message}</p>` }).catch(() => {});
+  });
+});
+
+// ════════════════════════════════════════════════
+// ── GET /api/admin/generate-blog/:id
+// ── Browser-callable version — trigger blog generation via URL
+// ── Usage: /api/admin/generate-blog/CLIENT_ID?adminKey=turnkey2024&count=30&force=true
+// ════════════════════════════════════════════════
+router.get('/api/admin/generate-blog/:clientId', async (req, res) => {
+  const adminKey = req.query.adminKey || req.headers['x-admin-key'];
+  if (adminKey !== ADMIN_KEY) return res.status(403).send('Unauthorized');
+  const client = clients[req.params.clientId];
+  if (!client) return res.status(404).send('Client not found: ' + req.params.clientId);
+  if (!client.cfProjectName) return res.status(400).send('Client has no CF Pages project — deploy first.');
+  const { generateAndDeployBlog, planIncludesBlog } = require('../lib/blog-generator');
+  const force = req.query.force === 'true';
+  if (!force && !planIncludesBlog(client)) {
+    return res.status(400).send(`Plan (${client.data.selectedPlan || 'none'}) does not include blog. Add ?force=true to override.`);
+  }
+  const count = parseInt(req.query.count) || 30;
+  res.send(`<html><body style="font-family:sans-serif;text-align:center;padding:60px;background:#0f1117;color:white;"><h1 style="color:#00D68F;">📝 Blog Generation Started!</h1><p style="color:rgba(255,255,255,.7);font-size:1.1rem;">${client.data.businessName} — ${count} posts</p><p style="color:rgba(255,255,255,.5);margin-top:1rem;">Generation runs in the background. Check the blog in 5–10 minutes at:</p><a href="${client.liveUrl}/blog/index.html" style="color:#0066FF;font-size:1.1rem;display:block;margin-top:1rem;">${client.liveUrl}/blog/index.html</a></body></html>`);
+  generateAndDeployBlog(client, count).then(() => {
+    console.log(`[admin/generate-blog GET] ✅ Complete for ${client.data.businessName}`);
+    sendEmail({ to: ADMIN_EMAIL, subject: `📝 Blog Generated: ${client.data.businessName}`, html: `<p><strong>${client.data.businessName}</strong> blog complete — ${client.blogPostCount || count} posts at <a href="${client.liveUrl}/blog/index.html">${client.liveUrl}/blog/index.html</a></p>` }).catch(() => {});
+  }).catch(err => {
+    console.error(`[admin/generate-blog GET] Failed for ${client.data.businessName}:`, err.message);
   });
 });
 
 // ════════════════════════════════════════════════
 // ── POST /api/admin/generate-blog-monthly
-// ── Manually trigger the 8-post monthly refresh for a client.
 // ════════════════════════════════════════════════
 router.post('/api/admin/generate-blog-monthly', async (req, res) => {
   const adminKey = req.query.adminKey || req.headers['x-admin-key'];
   if (adminKey !== ADMIN_KEY) return res.status(403).json({ error: 'Unauthorized' });
-
   const { clientId } = req.body;
   if (!clientId) return res.status(400).json({ error: 'clientId required' });
-
   const client = clients[clientId];
   if (!client) return res.status(404).json({ error: 'Client not found' });
   if (!client.cfProjectName) return res.status(400).json({ error: 'Client has no CF Pages project' });
-
   const { generateMonthlyBlogPosts } = require('../lib/blog-generator');
-
-  res.json({
-    success: true,
-    message: `Monthly blog refresh started for ${client.data.businessName} — 8 new posts. Check Railway logs.`,
-    clientId
-  });
-
-  generateMonthlyBlogPosts(client).catch(err => {
-    console.error(`[admin/generate-blog-monthly] Failed for ${client.data.businessName}:`, err.message);
-  });
+  res.json({ success: true, message: `Monthly blog refresh started for ${client.data.businessName} — 8 new posts.`, clientId });
+  generateMonthlyBlogPosts(client).catch(err => { console.error(`[admin/generate-blog-monthly] Failed for ${client.data.businessName}:`, err.message); });
 });
 
 console.log('[module] routes/admin.js loaded');
