@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo Sites | TurnkeyAI Services | AI Websites for Local Businesses</title>
+  <meta name="description" content="See real AI-powered websites built by TurnkeyAI Services for local businesses across Mississippi and the Gulf Coast. Plumbing, HVAC, cleaning, electrical, landscaping and more.">
+  <meta property="og:title" content="TurnkeyAI Demo Sites — Real AI Websites for Local Businesses">
+  <meta property="og:description" content="Browse real AI-powered websites built for local service businesses. See what your industry could look like.">
+  <meta property="og:url" content="https://turnkeyaiservices.com/demos">
+  <link rel="canonical" href="https://turnkeyaiservices.com/demos">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:#050d1a;color:#1e293b;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(10,22,40,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(245,158,11,.18)}
+    .nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:2px;text-decoration:none}
+    .nav-logo span{color:#f59e0b}
+    .nav-links{display:flex;gap:1.2rem;list-style:none;align-items:center}
+    .nav-links a{color:rgba(255,255,255,.8);text-decoration:none;font-size:.85rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover{color:#f59e0b}
+    .nav-cta{background:#f59e0b!important;color:#050d1a!important;padding:.45rem 1rem;border-radius:6px;font-weight:700!important}
+    .nav-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
+    .nav-hamburger span{width:24px;height:2px;background:white;border-radius:2px}
+    .mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;background:rgba(10,22,40,.97);backdrop-filter:blur(12px);padding:1rem 2rem 1.5rem;z-index:99;flex-direction:column;gap:.8rem;border-bottom:1px solid rgba(245,158,11,.18)}
+    .mobile-menu.open{display:flex}
+    .mobile-menu a{color:rgba(255,255,255,.85);text-decoration:none;font-size:.95rem;padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.06)}
+
+    /* HERO */
+    .page-hero{padding:8rem 1.5rem 5rem;text-align:center;background:linear-gradient(160deg,#050d1a 0%,#0a1628 60%,rgba(245,158,11,.06) 100%);position:relative;overflow:hidden}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(245,158,11,.08) 0%,transparent 70%)}
+    .hero-label{font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f59e0b;margin-bottom:.8rem}
+    .hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,7vw,5rem);color:white;letter-spacing:2px;line-height:1;margin-bottom:1.2rem}
+    .hero-title span{color:#f59e0b}
+    .hero-sub{font-size:1.1rem;color:rgba(255,255,255,.7);max-width:600px;margin:0 auto 2.5rem;line-height:1.7}
+    .hero-stats{display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;margin-top:2rem}
+    .hero-stat strong{display:block;font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:#f59e0b;letter-spacing:1px}
+    .hero-stat span{font-size:.75rem;color:rgba(255,255,255,.45);letter-spacing:.5px;text-transform:uppercase}
+
+    /* FILTER BAR */
+    .filter-section{background:#0a1628;padding:1.5rem;border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:64px;z-index:90}
+    .filter-inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;justify-content:center}
+    .filter-btn{padding:.5rem 1.1rem;border-radius:50px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.6);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+    .filter-btn:hover{border-color:rgba(245,158,11,.5);color:#f59e0b}
+    .filter-btn.active{background:rgba(245,158,11,.15);border-color:#f59e0b;color:#f59e0b;font-weight:700}
+
+    /* DEMO GRID */
+    .demos-section{padding:4rem 1.5rem 6rem;background:#050d1a}
+    .demos-inner{max-width:1180px;margin:0 auto}
+    .section-header{text-align:center;margin-bottom:3rem}
+    .section-label{font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f59e0b;margin-bottom:.5rem}
+    .section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,4vw,2.8rem);color:white;letter-spacing:1.5px}
+    .demos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem}
+
+    /* DEMO CARD */
+    .demo-card{background:#0d1e2e;border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden;transition:transform .25s,box-shadow .25s,border-color .25s;cursor:pointer;position:relative}
+    .demo-card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,.4);border-color:rgba(245,158,11,.3)}
+    .demo-card.hidden{display:none}
+
+    /* BROWSER CHROME */
+    .browser-chrome{background:#1a2332;padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .browser-dots{display:flex;gap:5px}
+    .browser-dots span{width:10px;height:10px;border-radius:50%}
+    .dot-red{background:#ff5f57}
+    .dot-yellow{background:#febc2e}
+    .dot-green{background:#28c840}
+    .browser-url{flex:1;background:rgba(255,255,255,.06);border-radius:4px;padding:4px 10px;font-size:.72rem;color:rgba(255,255,255,.4);font-family:monospace;margin:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    /* SITE PREVIEW */
+    .demo-preview{position:relative;height:200px;overflow:hidden}
+    .demo-preview iframe{width:100%;height:600px;border:none;transform:scale(0.333);transform-origin:top left;pointer-events:none;position:absolute;top:0;left:0;width:300%}
+    .demo-preview-overlay{position:absolute;inset:0;z-index:2}
+
+    /* CARD BODY */
+    .demo-body{padding:1.25rem 1.5rem 1.5rem}
+    .demo-industry-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:.3rem .8rem;border-radius:50px;margin-bottom:.8rem}
+    .demo-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:white;letter-spacing:1px;margin-bottom:.3rem}
+    .demo-location{font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:1rem;display:flex;align-items:center;gap:.3rem}
+    .demo-features{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.2rem}
+    .demo-feature{font-size:.7rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:.2rem .6rem;color:rgba(255,255,255,.5)}
+    .demo-actions{display:flex;gap:.75rem}
+    .btn-view{flex:1;background:#f59e0b;color:#050d1a;border:none;border-radius:8px;padding:.7rem 1rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;gap:.4rem}
+    .btn-view:hover{background:#e88e00;transform:translateY(-1px)}
+    .btn-get{flex:1;background:transparent;color:white;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:.7rem 1rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;gap:.4rem}
+    .btn-get:hover{border-color:#f59e0b;color:#f59e0b}
+
+    /* COMING SOON CARD */
+    .demo-card.coming-soon{opacity:.6}
+    .coming-badge{position:absolute;top:12px;right:12px;background:rgba(245,158,11,.9);color:#050d1a;font-size:.65rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:.25rem .7rem;border-radius:50px;z-index:3}
+
+    /* CTA SECTION */
+    .cta-section{background:linear-gradient(135deg,#0a1628 0%,#1a3a6b 60%,rgba(245,158,11,.1) 100%);padding:5rem 1.5rem;text-align:center}
+    .cta-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,5vw,3.5rem);color:white;letter-spacing:1.5px;margin-bottom:1rem}
+    .cta-sub{color:rgba(255,255,255,.7);font-size:1rem;max-width:500px;margin:0 auto 2.5rem;line-height:1.7}
+    .cta-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+    .btn-cta-primary{background:#f59e0b;color:#050d1a;padding:.9rem 2rem;border-radius:8px;font-weight:700;font-size:1rem;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;transition:all .2s}
+    .btn-cta-primary:hover{background:#e88e00;transform:translateY(-2px)}
+    .btn-cta-outline{background:transparent;color:white;padding:.9rem 2rem;border-radius:8px;font-weight:600;font-size:1rem;text-decoration:none;border:2px solid rgba(255,255,255,.3);display:inline-flex;align-items:center;gap:.5rem;transition:all .2s}
+    .btn-cta-outline:hover{border-color:#f59e0b;color:#f59e0b}
+
+    /* FOOTER */
+    footer{background:#030810;padding:2rem 1.5rem;text-align:center;border-top:1px solid rgba(245,158,11,.1)}
+    footer p{color:rgba(255,255,255,.25);font-size:.8rem}
+    footer a{color:#f59e0b;text-decoration:none}
+
+    /* REVEAL */
+    .reveal{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+
+    @media(max-width:768px){
+      .nav-links{display:none}
+      .nav-hamburger{display:flex}
+      .demos-grid{grid-template-columns:1fr}
+      .hero-stats{gap:1.5rem}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">TURNKEY<span>AI</span></a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/demos" style="color:#f59e0b;font-weight:700;">Demo Sites</a></li>
+    <li><a href="/#pricing">Pricing</a></li>
+    <li><a href="/#contact">Contact</a></li>
+    <li><a href="/pages/intake.html" class="nav-cta"><i class="fas fa-rocket"></i> Get Started</a></li>
+  </ul>
+  <button class="nav-hamburger" onclick="document.getElementById('mobileMenu').classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="/"><i class="fas fa-home"></i> Home</a>
+  <a href="/demos"><i class="fas fa-globe"></i> Demo Sites</a>
+  <a href="/#pricing"><i class="fas fa-tag"></i> Pricing</a>
+  <a href="/#contact"><i class="fas fa-envelope"></i> Contact</a>
+  <a href="/pages/intake.html"><i class="fas fa-rocket"></i> Get Started</a>
+</div>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div style="position:relative;z-index:2;">
+    <div class="hero-label">Live Examples</div>
+    <h1 class="hero-title">Real AI Websites<br><span>Built For Real Businesses</span></h1>
+    <p class="hero-sub">Every site below was built by TurnkeyAI in minutes — not weeks. SEO built in. Blogs included. Chat widget ready. This is what your business could look like starting today.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="/pages/intake.html" class="btn-cta-primary" style="background:#f59e0b;color:#050d1a;padding:.85rem 1.8rem;border-radius:8px;font-weight:700;font-size:.97rem;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;"><i class="fas fa-rocket"></i> Get Mine Built Today</a>
+      <a href="#demos" class="btn-cta-outline" style="background:transparent;color:white;padding:.85rem 1.8rem;border-radius:8px;font-weight:600;font-size:.97rem;text-decoration:none;border:2px solid rgba(255,255,255,.3);display:inline-flex;align-items:center;gap:.5rem;"><i class="fas fa-eye"></i> Browse Examples</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><strong>67</strong><span>Industries Served</span></div>
+      <div class="hero-stat"><strong>$99</strong><span>Starting Per Month</span></div>
+      <div class="hero-stat"><strong>24/7</strong><span>AI Chat Included</span></div>
+      <div class="hero-stat"><strong>100%</strong><span>Done For You</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FILTER BAR -->
+<div class="filter-section">
+  <div class="filter-inner">
+    <button class="filter-btn active" onclick="filterDemos('all', this)">All Industries</button>
+    <button class="filter-btn" onclick="filterDemos('trades', this)"><i class="fas fa-wrench"></i> Trades</button>
+    <button class="filter-btn" onclick="filterDemos('cleaning', this)"><i class="fas fa-broom"></i> Cleaning</button>
+    <button class="filter-btn" onclick="filterDemos('hvac', this)"><i class="fas fa-wind"></i> HVAC</button>
+    <button class="filter-btn" onclick="filterDemos('electrical', this)"><i class="fas fa-bolt"></i> Electrical</button>
+    <button class="filter-btn" onclick="filterDemos('landscaping', this)"><i class="fas fa-leaf"></i> Landscaping</button>
+    <button class="filter-btn" onclick="filterDemos('flooring', this)"><i class="fas fa-border-all"></i> Flooring</button>
+    <button class="filter-btn" onclick="filterDemos('plumbing', this)"><i class="fas fa-faucet"></i> Plumbing</button>
+  </div>
+</div>
+
+<!-- DEMOS GRID -->
+<section class="demos-section" id="demos">
+  <div class="demos-inner">
+    <div class="section-header reveal">
+      <div class="section-label">Browse By Industry</div>
+      <h2 class="section-title">Click Any Site To See It Live</h2>
+    </div>
+    <div class="demos-grid" id="demosGrid">
+
+      <!-- HVAC -->
+      <div class="demo-card reveal" data-industry="hvac trades">
+        <div class="browser-chrome">
+          <div class="browser-dots"><span class="dot-red"></span><span class="dot-yellow"></span><span class="dot-green"></span></div>
+          <div class="browser-url">turnkeyai-long-beach-hvac.pages.dev</div>
+        </div>
+        <div class="demo-preview">
+          <iframe src="https://turnkeyai-long-beach-hvac.pages.dev" loading="lazy" title="Long Beach HVAC Demo"></iframe>
+          <div class="demo-preview-overlay" onclick="window.open('https://turnkeyai-long-beach-hvac.pages.dev','_blank')"></div>
+        </div>
+        <div class="demo-body">
+          <div class="demo-industry-badge" style="background:rgba(56,189,248,.12);color:#38bdf8;border:1px solid rgba(56,189,248,.2);"><i class="fas fa-wind"></i> HVAC</div>
+          <div class="demo-title">Long Beach HVAC</div>
+          <div class="demo-location"><i class="fas fa-map-marker-alt"></i> Long Beach, Mississippi</div>
+          <div class="demo-features">
+            <span class="demo-feature">✓ SEO Optimized</span>
+            <span class="demo-feature">✓ AI Chat</span>
+            <span class="demo-feature">✓ Blog</span>
+            <span class="demo-feature">✓ Booking</span>
+            <span class="demo-feature">✓ Mobile Ready</span>
+          </div>
+          <div class="demo-actions">
+            <a href="https://turnkeyai-long-beach-hvac.pages.dev" target="_blank" class="btn-view"><i class="fas fa-external-link-alt"></i> View Live Site</a>
+            <a href="/pages/intake.html" class="btn-get"><i class="fas fa-rocket"></i> Get Mine</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLEANING -->
+      <div class="demo-card reveal" data-industry="cleaning">
+        <div class="browser-chrome">
+          <div class="browser-dots"><span class="dot-red"></span><span class="dot-yellow"></span><span class="dot-green"></span></div>
+          <div class="browser-url">turnkeyai-macys-cleaning.pages.dev</div>
+        </div>
+        <div class="demo-preview">
+          <iframe src="https://turnkeyai-macys-cleaning.pages.dev" loading="lazy" title="Macy's Cleaning Demo"></iframe>
+          <div class="demo-preview-overlay" onclick="window.open('https://turnkeyai-macys-cleaning.pages.dev','_blank')"></div>
+        </div>
+        <div class="demo-body">
+          <div class="demo-industry-badge" style="background:rgba(6,182,212,.12);color:#06b6d4;border:1px solid rgba(6,182,212,.2);"><i class="fas fa-broom"></i> Cleaning</div>
+          <div class="demo-title">Macy's Cleaning</div>
+          <div class="demo-location"><i class="fas fa-map-marker-alt"></i> Bay St. Louis, Mississippi</div>
+          <div class="demo-features">
+            <span class="demo-feature">✓ SEO Optimized</span>
+            <span class="demo-feature">✓ AI Chat</span>
+            <span class="demo-feature">✓ Blog</span>
+            <span class="demo-feature">✓ Booking</span>
+            <span class="demo-feature">✓ Mobile Ready</span>
+          </div>
+          <div class="demo-actions">
+            <a href="https://turnkeyai-macys-cleaning.pages.dev" target="_blank" class="btn-view"><i class="fas fa-external-link-alt"></i> View Live Site</a>
+            <a href="/pages/intake.html" class="btn-get"><i class="fas fa-rocket"></i> Get Mine</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ELECTRICAL -->
+      <div class="demo-card reveal" data-industry="electrical trades">
+        <div class="browser-chrome">
+          <div class="browser-dots"><span class="dot-red"></span><span class="dot-yellow"></span><span class="dot-green"></span></div>
+          <div class="browser-url">turnkeyai-eds-electric.pages.dev</div>
+        </div>
+        <div class="demo-preview">
+          <iframe src="https://turnkeyai-eds-electric.pages.dev" loading="lazy" title="Ed's Electric Demo"></iframe>
+          <div class="demo-preview-overlay" onclick="window.open('https://turnkeyai-eds-electric.pages.dev','_blank')"></div>
+        </div>
+        <div class="demo-body">
+          <div class="demo-industry-badge" style="background:rgba(234,179,8,.12);color:#eab308;border:1px solid rgba(234,179,8,.2);"><i class="fas fa-bolt"></i> Electrical</div>
+          <div class="demo-title">Ed's Electric</div>
+          <div class="demo-location"><i class="fas fa-map-marker-alt"></i> Gulf Coast, Mississippi</div>
+          <div class="demo-features">
+            <span class="demo-feature">✓ SEO Optimized</span>
+            <span class="demo-feature">✓ AI Chat</span>
+            <span class="demo-feature">✓ Blog</span>
+            <span class="demo-feature">✓ Booking</span>
+            <span class="demo-feature">✓ Mobile Ready</span>
+          </div>
+          <div class="demo-actions">
+            <a href="https://turnkeyai-eds-electric.pages.dev" target="_blank" class="btn-view"><i class="fas fa-external-link-alt"></i> View Live Site</a>
+            <a href="/pages/intake.html" class="btn-get"><i class="fas fa-rocket"></i> Get Mine</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- EPOXY FLOORING -->
+      <div class="demo-card reveal" data-industry="flooring trades">
+        <div class="browser-chrome">
+          <div class="browser-dots"><span class="dot-red"></span><span class="dot-yellow"></span><span class="dot-green"></span></div>
+          <div class="browser-url">gulfportepoxy.pages.dev</div>
+        </div>
+        <div class="demo-preview">
+          <iframe src="https://gulfportepoxy.pages.dev" loading="lazy" title="Gulfport Epoxy Demo"></iframe>
+          <div class="demo-preview-overlay" onclick="window.open('https://gulfportepoxy.pages.dev','_blank')"></div>
+        </div>
+        <div class="demo-body">
+          <div class="demo-industry-badge" style="background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.2);"><i class="fas fa-border-all"></i> Flooring</div>
+          <div class="demo-title">Gulfport Epoxy</div>
+          <div class="demo-location"><i class="fas fa-map-marker-alt"></i> Gulfport, Mississippi</div>
+          <div class="demo-features">
+            <span class="demo-feature">✓ #1 Google Gulfport</span>
+            <span class="demo-feature">✓ SEO Optimized</span>
+            <span class="demo-feature">✓ AI Chat</span>
+            <span class="demo-feature">✓ Blog</span>
+            <span class="demo-feature">✓ Booking</span>
+          </div>
+          <div class="demo-actions">
+            <a href="https://gulfportepoxy.pages.dev" target="_blank" class="btn-view"><i class="fas fa-external-link-alt"></i> View Live Site</a>
+            <a href="/pages/intake.html" class="btn-get"><i class="fas fa-rocket"></i> Get Mine</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- LANDSCAPING -->
+      <div class="demo-card reveal" data-industry="landscaping trades">
+        <div class="browser-chrome">
+          <div class="browser-dots"><span class="dot-red"></span><span class="dot-yellow"></span><span class="dot-green"></span></div>
+          <div class="browser-url">turnkeyai-gulf-herb-fisheries-llc.pages.dev</div>
+        </div>
+        <div class="demo-preview">
+          <iframe src="https://turnkeyai-gulf-herb-fisheries-llc.pages.dev" loading="lazy" title="Landscaping Demo"></iframe>
+          <div class="demo-preview-overlay" onclick="window.open('https://turnkeyai-gulf-herb-fisheries-llc.pages.dev','_blank')"></div>
+        </div>
+        <div class="demo-body">
+          <div class="demo-industry-badge" style="background:rgba(132,204,22,.12);color:#84cc16;border:1px solid rgba(132,204,22,.2);"><i class="fas fa-leaf"></i> Landscaping</div>
+          <div class="demo-title">Gulf Coast Landscaping</div>
+          <div class="demo-location"><i class="fas fa-map-marker-alt"></i> Mississippi Gulf Coast</div>
+          <div class="demo-features">
+            <span class="demo-feature">✓ SEO Optimized</span>
+            <span class="demo-feature">✓ AI Chat</span>
+            <span class="demo-feature">✓ Blog</span>
+            <span class="demo-feature">✓ Booking</span>
+            <span class="demo-feature">✓ Mobile Ready</span>
+          </div>
+          <div class="demo-actions">
+            <a href="https://turnkeyai-gulf-herb-fisheries-llc.pages.dev" target="_blank" class="btn-view"><i class="fas fa-external-link-alt"></i> View Live Site</a>
+            <a href="/pages/intake.html" class="btn-get"><i class="fas fa-rocket"></i> Get Mine</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLUMBING — COMING SOON -->
+      <div class="demo-card coming-soon reveal" data-industry="plumbing trades">
+        <div class="coming-badge">Coming Soon</div>
+        <div class="browser-chrome">
+          <div class="browser-dots"><span class="dot-red"></span><span class="dot-yellow"></span><span class="dot-green"></span></div>
+          <div class="browser-url">turnkeyai-plumbing-demo.pages.dev</div>
+        </div>
+        <div class="demo-preview" style="background:linear-gradient(135deg,#0a1628,#0c2d4a);display:flex;align-items:center;justify-content:center;">
+          <div style="text-align:center;padding:2rem;">
+            <i class="fas fa-faucet-drip" style="font-size:3rem;color:rgba(245,158,11,.3);margin-bottom:1rem;display:block;"></i>
+            <p style="color:rgba(255,255,255,.3);font-size:.9rem;">Plumbing demo coming soon</p>
+          </div>
+        </div>
+        <div class="demo-body">
+          <div class="demo-industry-badge" style="background:rgba(245,158,11,.08);color:rgba(245,158,11,.5);border:1px solid rgba(245,158,11,.1);"><i class="fas fa-faucet"></i> Plumbing</div>
+          <div class="demo-title" style="color:rgba(255,255,255,.4);">Gulf Coast Plumbing</div>
+          <div class="demo-location" style="color:rgba(255,255,255,.25);"><i class="fas fa-map-marker-alt"></i> Mississippi Gulf Coast</div>
+          <div class="demo-features">
+            <span class="demo-feature">✓ SEO Optimized</span>
+            <span class="demo-feature">✓ AI Chat</span>
+            <span class="demo-feature">✓ Blog</span>
+            <span class="demo-feature">✓ Booking</span>
+          </div>
+          <div class="demo-actions">
+            <a href="/pages/intake.html" class="btn-get" style="flex:1;"><i class="fas fa-bell"></i> Get Notified</a>
+            <a href="/pages/intake.html" class="btn-get"><i class="fas fa-rocket"></i> Get Mine Now</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div style="max-width:700px;margin:0 auto;">
+    <div class="section-label" style="color:#f59e0b;text-align:center;font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:.8rem;">Your Industry. Your Brand. Your Site.</div>
+    <h2 class="cta-title">Ready To Look Like This?</h2>
+    <p class="cta-sub">We serve 67 industries across the Gulf Coast and beyond. Fill out our 5-minute intake form and your site goes live within 24 hours — SEO, blog, chat, and booking included.</p>
+    <div class="cta-btns">
+      <a href="/pages/intake.html" class="btn-cta-primary"><i class="fas fa-rocket"></i> Build My Site Now</a>
+      <a href="tel:6039222004" class="btn-cta-outline"><i class="fas fa-phone"></i> Call (603) 922-2004</a>
+    </div>
+    <p style="color:rgba(255,255,255,.3);font-size:.8rem;margin-top:1.5rem;">No contracts. No technical knowledge required. Starting at $99/month.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>&copy; 2026 TurnkeyAI Services &bull; <a href="/">Home</a> &bull; <a href="/demos">Demos</a> &bull; <a href="/pages/intake.html">Get Started</a> &bull; Powered by AI</p>
+</footer>
+
+<script>
+// Reveal on scroll
+(function(){
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e, i){
+      if(e.isIntersecting) setTimeout(function(){ e.target.classList.add('visible'); }, i * 100);
+    });
+  }, { threshold: 0.05 });
+  document.querySelectorAll('.reveal').forEach(function(el){ obs.observe(el); });
+})();
+
+// Filter demos
+function filterDemos(industry, btn) {
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('.demo-card').forEach(function(card){
+    if (industry === 'all') {
+      card.classList.remove('hidden');
+    } else {
+      var cardIndustries = (card.dataset.industry || '').split(' ');
+      if (cardIndustries.indexOf(industry) > -1) {
+        card.classList.remove('hidden');
+      } else {
+        card.classList.add('hidden');
+      }
+    }
+  });
+}
+
+// Mobile menu close on link click
+document.querySelectorAll('.mobile-menu a').forEach(function(a){
+  a.addEventListener('click', function(){ document.getElementById('mobileMenu').classList.remove('open'); });
+});
+</script>
+
+<!-- Schema markup for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "TurnkeyAI Demo Sites — AI Websites for Local Businesses",
+  "description": "Browse real AI-powered websites built by TurnkeyAI Services for local businesses across Mississippi and the Gulf Coast.",
+  "url": "https://turnkeyaiservices.com/demos",
+  "publisher": {
+    "@type": "Organization",
+    "name": "TurnkeyAI Services",
+    "url": "https://turnkeyaiservices.com"
+  }
+}
+</script>
+
+</body>
+</html>
