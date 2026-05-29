@@ -39,6 +39,10 @@ app.use((req, res, next) => {
   }
   next();
 });
+// ── Named page routes — must come BEFORE static middleware ──
+// These ensure specific HTML pages are served correctly without
+// being overridden by the catch-all index.html
+app.get('/demos', (req, res) => { res.sendFile(path.join(__dirname, 'public', 'demos.html')); });
 // ── Static files ──
 app.use(express.static(path.join(__dirname, 'public')));
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
@@ -79,7 +83,6 @@ initDB()
   .then(() => {
     // Initialize blog scheduler
     require('./lib/blog-scheduler');
-    
     app.listen(PORT, () => console.log(`[TurnkeyAI] Server running on port ${PORT}`));
   })
   .catch(err => { console.error('[startup error]', err); process.exit(1); });
