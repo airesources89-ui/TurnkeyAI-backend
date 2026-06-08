@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SMS Text Message Consent — TurnkeyAI Services</title>
+<meta name="description" content="Opt in to receive SMS text messages from TurnkeyAI Services including appointment confirmations, service updates, and business notifications.">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0c1a35;
+  --blue:#0066FF;
+  --blue-dark:#0052CC;
+  --green:#00D68F;
+  --green-dark:#00b377;
+  --gold:#f0c060;
+  --white:#ffffff;
+  --gray-50:#f8fafc;
+  --gray-100:#f1f5f9;
+  --gray-200:#e2e8f0;
+  --gray-400:#94a3b8;
+  --gray-600:#475569;
+  --gray-800:#1e293b;
+}
+html,body{min-height:100vh;background:var(--navy);}
+body{font-family:'Outfit',sans-serif;color:var(--white);}
+
+/* ── Background ── */
+.bg{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(0,102,255,0.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(0,214,143,0.10) 0%, transparent 50%),
+    linear-gradient(160deg, #0c1a35 0%, #091428 60%, #050d1f 100%);
+}
+.bg-grid{
+  position:fixed;inset:0;z-index:0;
+  background-image:linear-gradient(rgba(0,102,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,102,255,0.04) 1px,transparent 1px);
+  background-size:48px 48px;
+}
+
+/* ── Layout ── */
+.page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;}
+
+/* ── Header ── */
+header{padding:20px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.07);}
+.logo{display:flex;align-items:baseline;gap:4px;text-decoration:none;}
+.logo-main{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;}
+.logo-tag{font-size:10px;font-weight:600;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;margin-left:6px;}
+.header-badge{font-size:11px;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase;}
+
+/* ── Main content ── */
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 24px;}
+.container{width:100%;max-width:640px;}
+
+/* ── Card ── */
+.card{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:24px;
+  padding:48px;
+  backdrop-filter:blur(12px);
+  animation:fadeUp 0.6s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── Icon badge ── */
+.icon-badge{
+  width:64px;height:64px;
+  background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+  border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;
+  margin-bottom:28px;
+  box-shadow:0 8px 24px rgba(0,102,255,0.35);
+}
+
+/* ── Headings ── */
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,214,143,0.8);margin-bottom:10px;}
+h1{font-family:'Playfair Display',serif;font-size:clamp(26px,4vw,36px);font-weight:800;line-height:1.1;margin-bottom:14px;letter-spacing:-0.5px;}
+.subtitle{font-size:15px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:36px;}
+
+/* ── Divider ── */
+.divider{height:1px;background:rgba(255,255,255,0.08);margin:0 0 32px;}
+
+/* ── What you'll receive ── */
+.receives-title{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:16px;}
+.receives-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:32px;}
+.receives-list li{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:rgba(255,255,255,0.70);line-height:1.5;}
+.receives-list li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:6px;}
+
+/* ── Consent box ── */
+.consent-box{
+  background:rgba(0,102,255,0.08);
+  border:1px solid rgba(0,102,255,0.25);
+  border-radius:14px;
+  padding:24px;
+  margin-bottom:24px;
+}
+.consent-label{display:flex;align-items:flex-start;gap:14px;cursor:pointer;}
+.consent-checkbox{
+  width:22px;height:22px;min-width:22px;
+  border:2px solid rgba(0,102,255,0.5);
+  border-radius:6px;background:rgba(0,102,255,0.1);
+  appearance:none;-webkit-appearance:none;
+  cursor:pointer;margin-top:1px;
+  transition:all 0.2s;position:relative;
+}
+.consent-checkbox:checked{background:var(--blue);border-color:var(--blue);}
+.consent-checkbox:checked::after{
+  content:'✓';
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  color:white;font-size:13px;font-weight:700;
+}
+.consent-text{font-size:14px;line-height:1.65;color:rgba(255,255,255,0.80);}
+.consent-text strong{color:#fff;}
+.consent-text a{color:var(--blue);text-decoration:underline;text-underline-offset:2px;}
+
+/* ── Phone field ── */
+.field{margin-bottom:20px;}
+.field label{display:block;font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:8px;letter-spacing:0.5px;text-transform:uppercase;}
+.field input{
+  width:100%;padding:14px 18px;
+  background:rgba(255,255,255,0.06);
+  border:1.5px solid rgba(255,255,255,0.12);
+  border-radius:10px;
+  font-size:16px;font-family:'Outfit',sans-serif;color:#fff;
+  outline:none;transition:border-color 0.2s,background 0.2s;
+}
+.field input::placeholder{color:rgba(255,255,255,0.25);}
+.field input:focus{border-color:var(--blue);background:rgba(0,102,255,0.08);}
+
+/* ── Submit button ── */
+.btn-submit{
+  width:100%;
+  background:linear-gradient(135deg,var(--green),var(--green-dark));
+  color:#fff;border:none;
+  padding:17px 24px;
+  border-radius:12px;
+  font-size:16px;font-weight:700;
+  cursor:pointer;font-family:'Outfit',sans-serif;
+  letter-spacing:0.3px;
+  box-shadow:0 6px 24px rgba(0,214,143,0.25);
+  transition:all 0.2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-submit:hover{transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,214,143,0.35);}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+/* ── Fine print ── */
+.fine-print{margin-top:20px;font-size:12px;color:rgba(255,255,255,0.30);line-height:1.7;text-align:center;}
+.fine-print a{color:rgba(255,255,255,0.45);text-decoration:underline;}
+
+/* ── Success state ── */
+.success{display:none;text-align:center;padding:20px 0;}
+.success-icon{font-size:64px;margin-bottom:20px;animation:pop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;}
+@keyframes pop{from{transform:scale(0);}to{transform:scale(1);}}
+.success h2{font-family:'Playfair Display',serif;font-size:28px;font-weight:800;color:var(--green);margin-bottom:12px;}
+.success p{font-size:15px;color:rgba(255,255,255,0.60);line-height:1.7;}
+
+/* ── Footer ── */
+footer{padding:24px 32px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;}
+.footer-text{font-size:12px;color:rgba(255,255,255,0.25);}
+.footer-text a{color:rgba(255,255,255,0.4);text-decoration:none;}
+.footer-text a:hover{color:rgba(255,255,255,0.7);}
+
+/* ── Alerts ── */
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:16px;display:none;}
+.alert.error{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;}
+.alert.success-alert{background:rgba(0,214,143,0.12);border:1px solid rgba(0,214,143,0.3);color:#6ee7b7;}
+
+@media(max-width:600px){
+  .card{padding:32px 24px;}
+  header{padding:16px 20px;}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="bg-grid"></div>
+<div class="page">
+  <header>
+    <a href="/" class="logo">
+      <span class="logo-main">TurnkeyAI</span>
+      <span class="logo-tag">Services</span>
+    </a>
+    <div class="header-badge">SMS Opt-In</div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="card">
+        <div id="formSection">
+          <div class="icon-badge">💬</div>
+          <div class="eyebrow">Text Message Consent</div>
+          <h1>Stay in the Loop via Text</h1>
+          <p class="subtitle">TurnkeyAI Services sends text messages to keep you informed about your website, appointments, and service updates. Opt in below to receive these messages.</p>
+
+          <div class="divider"></div>
+
+          <div class="receives-title">You may receive texts about</div>
+          <ul class="receives-list">
+            <li>Appointment confirmations and reminders</li>
+            <li>Website build and deployment status updates</li>
+            <li>Service notifications and account alerts</li>
+            <li>Responses to inquiries you submit to us</li>
+            <li>Business updates relevant to your account</li>
+          </ul>
+
+          <div class="field">
+            <label>Your Mobile Phone Number</label>
+            <input type="tel" id="phoneInput" placeholder="(228) 555-1234" maxlength="20">
+          </div>
+
+          <div class="field">
+            <label>Your Name</label>
+            <input type="text" id="nameInput" placeholder="First and last name">
+          </div>
+
+          <div class="alert error" id="alertError"></div>
+
+          <div class="consent-box">
+            <label class="consent-label">
+              <input type="checkbox" class="consent-checkbox" id="smsConsent">
+              <span class="consent-text">
+                By checking this box, I agree to receive recurring automated text messages from <strong>TurnkeyAI Services</strong> at the mobile number provided above. Messages may include appointment confirmations, service notifications, and business updates. Message &amp; data rates may apply. Message frequency varies. Reply <strong>STOP</strong> to opt out at any time. Reply <strong>HELP</strong> for help. View our <a href="https://turnkeyaiservices.com/privacy-policy.html" target="_blank">Privacy Policy</a> and <a href="https://turnkeyaiservices.com/terms.html" target="_blank">Terms of Service</a>.
+              </span>
+            </label>
+          </div>
+
+          <button class="btn-submit" id="submitBtn" onclick="handleSubmit()">
+            ✓ &nbsp;Opt In to Text Messages
+          </button>
+
+          <div class="fine-print">
+            This is a voluntary opt-in. You will not receive marketing or promotional text messages.<br>
+            Standard messaging rates apply. Contact us at <a href="mailto:turnkeyaiservices@gmail.com">turnkeyaiservices@gmail.com</a> or <a href="tel:2282319891">(228) 231-9891</a>.
+          </div>
+        </div>
+
+        <div class="success" id="successSection">
+          <div class="success-icon">✅</div>
+          <h2>You're Opted In!</h2>
+          <p>Thank you, <span id="successName"></span>. You'll receive text messages at <span id="successPhone"></span>.<br><br>
+          Reply <strong>STOP</strong> at any time to opt out.<br><br>
+          Questions? Call <strong>(228) 231-9891</strong> or email <a href="mailto:turnkeyaiservices@gmail.com" style="color:var(--blue)">turnkeyaiservices@gmail.com</a></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-text">
+      &copy; 2025 TurnkeyAI Services &nbsp;·&nbsp;
+      <a href="https://turnkeyaiservices.com">turnkeyaiservices.com</a> &nbsp;·&nbsp;
+      <a href="tel:2282319891">(228) 231-9891</a> &nbsp;·&nbsp;
+      <a href="mailto:turnkeyaiservices@gmail.com">turnkeyaiservices@gmail.com</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+function formatPhone(val){
+  var digits=val.replace(/\D/g,'');
+  if(digits.length<=3)return digits;
+  if(digits.length<=6)return '('+digits.slice(0,3)+') '+digits.slice(3);
+  return '('+digits.slice(0,3)+') '+digits.slice(3,6)+'-'+digits.slice(6,10);
+}
+document.getElementById('phoneInput').addEventListener('input',function(){
+  var pos=this.selectionStart;
+  this.value=formatPhone(this.value);
+});
+
+function handleSubmit(){
+  var phone=document.getElementById('phoneInput').value.trim();
+  var name=document.getElementById('nameInput').value.trim();
+  var consent=document.getElementById('smsConsent').checked;
+  var errEl=document.getElementById('alertError');
+  errEl.style.display='none';
+
+  var digits=phone.replace(/\D/g,'');
+  if(!name){errEl.textContent='Please enter your name.';errEl.style.display='block';return;}
+  if(digits.length<10){errEl.textContent='Please enter a valid 10-digit phone number.';errEl.style.display='block';return;}
+  if(!consent){errEl.textContent='Please check the consent box to opt in.';errEl.style.display='block';return;}
+
+  var btn=document.getElementById('submitBtn');
+  btn.disabled=true;btn.textContent='Submitting...';
+
+  // POST to the TurnkeyAI intake worker / backend
+  fetch('/api/sms-optin',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name:name,phone:phone,smsConsent:'yes',consentTimestamp:new Date().toISOString(),source:'sms-consent-page'})
+  }).catch(function(){/* non-fatal — consent recorded in browser regardless */});
+
+  // Show success immediately — don't block on API response
+  document.getElementById('successName').textContent=name;
+  document.getElementById('successPhone').textContent=phone;
+  document.getElementById('formSection').style.display='none';
+  document.getElementById('successSection').style.display='block';
+}
+</script>
+</body>
+</html>
