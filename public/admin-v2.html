@@ -140,7 +140,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 .phase-flag{font-size:26px;flex-shrink:0}.phase-info{flex:1}.phase-country{font-size:14px;font-weight:700;color:var(--text-primary)}.phase-detail{font-size:12px;color:var(--text-secondary);margin-top:2px}.phase-status{flex-shrink:0}
 .straggler-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--navy);border:1px solid var(--navy-border);border-radius:var(--radius-sm);margin-bottom:7px;font-size:13px;cursor:pointer;transition:border-color var(--t)}.straggler-item:hover{border-color:var(--amber)}
 .straggler-label{flex:1;color:var(--text-secondary)}.straggler-label.done{color:var(--text-dim);text-decoration:line-through}
-.tab-bar{display:flex;gap:2px;border-bottom:1px solid var(--navy-border);margin-bottom:18px}
+.tab-bar{display:flex;gap:2px;border-bottom:1px solid var(--navy-border);margin-bottom:18px;flex-wrap:wrap}
 .tab{padding:9px 16px;font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all var(--t)}.tab:hover{color:var(--text-primary)}.tab.active{color:var(--amber);border-bottom-color:var(--amber)}
 .tab-panel{display:none}.tab-panel.active{display:block}
 #toast-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
@@ -157,6 +157,26 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 .empty-state{text-align:center;padding:40px 20px;color:var(--text-dim)}.empty-state i{font-size:36px;margin-bottom:12px;display:block;opacity:0.4}.empty-state p{font-size:13px}
 .scroll-area{max-height:320px;overflow-y:auto}
 .role-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(26,40,68,0.4)}.role-row:last-child{border-bottom:none}
+
+/* ── INTAKE DATA TAB STYLES ── */
+.intake-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:18px}
+.intake-field{background:var(--navy);border:1px solid var(--navy-border);border-radius:var(--radius-sm);padding:12px 14px;transition:border-color var(--t)}
+.intake-field:hover{border-color:rgba(245,158,11,0.3)}
+.intake-field-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.intake-field-value{font-size:13px;color:var(--text-primary);line-height:1.5;word-break:break-word}
+.intake-field-value.empty{color:var(--text-dim);font-style:italic}
+.intake-edit-btn{opacity:0;background:transparent;border:1px solid var(--navy-border);border-radius:3px;color:var(--text-dim);font-size:10px;padding:2px 6px;cursor:pointer;transition:all var(--t)}
+.intake-field:hover .intake-edit-btn{opacity:1}
+.intake-edit-btn:hover{border-color:var(--amber);color:var(--amber)}
+.intake-edit-input{width:100%;background:var(--navy-mid);border:1px solid var(--amber);border-radius:3px;padding:6px 8px;color:var(--text-primary);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;margin-top:4px}
+.intake-edit-textarea{width:100%;background:var(--navy-mid);border:1px solid var(--amber);border-radius:3px;padding:6px 8px;color:var(--text-primary);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;margin-top:4px;min-height:80px;resize:vertical}
+.intake-edit-actions{display:flex;gap:6px;margin-top:6px}
+.intake-section-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--amber);margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--navy-border);grid-column:1/-1}
+.rebuild-bar{background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:var(--radius-sm);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:14px;flex-wrap:wrap}
+.rebuild-bar-text{font-size:13px;color:var(--text-secondary)}
+.rebuild-bar-text strong{color:var(--text-primary)}
+.rebuild-bar-actions{display:flex;gap:8px;flex-shrink:0}
+
 @media(max-width:1100px){.g4{grid-template-columns:repeat(2,1fr)}.g21{grid-template-columns:1fr}.g12{grid-template-columns:1fr}}
 @media(max-width:768px){:root{--sidebar-w:54px}.g3{grid-template-columns:1fr}.g2{grid-template-columns:1fr}#content{padding:14px}}
 </style>
@@ -278,8 +298,36 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 <!-- CLIENT DETAIL -->
 <div class="panel" id="panel-client-detail">
   <div class="panel-header"><div style="display:flex;align-items:center;gap:12px"><button class="btn btn-ghost btn-sm" onclick="nav('clients-all')"><i class="fa-solid fa-arrow-left"></i> All Clients</button><div><div class="panel-title" id="cd-name">Client Name</div><div class="panel-subtitle" id="cd-sub">Industry · Plan · Login ID</div></div><div id="cd-health-badge" class="badge badge-green" style="margin-left:auto">● Live</div></div></div>
-  <div class="tab-bar"><div class="tab active" onclick="clientTab('overview',this)">Overview</div><div class="tab" onclick="clientTab('site',this)">Site &amp; Deploy</div><div class="tab" onclick="clientTab('analytics',this)">Analytics</div><div class="tab" onclick="clientTab('billing',this)">Billing</div><div class="tab" onclick="clientTab('phone',this)">Phone / IVR</div><div class="tab" onclick="clientTab('blog',this)">Blog</div><div class="tab" onclick="clientTab('clog',this)">Activity Log</div><div class="tab" onclick="clientTab('actions',this)">Quick Actions</div></div>
+  <div class="tab-bar">
+    <div class="tab active" onclick="clientTab('overview',this)">Overview</div>
+    <div class="tab" onclick="clientTab('intake',this)"><i class="fa-solid fa-clipboard-list" style="margin-right:5px;color:var(--amber)"></i>Intake Data</div>
+    <div class="tab" onclick="clientTab('site',this)">Site &amp; Deploy</div>
+    <div class="tab" onclick="clientTab('analytics',this)">Analytics</div>
+    <div class="tab" onclick="clientTab('billing',this)">Billing</div>
+    <div class="tab" onclick="clientTab('phone',this)">Phone / IVR</div>
+    <div class="tab" onclick="clientTab('blog',this)">Blog</div>
+    <div class="tab" onclick="clientTab('clog',this)">Activity Log</div>
+    <div class="tab" onclick="clientTab('actions',this)">Quick Actions</div>
+  </div>
   <div class="tab-panel active" id="ctab-overview"><div class="g3"><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-circle-info"></i> Contact Info</div></div><div id="cd-contact"></div></div><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-list-check"></i> Onboarding Progress</div></div><div id="cd-onboard"></div></div><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-chart-bar"></i> 30-Day Stats</div></div><div id="cd-stats"></div></div></div></div>
+
+  <!-- ══════════════════════════════════════════
+       INTAKE DATA TAB — NEW
+       ══════════════════════════════════════════ -->
+  <div class="tab-panel" id="ctab-intake">
+    <div class="rebuild-bar">
+      <div class="rebuild-bar-text">
+        <strong><i class="fa-solid fa-database" style="color:var(--amber);margin-right:6px"></i>Complete Intake Record</strong>
+        — All fields submitted by this client. Edit any field inline, then rebuild their site with one click.
+      </div>
+      <div class="rebuild-bar-actions">
+        <button class="btn btn-secondary btn-sm" onclick="exportIntakeData()"><i class="fa-solid fa-file-export"></i> Export</button>
+        <button class="btn btn-primary" onclick="rebuildClientSite()" id="rebuild-btn"><i class="fa-solid fa-hammer"></i> Rebuild Site Now</button>
+      </div>
+    </div>
+    <div id="intake-data-grid"></div>
+  </div>
+
   <div class="tab-panel" id="ctab-site"><div class="g2"><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-globe"></i> Site Details</div></div><div id="cd-site"></div></div><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-server"></i> DNS &amp; Domain</div></div><div id="cd-dns"></div></div></div></div>
   <div class="tab-panel" id="ctab-analytics"><div class="g2"><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-eye"></i> Page Views (30 Days)</div></div><div class="chart-wrap-tall"><canvas id="cd-chart-views"></canvas></div></div><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-clock"></i> Dwell Time by Page</div></div><div id="cd-dwell"></div></div></div></div>
   <div class="tab-panel" id="ctab-billing"><div class="g2"><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-credit-card"></i> Billing</div></div><div id="cd-billing"></div></div><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-receipt"></i> Payment History</div></div><div id="cd-payments"></div></div></div></div>
@@ -288,11 +336,10 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
   <div class="tab-panel" id="ctab-clog"><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-timeline"></i> Client Activity Log</div></div><div id="cd-activity-log" class="scroll-area"></div></div></div>
   <div class="tab-panel" id="ctab-actions"><div class="g3">
     <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-envelope"></i> Email Actions</div></div><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-secondary" onclick="quickAction('welcome')"><i class="fa-solid fa-paper-plane"></i> Resend Welcome Email</button><button class="btn btn-secondary" onclick="quickAction('dns')"><i class="fa-solid fa-server"></i> Send DNS Instructions</button><button class="btn btn-secondary" onclick="quickAction('payment')"><i class="fa-solid fa-credit-card"></i> Send Payment Reminder</button><button class="btn btn-secondary" onclick="quickAction('update')"><i class="fa-solid fa-pen"></i> Request Content Update</button><button class="btn btn-secondary" onclick="quickAction('phone-ready')"><i class="fa-solid fa-phone"></i> Send Phone Ready Email</button></div></div>
-    <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-rocket"></i> Deploy Actions</div></div><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-primary" onclick="quickAction('deploy')"><i class="fa-solid fa-upload"></i> Trigger Site Deploy</button><button class="btn btn-secondary" onclick="quickAction('approve')"><i class="fa-solid fa-check"></i> Approve Client</button><button class="btn btn-secondary" onclick="quickAction('preview')"><i class="fa-solid fa-eye"></i> Send Preview Email</button><button class="btn btn-secondary" onclick="quickAction('blog-post')"><i class="fa-solid fa-pen-nib"></i> Post Blog Now</button><div style="height:1px;background:var(--navy-border);margin:2px 0"></div><button class="btn btn-success" id="qa-view-live" onclick="viewClientSite('live')" title="Opens live site in new tab"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Live Site</button><button class="btn btn-ghost" id="qa-view-preview" onclick="viewClientSite('preview')" title="Opens Cloudflare Pages preview in new tab"><i class="fa-solid fa-eye"></i> Preview on Cloudflare</button></div></div>
+    <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-rocket"></i> Deploy Actions</div></div><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-primary" onclick="quickAction('deploy')"><i class="fa-solid fa-upload"></i> Trigger Site Deploy</button><button class="btn btn-secondary" onclick="quickAction('approve')"><i class="fa-solid fa-check"></i> Approve Client</button><button class="btn btn-secondary" onclick="quickAction('preview')"><i class="fa-solid fa-eye"></i> Send Preview Email</button><button class="btn btn-secondary" onclick="quickAction('blog-post')"><i class="fa-solid fa-pen-nib"></i> Post Blog Now</button><div style="height:1px;background:var(--navy-border);margin:2px 0"></div><button class="btn btn-success" id="qa-view-live" onclick="viewClientSite('live')"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Live Site</button><button class="btn btn-ghost" id="qa-view-preview" onclick="viewClientSite('preview')"><i class="fa-solid fa-eye"></i> Preview on Cloudflare</button></div></div>
     <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone</div></div><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-danger" onclick="quickAction('suspend')"><i class="fa-solid fa-pause"></i> Suspend Client</button><button class="btn btn-danger" onclick="quickAction('delete')"><i class="fa-solid fa-trash"></i> Delete Client</button></div></div>
   </div></div>
 </div>
-
 <!-- PENDING -->
 <div class="panel" id="panel-pending">
   <div class="panel-header"><div class="panel-title">Pending Approval</div><div class="panel-subtitle">Review and approve new client intake submissions</div></div>
@@ -321,23 +368,12 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 <!-- PARTNER APPLICATIONS -->
 <div class="panel" id="panel-partner-applications">
   <div class="panel-header"><div class="panel-title">Partner Applications</div><div class="panel-subtitle">Review Territory Partner intake submissions</div></div>
-  <div class="card">
-    <table class="tbl">
-      <thead><tr><th>Applicant</th><th>Tier</th><th>Territory</th><th>Industries</th><th>Submitted</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody id="partner-apps-body"><tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No applications yet.</p></div></td></tr></tbody>
-    </table>
-  </div>
+  <div class="card"><table class="tbl"><thead><tr><th>Applicant</th><th>Tier</th><th>Territory</th><th>Industries</th><th>Submitted</th><th>Status</th><th>Actions</th></tr></thead><tbody id="partner-apps-body"><tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No applications yet.</p></div></td></tr></tbody></table></div>
 </div>
 
 <!-- PARTNER DETAIL -->
 <div class="panel" id="panel-partner-detail">
-  <div class="panel-header">
-    <div style="display:flex;align-items:center;gap:12px">
-      <button class="btn btn-ghost btn-sm" onclick="nav('partner-applications')"><i class="fa-solid fa-arrow-left"></i> Applications</button>
-      <div><div class="panel-title" id="pd-name">Partner Name</div><div class="panel-subtitle" id="pd-sub">Tier · Submitted</div></div>
-      <div id="pd-status-badge" class="badge badge-yellow" style="margin-left:auto">● Pending</div>
-    </div>
-  </div>
+  <div class="panel-header"><div style="display:flex;align-items:center;gap:12px"><button class="btn btn-ghost btn-sm" onclick="nav('partner-applications')"><i class="fa-solid fa-arrow-left"></i> Applications</button><div><div class="panel-title" id="pd-name">Partner Name</div><div class="panel-subtitle" id="pd-sub">Tier · Submitted</div></div><div id="pd-status-badge" class="badge badge-yellow" style="margin-left:auto">● Pending</div></div></div>
   <div class="g3">
     <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-user"></i> Applicant Info</div></div><div id="pd-contact"></div></div>
     <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-map-location-dot"></i> Territory Definition</div></div><div id="pd-territory"></div></div>
@@ -347,8 +383,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
     <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-list-check"></i> Selected Industries</div></div><div id="pd-industries"></div></div>
     <div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-briefcase"></i> Business Background</div></div><div id="pd-background"></div></div>
   </div>
-  <div class="card" style="margin-top:0">
-    <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-gavel"></i> Decision</div></div>
+  <div class="card" style="margin-top:0"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-gavel"></i> Decision</div></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <button class="btn btn-success" id="pd-approve-btn" onclick="approvePartnerFromDetail()"><i class="fa-solid fa-check"></i> Approve Partner</button>
       <button class="btn btn-danger" id="pd-reject-btn" onclick="rejectPartnerFromDetail()"><i class="fa-solid fa-times"></i> Reject Application</button>
@@ -362,21 +397,11 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 <div class="panel" id="panel-territory-map">
   <div class="panel-header"><div class="panel-title">Territory Map</div><div class="panel-subtitle">All partner territories — approved (green) and pending (amber)</div></div>
   <div class="card">
-    <div class="card-hdr">
-      <div class="card-title"><i class="fa-solid fa-map-location-dot"></i> Partner Territory Coverage</div>
-      <button class="btn btn-ghost btn-sm" onclick="renderTerritoryMap(true)"><i class="fa-solid fa-rotate"></i> Refresh Map</button>
-    </div>
-    <div class="map-legend">
-      <div class="legend-item"><div class="legend-dot legend-green"></div><span>Active Partner</span></div>
-      <div class="legend-item"><div class="legend-dot legend-amber"></div><span>Pending Application</span></div>
-      <div class="legend-item"><div class="legend-dot legend-gray"></div><span>Available</span></div>
-    </div>
+    <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-map-location-dot"></i> Partner Territory Coverage</div><button class="btn btn-ghost btn-sm" onclick="renderTerritoryMap(true)"><i class="fa-solid fa-rotate"></i> Refresh Map</button></div>
+    <div class="map-legend"><div class="legend-item"><div class="legend-dot legend-green"></div><span>Active Partner</span></div><div class="legend-item"><div class="legend-dot legend-amber"></div><span>Pending Application</span></div><div class="legend-item"><div class="legend-dot legend-gray"></div><span>Available</span></div></div>
     <div id="admin-territory-map"></div>
   </div>
-  <div class="card" style="margin-top:14px">
-    <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-list"></i> Claimed Territories</div></div>
-    <div id="territory-claimed-list"><div class="empty-state"><i class="fa-solid fa-map-pin"></i><p>No territories claimed yet.</p></div></div>
-  </div>
+  <div class="card" style="margin-top:14px"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-list"></i> Claimed Territories</div></div><div id="territory-claimed-list"><div class="empty-state"><i class="fa-solid fa-map-pin"></i><p>No territories claimed yet.</p></div></div></div>
 </div>
 
 <!-- PARTNER PIPELINE -->
@@ -438,7 +463,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 </div>
 
 <!-- INTERNATIONAL -->
-<div class="panel" id="panel-intl-us"><div class="panel-header"><div class="panel-title">🇺🇸 United States</div><div class="panel-subtitle">Primary market — Active</div></div><div class="g4"><div class="stat-card sc-green"><div class="stat-label">Active Clients</div><div class="stat-val sv-green" id="us-clients">—</div></div><div class="stat-card sc-amber"><div class="stat-label">MRR</div><div class="stat-val sv-amber" id="us-mrr">—</div></div><div class="stat-card sc-blue"><div class="stat-label">States Covered</div><div class="stat-val sv-blue">1</div></div><div class="stat-card sc-purple"><div class="stat-label">Industries Active</div><div class="stat-val sv-purple" id="us-industries">—</div></div></div><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-flag-usa"></i> Market Status</div></div><div class="progress-wrap"><div class="progress-label"><span>Market Development</span><span>Early Stage</span></div><div class="progress-bar"><div class="progress-fill pf-green" style="width:8%"></div></div></div><p style="font-size:13px;color:var(--text-secondary);margin-top:12px">Core market. 67 industry verticals available. Bay St. Louis, MS — expanding to all 50 states via Territory Partner Hub network.</p></div></div>
+<div class="panel" id="panel-intl-us"><div class="panel-header"><div class="panel-title">🇺🇸 United States</div><div class="panel-subtitle">Primary market — Active</div></div><div class="g4"><div class="stat-card sc-green"><div class="stat-label">Active Clients</div><div class="stat-val sv-green" id="us-clients">—</div></div><div class="stat-card sc-amber"><div class="stat-label">MRR</div><div class="stat-val sv-amber" id="us-mrr">—</div></div><div class="stat-card sc-blue"><div class="stat-label">States Covered</div><div class="stat-val sv-blue">1</div></div><div class="stat-card sc-purple"><div class="stat-label">Industries Active</div><div class="stat-val sv-purple" id="us-industries">—</div></div></div><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-flag-usa"></i> Market Status</div></div><div class="progress-wrap"><div class="progress-label"><span>Market Development</span><span>Early Stage</span></div><div class="progress-bar"><div class="progress-fill pf-green" style="width:8%"></div></div></div><p style="font-size:13px;color:var(--text-secondary);margin-top:12px">Core market. 67 industry verticals available. Bay St. Louis, MS — expanding to all 50 states via Territory Partner Hub network.</p></div></div></div>
 <div class="panel" id="panel-intl-mx"><div class="panel-header"><div class="panel-title">🇲🇽 Mexico</div><div class="panel-subtitle">Phase 1 Target — Launch 2026</div></div><div id="intl-content-mx"></div></div>
 <div class="panel" id="panel-intl-ph"><div class="panel-header"><div class="panel-title">🇵🇭 Philippines</div><div class="panel-subtitle">Phase 1 Target — Launch 2026</div></div><div id="intl-content-ph"></div></div>
 <div class="panel" id="panel-intl-br"><div class="panel-header"><div class="panel-title">🇧🇷 Brazil</div><div class="panel-subtitle">Phase 2 Target — Launch 2027</div></div><div id="intl-content-br"></div></div>
@@ -538,7 +563,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
       <div class="form-group"><label class="form-label">Session Timeout</label><select class="form-input form-select" id="session-timeout-setting" onchange="updateSessionTimeout(this.value)"><option value="30">30 minutes</option><option value="60">1 hour</option><option value="120">2 hours</option><option value="480">8 hours (work day)</option></select></div>
       <div style="padding:12px;background:var(--navy);border-radius:var(--radius-sm);border:1px solid var(--navy-border);font-size:13px;color:var(--text-secondary)">
         <div style="margin-bottom:8px"><strong style="color:var(--text-primary)">Current session:</strong> Active</div>
-        <div style="margin-bottom:8px"><strong style="color:var(--text-primary)">Login URL:</strong> <code style="font-family:'DM Mono',monospace;color:var(--amber)">/admin-v2?key=YOUR_KEY</code></div>
+        <div style="margin-bottom:8px"><strong style="color:var(--text-primary)">Login URL:</strong> <code style="font-family:'DM Mono',monospace;color:var(--amber)">/admin?key=YOUR_KEY</code></div>
         <div><strong style="color:var(--text-primary)">Recommendation:</strong> Bookmark in a private browser tab.</div>
       </div>
     </div>
@@ -571,15 +596,9 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}i
 <script>
 /* ── STATE ── */
 const STATE = {
-  clients: [],
-  partners: [],
-  analytics: {},
-  adminKey: new URLSearchParams(location.search).get('key') || '',
-  activeClient: null,
-  sessionMinutes: 30,
-  sessionRemaining: 30 * 60,
-  notifications: [],
-  auditLog: [],
+  clients: [], partners: [], analytics: {}, adminKey: new URLSearchParams(location.search).get('key') || '',
+  activeClient: null, sessionMinutes: 30, sessionRemaining: 30 * 60,
+  notifications: [], auditLog: [],
   backlogItems: [
     { id:1,  label:'DNS automation from intake data',                     status:'done', priority:'high' },
     { id:2,  label:'Option B self-directed DNS emails',                   status:'done', priority:'high' },
@@ -596,12 +615,13 @@ const STATE = {
     { id:13, label:'Stripe Connect revenue auto-splitting',               status:'todo', priority:'high' },
     { id:14, label:'Hub password hashing (bcrypt)',                       status:'done', priority:'high' },
     { id:15, label:'Partner password reset + change password flow',       status:'done', priority:'high' },
-    { id:16, label:'Hub client attribution — verify partnerId saves via intake route', status:'done', priority:'high' },
+    { id:16, label:'Hub client attribution — verify partnerId saves',     status:'done', priority:'high' },
     { id:17, label:'Territory conflict check — city/county/radius',       status:'done', priority:'high' },
     { id:18, label:'Partner LOI promo tracking (80/20 first 10)',        status:'todo', priority:'high' },
     { id:19, label:'Hub session token expiry / rotation',                 status:'done', priority:'med'  },
     { id:20, label:'Partner-facing client approval workflow',             status:'todo', priority:'med'  },
     { id:21, label:'Admin territory overlay map (all partners simultaneous)', status:'done', priority:'high' },
+    { id:22, label:'Intake Data tab in client detail panel',              status:'done', priority:'high' }
   ]
 };
 
@@ -671,94 +691,257 @@ function updateSidebarCounts() {
   buildClientNavList();
 }
 
+/* ══════════════════════════════════════════
+   INTAKE DATA TAB — CORE LOGIC
+   ══════════════════════════════════════════ */
+
+// Field definitions: key, human label, category, editable, textarea
+const INTAKE_FIELDS = [
+  // Business Info
+  { key:'businessName',       label:'Business Name',          cat:'Business Info',    edit:true  },
+  { key:'ownerName',          label:'Owner Name',             cat:'Business Info',    edit:true  },
+  { key:'phone',              label:'Phone Number',           cat:'Business Info',    edit:true  },
+  { key:'email',              label:'Email Address',          cat:'Business Info',    edit:true  },
+  { key:'address',            label:'Street Address',         cat:'Business Info',    edit:true  },
+  { key:'city',               label:'City',                   cat:'Business Info',    edit:true  },
+  { key:'state',              label:'State',                  cat:'Business Info',    edit:true  },
+  { key:'zip',                label:'ZIP Code',               cat:'Business Info',    edit:true  },
+  { key:'industry',           label:'Industry',               cat:'Business Info',    edit:true  },
+  { key:'targetCity',         label:'Target City',            cat:'Business Info',    edit:true  },
+  // Website Content
+  { key:'missionStatement',   label:'Tagline / Mission',      cat:'Website Content',  edit:true, textarea:true },
+  { key:'aboutUs',            label:'About Us',               cat:'Website Content',  edit:true, textarea:true },
+  { key:'competitiveAdvantage',label:'Competitive Advantage', cat:'Website Content',  edit:true, textarea:true },
+  { key:'awards',             label:'Awards & Recognition',   cat:'Website Content',  edit:true, textarea:true },
+  { key:'serviceArea',        label:'Service Area',           cat:'Website Content',  edit:true  },
+  { key:'hoursOfOperation',   label:'Hours of Operation',     cat:'Website Content',  edit:true  },
+  { key:'chatName',           label:'Chat Widget Name',       cat:'Website Content',  edit:true  },
+  // Plan & Billing
+  { key:'selectedPlan',       label:'Selected Plan',          cat:'Plan & Billing',   edit:false },
+  { key:'plan',               label:'Plan (alt)',             cat:'Plan & Billing',   edit:false },
+  { key:'tier',               label:'Tier',                   cat:'Plan & Billing',   edit:false },
+  // Domain & DNS
+  { key:'hasDomain',          label:'Has Existing Domain?',   cat:'Domain & DNS',     edit:false },
+  { key:'existingDomain',     label:'Existing Domain',        cat:'Domain & DNS',     edit:true  },
+  { key:'domainRegistrar',    label:'Domain Registrar',       cat:'Domain & DNS',     edit:true  },
+  { key:'suggestedDomain',    label:'Suggested Domain',       cat:'Domain & DNS',     edit:true  },
+  { key:'dnsSetupPreference', label:'DNS Setup Preference',   cat:'Domain & DNS',     edit:false },
+  { key:'wantsProfessionalEmail', label:'Wants Pro Email?',   cat:'Domain & DNS',     edit:false },
+  // Add-ons & IVR
+  { key:'addon_after_hours',  label:'After-Hours Add-on',     cat:'Add-ons & IVR',    edit:false },
+  { key:'addon_missed_call',  label:'Missed Call Text-Back',  cat:'Add-ons & IVR',    edit:false },
+  { key:'wants_mini_me',      label:'Wants Mini-Me Video',    cat:'Add-ons & IVR',    edit:false },
+  // SEO & Blog
+  { key:'blogKeywords',       label:'Blog Keywords',          cat:'SEO & Blog',       edit:true, textarea:true },
+  { key:'seoKeywords',        label:'SEO Keywords',           cat:'SEO & Blog',       edit:true, textarea:true },
+  { key:'localKeyword',       label:'Local Keyword',          cat:'SEO & Blog',       edit:true  },
+];
+
+function renderIntakeTab(client) {
+  const data = client.data || {};
+  const grid = document.getElementById('intake-data-grid');
+  if (!grid) return;
+
+  // Group fields by category
+  const categories = {};
+  INTAKE_FIELDS.forEach(f => {
+    if (!categories[f.cat]) categories[f.cat] = [];
+    categories[f.cat].push(f);
+  });
+
+  // Also collect any extra keys in data not in our defined fields
+  const definedKeys = new Set(INTAKE_FIELDS.map(f => f.key));
+  const extraKeys = Object.keys(data).filter(k => !definedKeys.has(k) && !['registrarUsername','registrarPassword'].includes(k));
+
+  let html = '';
+  Object.entries(categories).forEach(([cat, fields]) => {
+    html += `<div class="intake-grid">`;
+    html += `<div class="intake-section-title"><i class="fa-solid fa-chevron-right" style="font-size:11px;margin-right:6px"></i>${cat}</div>`;
+    fields.forEach(f => {
+      const val = data[f.key];
+      const display = val !== undefined && val !== null && val !== '' ? String(val) : null;
+      html += buildIntakeField(f.key, f.label, display, f.edit !== false, f.textarea || false, client.id);
+    });
+    html += `</div>`;
+  });
+
+  // Extra / unknown fields
+  if (extraKeys.length > 0) {
+    html += `<div class="intake-grid">`;
+    html += `<div class="intake-section-title"><i class="fa-solid fa-chevron-right" style="font-size:11px;margin-right:6px"></i>Additional Fields</div>`;
+    extraKeys.forEach(k => {
+      const val = data[k];
+      if (val === undefined || val === null) return;
+      const display = typeof val === 'object' ? JSON.stringify(val) : String(val);
+      html += buildIntakeField(k, k, display, true, false, client.id);
+    });
+    html += `</div>`;
+  }
+
+  grid.innerHTML = html || '<div class="empty-state"><i class="fa-solid fa-clipboard"></i><p>No intake data on record for this client.</p></div>';
+}
+
+function buildIntakeField(key, label, value, editable, textarea, clientId) {
+  const valHtml = value
+    ? `<div class="intake-field-value" id="ifv-${key}">${esc(value)}</div>`
+    : `<div class="intake-field-value empty" id="ifv-${key}">Not provided</div>`;
+  const editBtn = editable
+    ? `<button class="intake-edit-btn" onclick="startIntakeEdit('${key}','${esc(value||'')}',${textarea},${JSON.stringify(clientId)})" title="Edit"><i class="fa-solid fa-pen"></i></button>`
+    : '';
+  return `<div class="intake-field" id="iff-${key}">
+    <div class="intake-field-label">${esc(label)}${editBtn}</div>
+    ${valHtml}
+  </div>`;
+}
+
+function startIntakeEdit(key, currentVal, textarea, clientId) {
+  const field = document.getElementById('iff-'+key);
+  if (!field) return;
+  const valEl = document.getElementById('ifv-'+key);
+  if (!valEl) return;
+
+  const inputEl = textarea
+    ? `<textarea class="intake-edit-textarea" id="iinput-${key}">${esc(currentVal)}</textarea>`
+    : `<input class="intake-edit-input" id="iinput-${key}" type="text" value="${esc(currentVal)}">`;
+
+  valEl.style.display = 'none';
+  const actionsHtml = `
+    ${inputEl}
+    <div class="intake-edit-actions">
+      <button class="btn btn-primary btn-xs" onclick="saveIntakeField('${key}',${JSON.stringify(clientId)})"><i class="fa-solid fa-check"></i> Save</button>
+      <button class="btn btn-ghost btn-xs" onclick="cancelIntakeEdit('${key}','${esc(currentVal)}')"><i class="fa-solid fa-times"></i> Cancel</button>
+    </div>`;
+  const wrapper = document.createElement('div');
+  wrapper.id = 'iedit-'+key;
+  wrapper.innerHTML = actionsHtml;
+  field.appendChild(wrapper);
+  const inp = document.getElementById('iinput-'+key);
+  if (inp) { inp.focus(); inp.select(); }
+}
+
+async function saveIntakeField(key, clientId) {
+  const inp = document.getElementById('iinput-'+key);
+  if (!inp) return;
+  const newVal = inp.value.trim();
+
+  const r = await API.post('/api/admin/update-client', {
+    clientId: clientId,
+    fields: { [key]: newVal },
+    redeploy: false
+  });
+
+  if (r && r.success) {
+    // Update in-memory client
+    const client = STATE.clients.find(c => (c.id || c.client_id) == clientId);
+    if (client && client.data) client.data[key] = newVal;
+    if (STATE.activeClient && STATE.activeClient.data) STATE.activeClient.data[key] = newVal;
+
+    // Update display
+    cancelIntakeEdit(key, newVal);
+    const valEl = document.getElementById('ifv-'+key);
+    if (valEl) {
+      valEl.textContent = newVal || 'Not provided';
+      valEl.className = 'intake-field-value' + (newVal ? '' : ' empty');
+    }
+    toast('Field updated', 'success');
+    addActivity('pen','ai-amber',`Intake field <strong>${key}</strong> updated for ${STATE.activeClient?.businessName||clientId}`);
+    logAudit('Edit Intake Field: '+key, STATE.activeClient?.businessName || clientId);
+  } else {
+    toast('Save failed — check Railway logs', 'error');
+  }
+}
+
+function cancelIntakeEdit(key, originalVal) {
+  const wrapper = document.getElementById('iedit-'+key);
+  if (wrapper) wrapper.remove();
+  const valEl = document.getElementById('ifv-'+key);
+  if (valEl) valEl.style.display = '';
+}
+
+async function rebuildClientSite() {
+  const client = STATE.activeClient;
+  if (!client) { toast('No client selected', 'error'); return; }
+  const name = client.businessName || client.business_name || 'this client';
+  if (!confirm(`Rebuild and redeploy the site for ${name}? This will push a fresh site using all current intake data.`)) return;
+
+  const btn = document.getElementById('rebuild-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Rebuilding...'; }
+
+  const r = await API.post('/api/admin/approve', { clientId: client.id || client.client_id, key: STATE.adminKey });
+
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-hammer"></i> Rebuild Site Now'; }
+
+  if (r && r.success) {
+    toast(`Site rebuilt for ${name}`, 'success');
+    addActivity('rocket','ai-green',`<strong>Site rebuilt</strong> for ${name}`);
+    logAudit('Rebuild Site', name);
+    await loadAllData();
+  } else {
+    toast('Rebuild failed — check Railway logs', 'error');
+  }
+}
+
+function exportIntakeData() {
+  const client = STATE.activeClient;
+  if (!client) return;
+  const data = client.data || {};
+  const lines = ['TurnkeyAI Intake Data Export', '================================', `Client: ${client.businessName || '—'}`, `Exported: ${new Date().toLocaleString()}`, ''];
+  INTAKE_FIELDS.forEach(f => {
+    const val = data[f.key];
+    if (val !== undefined && val !== null && val !== '') lines.push(`${f.label}: ${val}`);
+  });
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (client.businessName || 'client').replace(/\s+/g,'-').toLowerCase() + '-intake.txt';
+  a.click();
+  toast('Intake data exported', 'success');
+}
+
 /* ── TERRITORY MAP ── */
 let adminMap = null;
 const adminGeoCache = {};
-
 function geocodeThrottle() { return new Promise(resolve => setTimeout(resolve, 1000)); }
-
 async function geocodeAdmin(query) {
   if (adminGeoCache[query]) return adminGeoCache[query];
   try {
     const url = 'https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(query)+'&format=json&limit=1&countrycodes=us';
     const r = await fetch(url, { headers: { 'Accept-Language':'en' } });
     const d = await r.json();
-    if (d && d.length > 0) {
-      const result = { lat: parseFloat(d[0].lat), lon: parseFloat(d[0].lon) };
-      adminGeoCache[query] = result;
-      return result;
-    }
+    if (d && d.length > 0) { const result = { lat: parseFloat(d[0].lat), lon: parseFloat(d[0].lon) }; adminGeoCache[query] = result; return result; }
   } catch(e) {}
   return null;
 }
-
 function renderTerritoryMap(force) {
-  const el = document.getElementById('admin-territory-map');
-  if (!el) return;
-  if (!adminMap) {
-    adminMap = L.map(el, { zoomControl: true, scrollWheelZoom: true }).setView([37.8, -96], 4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors', maxZoom: 18 }).addTo(adminMap);
-  } else if (force) {
-    adminMap.eachLayer(l => { if (l instanceof L.Marker || l instanceof L.Circle || l instanceof L.CircleMarker) adminMap.removeLayer(l); });
-  }
-  plotPartnerTerritories();
-  updateTerritoryList();
+  const el = document.getElementById('admin-territory-map'); if (!el) return;
+  if (!adminMap) { adminMap = L.map(el, { zoomControl: true, scrollWheelZoom: true }).setView([37.8, -96], 4); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors', maxZoom: 18 }).addTo(adminMap); }
+  else if (force) { adminMap.eachLayer(l => { if (l instanceof L.Marker || l instanceof L.Circle || l instanceof L.CircleMarker) adminMap.removeLayer(l); }); }
+  plotPartnerTerritories(); updateTerritoryList();
 }
-
 async function plotPartnerTerritories() { if (!adminMap) return; for (const p of STATE.partners) { await plotPartnerTerritory(p); } }
-
 async function plotPartnerTerritory(p) {
   if (!adminMap) return;
-  const isActive = p.status === 'approved';
-  const color = isActive ? '#10b981' : '#f59e0b';
-  const name = p.full_name || p.contact_name || 'Partner';
-  const tType = p.territory_type;
-  const tName = p.territory_name || 'Territory';
-  if (tType === 'zip' && p.territory_zips) {
-    const zips = Array.isArray(p.territory_zips) ? p.territory_zips : JSON.parse(p.territory_zips || '[]');
-    for (const zip of zips) {
-      const coords = await geocodeAdmin(zip + ', USA');
-      if (coords) { L.circleMarker([coords.lat, coords.lon], { radius: 8, color, fillColor: color, fillOpacity: 0.7, weight: 2 }).addTo(adminMap).bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>ZIP: ' + zip + '<br>Status: ' + p.status); }
-      if (!adminGeoCache[zip + ', USA']) await geocodeThrottle();
-    }
-  } else if (tType === 'city' && p.territory_cities) {
-    const first = p.territory_cities.split(';')[0].trim();
-    const coords = await geocodeAdmin(first);
-    if (coords) { L.marker([coords.lat, coords.lon], { icon: L.divIcon({ className:'', html:'<div style="background:'+color+';width:14px;height:14px;border-radius:50%;border:2px solid white"></div>', iconSize:[14,14] }) }).addTo(adminMap).bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>City: ' + esc(first) + '<br>Status: ' + p.status); }
-    if (!adminGeoCache[first]) await geocodeThrottle();
-  } else if (tType === 'county' && p.territory_counties) {
-    const first = p.territory_counties.split(';')[0].trim();
-    const coords = await geocodeAdmin(first);
-    if (coords) { L.marker([coords.lat, coords.lon]).addTo(adminMap).bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>County: ' + esc(first) + '<br>Status: ' + p.status); }
-    if (!adminGeoCache[first]) await geocodeThrottle();
-  } else if (tType === 'radius' && p.territory_radius_center) {
-    const coords = await geocodeAdmin(p.territory_radius_center);
-    if (coords && p.territory_radius_miles) { L.circle([coords.lat, coords.lon], { radius: p.territory_radius_miles * 1609.34, color, fillColor: color, fillOpacity: 0.15, weight: 2 }).addTo(adminMap).bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>' + p.territory_radius_miles + ' mi radius<br>Status: ' + p.status); }
-    if (!adminGeoCache[p.territory_radius_center]) await geocodeThrottle();
-  }
+  const isActive = p.status === 'approved'; const color = isActive ? '#10b981' : '#f59e0b';
+  const name = p.full_name || p.contact_name || 'Partner'; const tType = p.territory_type; const tName = p.territory_name || 'Territory';
+  if (tType === 'zip' && p.territory_zips) { const zips = Array.isArray(p.territory_zips) ? p.territory_zips : JSON.parse(p.territory_zips || '[]'); for (const zip of zips) { const coords = await geocodeAdmin(zip + ', USA'); if (coords) { L.circleMarker([coords.lat, coords.lon], { radius: 8, color, fillColor: color, fillOpacity: 0.7, weight: 2 }).addTo(adminMap).bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName) + '<br>ZIP: ' + zip); } if (!adminGeoCache[zip + ', USA']) await geocodeThrottle(); } }
+  else if (tType === 'city' && p.territory_cities) { const first = p.territory_cities.split(';')[0].trim(); const coords = await geocodeAdmin(first); if (coords) { L.marker([coords.lat, coords.lon], { icon: L.divIcon({ className:'', html:'<div style="background:'+color+';width:14px;height:14px;border-radius:50%;border:2px solid white"></div>', iconSize:[14,14] }) }).addTo(adminMap).bindPopup('<strong>' + esc(name) + '</strong><br>' + esc(tName)); } if (!adminGeoCache[first]) await geocodeThrottle(); }
+  else if (tType === 'radius' && p.territory_radius_center) { const coords = await geocodeAdmin(p.territory_radius_center); if (coords && p.territory_radius_miles) { L.circle([coords.lat, coords.lon], { radius: p.territory_radius_miles * 1609.34, color, fillColor: color, fillOpacity: 0.15, weight: 2 }).addTo(adminMap).bindPopup('<strong>' + esc(name) + '</strong><br>' + (p.territory_radius_miles) + ' mi radius'); } if (!adminGeoCache[p.territory_radius_center]) await geocodeThrottle(); }
 }
-
-function focusPartnerOnMap(partnerId) { nav('territory-map'); toast('Map opened — locate partner pin', 'info'); }
-
+function focusPartnerOnMap(partnerId) { nav('territory-map'); toast('Map opened', 'info'); }
 function updateTerritoryList() {
-  const el = document.getElementById('territory-claimed-list');
-  if (!el) return;
+  const el = document.getElementById('territory-claimed-list'); if (!el) return;
   if (!STATE.partners.length) { el.innerHTML = '<div class="empty-state"><i class="fa-solid fa-map-pin"></i><p>No territories claimed yet.</p></div>'; return; }
   el.innerHTML = STATE.partners.map(p => {
-    const isActive = p.status === 'approved';
-    const badgeCls = isActive ? 'badge-green' : 'badge-yellow';
-    const tName = p.territory_name || '—';
-    const tType = p.territory_type || '—';
-    const name = p.full_name || p.contact_name || '—';
+    const isActive = p.status === 'approved'; const badgeCls = isActive ? 'badge-green' : 'badge-yellow';
+    const tName = p.territory_name || '—'; const tType = p.territory_type || '—'; const name = p.full_name || p.contact_name || '—';
     let coverage = '—';
     if (tType === 'zip' && p.territory_zips) { const zips = Array.isArray(p.territory_zips) ? p.territory_zips : (JSON.parse(p.territory_zips || '[]')); coverage = zips.length + ' ZIP code(s)'; }
     else if (tType === 'city') coverage = p.territory_cities || '—';
     else if (tType === 'county') coverage = p.territory_counties || '—';
     else if (tType === 'radius') coverage = (p.territory_radius_miles || '?') + ' mi from ' + (p.territory_radius_center || '?');
-    let industries = p.industries || [];
-    if (typeof industries === 'string') { try { industries = JSON.parse(industries); } catch(e) { industries = []; } }
+    let industries = p.industries || []; if (typeof industries === 'string') { try { industries = JSON.parse(industries); } catch(e) { industries = []; } }
     const indCount = Array.isArray(industries) ? industries.length : 0;
-    return '<div class="territory-list-item"><div><div style="font-weight:600;color:var(--text-primary)">' + esc(name) + ' — ' + esc(tName) + '</div><div style="font-size:11px;color:var(--text-dim);margin-top:2px">' + esc(tType) + ' · ' + esc(coverage) + ' · ' + indCount + ' ' + (indCount === 1 ? 'industry' : 'industries') + '</div></div><div style="display:flex;align-items:center;gap:8px"><span class="badge ' + badgeCls + '">' + p.status + '</span><button class="btn btn-ghost btn-xs" onclick="renderPartnerDetail(' + p.id + ')" title="View detail"><i class="fa-solid fa-eye"></i></button><button class="btn btn-ghost btn-xs" onclick="focusPartnerOnMap(' + p.id + ')" title="Map"><i class="fa-solid fa-map-pin"></i></button></div></div>';
+    return '<div class="territory-list-item"><div><div style="font-weight:600;color:var(--text-primary)">' + esc(name) + ' — ' + esc(tName) + '</div><div style="font-size:11px;color:var(--text-dim);margin-top:2px">' + esc(tType) + ' · ' + esc(coverage) + ' · ' + indCount + ' industries</div></div><div style="display:flex;align-items:center;gap:8px"><span class="badge ' + badgeCls + '">' + p.status + '</span><button class="btn btn-ghost btn-xs" onclick="renderPartnerDetail(' + p.id + ')"><i class="fa-solid fa-eye"></i></button></div></div>';
   }).join('');
 }
 
@@ -769,7 +952,7 @@ function renderDashboard() {
   const pending = clients.filter(c=>c.status==='pending').length;
   const mrrVal = clients.reduce((s,c)=>s+(parsePrice(c.plan)||0),0);
   const avg = clients.length ? Math.round(mrrVal/clients.length) : 0;
-  const minime = clients.filter(c=>c.minime_requested).length;
+  const minime = clients.filter(c=>c.wantsMiniMe).length;
   set('kpi-total',clients.length||'—'); set('kpi-mrr',mrrVal?'$'+mrrVal:'—'); set('kpi-live',live||'—'); set('kpi-pending',pending||'—');
   set('kpi-avg',avg?'$'+avg:'—'); set('kpi-active',live||'—'); set('kpi-minime',minime||'0');
   set('dash-timestamp',new Date().toLocaleString());
@@ -792,7 +975,7 @@ function renderRevenueByPlan() {
 }
 
 function renderTopIndustries() {
-  const counts={}; STATE.clients.forEach(c=>{const ind=c.industry||c.business_type||'Unknown';counts[ind]=(counts[ind]||0)+1;});
+  const counts={}; STATE.clients.forEach(c=>{const ind=c.industry||'Unknown';counts[ind]=(counts[ind]||0)+1;});
   const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6); const max=sorted[0]?.[1]||1; let html='';
   sorted.forEach(([ind,n])=>{const w=Math.round(n/max*100);html+=`<div class="progress-wrap"><div class="progress-label"><span>${ind}</span><span>${n}</span></div><div class="progress-bar"><div class="progress-fill pf-blue" style="width:${w}%"></div></div></div>`;});
   set('top-industries',html||'<div class="empty-state"><p>No data yet.</p></div>');
@@ -815,7 +998,6 @@ function chartBase(el,type,data,options={}) {
   const existing=Chart.getChart(canvas); if(existing)existing.destroy();
   return new Chart(canvas,{type,data,options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:options.legend||false,labels:{color:CD.color,font:{family:CD.font,size:11}}}},scales:type==='doughnut'||type==='pie'?{}:{x:{ticks:{color:CD.color,font:{size:10}},grid:{color:CD.grid}},y:{ticks:{color:CD.color,font:{size:10}},grid:{color:CD.grid},beginAtZero:true}},...options}});
 }
-
 function renderGrowthChart(){const months=['Oct','Nov','Dec','Jan','Feb','Mar'];const data=[0,0,0,1,2,STATE.clients.length];chartBase('chart-growth','bar',{labels:months,datasets:[{label:'Clients',data,backgroundColor:'rgba(245,158,11,0.5)',borderColor:'#f59e0b',borderWidth:1,borderRadius:4}]});}
 function renderPlanChart(){const counts={};STATE.clients.forEach(c=>{const p=c.plan||'Unknown';counts[p]=(counts[p]||0)+1;});const labels=Object.keys(counts);const values=Object.values(counts);const colors=['#f59e0b','#10b981','#3b82f6','#8b5cf6','#ef4444'];chartBase('chart-plans','doughnut',{labels,datasets:[{data:values,backgroundColor:colors.slice(0,labels.length),borderColor:'#0c1225',borderWidth:2}]},{legend:true});}
 function renderAnalytics(){const days=Array.from({length:30},(_,i)=>{const d=new Date();d.setDate(d.getDate()-29+i);return d.toLocaleDateString('en',{month:'short',day:'numeric'});});const visits=days.map(()=>Math.floor(Math.random()*50+10));chartBase('chart-traffic','line',{labels:days,datasets:[{label:'Visits',data:visits,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.08)',tension:0.3,fill:true,pointRadius:0}]});chartBase('chart-sources','doughnut',{labels:['Direct','Google','Social','Referral'],datasets:[{data:[40,35,15,10],backgroundColor:['#f59e0b','#10b981','#3b82f6','#8b5cf6'],borderColor:'#0c1225',borderWidth:2}]},{legend:true});chartBase('chart-devices','doughnut',{labels:['Mobile','Desktop','Tablet'],datasets:[{data:[62,32,6],backgroundColor:['#ea580c','#3b82f6','#8b5cf6'],borderColor:'#0c1225',borderWidth:2}]},{legend:true});chartBase('chart-leads','bar',{labels:['Jan','Feb','Mar'],datasets:[{data:[2,5,8],backgroundColor:'rgba(16,185,129,0.5)',borderColor:'#10b981',borderRadius:4}]});set('an-visits','—');set('an-session','—');set('an-leads','—');set('an-pages','—');}
@@ -831,16 +1013,16 @@ function renderClientsTable(){
     const badgeCls=status==='live'||status==='active'?'badge-green':status==='pending'?'badge-yellow':'badge-gray';
     const price=parsePrice(c.plan);
     const onboard=onboardPct(c);
-    return `<tr><td><div class="td-name">${esc(c.business_name||c.businessName||c.data?.businessName||'—')}</div><div style="font-size:11px;color:var(--text-dim)">${esc(c.login_id||c.loginId||c.dashLoginId||'')}</div></td><td>${esc(c.industry||c.business_type||c.data?.industry||c.data?.businessType||'—')}</td><td>${esc(c.plan||c.data?.plan||'—')}</td><td><span class="badge ${badgeCls}">${status}</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress-bar" style="width:80px"><div class="progress-fill pf-amber" style="width:${onboard}%"></div></div><span style="font-size:11px;color:var(--text-dim)">${onboard}%</span></div></td><td style="color:var(--green);font-weight:600">${price?'$'+price+'/mo':'—'}</td><td>${(()=>{const live=c.liveUrl||c.live_url||c.site_url||c.siteUrl;const _cfp=c.cfProjectName||(c.domainStatus&&c.domainStatus.cfProjectName)||'';const cf=_cfp?'https://'+_cfp+'.pages.dev':'';if(live)return `<a href="${live}" target="_blank" style="color:var(--green);font-size:12px;font-weight:600"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live</a>`;if(cf)return `<a href="${cf}" target="_blank" style="color:var(--blue);font-size:12px"><i class="fa-solid fa-eye"></i> Preview</a>`;return '<span style="color:var(--text-dim)">—</span>';})()}</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="openClientDetail('${c.id||c.client_id}')"><i class="fa-solid fa-eye"></i></button><button class="btn btn-success btn-xs" onclick="approveClient('${c.id||c.client_id}')"><i class="fa-solid fa-check"></i></button></div></td></tr>`;
+    return `<tr><td><div class="td-name">${esc(c.businessName||c.business_name||'—')}</div><div style="font-size:11px;color:var(--text-dim)">${esc(c.loginId||c.login_id||'')}</div></td><td>${esc(c.industry||'—')}</td><td>${esc(c.plan||'—')}</td><td><span class="badge ${badgeCls}">${status}</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress-bar" style="width:80px"><div class="progress-fill pf-amber" style="width:${onboard}%"></div></div><span style="font-size:11px;color:var(--text-dim)">${onboard}%</span></div></td><td style="color:var(--green);font-weight:600">${price?'$'+price+'/mo':'—'}</td><td>${(()=>{const live=c.liveUrl||c.live_url||'';const cf=c.domainStatus?.cfProjectName?'https://'+c.domainStatus.cfProjectName+'.pages.dev':'';if(live)return `<a href="${live}" target="_blank" style="color:var(--green);font-size:12px;font-weight:600"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live</a>`;if(cf)return `<a href="${cf}" target="_blank" style="color:var(--blue);font-size:12px"><i class="fa-solid fa-eye"></i> Preview</a>`;return '<span style="color:var(--text-dim)">—</span>';})()}</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="openClientDetail('${c.id||c.client_id}')"><i class="fa-solid fa-eye"></i></button><button class="btn btn-success btn-xs" onclick="approveClient('${c.id||c.client_id}')"><i class="fa-solid fa-check"></i></button></div></td></tr>`;
   }).join('');
 }
 
-function onboardPct(c){const steps=[!!(c.business_name||c.businessName||c.data?.businessName),!!(c.email||c.data?.email),!!(c.plan||c.data?.plan),!!(c.status&&c.status!=='pending'),!!(c.liveUrl||c.live_url||c.site_url||c.siteUrl),!!(c.twilio_number||c.twilioNumber),!!(c.domain||c.data?.domain)];return Math.round(steps.filter(Boolean).length/steps.length*100);}
+function onboardPct(c){const steps=[!!(c.businessName||c.business_name),!!(c.email),!!(c.plan),!!(c.status&&c.status!=='pending'),!!(c.liveUrl||c.live_url),!!(c.twilioNumber),!!(c.domainStatus?.existingDomain||c.domainStatus?.suggestedDomain)];return Math.round(steps.filter(Boolean).length/steps.length*100);}
 
 function buildClientNavList(){
   const container=document.getElementById('client-nav-list');
   let html='<div class="nav-sub-item" onclick="nav(\'clients-all\')"><span class="status-dot dot-gray"></span><span>View All Clients</span></div>';
-  STATE.clients.slice(0,10).forEach(c=>{const name=c.business_name||c.businessName||'Unknown';const status=c.status==='live'||c.status==='active'?'dot-green':c.status==='pending'?'dot-yellow':'dot-gray';html+=`<div class="nav-sub-item" onclick="openClientDetail('${c.id||c.client_id}')"><span class="status-dot ${status}"></span><span>${esc(name.slice(0,22))}</span></div>`;});
+  STATE.clients.slice(0,10).forEach(c=>{const name=c.businessName||c.business_name||'Unknown';const status=c.status==='live'||c.status==='active'?'dot-green':c.status==='pending'?'dot-yellow':'dot-gray';html+=`<div class="nav-sub-item" onclick="openClientDetail('${c.id||c.client_id}')"><span class="status-dot ${status}"></span><span>${esc(name.slice(0,22))}</span></div>`;});
   container.innerHTML=html;
 }
 
@@ -848,61 +1030,66 @@ function openClientDetail(id){
   const client=STATE.clients.find(c=>(c.id||c.client_id)==id);
   if(!client){toast('Client not found','error');return;}
   STATE.activeClient=client;
-  const name=client.business_name||client.businessName||'Unknown';
-  const industry=client.industry||client.business_type||'—';
+  const name=client.businessName||client.business_name||'Unknown';
+  const industry=client.industry||'—';
   const plan=client.plan||'—';
-  const loginId=client.login_id||client.loginId||'—';
+  const loginId=client.loginId||client.login_id||'—';
   set('cd-name',name); set('cd-sub',`${industry} · ${plan} · ${loginId}`);
   const status=client.status||'pending';
   const hb=document.getElementById('cd-health-badge');
   hb.className=`badge ${status==='live'||status==='active'?'badge-green':status==='pending'?'badge-yellow':'badge-red'}`;
   hb.textContent=status==='live'||status==='active'?'● Live':status==='pending'?'● Pending':'● Inactive';
   set('cd-contact',infoBlock([['Business',name],['Email',client.email||'—'],['Phone',client.phone||'—'],['City',client.city||'—'],['State',client.state||'—'],['Login ID',loginId]]));
-  const steps=[{label:'Intake form submitted',done:true},{label:'Plan selected',done:!!client.plan},{label:'Site built & deployed',done:!!(client.liveUrl||client.live_url||client.site_url||client.siteUrl)},{label:'DNS live',done:!!(client.dns_live||client.dnsLive)},{label:'Phone system active',done:!!(client.twilio_number||client.twilioNumber)},{label:'First payment received',done:!!(client.stripe_customer||client.stripeCustomer)},{label:'Blog scheduler active',done:!!(client.blog_active||client.blogActive)}];
+  const steps=[{label:'Intake form submitted',done:true},{label:'Plan selected',done:!!client.plan},{label:'Site built & deployed',done:!!(client.liveUrl||client.live_url)},{label:'DNS live',done:false},{label:'Phone system active',done:!!(client.twilioNumber)},{label:'First payment received',done:!!(client.stripeCustomer)},{label:'Blog scheduler active',done:false}];
   set('cd-onboard',steps.map(s=>`<div class="onboard-step"><div class="step-check ${s.done?'done':'none'}"><i class="fa-solid ${s.done?'fa-check':'fa-minus'}"></i></div><span class="step-label ${s.done?'done':'none'}">${s.label}</span></div>`).join(''));
   set('cd-stats',infoBlock([['Plan',plan],['MRR',parsePrice(plan)?'$'+parsePrice(plan)+'/mo':'—'],['Onboarding',onboardPct(client)+'%'],['Status',status]]));
-  const siteURL = client.liveUrl || client.live_url || client.site_url || client.siteUrl || '';
+  const siteURL = client.liveUrl || client.live_url || '';
   const previewURL = client.previewToken ? (window.location.origin + '/preview/' + client.previewToken) : '';
   const liveBtn = siteURL ? `<a href="${siteURL}" target="_blank" class="btn btn-success btn-sm" style="margin-top:10px"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Live Site</a>` : '';
   const previewBtn = previewURL ? `<a href="${previewURL}" target="_blank" class="btn btn-secondary btn-sm" style="margin-top:10px"><i class="fa-solid fa-eye"></i> Preview Site</a>` : '';
-  const noBtns = !siteURL && !previewURL ? `<div style="margin-top:10px;font-size:12px;color:var(--text-dim)"><i class="fa-solid fa-circle-info"></i> No preview available — no token on record</div>` : '';
-  set('cd-site', infoBlock([['Domain',client.domain||client.data?.domain||'—'],['Site URL',siteURL||'—'],['Preview URL',previewURL||'—'],['Last Deploy',client.last_deploy||client.updatedAt||'—']]) + '<div style="display:flex;gap:8px;flex-wrap:wrap">' + liveBtn + previewBtn + noBtns + '</div>');
-  set('cd-dns',infoBlock([['DNS Status',client.dns_live?'Live':'Pending'],['A Record',client.dns_a||'—'],['CNAME',client.dns_cname||'—']]));
-  set('cd-billing',infoBlock([['Stripe Customer',client.stripe_customer||'—'],['Plan',plan],['Monthly Amount',parsePrice(plan)?'$'+parsePrice(plan):'—'],['Status',client.payment_status||'—']]));
+  set('cd-site', infoBlock([['Domain',client.domainStatus?.existingDomain||'—'],['Site URL',siteURL||'—'],['Preview URL',previewURL||'—'],['CF Project',client.domainStatus?.cfProjectName||'—']]) + '<div style="display:flex;gap:8px;flex-wrap:wrap">' + liveBtn + previewBtn + '</div>');
+  set('cd-dns',infoBlock([['DNS Status','Pending'],['Has Domain',client.domainStatus?.hasDomain||'—'],['Registrar',client.domainStatus?.domainRegistrar||'—']]));
+  set('cd-billing',infoBlock([['Stripe Customer',client.stripeCustomer||'—'],['Plan',plan],['Monthly Amount',parsePrice(plan)?'$'+parsePrice(plan):'—'],['Status',client.paymentStatus||'—']]));
   set('cd-payments','<div class="empty-state"><i class="fa-solid fa-receipt"></i><p>Payment history loads from Stripe.</p></div>');
-  set('cd-phone',infoBlock([['Twilio Number',client.twilio_number||client.twilioNumber||'Not provisioned'],['IVR Active',client.ivr_active?'Yes':'No'],['Call Recording','Enabled'],['Missed Call Text-Back','Enabled']]));
+  set('cd-phone',infoBlock([['Twilio Number',client.twilioNumber||'Not provisioned'],['IVR Active',client.telephonyEnabled?'Yes':'No'],['Call Recording','Enabled'],['Missed Call Text-Back',client.wantsMissedCall||'—']]));
   set('cd-sms','<div class="empty-state"><i class="fa-solid fa-message"></i><p>SMS log loads from Twilio.</p></div>');
-  set('cd-blog',infoBlock([['Blog Plan',client.plan?.includes('Blog')?'Active':'Not included'],['Next Post',client.next_blog||'Thursdays (scheduled)'],['Last Post',client.last_blog||'—'],['Meta Post','Scheduled with blog']]));
+  set('cd-blog',infoBlock([['Blog Plan',plan.includes('Blog')?'Active':'Not included'],['Blog Posts',client.blogPostCount||'0'],['Last Generated',client.blogGeneratedAt||'—']]));
   set('cd-social','<div class="empty-state"><i class="fa-brands fa-meta"></i><p>Social post log loads from Meta API.</p></div>');
   set('cd-activity-log',`<div class="activity-item"><div class="activity-icon ai-green"><i class="fa-solid fa-eye"></i></div><div class="activity-body"><div class="activity-text">Client record opened</div><div class="activity-time">${new Date().toLocaleString()}</div></div></div>`);
+
+  // Reset tabs to first tab
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===0));
   document.querySelectorAll('.tab-panel').forEach((p,i)=>p.classList.toggle('active',i===0));
+
   nav('client-detail'); logAudit('View Client',name);
 }
 
 function infoBlock(rows){return rows.map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(26,40,68,0.4);font-size:13px"><span style="color:var(--text-dim)">${k}</span><span style="color:var(--text-primary);font-weight:500;text-align:right;max-width:60%">${esc(String(v))}</span></div>`).join('');}
-function clientTab(name,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));el.classList.add('active');document.getElementById('ctab-'+name)?.classList.add('active');}
+
+function clientTab(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('ctab-'+name)?.classList.add('active');
+  // Render intake tab on demand
+  if (name === 'intake' && STATE.activeClient) {
+    renderIntakeTab(STATE.activeClient);
+  }
+}
 
 /* ── PENDING & PARTNER TABLES ── */
 function renderPending(){
   const pending=STATE.clients.filter(c=>c.status==='pending');
   const tbody=document.getElementById('pending-table-body');
   if(!pending.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No pending approvals.</p></div></td></tr>';return;}
-  tbody.innerHTML=pending.map(c=>`<tr><td class="td-name">${esc(c.business_name||c.businessName||'—')}</td><td>${esc(c.industry||'—')}</td><td>${esc(c.plan||'—')}</td><td>${c.created_at?new Date(c.created_at).toLocaleDateString():'—'}</td><td style="color:var(--blue)">${esc(c.email||'—')}</td><td><div style="display:flex;gap:6px"><button class="btn btn-success btn-xs" onclick="approveClient('${c.id||c.client_id}')"><i class="fa-solid fa-check"></i> Approve</button><button class="btn btn-ghost btn-xs" onclick="openClientDetail('${c.id||c.client_id}')"><i class="fa-solid fa-eye"></i></button></div></td></tr>`).join('');
+  tbody.innerHTML=pending.map(c=>`<tr><td class="td-name">${esc(c.businessName||c.business_name||'—')}</td><td>${esc(c.industry||'—')}</td><td>${esc(c.plan||'—')}</td><td>${c.createdAt?new Date(c.createdAt).toLocaleDateString():'—'}</td><td style="color:var(--blue)">${esc(c.email||'—')}</td><td><div style="display:flex;gap:6px"><button class="btn btn-success btn-xs" onclick="approveClient('${c.id||c.client_id}')"><i class="fa-solid fa-check"></i> Approve</button><button class="btn btn-ghost btn-xs" onclick="openClientDetail('${c.id||c.client_id}')"><i class="fa-solid fa-eye"></i></button></div></td></tr>`).join('');
 }
 
 function renderPartnersTable(){
   const tbody=document.getElementById('partners-table-body');
   const partners=STATE.partners.filter(p=>p.status==='approved');
-  if(!partners.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-handshake"></i><p>No active partners yet. 10 LOIs sent.</p></div></td></tr>';return;}
-  tbody.innerHTML=partners.map(p=>{
-    const tName=p.territory_name||'—';const tType=p.territory_type||'—';
-    const badgeCls={'zip':'badge-blue','city':'badge-green','county':'badge-amber','radius':'badge-purple'}[tType]||'badge-gray';
-    let coverage='—';
-    if(tType==='zip'&&p.territory_zips){const zips=Array.isArray(p.territory_zips)?p.territory_zips:(JSON.parse(p.territory_zips||'[]'));coverage=zips.length+' ZIPs';}
-    else if(tType==='city')coverage=p.territory_cities||'—';else if(tType==='county')coverage=p.territory_counties||'—';else if(tType==='radius')coverage=(p.territory_radius_miles||'?')+' mi';
-    return `<tr><td class="td-name">${esc(p.full_name||'—')}</td><td><span class="badge badge-amber">${esc(p.tier||'—')}</span></td><td><div style="font-weight:600;color:var(--text-primary)">${esc(tName)}</div><div style="font-size:11px;margin-top:2px;display:flex;gap:4px;align-items:center"><span class="badge ${badgeCls}" style="font-size:9px">${tType}</span><span style="color:var(--text-dim)">${esc(coverage)}</span></div></td><td>${(p.industries||[]).length}</td><td>${p.promo?'80/20 (Promo)':'60/40'}</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-ghost btn-xs" onclick="focusPartnerOnMap(${p.id})"><i class="fa-solid fa-map-pin"></i></button></td></tr>`;
-  }).join('');
+  if(!partners.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-handshake"></i><p>No active partners yet.</p></div></td></tr>';return;}
+  tbody.innerHTML=partners.map(p=>`<tr><td class="td-name">${esc(p.full_name||'—')}</td><td><span class="badge badge-amber">${esc(p.tier||'—')}</span></td><td>${esc(p.territory_name||'—')}</td><td>${(p.industries||[]).length}</td><td>60/40</td><td><span class="badge badge-green">Active</span></td><td><button class="btn btn-ghost btn-xs" onclick="focusPartnerOnMap(${p.id})"><i class="fa-solid fa-map-pin"></i></button></td></tr>`).join('');
 }
 
 function renderPartnerApps(){
@@ -910,81 +1097,61 @@ function renderPartnerApps(){
   const apps=STATE.partners;
   if(!apps.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No applications yet.</p></div></td></tr>';return;}
   tbody.innerHTML=apps.map(p=>{
-    const tName=p.territory_name||'—';const tType=p.territory_type||'—';
-    const typeBadge={'zip':'badge-blue','city':'badge-green','county':'badge-amber','radius':'badge-purple'}[tType]||'badge-gray';
-    let coverage='—';
-    if(tType==='zip'&&p.territory_zips){const zips=Array.isArray(p.territory_zips)?p.territory_zips:(JSON.parse(p.territory_zips||'[]'));coverage=zips.length+' ZIP(s)';}
-    else if(tType==='city')coverage=p.territory_cities||'—';else if(tType==='county')coverage=p.territory_counties||'—';else if(tType==='radius')coverage=(p.territory_radius_miles||'?')+' mi radius';
     const statusBadge=p.status==='approved'?'badge-green':p.status==='rejected'?'badge-red':'badge-yellow';
-    return `<tr><td class="td-name" style="cursor:pointer" onclick="renderPartnerDetail(${p.id})">${esc(p.full_name||p.contact_name||'—')}</td><td>${esc(p.tier||'—')}</td><td><div style="font-weight:600;color:var(--text-primary)">${esc(tName)}</div><div style="font-size:11px;margin-top:2px;display:flex;gap:4px;align-items:center"><span class="badge ${typeBadge}" style="font-size:9px">${tType}</span><span style="color:var(--text-dim)">${esc(coverage)}</span></div></td><td>${(p.industries||[]).length}</td><td>${p.created_at?new Date(p.created_at).toLocaleDateString():'—'}</td><td><span class="badge ${statusBadge}">${p.status}</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="renderPartnerDetail(${p.id})"><i class="fa-solid fa-eye"></i></button><button class="btn btn-success btn-xs" onclick="approvePartner(${p.id})"><i class="fa-solid fa-check"></i></button><button class="btn btn-danger btn-xs" onclick="rejectPartner(${p.id})"><i class="fa-solid fa-times"></i></button><button class="btn btn-ghost btn-xs" onclick="focusPartnerOnMap(${p.id})"><i class="fa-solid fa-map-pin"></i></button></div></td></tr>`;
+    return `<tr><td class="td-name" style="cursor:pointer" onclick="renderPartnerDetail(${p.id})">${esc(p.full_name||p.contact_name||'—')}</td><td>${esc(p.tier||'—')}</td><td>${esc(p.territory_name||'—')}</td><td>${(p.industries||[]).length}</td><td>${p.created_at?new Date(p.created_at).toLocaleDateString():'—'}</td><td><span class="badge ${statusBadge}">${p.status}</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="renderPartnerDetail(${p.id})"><i class="fa-solid fa-eye"></i></button><button class="btn btn-success btn-xs" onclick="approvePartner(${p.id})"><i class="fa-solid fa-check"></i></button><button class="btn btn-danger btn-xs" onclick="rejectPartner(${p.id})"><i class="fa-solid fa-times"></i></button></div></td></tr>`;
   }).join('');
 }
 
 /* ── PARTNER DETAIL ── */
 let activePartnerId = null;
-
 function renderPartnerDetail(id) {
-  const p = STATE.partners.find(x => x.id == id);
-  if (!p) { toast('Application not found', 'error'); return; }
+  const p = STATE.partners.find(x => x.id == id); if (!p) { toast('Not found', 'error'); return; }
   activePartnerId = id;
   const name = p.full_name || p.contact_name || '—';
-  const tier = p.tier || '—';
-  const submitted = p.created_at ? new Date(p.created_at).toLocaleDateString() : '—';
-  set('pd-name', name);
-  set('pd-sub', tier.charAt(0).toUpperCase() + tier.slice(1) + ' Tier · Submitted ' + submitted);
+  set('pd-name', name); set('pd-sub', (p.tier||'—') + ' · Submitted ' + (p.created_at?new Date(p.created_at).toLocaleDateString():'—'));
   const badge = document.getElementById('pd-status-badge');
   const statusMap = { approved:['badge-green','● Approved'], rejected:['badge-red','● Rejected'], pending:['badge-yellow','● Pending'] };
   const [cls, label] = statusMap[p.status] || ['badge-gray', p.status];
   badge.className = 'badge ' + cls; badge.textContent = label;
-  const approveBtn = document.getElementById('pd-approve-btn');
-  const rejectBtn  = document.getElementById('pd-reject-btn');
-  if (p.status === 'approved') { approveBtn.style.display = 'none'; set('pd-decision-note', 'This application has been approved.'); }
-  else if (p.status === 'rejected') { rejectBtn.style.display = 'none'; set('pd-decision-note', 'This application has been rejected.'); }
-  else { approveBtn.style.display = ''; rejectBtn.style.display = ''; set('pd-decision-note', ''); }
-  set('pd-contact', infoBlock([['Full Name',name],['Email',p.email||'—'],['Phone',p.phone||'—'],['Company',p.company_name||'—'],['Applied',submitted]]));
-  const tType = p.territory_type || '—'; const tName = p.territory_name || '—';
-  let coverage = '—';
+  document.getElementById('pd-approve-btn').style.display = p.status==='approved'?'none':'';
+  document.getElementById('pd-reject-btn').style.display = p.status==='rejected'?'none':'';
+  set('pd-contact', infoBlock([['Full Name',name],['Email',p.email||'—'],['Phone',p.phone||'—'],['Company',p.company_name||'—']]));
+  const tType = p.territory_type || '—'; let coverage = '—';
   if (tType === 'zip' && p.territory_zips) { const zips = Array.isArray(p.territory_zips) ? p.territory_zips : (JSON.parse(p.territory_zips || '[]')); coverage = zips.join(', ') || '—'; }
   else if (tType === 'city') coverage = p.territory_cities || '—';
   else if (tType === 'county') coverage = p.territory_counties || '—';
-  else if (tType === 'radius') coverage = (p.territory_radius_miles || '?') + ' mile radius from ' + (p.territory_radius_center || '?');
-  set('pd-territory', infoBlock([['Territory Name',tName],['Territory Type',tType],['Coverage',coverage],['Notes',p.territory_notes||'—']]));
+  else if (tType === 'radius') coverage = (p.territory_radius_miles||'?') + ' mile radius from ' + (p.territory_radius_center||'?');
+  set('pd-territory', infoBlock([['Territory Name',p.territory_name||'—'],['Type',tType],['Coverage',coverage]]));
   const tierPrices = { starter:'$99/mo + $99 setup', professional:'$199/mo + $199 setup', enterprise:'$199/mo + $299 setup', unlimited:'$199/mo + $499 setup' };
-  set('pd-partnership', infoBlock([['Tier',tier.charAt(0).toUpperCase()+tier.slice(1)],['Pricing',tierPrices[tier]||'—'],['Revenue Split','60/40 (Partner keeps 60%)'],['Status',p.status||'pending']]));
-  let industries = p.industries || [];
-  if (typeof industries === 'string') { try { industries = JSON.parse(industries); } catch(e) { industries = []; } }
-  if (!Array.isArray(industries)) industries = [];
-  set('pd-industries', industries.length === 0 ? '<div class="empty-state" style="padding:20px"><p>No industries selected.</p></div>' : '<div style="display:flex;flex-wrap:wrap;gap:6px;padding:4px 0">' + industries.map(i => '<span class="badge badge-blue" style="font-size:11px">' + esc(i) + '</span>').join('') + '</div><div style="font-size:11px;color:var(--text-dim);margin-top:8px">' + industries.length + ' industries selected</div>');
-  set('pd-background', p.business_description ? '<p style="font-size:13px;color:var(--text-secondary);line-height:1.7">' + esc(p.business_description) + '</p>' : '<div class="empty-state" style="padding:20px"><p>No background provided.</p></div>');
-  logAudit('View Partner Application', name);
+  set('pd-partnership', infoBlock([['Tier',p.tier||'—'],['Pricing',tierPrices[p.tier]||'—'],['Revenue Split','60/40']]));
+  let industries = p.industries || []; if (typeof industries === 'string') { try { industries = JSON.parse(industries); } catch(e) { industries = []; } }
+  set('pd-industries', industries.length ? '<div style="display:flex;flex-wrap:wrap;gap:6px">' + industries.map(i=>'<span class="badge badge-blue">'+esc(i)+'</span>').join('') + '</div>' : '<div class="empty-state" style="padding:20px"><p>No industries selected.</p></div>');
+  set('pd-background', p.business_description ? '<p style="font-size:13px;color:var(--text-secondary);line-height:1.7">'+esc(p.business_description)+'</p>' : '<div class="empty-state" style="padding:20px"><p>No background provided.</p></div>');
   nav('partner-detail');
 }
-
 function approvePartnerFromDetail() { if (activePartnerId) approvePartner(activePartnerId, true); }
 function rejectPartnerFromDetail() { if (activePartnerId) rejectPartner(activePartnerId, true); }
 function focusPartnerOnMapFromDetail() { if (activePartnerId) focusPartnerOnMap(activePartnerId); }
 
 async function approvePartner(id, fromDetail) {
-  if (!confirm('Approve this Territory Partner application?')) return;
+  if (!confirm('Approve this Territory Partner?')) return;
   const r = await API.post('/api/territory-partner/approve/' + id, {});
-  if (r && r.success) { toast('Partner approved','success'); addActivity('check','ai-green','<strong>Territory Partner approved</strong>'); logAudit('Approve Territory Partner','ID '+id); await loadAllData(); if(fromDetail)renderPartnerDetail(id); else renderPartnerApps(); }
-  else { toast('Approval failed — check Railway logs','error'); }
+  if (r && r.success) { toast('Partner approved','success'); logAudit('Approve Partner','ID '+id); await loadAllData(); if(fromDetail)renderPartnerDetail(id); else renderPartnerApps(); }
+  else { toast('Approval failed','error'); }
 }
-
 async function rejectPartner(id, fromDetail) {
   if (!confirm('Reject this application?')) return;
   const r = await API.post('/api/territory-partner/reject/' + id, {});
-  if (r && r.success) { toast('Application rejected','info'); addActivity('times','ai-red','<strong>Territory Partner rejected</strong>'); logAudit('Reject Territory Partner','ID '+id); await loadAllData(); if(fromDetail)renderPartnerDetail(id); else renderPartnerApps(); }
-  else { toast('Rejection failed — check Railway logs','error'); }
+  if (r && r.success) { toast('Application rejected','info'); logAudit('Reject Partner','ID '+id); await loadAllData(); if(fromDetail)renderPartnerDetail(id); else renderPartnerApps(); }
+  else { toast('Rejection failed','error'); }
 }
 
 /* ── ACTIVITY LOG & NOTIFICATIONS ── */
 const ACTIVITY_LOG=[];
 function addActivity(icon,cls,text){ACTIVITY_LOG.unshift({icon,cls,text,time:new Date().toLocaleString()});if(ACTIVITY_LOG.length>100)ACTIVITY_LOG.pop();}
 function renderActivityLog(){const el=document.getElementById('activity-log-list');if(!ACTIVITY_LOG.length){el.innerHTML='<div class="empty-state"><i class="fa-solid fa-list"></i><p>No activity recorded yet.</p></div>';return;}el.innerHTML=ACTIVITY_LOG.map(e=>`<div class="activity-item"><div class="activity-icon ${e.cls}"><i class="fa-solid ${e.icon}"></i></div><div class="activity-body"><div class="activity-text">${e.text}</div><div class="activity-time">${e.time}</div></div></div>`).join('');}
-function renderNotifications(){const el=document.getElementById('notif-list');if(!STATE.notifications.length){el.innerHTML='<div class="empty-state"><i class="fa-solid fa-bell-slash"></i><p>No notifications.</p></div>';return;}el.innerHTML=STATE.notifications.map(n=>`<div class="notif-item ${n.read?'':'unread'}" onclick="markRead('${n.id}')"><div class="notif-icon ${n.cls}"><i class="fa-solid ${n.icon}"></i></div><div class="notif-body"><div class="notif-text">${n.text}</div><div class="notif-time">${n.time}</div></div></div>`).join('');}
+function renderNotifications(){const el=document.getElementById('notif-list');if(!STATE.notifications.length){el.innerHTML='<div class="empty-state"><i class="fa-solid fa-bell-slash"></i><p>No notifications.</p></div>';return;}el.innerHTML=STATE.notifications.map(n=>`<div class="notif-item ${n.read?'':'unread'}"><div class="notif-icon ${n.cls}"><i class="fa-solid ${n.icon}"></i></div><div class="notif-body"><div class="notif-text">${n.text}</div><div class="notif-time">${n.time}</div></div></div>`).join('');}
 function addNotification(icon,cls,text){const n={id:Date.now(),icon,cls,text,time:new Date().toLocaleString(),read:false};STATE.notifications.unshift(n);const unread=STATE.notifications.filter(x=>!x.read).length;const badge=document.getElementById('topbar-notif-badge');badge.textContent=unread;badge.style.display=unread?'flex':'none';set('badge-notif',unread);}
-function markRead(id){const n=STATE.notifications.find(x=>x.id==id);if(n)n.read=true;renderNotifications();}
 function markAllRead(){STATE.notifications.forEach(n=>n.read=true);document.getElementById('topbar-notif-badge').style.display='none';set('badge-notif',0);renderNotifications();toast('All notifications marked read','success');}
 
 /* ── BACKLOG ── */
@@ -995,7 +1162,7 @@ function renderBacklog(){
   function renderItems(items,elId){const el=document.getElementById(elId);if(!items.length){el.innerHTML='<div style="padding:12px;color:var(--text-dim);font-size:12px;text-align:center">Empty</div>';return;}el.innerHTML=items.map(item=>`<div class="straggler-item" onclick="cycleBacklog(${item.id})"><i class="fa-solid fa-circle" style="color:${priColor[item.priority]||'var(--text-dim)'};font-size:8px"></i><span class="straggler-label ${item.status==='done'?'done':''}">${esc(item.label)}</span><span class="badge badge-gray" style="font-size:10px">${item.priority}</span></div>`).join('');}
   renderItems(todo,'bl-todo');renderItems(prog,'bl-prog');renderItems(done,'bl-done');
 }
-function cycleBacklog(id){const item=STATE.backlogItems.find(i=>i.id===id);if(!item)return;const cycle={todo:'prog',prog:'done',done:'todo'};item.status=cycle[item.status];renderBacklog();toast(`Moved to ${item.status}`,'success');}
+function cycleBacklog(id){const item=STATE.backlogItems.find(i=>i.id===id);if(!item)return;const cycle={todo:'prog',prog:'done',done:'todo'};item.status=cycle[item.status];renderBacklog();toast('Moved to '+item.status,'success');}
 
 /* ── HEALTH ── */
 async function checkHealth(){
@@ -1004,73 +1171,45 @@ async function checkHealth(){
   list.innerHTML=services.map((s,i)=>`<div class="health-row" id="hr-${i}"><div class="health-name">${s}</div><div class="health-status hs-unkn" id="hs-${i}">Checking...</div><div class="health-latency" id="hl-${i}">—</div></div>`).join('');
   const start=Date.now();const health=await API.get('/health');const latency=Date.now()-start;
   if(health){document.getElementById('hs-5').className='health-status hs-ok';document.getElementById('hs-5').textContent='OK';document.getElementById('hl-5').textContent=latency+'ms';document.getElementById('hs-6').className='health-status hs-ok';document.getElementById('hs-6').textContent='OK';document.getElementById('hl-6').textContent=latency+'ms';}
-  [0,1,2,3,4].forEach(i=>{document.getElementById('hs-'+i).className='health-status hs-warn';document.getElementById('hs-'+i).textContent='See Railway logs';document.getElementById('hl-'+i).textContent='—';});
+  [0,1,2,3,4].forEach(i=>{document.getElementById('hs-'+i).className='health-status hs-warn';document.getElementById('hs-'+i).textContent='See Railway logs';});
   const days=Array.from({length:30},(_,i)=>{const d=new Date();d.setDate(d.getDate()-29+i);return d.toLocaleDateString('en',{month:'short',day:'numeric'});});
   chartBase('chart-uptime','bar',{labels:days,datasets:[{label:'Uptime %',data:days.map(()=>99+Math.random()),backgroundColor:'rgba(16,185,129,0.4)',borderColor:'#10b981',borderRadius:2}]});
 }
 
 /* ── ACTIONS ── */
-async function approveClient(id){if(!confirm('Approve this client and trigger site build?'))return;const r=await API.post('/api/admin/approve',{clientId:id,key:STATE.adminKey});if(r){toast('Client approved','success');addActivity('check','ai-green','Client approved and site build triggered');logAudit('Approve Client',id);await loadAllData();renderClientsTable();}else{toast('Approval failed — check Railway logs','error');}}
+async function approveClient(id){if(!confirm('Approve this client and trigger site build?'))return;const r=await API.post('/api/admin/approve',{clientId:id,key:STATE.adminKey});if(r){toast('Client approved','success');addActivity('check','ai-green','Client approved');logAudit('Approve Client',id);await loadAllData();renderClientsTable();}else{toast('Approval failed','error');}}
 
 function viewClientSite(type) {
-  const client = STATE.activeClient;
-  if (!client) { toast('No client selected', 'error'); return; }
-  if (type === 'live') {
-    const liveUrl = client.liveUrl || client.live_url || '';
-    if (liveUrl) { window.open(liveUrl, '_blank', 'noopener,noreferrer'); logAudit('View Live Site', client.businessName || client.id); }
-    else { toast('No live URL on record — site has not been deployed yet', 'error'); }
-  } else {
-    const token = client.previewToken;
-    if (token) { window.open(window.location.origin + '/preview/' + token, '_blank', 'noopener,noreferrer'); logAudit('View Preview', client.businessName || client.id); }
-    else { toast('No preview token on record for this client', 'error'); }
-  }
+  const client = STATE.activeClient; if (!client) { toast('No client selected', 'error'); return; }
+  if (type === 'live') { const liveUrl = client.liveUrl || client.live_url || ''; if (liveUrl) { window.open(liveUrl, '_blank', 'noopener,noreferrer'); } else { toast('No live URL on record', 'error'); } }
+  else { const token = client.previewToken; if (token) { window.open(window.location.origin + '/preview/' + token, '_blank', 'noopener,noreferrer'); } else { toast('No preview token on record', 'error'); } }
 }
 
-/* ── QUICK ACTIONS — DELETE AND SUSPEND FULLY WIRED ── */
 async function quickAction(action){
-  const client=STATE.activeClient;
-  if(!client&&!['broadcast'].includes(action))return;
-  const id=client?.id||client?.client_id;
-  const name=client?.business_name||client?.businessName||id;
-
-  if(action==='delete'){
-    if(!confirm('PERMANENTLY DELETE '+name+'? This cannot be undone.'))return;
-    const r=await API.post('/api/admin/delete-client',{clientId:id});
-    if(r&&r.success){toast(name+' deleted','success');addActivity('trash','ai-red','<strong>Client deleted:</strong> '+name);logAudit('Delete Client',name);STATE.activeClient=null;await loadAllData();nav('clients-all');}
-    else{toast('Delete failed — check Railway logs','error');}
-    return;
-  }
-
-  if(action==='suspend'){
-    if(!confirm('Suspend '+name+'? Their site will show an offline page.'))return;
-    const r=await API.post('/api/admin/set-status',{clientId:id,newStatus:'suspended'});
-    if(r&&r.success){toast(name+' suspended','info');addActivity('pause','ai-red','<strong>Client suspended:</strong> '+name);logAudit('Suspend Client',name);await loadAllData();}
-    else{toast('Suspend failed — check Railway logs','error');}
-    return;
-  }
-
+  const client=STATE.activeClient; if(!client&&!['broadcast'].includes(action))return;
+  const id=client?.id||client?.client_id; const name=client?.businessName||client?.business_name||id;
+  if(action==='delete'){if(!confirm('PERMANENTLY DELETE '+name+'?'))return;const r=await API.post('/api/admin/delete-client',{clientId:id});if(r&&r.success){toast(name+' deleted','success');logAudit('Delete Client',name);STATE.activeClient=null;await loadAllData();nav('clients-all');}else{toast('Delete failed','error');}return;}
+  if(action==='suspend'){if(!confirm('Suspend '+name+'?'))return;const r=await API.post('/api/admin/set-status',{clientId:id,newStatus:'suspended'});if(r&&r.success){toast(name+' suspended','info');logAudit('Suspend Client',name);await loadAllData();}else{toast('Suspend failed','error');}return;}
   const endpoints={welcome:'/api/admin/resend-welcome',deploy:'/api/admin/deploy',approve:'/api/admin/approve',preview:'/api/admin/send-preview'};
-  if(endpoints[action]){const r=await API.post(endpoints[action],{clientId:id,key:STATE.adminKey});toast(r?`${action} action sent`:`${action} failed — check logs`,r?'success':'error');}
-  else{toast(`${action} — connect to backend API`,'info');}
-  addActivity('bolt','ai-amber',`Quick action: <strong>${action}</strong>`);
+  if(endpoints[action]){const r=await API.post(endpoints[action],{clientId:id,key:STATE.adminKey});toast(r?action+' sent':action+' failed',r?'success':'error');}
+  else{toast(action+' — connect to backend','info');}
   logAudit('Quick Action: '+action,name);
 }
 
-async function sendBroadcast(){const audience=document.getElementById('bc-audience').value;const subject=document.getElementById('bc-subject').value;const body=document.getElementById('bc-body').value;if(!subject||!body){toast('Subject and message required','error');return;}toast(`Broadcast queued for ${audience}`,'success');addActivity('bullhorn','ai-amber',`<strong>Broadcast sent</strong> to ${audience}: "${subject}"`);logAudit('Broadcast',`${audience} — ${subject}`);}
+async function sendBroadcast(){const audience=document.getElementById('bc-audience').value;const subject=document.getElementById('bc-subject').value;const body=document.getElementById('bc-body').value;if(!subject||!body){toast('Subject and message required','error');return;}toast('Broadcast queued for '+audience,'success');logAudit('Broadcast',audience+' — '+subject);}
 async function changeCredentials(){const current=document.getElementById('cred-current').value;const newKey=document.getElementById('cred-new').value;const confirm2=document.getElementById('cred-confirm').value;if(!current||!newKey||!confirm2){toast('All fields required','error');return;}if(newKey!==confirm2){toast('New keys do not match','error');return;}if(newKey.length<12){toast('Key must be at least 12 characters','error');return;}if(current!==STATE.adminKey){toast('Current key is incorrect','error');return;}toast('Key updated. Update ADMIN_KEY in Railway to make permanent.','info');STATE.adminKey=newKey;logAudit('Change Admin Key','Credentials updated');['cred-current','cred-new','cred-confirm'].forEach(id=>{document.getElementById(id).value='';});}
 
 /* ── INTERNATIONAL ── */
 const INTL_DATA={mx:{flag:'🇲🇽',name:'Mexico',phase:'Phase 1',launch:'2026',currency:'MXN (~18:1)',language:'Spanish',price:'$75–90/mo',tam:'~2.5M SMEs',barriers:'LOW',stripe:'Yes'},ph:{flag:'🇵🇭',name:'Philippines',phase:'Phase 1',launch:'2026',currency:'PHP (~57:1)',language:'English (official)',price:'$35–50/mo',tam:'~1M SMEs',barriers:'LOW',stripe:'Yes'},br:{flag:'🇧🇷',name:'Brazil',phase:'Phase 2',launch:'2027',currency:'BRL (~5.5:1)',language:'Portuguese',price:'$60–75/mo',tam:'~6M SMEs',barriers:'MEDIUM',stripe:'Yes'},co:{flag:'🇨🇴',name:'Colombia',phase:'Phase 2',launch:'2027',currency:'COP (~4,200:1)',language:'Spanish',price:'$50–65/mo',tam:'~1.2M SMEs',barriers:'LOW-MED',stripe:'Yes'},id:{flag:'🇮🇩',name:'Indonesia',phase:'Phase 3',launch:'2028',currency:'IDR (~15,800:1)',language:'Bahasa Indonesia',price:'$25–40/mo',tam:'~65M SMEs',barriers:'MEDIUM',stripe:'Yes'},vn:{flag:'🇻🇳',name:'Vietnam',phase:'Phase 3',launch:'2028',currency:'VND (~25,000:1)',language:'Vietnamese',price:'$30–45/mo',tam:'~600K SMEs',barriers:'MED-HIGH',stripe:'Yes'},my:{flag:'🇲🇾',name:'Malaysia',phase:'Phase 3',launch:'2028',currency:'MYR (~4.7:1)',language:'English / Malay',price:'$45–65/mo',tam:'~900K SMEs',barriers:'LOW-MED',stripe:'Yes'},in:{flag:'🇮🇳',name:'India',phase:'Phase 4',launch:'2029+',currency:'INR (~84:1)',language:'English / Hindi',price:'$20–35/mo',tam:'~63M SMEs',barriers:'MEDIUM',stripe:'Yes'},th:{flag:'🇹🇭',name:'Thailand',phase:'Phase 4',launch:'2029+',currency:'THB (~35:1)',language:'Thai',price:'$30–45/mo',tam:'~3M SMEs',barriers:'MEDIUM',stripe:'Yes'}};
-
-function renderIntlPanel(panelId){const code=panelId.replace('intl-','');const d=INTL_DATA[code];if(!d)return;const el=document.getElementById('intl-content-'+code);if(!el||el.dataset.rendered)return;el.dataset.rendered='1';const checklist=[{label:'Market research complete',done:true},{label:'Stripe Connect available',done:d.stripe==='Yes'},{label:'Language localization',done:d.language.includes('English')},{label:'Legal entity established',done:false},{label:'Territory Partner recruited',done:false},{label:'First client onboarded',done:false}];el.innerHTML=`<div class="g3"><div class="stat-card sc-blue"><div class="stat-label">Launch Target</div><div class="stat-val sv-blue" style="font-size:28px">${d.launch}</div><div class="stat-change">${d.phase}</div></div><div class="stat-card sc-amber"><div class="stat-label">Price Range</div><div class="stat-val sv-amber" style="font-size:22px">${d.price}</div><div class="stat-change">vs US $99/mo</div></div><div class="stat-card sc-green"><div class="stat-label">Total Addressable Market</div><div class="stat-val sv-green" style="font-size:22px">${d.tam}</div></div></div><div class="g2"><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-circle-info"></i> Market Profile</div></div>${infoBlock([['Currency',d.currency],['Language',d.language],['Entry Barriers',d.barriers],['Stripe Connect',d.stripe],['Phase',d.phase],['Launch Target',d.launch]])}</div><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-list-check"></i> Launch Checklist</div></div>${checklist.map(s=>`<div class="onboard-step"><div class="step-check ${s.done?'done':'none'}"><i class="fa-solid ${s.done?'fa-check':'fa-minus'}"></i></div><span class="step-label ${s.done?'done':'none'}">${s.label}</span></div>`).join('')}</div></div>`;}
+function renderIntlPanel(panelId){const code=panelId.replace('intl-','');const d=INTL_DATA[code];if(!d)return;const el=document.getElementById('intl-content-'+code);if(!el||el.dataset.rendered)return;el.dataset.rendered='1';const checklist=[{label:'Market research complete',done:true},{label:'Stripe Connect available',done:d.stripe==='Yes'},{label:'Language localization',done:d.language.includes('English')},{label:'Legal entity established',done:false},{label:'Territory Partner recruited',done:false},{label:'First client onboarded',done:false}];el.innerHTML=`<div class="g3"><div class="stat-card sc-blue"><div class="stat-label">Launch Target</div><div class="stat-val sv-blue" style="font-size:28px">${d.launch}</div><div class="stat-change">${d.phase}</div></div><div class="stat-card sc-amber"><div class="stat-label">Price Range</div><div class="stat-val sv-amber" style="font-size:22px">${d.price}</div></div><div class="stat-card sc-green"><div class="stat-label">Total Addressable Market</div><div class="stat-val sv-green" style="font-size:22px">${d.tam}</div></div></div><div class="g2"><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-circle-info"></i> Market Profile</div></div>${infoBlock([['Currency',d.currency],['Language',d.language],['Entry Barriers',d.barriers],['Stripe Connect',d.stripe],['Phase',d.phase]])}</div><div class="card"><div class="card-hdr"><div class="card-title"><i class="fa-solid fa-list-check"></i> Launch Checklist</div></div>${checklist.map(s=>`<div class="onboard-step"><div class="step-check ${s.done?'done':'none'}"><i class="fa-solid ${s.done?'fa-check':'fa-minus'}"></i></div><span class="step-label ${s.done?'done':'none'}">${s.label}</span></div>`).join('')}</div></div>`;}
 
 /* ── MODALS ── */
 function openModal(id){
   const overlay=document.getElementById('modal-overlay');const content=document.getElementById('modal-content');
-  const modals={'modal-approve':`<div class="modal-title">Approve New Client</div><p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px">Manually approve a client intake submission and trigger site build.</p><div class="form-group"><label class="form-label">Client ID or Business Name</label><input class="form-input" id="modal-client-id" placeholder="Client ID"></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="approveClient(document.getElementById('modal-client-id').value);closeModal()">Approve</button></div>`,'modal-add-backlog':`<div class="modal-title">Add Backlog Item</div><div class="form-group"><label class="form-label">Item Description</label><input class="form-input" id="bl-new-label" placeholder="Describe the task"></div><div class="form-group"><label class="form-label">Priority</label><select class="form-input form-select" id="bl-new-priority"><option value="high">High</option><option value="med">Medium</option><option value="low">Low</option></select></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="addBacklogItem()">Add Item</button></div>`};
-  content.innerHTML=modals[id]||'<div class="modal-title">Modal</div>';overlay.classList.add('open');
+  const modals={'modal-approve':`<div class="modal-title">Approve New Client</div><div class="form-group"><label class="form-label">Client ID</label><input class="form-input" id="modal-client-id" placeholder="Client ID"></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="approveClient(document.getElementById('modal-client-id').value);closeModal()">Approve</button></div>`,'modal-add-backlog':`<div class="modal-title">Add Backlog Item</div><div class="form-group"><label class="form-label">Item Description</label><input class="form-input" id="bl-new-label" placeholder="Describe the task"></div><div class="form-group"><label class="form-label">Priority</label><select class="form-input form-select" id="bl-new-priority"><option value="high">High</option><option value="med">Medium</option><option value="low">Low</option></select></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="addBacklogItem()">Add Item</button></div>`};
+  content.innerHTML=modals[id]||'';overlay.classList.add('open');
 }
-function addBacklogItem(){const label=document.getElementById('bl-new-label')?.value;const priority=document.getElementById('bl-new-priority')?.value;if(!label){toast('Description required','error');return;}STATE.backlogItems.unshift({id:Date.now(),label,status:'todo',priority});renderBacklog();closeModal();toast('Item added to backlog','success');}
+function addBacklogItem(){const label=document.getElementById('bl-new-label')?.value;const priority=document.getElementById('bl-new-priority')?.value;if(!label){toast('Description required','error');return;}STATE.backlogItems.unshift({id:Date.now(),label,status:'todo',priority});renderBacklog();closeModal();toast('Item added','success');}
 function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
 function closeModalOnBg(e){if(e.target.id==='modal-overlay')closeModal();}
 
@@ -1079,8 +1218,8 @@ function logAudit(action,target){const entry={ts:new Date().toLocaleString(),act
 
 /* ── SESSION TIMER ── */
 let sessionInterval;
-function startSessionTimer(){sessionInterval=setInterval(()=>{STATE.sessionRemaining--;const m=Math.floor(STATE.sessionRemaining/60);const s=STATE.sessionRemaining%60;const el=document.getElementById('session-clock');el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;if(STATE.sessionRemaining<=300)el.classList.add('warning');if(STATE.sessionRemaining<=0){clearInterval(sessionInterval);toast('Session expired — refreshing','error');setTimeout(()=>location.href=location.pathname,2000);}},1000);}
-function updateSessionTimeout(minutes){STATE.sessionMinutes=parseInt(minutes);STATE.sessionRemaining=STATE.sessionMinutes*60;clearInterval(sessionInterval);startSessionTimer();toast(`Session timeout set to ${minutes} minutes`,'success');}
+function startSessionTimer(){sessionInterval=setInterval(()=>{STATE.sessionRemaining--;const m=Math.floor(STATE.sessionRemaining/60);const s=STATE.sessionRemaining%60;const el=document.getElementById('session-clock');el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;if(STATE.sessionRemaining<=300)el.classList.add('warning');if(STATE.sessionRemaining<=0){clearInterval(sessionInterval);toast('Session expired','error');setTimeout(()=>location.href=location.pathname,2000);}},1000);}
+function updateSessionTimeout(minutes){STATE.sessionMinutes=parseInt(minutes);STATE.sessionRemaining=STATE.sessionMinutes*60;clearInterval(sessionInterval);startSessionTimer();toast('Session timeout set to '+minutes+' minutes','success');}
 ['click','keydown','mousemove'].forEach(evt=>{document.addEventListener(evt,()=>{STATE.sessionRemaining=STATE.sessionMinutes*60;document.getElementById('session-clock')?.classList.remove('warning');},{passive:true});});
 
 /* ── UTILITIES ── */
@@ -1089,10 +1228,10 @@ function pct(id,val,max){const el=document.getElementById(id);if(el)el.style.wid
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function toast(msg,type='info'){const c=document.getElementById('toast-container');const t=document.createElement('div');t.className=`toast ${type}`;const icons={success:'fa-circle-check',error:'fa-circle-xmark',info:'fa-circle-info'};t.innerHTML=`<i class="fa-solid ${icons[type]||icons.info}" style="color:${type==='success'?'var(--green)':type==='error'?'var(--red)':'var(--blue)'}"></i>${esc(msg)}`;c.appendChild(t);setTimeout(()=>t.remove(),3500);}
 
-async function refreshAll(){toast('Refreshing data...','info');await loadAllData();if(currentPanel==='dashboard')renderDashboard();else if(currentPanel==='clients-all')renderClientsTable();else if(currentPanel==='pending')renderPending();else if(currentPanel==='partners-all')renderPartnersTable();else if(currentPanel==='partner-applications')renderPartnerApps();else if(currentPanel==='territory-map'){renderTerritoryMap(true);}toast('Data refreshed','success');}
+async function refreshAll(){toast('Refreshing...','info');await loadAllData();if(currentPanel==='dashboard')renderDashboard();else if(currentPanel==='clients-all')renderClientsTable();else if(currentPanel==='pending')renderPending();else if(currentPanel==='partners-all')renderPartnersTable();else if(currentPanel==='partner-applications')renderPartnerApps();else if(currentPanel==='territory-map')renderTerritoryMap(true);toast('Refreshed','success');}
 
 /* ── INIT ── */
-async function init(){if(!STATE.adminKey)return;startSessionTimer();await loadAllData();renderDashboard();addNotification('star','ai-amber','<strong>TurnkeyAI Command Center v2</strong> loaded. Welcome back.');setInterval(async()=>{await loadAllData();if(currentPanel==='dashboard')renderDashboard();},5*60*1000);}
+async function init(){if(!STATE.adminKey)return;startSessionTimer();await loadAllData();renderDashboard();addNotification('star','ai-amber','<strong>TurnkeyAI Command Center</strong> loaded. Intake Data tab now available on all client records.');setInterval(async()=>{await loadAllData();if(currentPanel==='dashboard')renderDashboard();},5*60*1000);}
 init();
 </script>
 </body>
