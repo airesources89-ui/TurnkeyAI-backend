@@ -738,7 +738,7 @@ const INTAKE_FIELDS = [
 ];
 
 function renderIntakeTab(client) {
-  const data = client.data || {};
+  const data = client.intakeData || client.data || {};
   const grid = document.getElementById('intake-data-grid');
   if (!grid) return;
 
@@ -833,8 +833,8 @@ async function saveIntakeField(key, clientId) {
   if (r && r.success) {
     // Update in-memory client
     const client = STATE.clients.find(c => (c.id || c.client_id) == clientId);
-    if (client && client.data) client.data[key] = newVal;
-    if (STATE.activeClient && STATE.activeClient.data) STATE.activeClient.data[key] = newVal;
+    if (client) { if (client.intakeData) client.intakeData[key] = newVal; if (client.data) client.data[key] = newVal; }
+    if (STATE.activeClient) { if (STATE.activeClient.intakeData) STATE.activeClient.intakeData[key] = newVal; if (STATE.activeClient.data) STATE.activeClient.data[key] = newVal; }
 
     // Update display
     cancelIntakeEdit(key, newVal);
