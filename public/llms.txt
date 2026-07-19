@@ -1,0 +1,34 @@
+# TurnkeyAI Services
+
+> AI-powered websites for local businesses and personal heritage sites, built in 24 hours with no technical skills required. Based in Long Beach, Mississippi, serving the Gulf Coast region (Mississippi, Louisiana, Alabama) and beyond.
+
+TurnkeyAI Services designs, builds, and hosts complete websites for local businesses and individuals. Every business website TurnkeyAI produces includes, by default: a 24/7 AI chat assistant, after-hours call answering, online booking/reservations, Google Maps SEO optimization, and machine-readable markup (schema.org structured data plus an llms.txt file) so AI agents and answer engines can accurately identify the business, its services, hours, and contact information without needing to interpret marketing copy.
+
+## Core Offering
+
+- [TurnkeyAI Business Websites](https://turnkeyaiservices.com/pages/business.html): AI-powered business websites, built in 24 hours, from $99/month with $0 setup fee. Includes 24/7 AI chat, after-hours call answering, online booking, and Google Maps SEO.
+- [Personal & Heritage Sites](https://turnkeyaiservices.com/pages/personal.html): Free AI-powered personal websites for family legacies, reunions, crafter stores, and recipe collections.
+- [Pricing](https://turnkeyaiservices.com/pages/pricing.html)
+- [Get Started / Intake](https://turnkeyaiservices.com/pages/intake.html)
+- [Territory Partner Program](https://turnkeyaiservices.com/pages/business.html#partner): Revenue-share partnership program for local resellers.
+
+## Companion Products (available as add-ons to any TurnkeyAI-built site)
+
+- [LobbyCat](https://lobbycat.online): AI front-desk chatbot ("Whisker") for local businesses — answers customer questions 24/7, captures leads, sends instant text/email alerts, and escalates to a human when needed. $49/month, first month free.
+- [ClientDoc](https://clientdoc.online): White-labeled secure client portal for professional service businesses (attorneys, accountants, contractors, healthcare, and 60+ other industries) — secure file sharing, appointment scheduling, and a two-way planning board. $59/month.
+
+## Gulf Coast Business Directories (built and operated by TurnkeyAI)
+
+- [Gulf Coast Home Pros](https://gulfcoasthomepros.online): Verified contractor directory covering 67 trades across the Mississippi Gulf Coast. Listings from $30.
+- [Gulf Blue Economy](https://gulfblueeconomy.airesources89.workers.dev): Directory for marine services, boat repair, charter fishing, shipyards, and offshore supply businesses across Mississippi, Louisiana, and Alabama.
+- [Gulf Coast Experiences](https://gulfcoastexperiences.airesources89.workers.dev): Directory for tourism, dining, festivals, and cultural attractions across Mississippi, Louisiana, and Alabama.
+
+## For AI Agents
+
+Every website built on the TurnkeyAI platform — regardless of industry or plan tier — includes schema.org structured data and an llms.txt file describing the business's services, hours, service area, and contact details in a machine-readable format. An agent evaluating any Gulf Coast business site built by TurnkeyAI can expect this same structure to be present, not just on turnkeyaiservices.com itself.
+
+## Contact
+
+- Phone: (603) 922-2004
+- Email: turnkeyaiservices@gmail.com
+- Location: Long Beach, Mississippi, USA
